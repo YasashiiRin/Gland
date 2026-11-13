@@ -29,4 +29,5 @@ export const TOOL_ENERGY_COST: Partial<Record<ItemId, number>> = {
   pickaxe: 3,
   scythe: 1,
   fishing_rod: 3,
+  sword: 1,
 };

@@ -9,6 +9,12 @@ export function createInitialEnergy(): EnergyState {
   return { current: DEFAULT_MAX_ENERGY, max: DEFAULT_MAX_ENERGY };
 }
 
+/** Player combat health (in the mines) reuses the same {current,max} shape. */
+export const DEFAULT_MAX_HEALTH = 100;
+export function createInitialHealth(): EnergyState {
+  return { current: DEFAULT_MAX_HEALTH, max: DEFAULT_MAX_HEALTH };
+}
+
 /** Energy never goes below 0; exceeding 0 just means "exhausted", handled by the caller. */
 export function consume(state: EnergyState, amount: number): EnergyState {
   return { ...state, current: Math.max(0, state.current - amount) };

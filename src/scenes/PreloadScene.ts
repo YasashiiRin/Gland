@@ -31,6 +31,7 @@ export class PreloadScene extends Phaser.Scene {
 
     this.load.setPath('assets');
     this.load.image(TILESET_TEXTURE, 'tilesets/farm_tiles.png');
+    this.load.image('mine_tiles', 'tilesets/mine_tiles.png');
     this.load.spritesheet(PLAYER_TEXTURE, 'sprites/player.png', {
       frameWidth: PLAYER_FRAME.width,
       frameHeight: PLAYER_FRAME.height,

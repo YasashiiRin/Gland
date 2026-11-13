@@ -1,6 +1,6 @@
 import type { ItemId } from '../data/items';
 import type { MapKey } from '../data/maps';
-import { createInitialEnergy, type EnergyState } from '../systems/EnergySystem';
+import { createInitialEnergy, createInitialHealth, type EnergyState } from '../systems/EnergySystem';
 import type { FarmPlots } from '../systems/FarmingSystem';
 import { createEmptyInventory, type InventoryState } from '../systems/InventorySystem';
 import type { PlacedObjects } from '../systems/PlacedObjectSystem';
@@ -33,9 +33,12 @@ export interface GameState {
   /** Chests, scarecrows and sprinklers the player has placed, keyed by "mapKey:x,y". */
   placedObjects: PlacedObjects;
   relationships: Relationships;
+  playerHealth: EnergyState;
+  /** Deepest mine floor reached so far (persisted across visits). */
+  deepestFloor: number;
 }
 
-export const STATE_VERSION = 8;
+export const STATE_VERSION = 9;
 
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
@@ -43,6 +46,7 @@ const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'axe', quantity: 1 },
   { itemId: 'pickaxe', quantity: 1 },
   { itemId: 'scythe', quantity: 1 },
+  { itemId: 'sword', quantity: 1 },
   { itemId: 'parsnip_seeds', quantity: 15 },
   { itemId: 'potato_seeds', quantity: 10 },
   { itemId: 'cauliflower_seeds', quantity: 5 },
@@ -71,6 +75,8 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     resourceNodes: {},
     placedObjects: {},
     relationships: {},
+    playerHealth: createInitialHealth(),
+    deepestFloor: 0,
   };
 }
 

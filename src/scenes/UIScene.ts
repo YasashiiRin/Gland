@@ -75,6 +75,7 @@ export class UIScene extends Phaser.Scene {
     this.hud = new Hud(this);
     this.hud.setTime(gameState.time);
     this.hud.setEnergy(gameState.energy);
+    this.hud.setHealth(gameState.playerHealth);
     this.hud.setMoney(gameState.money);
     this.updateNightOverlay();
 
@@ -210,6 +211,7 @@ export class UIScene extends Phaser.Scene {
 
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
     this.hud.setEnergy(gameState.energy);
+    this.hud.setHealth(gameState.playerHealth);
     this.hud.setMoney(gameState.money);
 
     if (uiState.fishingOpen && this.fishingState && this.fishingFishId) {

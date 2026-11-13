@@ -36,6 +36,25 @@ function seedPacket(tieColor: number): Draw {
   };
 }
 
+function oreIcon(speckColor: number): Draw {
+  return (g) => {
+    g.fillStyle(0x7a7a84, 1);
+    g.fillTriangle(3, 11, 8, 3, 13, 11);
+    g.fillTriangle(3, 11, 13, 11, 8, 14);
+    g.lineStyle(1, INK, 1);
+    g.strokeTriangle(3, 11, 8, 3, 13, 11);
+    g.strokeTriangle(3, 11, 13, 11, 8, 14);
+    g.fillStyle(speckColor, 1);
+    for (const [x, y] of [
+      [6, 8],
+      [9, 6],
+      [8, 11],
+    ]) {
+      g.fillCircle(x, y, 1.2);
+    }
+  };
+}
+
 const ICONS: Record<ItemId, Draw> = {
   hoe: tool(0x9a9aa2, (g) => {
     g.fillStyle(0x9a9aa2, 1);
@@ -49,6 +68,17 @@ const ICONS: Record<ItemId, Draw> = {
     g.lineStyle(1, INK, 1);
     g.strokeTriangle(9, 2, 15, 5, 9, 8);
   }),
+  sword: tool(0xcfd8dc, (g) => {
+    g.fillStyle(0xcfd8dc, 1);
+    g.fillRect(9, 1, 3, 9);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(9, 1, 3, 9);
+    g.fillStyle(0xd9a441, 1);
+    g.fillRect(7, 9, 7, 2);
+  }),
+  copper_ore: oreIcon(0xd98a52),
+  iron_ore: oreIcon(0xb7a890),
+  gold_ore: oreIcon(0xe8c030),
   watering_can: (g) => {
     g.fillStyle(0x6ea8c9, 1);
     g.fillRoundedRect(3, 6, 8, 7, 2);

@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import { TILE } from '../config/constants';
+import { FADE_MS, TILE } from '../config/constants';
+import type { MineSceneData } from './MineScene';
+import { timeControl } from '../state/timeControl';
 import { TILE_GID, TILLABLE_GIDS } from '../config/tileGids';
 import { cropForSeed } from '../data/crops';
 import { ITEMS, type ItemId } from '../data/items';
@@ -38,6 +40,7 @@ const DRY_SOIL_TINT = 0xffffff;
 export class FarmScene extends MapScene {
   private cropSprites = new Map<string, Phaser.GameObjects.Image>();
   private binZones: Phaser.GameObjects.Zone[] = [];
+  private mineZones: Phaser.GameObjects.Zone[] = [];
   private furnitureSprites = new Map<string, Phaser.GameObjects.Image>();
 
   constructor() {
@@ -54,6 +57,7 @@ export class FarmScene extends MapScene {
 
   protected override afterMapBuilt(): void {
     this.binZones = this.createZonesNamed('shipping_bin');
+    this.mineZones = this.createZonesNamed('mine_entrance');
     const binObj = this.map.getObjectLayer('objects')?.objects.find((o) => o.name === 'shipping_bin');
     if (binObj) {
       this.add
@@ -162,6 +166,17 @@ export class FarmScene extends MapScene {
     if (!placed || placed.kind !== 'chest') return false;
     const payload: ChestOpenRequestedPayload = { chestKey: key };
     EventBus.emit(GameEvents.ChestOpenRequested, payload);
+    return true;
+  }
+
+  protected override tryEnterMine(): boolean {
+    if (!this.isNearAnyZone(this.mineZones)) return false;
+    timeControl.paused = true;
+    this.player.halt();
+    this.cameras.main.fadeOut(FADE_MS, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('Mine', { depth: 1 } satisfies MineSceneData);
+    });
     return true;
   }
 

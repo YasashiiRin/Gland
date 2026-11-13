@@ -24,6 +24,7 @@ const ENERGY_BAR_W = 150;
 export class Hud {
   private readonly location: Phaser.GameObjects.Text;
   private readonly energyFill: Phaser.GameObjects.Rectangle;
+  private readonly healthFill: Phaser.GameObjects.Rectangle;
   private readonly energyLabel: Phaser.GameObjects.Text;
   private readonly moneyText: Phaser.GameObjects.Text;
   private readonly clock: Phaser.GameObjects.Text;
@@ -32,7 +33,7 @@ export class Hud {
   constructor(scene: Phaser.Scene) {
     // --- Status panel (top-left): location / energy / money, one box. ---
     scene.add
-      .rectangle(PANEL_X, PANEL_Y, PANEL_W, 104, 0x2a2420, 0.88)
+      .rectangle(PANEL_X, PANEL_Y, PANEL_W, 128, 0x2a2420, 0.88)
       .setOrigin(0, 0)
       .setStrokeStyle(2, 0xc9a66b);
 
@@ -49,7 +50,14 @@ export class Hud {
       .text(PANEL_X + pad + ENERGY_BAR_W / 2, barY + 8, '', { ...TEXT_STYLE, fontSize: '11px' })
       .setOrigin(0.5);
 
-    this.moneyText = scene.add.text(PANEL_X + pad, PANEL_Y + 72, '', { ...TEXT_STYLE, fontSize: '18px', color: '#ffe9a8' });
+    const healthBarY = PANEL_Y + 72;
+    scene.add
+      .rectangle(PANEL_X + pad, healthBarY, ENERGY_BAR_W, 14, 0x1c1814, 0.9)
+      .setOrigin(0, 0)
+      .setStrokeStyle(1, 0x6b5a46);
+    this.healthFill = scene.add.rectangle(PANEL_X + pad + 2, healthBarY + 2, ENERGY_BAR_W - 4, 10, 0xe06a5a).setOrigin(0, 0);
+
+    this.moneyText = scene.add.text(PANEL_X + pad, PANEL_Y + 96, '', { ...TEXT_STYLE, fontSize: '18px', color: '#ffe9a8' });
 
     // --- Clock panel (top-right): time, weather, date — one box. ---
     const { width } = scene.scale;
@@ -85,6 +93,11 @@ export class Hud {
     this.energyFill.width = Math.max(0, (ENERGY_BAR_W - 4) * ratio);
     this.energyFill.setFillStyle(ratio > 0.3 ? 0x6fcf6f : 0xe06a5a);
     this.energyLabel.setText(`${Math.round(energy.current)}/${energy.max}`);
+  }
+
+  setHealth(health: EnergyState): void {
+    const ratio = health.max > 0 ? health.current / health.max : 0;
+    this.healthFill.width = Math.max(0, (ENERGY_BAR_W - 4) * ratio);
   }
 
   setMoney(amount: number): void {

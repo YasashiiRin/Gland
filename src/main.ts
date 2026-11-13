@@ -3,6 +3,7 @@ import { GAME_HEIGHT, GAME_WIDTH } from './config/constants';
 import { BootScene } from './scenes/BootScene';
 import { FarmScene } from './scenes/FarmScene';
 import { HouseScene } from './scenes/HouseScene';
+import { MineScene } from './scenes/MineScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { TitleScene } from './scenes/TitleScene';
 import { TownScene } from './scenes/TownScene';
@@ -28,7 +29,7 @@ const game = new Phaser.Game({
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   // UI must come last so it draws on top of the map scenes.
-  scene: [BootScene, TitleScene, PreloadScene, FarmScene, HouseScene, TownScene, UIScene],
+  scene: [BootScene, TitleScene, PreloadScene, FarmScene, HouseScene, TownScene, MineScene, UIScene],
 });
 
 // Safety-net autosave: catches anything since the last day-start save if the

@@ -165,7 +165,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.readHotbarSelection();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
-      if (!this.tryHarvestFacingTile() && !this.tryOpenChest() && !this.tryTalkToNpc()) {
+      if (!this.tryHarvestFacingTile() && !this.tryOpenChest() && !this.tryTalkToNpc() && !this.tryEnterMine()) {
         if (this.isNearBed()) this.sleepSequence('manual');
         else if (!this.tryOpenShop()) this.tryUseShippingBin();
       }
@@ -219,6 +219,9 @@ export abstract class MapScene extends Phaser.Scene {
   protected tryTalkToNpc(): boolean {
     return false;
   }
+  protected tryEnterMine(): boolean {
+    return false;
+  }
 
   private findSpawn(id: string): { x: number; y: number } {
     const objects = this.map.getObjectLayer('objects')?.objects ?? [];
@@ -264,12 +267,22 @@ export abstract class MapScene extends Phaser.Scene {
     return zones.some((zone) => Phaser.Geom.Rectangle.Overlaps(zone.getBounds(), playerRect));
   }
 
-  /** Finds zones by object name in the "objects" layer, same pattern as beds/doors. */
-  protected createZonesNamed(name: string): Phaser.GameObjects.Zone[] {
+  /**
+   * Finds zones by object name in the "objects" layer, same pattern as
+   * beds/doors. Padded a few pixels beyond the tile itself so standing right
+   * next to a solid interactable (a rock, a chest) reliably counts as "near"
+   * even though Arcade collision can rest the player flush against its edge
+   * with zero true overlap.
+   */
+  protected createZonesNamed(name: string, pad = 4): Phaser.GameObjects.Zone[] {
     const objects = this.map.getObjectLayer('objects')?.objects ?? [];
     return objects
       .filter((o) => o.name === name)
-      .map((o) => this.add.zone(o.x ?? 0, o.y ?? 0, o.width ?? 16, o.height ?? 16).setOrigin(0, 0));
+      .map((o) =>
+        this.add
+          .zone((o.x ?? 0) - pad, (o.y ?? 0) - pad, (o.width ?? 16) + pad * 2, (o.height ?? 16) + pad * 2)
+          .setOrigin(0, 0),
+      );
   }
 
   private goTo(target: MapKey, spawn: string): void {

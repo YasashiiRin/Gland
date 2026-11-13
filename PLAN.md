@@ -1,6 +1,11 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–10 đã xong (v0.10.0). Bước tiếp theo: Phase 11 (hầm mỏ và chiến đấu).
+> **Trạng thái:** Phase 0–11 đã xong (v0.11.0). Bước tiếp theo: Phase 12 (vật nuôi).
+>
+> Ghi chú Phase 11: `MineSystem` + `CombatSystem` (logic thuần, có test). `MineScene` là scene riêng, **không** kế thừa
+> `MapScene` (hầm mỏ không dùng Tiled, không có cửa/giường/NPC) — tilemap dựng trực tiếp từ mảng số qua
+> `this.make.tilemap({data,...})`. Thời gian dừng hoàn toàn khi ở trong hầm mỏ (`timeControl.paused=true`).</br>
+> Thêm vật phẩm kiếm + 3 loại quặng, icon riêng cho từng loại.
 >
 > Ghi chú Phase 10: `FishingSystem` (logic thuần, có test) mô phỏng vật lý thanh/vùng cá; UI ở `ui/FishingMinigame.ts`,
 > điều khiển qua một phím Space riêng trong `UIScene` (giữ=kéo lên, thả=rơi xuống do trọng lực).
