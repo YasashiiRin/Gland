@@ -9,4 +9,8 @@ export class TownScene extends MapScene {
   protected override defaultFacing(): Direction {
     return 'right';
   }
+
+  protected override get isOutdoor(): boolean {
+    return true;
+  }
 }

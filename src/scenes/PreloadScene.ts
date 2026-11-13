@@ -6,6 +6,7 @@ import { DIRECTIONS } from '../systems/movement';
 import { gameState } from '../state/GameState';
 
 export const TILESET_TEXTURE = 'farm_tiles';
+export const RAIN_TEXTURE = 'rain_drop';
 
 export function mapCacheKey(file: string): string {
   return `map-${file}`;
@@ -33,8 +34,17 @@ export class PreloadScene extends Phaser.Scene {
 
   create(): void {
     this.createPlayerAnimations();
+    this.createRainTexture();
     this.scene.launch('UI');
     this.scene.start(gameState.currentMap, { spawn: gameState.spawnId });
+  }
+
+  private createRainTexture(): void {
+    const g = this.add.graphics();
+    g.fillStyle(0xcfe3f5, 1);
+    g.fillRect(0, 0, 2, 10);
+    g.generateTexture(RAIN_TEXTURE, 2, 10);
+    g.destroy();
   }
 
   private drawProgressBar(): void {

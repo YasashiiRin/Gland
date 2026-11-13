@@ -1,4 +1,5 @@
 import type { MapKey } from '../data/maps';
+import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
 /**
  * Single source of truth for everything that will be saved.
@@ -8,12 +9,13 @@ export interface GameState {
   version: number;
   currentMap: MapKey;
   spawnId: string;
+  time: TimeState;
 }
 
-export const STATE_VERSION = 1;
+export const STATE_VERSION = 2;
 
 export function createInitialState(): GameState {
-  return { version: STATE_VERSION, currentMap: 'House', spawnId: 'default' };
+  return { version: STATE_VERSION, currentMap: 'House', spawnId: 'default', time: createInitialTime() };
 }
 
 /** Shared in-memory state for this session. SaveService will persist it in Phase 5. */

@@ -445,6 +445,7 @@ def build_house() -> MapBuilder:
     m.put(8, 3, TABLE); m.put(9, 3, TABLE)
     m.fill_ground(5, 5, 7, 7, RUG)
     m.door(6, 9, 1, 1, "Farm", "fromHouse")
+    m.obj("bed", 1 * T, 2 * T, 2 * T, 2 * T)
     m.spawn("fromFarm", 6, 8)
     m.spawn("default", 3, 4)
     return m

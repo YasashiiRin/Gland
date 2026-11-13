@@ -9,4 +9,8 @@ export class FarmScene extends MapScene {
   protected override defaultFacing(spawn?: string): Direction {
     return spawn === 'fromTown' ? 'left' : 'down';
   }
+
+  protected override get isOutdoor(): boolean {
+    return true;
+  }
 }

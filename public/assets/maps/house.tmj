@@ -10,7 +10,7 @@
  "tileheight": 16,
  "infinite": false,
  "nextlayerid": 5,
- "nextobjectid": 4,
+ "nextobjectid": 5,
  "layers": [
   {
    "id": 1,
@@ -446,6 +446,17 @@
     },
     {
      "id": 2,
+     "name": "bed",
+     "type": "",
+     "x": 16,
+     "y": 32,
+     "width": 32,
+     "height": 32,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 3,
      "name": "spawn_fromFarm",
      "type": "",
      "x": 104.0,
@@ -457,7 +468,7 @@
      "point": true
     },
     {
-     "id": 3,
+     "id": 4,
      "name": "spawn_default",
      "type": "",
      "x": 56.0,

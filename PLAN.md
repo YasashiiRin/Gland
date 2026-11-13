@@ -1,6 +1,10 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0 và Phase 1 đã xong (v0.1.0). Bước tiếp theo: Phase 2.
+> **Trạng thái:** Phase 0, 1, 2 đã xong (v0.2.0). Bước tiếp theo: Phase 3 (túi đồ, công cụ, năng lượng).
+>
+> Ghi chú Phase 2: đồng hồ chạy trong `UIScene` (10 phút game ≈ 7 giây thực, xem `src/config/time.ts`).
+> Ngủ bằng cách lại gần giường trong nhà rồi bấm **E**; thức quá 2:00 sẽ tự ngất và bị đưa về giường.
+> Thời tiết random mỗi ngày mới theo mùa (`rollWeather`); mưa chỉ hiện hiệu ứng ở bản đồ ngoài trời (`isOutdoor`).
 >
 > Ghi chú kỹ thuật đã có: bản đồ tạo bởi `scripts/gen_placeholders.py` (Tiled JSON, layer `ground`/`decor`/`above`/`objects`).
 > Cửa là object tên `door` với thuộc tính `to` (tên map) và `spawn`; điểm xuất hiện là object tên `spawn_<id>`.
@@ -63,8 +67,8 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - Thời tiết ngẫu nhiên theo mùa, hiệu ứng mưa.
 
 **Tiêu chí hoàn thành:**
-- [ ] Đồng hồ chạy, đổi ngày/mùa đúng (28 ngày/mùa).
-- [ ] Có test cho TimeSystem.
+- [x] Đồng hồ chạy, đổi ngày/mùa đúng (28 ngày/mùa).
+- [x] Có test cho TimeSystem.
 
 ### Phase 3 – Túi đồ, công cụ và năng lượng
 - Dữ liệu `items.json`. `InventorySystem`: thêm, bớt, xếp chồng, đổi chỗ.

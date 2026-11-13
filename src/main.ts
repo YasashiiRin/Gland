@@ -6,6 +6,7 @@ import { HouseScene } from './scenes/HouseScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { TownScene } from './scenes/TownScene';
 import { UIScene } from './scenes/UIScene';
+import { gameState } from './state/GameState';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -31,6 +32,9 @@ declare global {
   interface Window {
     /** Exposed for debugging in the browser console (e.g. window.game.scene.getScenes(true)). */
     game?: Phaser.Game;
+    /** Exposed for debugging only; the saved game never reads this directly. */
+    gameState?: typeof gameState;
   }
 }
 window.game = game;
+window.gameState = gameState;

@@ -2,10 +2,17 @@ import Phaser from 'phaser';
 import { DEPTH_ABOVE, FADE_MS, WORLD_ZOOM } from '../config/constants';
 import { isMapKey, MAPS, type MapKey } from '../data/maps';
 import { Player, type PlayerInput } from '../entities/Player';
-import { EventBus, GameEvents, type MapEnteredPayload } from '../events/EventBus';
+import {
+  EventBus,
+  GameEvents,
+  type DayStartedPayload,
+  type MapEnteredPayload,
+} from '../events/EventBus';
 import { gameState } from '../state/GameState';
+import { timeControl } from '../state/timeControl';
 import type { Direction } from '../systems/movement';
-import { mapCacheKey, TILESET_TEXTURE } from './PreloadScene';
+import { startNewDay } from '../systems/TimeSystem';
+import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE } from './PreloadScene';
 
 export interface MapSceneData {
   spawn?: string;
@@ -18,24 +25,36 @@ interface Door {
   spawn: string;
 }
 
-type Keys = Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'shift', Phaser.Input.Keyboard.Key>;
+type Keys = Record<
+  'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'shift' | 'interact',
+  Phaser.Input.Keyboard.Key
+>;
 
 /**
  * Shared logic for every walkable map: loads the Tiled map, places the player
- * at a spawn point, handles collisions, camera and doors to other maps.
+ * at a spawn point, handles collisions, camera, doors to other maps, sleeping
+ * in bed (or passing out at 2 AM), and rain for outdoor maps.
  */
 export abstract class MapScene extends Phaser.Scene {
   protected player!: Player;
   protected map!: Phaser.Tilemaps.Tilemap;
   private keys!: Keys;
   private transitioning = false;
+  private bedZones: Phaser.GameObjects.Zone[] = [];
+  private rain?: Phaser.GameObjects.Particles.ParticleEmitter;
 
   constructor(readonly mapKey: MapKey) {
     super(mapKey);
   }
 
+  /** Outdoor maps show rain; indoor maps never do. Override in Farm/Town. */
+  protected get isOutdoor(): boolean {
+    return false;
+  }
+
   create(data: MapSceneData): void {
     this.transitioning = false;
+    timeControl.paused = false;
     const info = MAPS[this.mapKey];
 
     this.map = this.make.tilemap({ key: mapCacheKey(info.file) });
@@ -62,8 +81,14 @@ export abstract class MapScene extends Phaser.Scene {
     this.physics.add.collider(this.player, decor);
 
     this.createDoors();
+    this.createBeds();
     this.setupCamera(w, h);
     this.setupInput();
+    this.setupRain();
+
+    const onPassOut = () => this.sleepSequence('passedOut');
+    EventBus.on(GameEvents.PassOutRequested, onPassOut);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.PassOutRequested, onPassOut));
 
     gameState.currentMap = this.mapKey;
     gameState.spawnId = data.spawn ?? 'default';
@@ -74,6 +99,10 @@ export abstract class MapScene extends Phaser.Scene {
   update(): void {
     if (this.transitioning) return;
     this.player.updateMovement(this.readInput());
+
+    if (Phaser.Input.Keyboard.JustDown(this.keys.interact) && this.isNearBed()) {
+      this.sleepSequence('manual');
+    }
   }
 
   /** Which way the player looks after arriving. Override per map if needed. */
@@ -111,15 +140,57 @@ export abstract class MapScene extends Phaser.Scene {
     }
   }
 
+  private createBeds(): void {
+    const objects = this.map.getObjectLayer('objects')?.objects ?? [];
+    this.bedZones = objects
+      .filter((o) => o.name === 'bed')
+      .map((o) => this.add.zone(o.x ?? 0, o.y ?? 0, o.width ?? 16, o.height ?? 16).setOrigin(0, 0));
+  }
+
+  private isNearBed(): boolean {
+    const b = this.player.body as Phaser.Physics.Arcade.Body;
+    const playerRect = new Phaser.Geom.Rectangle(b.x, b.y, b.width, b.height);
+    return this.bedZones.some((zone) => Phaser.Geom.Rectangle.Overlaps(zone.getBounds(), playerRect));
+  }
+
   private goTo(target: MapKey, spawn: string): void {
     if (this.transitioning) return;
-    this.transitioning = true;
+    this.beginTransition();
     const facing = this.player.direction;
-    this.player.halt();
-    this.cameras.main.fadeOut(FADE_MS, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start(target, { spawn, facing } satisfies MapSceneData);
     });
+  }
+
+  /** Falling asleep in bed, or passing out from staying up past 2 AM. Both end the day. */
+  private sleepSequence(reason: 'manual' | 'passedOut'): void {
+    if (this.transitioning) return;
+    this.beginTransition();
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      const nextTime = startNewDay(gameState.time);
+      gameState.time = nextTime;
+      const payload: DayStartedPayload = {
+        time: nextTime,
+        day: nextTime.day,
+        season: nextTime.season,
+        year: nextTime.year,
+        weather: nextTime.weather,
+      };
+      this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
+      // Emitted after scene.start queues the new scene's create(); UI is a separate
+      // active scene so it still receives this straight away.
+      EventBus.emit(GameEvents.DayStarted, payload);
+      if (reason === 'passedOut') {
+        console.info('Player passed out from staying up too late.');
+      }
+    });
+  }
+
+  private beginTransition(): void {
+    this.transitioning = true;
+    timeControl.paused = true;
+    this.player.halt();
+    this.cameras.main.fadeOut(FADE_MS, 0, 0, 0);
   }
 
   private setupCamera(w: number, h: number): void {
@@ -145,7 +216,7 @@ export abstract class MapScene extends Phaser.Scene {
     const K = Phaser.Input.Keyboard.KeyCodes;
     this.keys = kb.addKeys({
       up: K.UP, down: K.DOWN, left: K.LEFT, right: K.RIGHT,
-      w: K.W, a: K.A, s: K.S, d: K.D, shift: K.SHIFT,
+      w: K.W, a: K.A, s: K.S, d: K.D, shift: K.SHIFT, interact: K.E,
     }) as Keys;
   }
 
@@ -158,6 +229,25 @@ export abstract class MapScene extends Phaser.Scene {
       right: k.right.isDown || k.d.isDown,
       run: k.shift.isDown,
     };
+  }
+
+  private setupRain(): void {
+    if (!this.isOutdoor || gameState.time.weather !== 'rainy') return;
+    const { widthInPixels: w, heightInPixels: h } = this.map;
+    // Spawn drops across the full map width just above the top edge; falling
+    // at this speed they cross the whole map height before their lifespan ends.
+    this.rain = this.add.particles(0, 0, RAIN_TEXTURE, {
+      x: { min: 0, max: w },
+      y: -8,
+      lifespan: (h / 280) * 1000 + 300,
+      speedY: { min: 260, max: 320 },
+      speedX: -40,
+      quantity: 3,
+      frequency: 20,
+      scale: 1,
+      alpha: { start: 0.55, end: 0.35 },
+    });
+    this.rain.setDepth(DEPTH_ABOVE - 2);
   }
 }
 
