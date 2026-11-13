@@ -1,0 +1,42 @@
+{
+  "carp": {
+    "name": "Cá chép nhỏ",
+    "locations": ["Farm", "Town"],
+    "season": ["spring", "summer", "fall", "winter"],
+    "minHour": 6,
+    "maxHour": 26,
+    "weather": "any",
+    "difficulty": 15,
+    "sellPrice": 30
+  },
+  "perch": {
+    "name": "Cá rô",
+    "locations": ["Farm", "Town"],
+    "season": ["spring", "fall"],
+    "minHour": 6,
+    "maxHour": 18,
+    "weather": "any",
+    "difficulty": 35,
+    "sellPrice": 55
+  },
+  "grass_carp": {
+    "name": "Cá trắm",
+    "locations": ["Farm"],
+    "season": ["spring", "summer"],
+    "minHour": 6,
+    "maxHour": 26,
+    "weather": "rainy",
+    "difficulty": 45,
+    "sellPrice": 80
+  },
+  "golden_loach": {
+    "name": "Cá chạch vàng",
+    "locations": ["Town"],
+    "season": ["spring"],
+    "minHour": 20,
+    "maxHour": 26,
+    "weather": "any",
+    "difficulty": 70,
+    "sellPrice": 150
+  }
+}

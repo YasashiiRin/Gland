@@ -1,6 +1,12 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–9 đã xong (v0.9.0). Bước tiếp theo: Phase 10 (câu cá).
+> **Trạng thái:** Phase 0–10 đã xong (v0.10.0). Bước tiếp theo: Phase 11 (hầm mỏ và chiến đấu).
+>
+> Ghi chú Phase 10: `FishingSystem` (logic thuần, có test) mô phỏng vật lý thanh/vùng cá; UI ở `ui/FishingMinigame.ts`,
+> điều khiển qua một phím Space riêng trong `UIScene` (giữ=kéo lên, thả=rơi xuống do trọng lực).
+> Lưu ý quan trọng khi mở rộng công cụ sau này: các map scene con (`FarmScene`...) ghi đè `applyToolEffect`
+> phải luôn gọi `super.applyToolEffect(itemId, tile)` ở nhánh else, nếu không các công cụ xử lý ở lớp cha
+> (rìu/cuốc chim/liềm/cần câu) sẽ âm thầm không hoạt động trên map đó mà không báo lỗi gì.
 >
 > Ghi chú Phase 9: `RelationshipSystem` (logic thuần, có test) quản lý `GameState.relationships`.
 > NPC data ở `data/npcs.json` + `data/dialogues.json`. Ảnh chân dung ghép từ bộ asset người dùng gửi,
@@ -174,8 +180,11 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - **Chưa làm**: menu xem danh sách độ thân thiết tất cả NPC (tim), lời thoại thay đổi theo thời tiết/mùa/độ thân thiết,
   sự kiện sinh nhật đặc biệt, pathfinding mượt — để dành cho bản cập nhật sau.
 
-### Phase 10 – Câu cá
-- Minigame câu cá; dữ liệu `fish.json` (địa điểm, mùa, giờ, thời tiết, độ khó).
+### Phase 10 – Câu cá  ✅ Đã xong
+- Minigame câu cá dạng thanh dọc: vùng cá di chuyển, con mồi điều khiển bằng giữ Space, tiến trình tăng/giảm theo độ trùng khớp.
+- 4 loại cá, chọn theo mùa/giờ/thời tiết/bản đồ (`data/fish.json`, `FishingSystem.pickFish`).
+- Thả cần: dùng cần câu (Space) hướng vào ô nước, tốn năng lượng như công cụ khác dù câu được hay không.
+- Bắt được thì thêm cá vào túi đồ (bán được qua thùng bán); sổng mất thì không có gì, chỉ mất năng lượng.
 
 ### Phase 11 – Hầm mỏ và chiến đấu
 - Tầng mỏ tạo ngẫu nhiên, đá chứa quặng, thang xuống tầng, thang máy mỗi 5 tầng.

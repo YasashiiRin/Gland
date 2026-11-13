@@ -9,4 +9,5 @@ export const uiState = {
   craftingOpen: false,
   chestOpen: false,
   dialogueOpen: false,
+  fishingOpen: false,
 };

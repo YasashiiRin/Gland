@@ -8,8 +8,10 @@ import {
   EventBus,
   GameEvents,
   type DayStartedPayload,
+  type FishingStartedPayload,
   type MapEnteredPayload,
 } from '../events/EventBus';
+import { pickFish } from '../systems/FishingSystem';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
@@ -30,7 +32,7 @@ import {
   type ResourceKind,
 } from '../systems/ResourceSystem';
 import * as SaveService from '../systems/SaveService';
-import { absoluteDayNumber, startNewDay } from '../systems/TimeSystem';
+import { absoluteDayNumber, clockMinuteOfDay, startNewDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE } from './PreloadScene';
 
 /** Money lost when passing out, capped so a bad night never wipes someone out. */
@@ -181,7 +183,26 @@ export abstract class MapScene extends Phaser.Scene {
   /** Extension points for farmable maps (overridden by FarmScene). Harmless no-ops elsewhere. */
   protected afterMapBuilt(): void {}
   protected applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
+    if (itemId === 'fishing_rod') {
+      this.tryStartFishing(tile);
+      return;
+    }
     this.applyGatheringToolEffect(itemId, tile);
+  }
+
+  private tryStartFishing(tile: { x: number; y: number }): void {
+    if (uiState.fishingOpen) return;
+    const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
+    if (gid !== TILE_GID.WATER) return;
+
+    const hour = Math.floor(clockMinuteOfDay(gameState.time) / 60);
+    const fishId = pickFish({ mapKey: this.mapKey, season: gameState.time.season, hour, weather: gameState.time.weather });
+    if (!fishId) {
+      console.info('Không có cá nào cắn câu lúc này.');
+      return;
+    }
+    const payload: FishingStartedPayload = { fishId };
+    EventBus.emit(GameEvents.FishingStarted, payload);
   }
   protected tryPlantFacingTile(_seedItemId: ItemId): void {}
   protected tryHarvestFacingTile(): boolean {

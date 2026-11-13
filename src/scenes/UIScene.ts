@@ -6,12 +6,22 @@ import {
   GameEvents,
   type ChestOpenRequestedPayload,
   type DayStartedPayload,
+  type FishingStartedPayload,
   type MapEnteredPayload,
   type NpcInteractedPayload,
   type ShopOpenRequestedPayload,
 } from '../events/EventBus';
 import { NPCS, isNpcId } from '../data/npcs';
+import { FISH, isFishId } from '../data/fish';
+import type { ItemId } from '../data/items';
+import {
+  createFishingState,
+  fishingOutcome,
+  stepFishing,
+  type FishingState,
+} from '../systems/FishingSystem';
 import { DialogueBox } from '../ui/DialogueBox';
+import { FishingMinigame } from '../ui/FishingMinigame';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
@@ -39,6 +49,10 @@ export class UIScene extends Phaser.Scene {
   private chestMenu!: ChestMenu;
   private openChestKey: string | null = null;
   private dialogueBox!: DialogueBox;
+  private fishingMinigame!: FishingMinigame;
+  private fishingFishId: string | null = null;
+  private fishingState: FishingState | null = null;
+  private fishingKey!: Phaser.Input.Keyboard.Key;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private dayBanner!: Phaser.GameObjects.Text;
   private accumulatorMs = 0;
@@ -113,8 +127,21 @@ export class UIScene extends Phaser.Scene {
     EventBus.on(GameEvents.NpcInteracted, onNpcInteracted);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.NpcInteracted, onNpcInteracted));
 
+    this.fishingMinigame = new FishingMinigame(this, DEPTH_ABOVE + 1);
+    const onFishingStarted = (p: FishingStartedPayload) => {
+      if (!isFishId(p.fishId)) return;
+      this.fishingFishId = p.fishId;
+      this.fishingState = createFishingState(FISH[p.fishId].difficulty);
+      this.fishingMinigame.open();
+      this.fishingMinigame.refresh(this.fishingState);
+      uiState.fishingOpen = true;
+    };
+    EventBus.on(GameEvents.FishingStarted, onFishingStarted);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.FishingStarted, onFishingStarted));
+
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
+    this.fishingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
     const craftingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.C);
     craftingKey.on('down', () => {
@@ -185,13 +212,27 @@ export class UIScene extends Phaser.Scene {
     this.hud.setEnergy(gameState.energy);
     this.hud.setMoney(gameState.money);
 
+    if (uiState.fishingOpen && this.fishingState && this.fishingFishId) {
+      const dt = delta / 1000;
+      this.fishingState = stepFishing(
+        this.fishingState,
+        dt,
+        this.fishingKey.isDown,
+        FISH[this.fishingFishId as keyof typeof FISH].difficulty,
+      );
+      this.fishingMinigame.refresh(this.fishingState);
+      const outcome = fishingOutcome(this.fishingState);
+      if (outcome !== 'ongoing') this.resolveFishing(outcome);
+    }
+
     if (
       timeControl.paused ||
       uiState.inventoryOpen ||
       uiState.shopOpen ||
       uiState.craftingOpen ||
       uiState.chestOpen ||
-      uiState.dialogueOpen
+      uiState.dialogueOpen ||
+      uiState.fishingOpen
     ) {
       return;
     }
@@ -235,6 +276,43 @@ export class UIScene extends Phaser.Scene {
   private closeDialogue(): void {
     this.dialogueBox.close();
     uiState.dialogueOpen = false;
+  }
+
+  private resolveFishing(outcome: 'caught' | 'escaped'): void {
+    const fishId = this.fishingFishId;
+    this.fishingMinigame.close();
+    uiState.fishingOpen = false;
+    this.fishingState = null;
+    this.fishingFishId = null;
+    if (!fishId) return;
+
+    if (outcome === 'caught') {
+      gameState.inventory = addItem(gameState.inventory, fishId as ItemId, 1).state;
+      this.showBanner(`Câu được: ${FISH[fishId as keyof typeof FISH].name}!`, 0x3a5f3a);
+    } else {
+      this.showBanner('Cá đã chạy mất!', 0x5f3a3a);
+    }
+    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
+  }
+
+  private showBanner(text: string, color: number): void {
+    const { width } = this.scale;
+    const bg = this.add.rectangle(width / 2, 140, 10, 36, color, 0.92).setStrokeStyle(2, 0xffffff).setDepth(DEPTH_ABOVE + 2);
+    const label = this.add
+      .text(width / 2, 140, text, { fontFamily: 'sans-serif', fontSize: '16px', color: '#fff6e0' })
+      .setOrigin(0.5)
+      .setDepth(DEPTH_ABOVE + 2);
+    bg.setSize(label.width + 32, 36);
+    this.tweens.add({
+      targets: [bg, label],
+      alpha: 0,
+      delay: 1800,
+      duration: 500,
+      onComplete: () => {
+        bg.destroy();
+        label.destroy();
+      },
+    });
   }
 
   /** Moves the player's currently equipped stack into an empty chest slot. */

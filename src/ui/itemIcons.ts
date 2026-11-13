@@ -226,6 +226,43 @@ const ICONS: Record<ItemId, Draw> = {
       g.fillCircle(8 + dx, 7 + dy, 1);
     }
   },
+  carp: (g) => {
+    g.fillStyle(0x7ca8c9, 1);
+    g.fillEllipse(8, 8, 7, 4);
+    g.fillTriangle(2, 8, 5, 5, 5, 11);
+    g.lineStyle(1, INK, 1);
+    g.strokeEllipse(8, 8, 7, 4);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(11, 7, 0.8);
+  },
+  perch: (g) => {
+    g.fillStyle(0x8fae5a, 1);
+    g.fillEllipse(8, 8, 8, 3.5);
+    g.fillTriangle(1, 8, 4, 5, 4, 11);
+    g.lineStyle(1, INK, 1);
+    g.strokeEllipse(8, 8, 8, 3.5);
+    g.lineStyle(1, 0x5a7a3a, 1);
+    g.lineBetween(5, 6, 5, 10);
+    g.lineBetween(8, 5, 8, 11);
+    g.lineBetween(11, 6, 11, 10);
+  },
+  grass_carp: (g) => {
+    g.fillStyle(0xb0a070, 1);
+    g.fillEllipse(8, 8, 9, 4.5);
+    g.fillTriangle(1, 8, 4, 4, 4, 12);
+    g.lineStyle(1, INK, 1);
+    g.strokeEllipse(8, 8, 9, 4.5);
+  },
+  golden_loach: (g) => {
+    g.lineStyle(2.5, 0xe8c030, 1);
+    g.beginPath();
+    g.arc(8, 8, 6, Phaser.Math.DegToRad(40), Phaser.Math.DegToRad(320), false);
+    g.strokePath();
+    g.lineStyle(1, INK, 1);
+    g.beginPath();
+    g.arc(8, 8, 6, Phaser.Math.DegToRad(40), Phaser.Math.DegToRad(320), false);
+    g.strokePath();
+  },
   stone: (g) => {
     g.fillStyle(0xaaaab2, 1);
     g.fillTriangle(3, 11, 8, 3, 13, 11);

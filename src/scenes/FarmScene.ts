@@ -97,7 +97,7 @@ export class FarmScene extends MapScene {
       gameState.farmPlots = waterPlot(gameState.farmPlots, key);
       this.setSoilTint(tile.x, tile.y, true);
     } else {
-      this.applyGatheringToolEffect(itemId, tile);
+      super.applyToolEffect(itemId, tile);
     }
   }
 

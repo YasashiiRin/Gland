@@ -13,7 +13,12 @@ export const GameEvents = {
   ShopClosedMessage: 'shop:closedMessage',
   ChestOpenRequested: 'chest:openRequested',
   NpcInteracted: 'npc:interacted',
+  FishingStarted: 'fishing:started',
 } as const;
+
+export interface FishingStartedPayload {
+  fishId: string;
+}
 
 export interface NpcInteractedPayload {
   npcId: string;
