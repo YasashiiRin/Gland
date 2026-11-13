@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { ITEMS, type ItemId } from '../data/items';
 import { SHOPS, type ShopId } from '../data/shops';
-import { slotColor, slotLabel } from './itemVisuals';
+import { iconTextureKey } from './itemIcons';
 
 const ROW_HEIGHT = 44;
 
@@ -11,8 +11,7 @@ export class ShopMenu {
   private readonly moneyText: Phaser.GameObjects.Text;
   private readonly titleText: Phaser.GameObjects.Text;
   private readonly rows: {
-    icon: Phaser.GameObjects.Rectangle;
-    label: Phaser.GameObjects.Text;
+    icon: Phaser.GameObjects.Image;
     name: Phaser.GameObjects.Text;
     price: Phaser.GameObjects.Text;
     button: Phaser.GameObjects.Rectangle;
@@ -50,10 +49,7 @@ export class ShopMenu {
 
     for (let i = 0; i < maxRows; i++) {
       const y = top + 70 + i * ROW_HEIGHT;
-      const icon = scene.add.rectangle(cx - panelW / 2 + 32, y, 24, 24, 0x888888);
-      const label = scene.add
-        .text(icon.x, icon.y, '', { fontFamily: 'sans-serif', fontSize: '9px', color: '#fff6e0' })
-        .setOrigin(0.5);
+      const icon = scene.add.image(cx - panelW / 2 + 32, y, iconTextureKey('wood')).setDisplaySize(28, 28);
       const name = scene.add
         .text(cx - panelW / 2 + 56, y, '', { fontFamily: 'sans-serif', fontSize: '14px', color: '#fff6e0' })
         .setOrigin(0, 0.5);
@@ -67,9 +63,9 @@ export class ShopMenu {
       const buttonText = scene.add
         .text(button.x, button.y, 'Mua', { fontFamily: 'sans-serif', fontSize: '13px', color: '#fff6e0' })
         .setOrigin(0.5);
-      const row = { icon, label, name, price, button, buttonText };
+      const row = { icon, name, price, button, buttonText };
       button.on('pointerdown', () => this.handleBuy(i));
-      this.root.add([icon, label, name, price, button, buttonText]);
+      this.root.add([icon, name, price, button, buttonText]);
       this.rows.push(row);
     }
   }
@@ -103,15 +99,14 @@ export class ShopMenu {
     this.rows.forEach((row, i) => {
       const itemId = stock[i];
       if (!itemId) {
-        [row.icon, row.label, row.name, row.price, row.button, row.buttonText].forEach((o) => o.setVisible(false));
+        [row.icon, row.name, row.price, row.button, row.buttonText].forEach((o) => o.setVisible(false));
         return;
       }
       const def = ITEMS[itemId];
       const price = def.sellPrice ?? 0;
       const canAfford = money >= price;
-      [row.icon, row.label, row.name, row.price, row.button, row.buttonText].forEach((o) => o.setVisible(true));
-      row.icon.setFillStyle(slotColor(itemId));
-      row.label.setText(slotLabel(itemId));
+      [row.icon, row.name, row.price, row.button, row.buttonText].forEach((o) => o.setVisible(true));
+      row.icon.setTexture(iconTextureKey(itemId));
       row.name.setText(def.name);
       row.price.setText(`${price.toLocaleString('vi-VN')} ₫`);
       row.button.setFillStyle(canAfford ? 0x3a5f3a : 0x4a3a3a, 0.9);

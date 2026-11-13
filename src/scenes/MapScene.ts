@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { DEPTH_ABOVE, FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
 import { ITEMS, TOOL_ENERGY_COST, type ItemId } from '../data/items';
+import { TILE_GID } from '../config/tileGids';
 import { isMapKey, MAPS, type MapKey } from '../data/maps';
 import { Player, type PlayerInput } from '../entities/Player';
 import {
@@ -14,10 +15,20 @@ import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
 import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/EnergySystem';
 import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
-import { HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
+import { addItem, HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
+import {
+  advanceResourceDay,
+  hitResource,
+  isCleared,
+  resourceKey,
+  rollFiberYield,
+  rollStoneYield,
+  rollWoodYield,
+  type ResourceKind,
+} from '../systems/ResourceSystem';
 import * as SaveService from '../systems/SaveService';
-import { startNewDay } from '../systems/TimeSystem';
+import { absoluteDayNumber, startNewDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE } from './PreloadScene';
 
 /** Money lost when passing out, capped so a bad night never wipes someone out. */
@@ -65,6 +76,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected map!: Phaser.Tilemaps.Tilemap;
   protected groundLayer!: Phaser.Tilemaps.TilemapLayer;
   protected decorLayer!: Phaser.Tilemaps.TilemapLayer;
+  protected aboveLayer!: Phaser.Tilemaps.TilemapLayer;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
   private transitioning = false;
@@ -101,6 +113,7 @@ export abstract class MapScene extends Phaser.Scene {
     decor.setCollisionByProperty({ collides: true });
     this.groundLayer = ground;
     this.decorLayer = decor;
+    this.aboveLayer = above;
 
     const { widthInPixels: w, heightInPixels: h } = this.map;
     this.physics.world.setBounds(0, 0, w, h);
@@ -115,6 +128,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.setupCamera(w, h);
     this.setupInput();
     this.setupRain();
+    this.applyResourceNodeVisuals();
     this.afterMapBuilt();
 
     const onPassOut = () => this.sleepSequence('passedOut');
@@ -158,7 +172,9 @@ export abstract class MapScene extends Phaser.Scene {
 
   /** Extension points for farmable maps (overridden by FarmScene). Harmless no-ops elsewhere. */
   protected afterMapBuilt(): void {}
-  protected applyToolEffect(_itemId: ItemId, _tile: { x: number; y: number }): void {}
+  protected applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
+    this.applyGatheringToolEffect(itemId, tile);
+  }
   protected tryPlantFacingTile(_seedItemId: ItemId): void {}
   protected tryHarvestFacingTile(): boolean {
     return false;
@@ -238,6 +254,7 @@ export abstract class MapScene extends Phaser.Scene {
       const nextTime = startNewDay(gameState.time);
       gameState.time = nextTime;
       gameState.farmPlots = advanceFarmDay(gameState.farmPlots, nextTime.season, wasRaining);
+      gameState.resourceNodes = advanceResourceDay(gameState.resourceNodes, absoluteDayNumber(nextTime));
 
       let earnings = 0;
       for (const [itemId, qty] of Object.entries(gameState.shippingBin)) {
@@ -350,6 +367,79 @@ export abstract class MapScene extends Phaser.Scene {
       right: k.right.isDown || k.d.isDown,
       run: k.shift.isDown,
     };
+  }
+
+  /** Hides the tile(s) for any resource node on this map that is still cleared (not yet respawned). */
+  private applyResourceNodeVisuals(): void {
+    const prefix = `${this.mapKey}:`;
+    for (const [key, node] of Object.entries(gameState.resourceNodes)) {
+      if (!key.startsWith(prefix)) continue;
+      if (!isCleared(node, absoluteDayNumber(gameState.time))) continue;
+      const [xStr, yStr] = key.slice(prefix.length).split(',');
+      const x = Number(xStr);
+      const y = Number(yStr);
+      this.decorLayer.removeTileAt(x, y);
+      if (node.kind === 'tree') this.aboveLayer.removeTileAt(x, y - 1);
+    }
+  }
+
+  /** Axe/pickaxe/scythe gathering from trees/rocks/weeds, shared by every map that has them. */
+  protected applyGatheringToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
+    const kind: ResourceKind | undefined =
+      itemId === 'axe' ? 'tree' : itemId === 'pickaxe' ? 'rock' : itemId === 'scythe' ? 'weed' : undefined;
+    if (!kind) return;
+
+    const gid = this.decorLayer.getTileAt(tile.x, tile.y)?.index;
+    const expectedGid = kind === 'tree' ? TILE_GID.TRUNK : kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH;
+    if (gid !== expectedGid) return;
+
+    const key = resourceKey(this.mapKey, tile.x, tile.y);
+    const existing = gameState.resourceNodes[key];
+    if (isCleared(existing, absoluteDayNumber(gameState.time))) return;
+
+    const { nodes, broke } = hitResource(gameState.resourceNodes, key, kind, absoluteDayNumber(gameState.time));
+    gameState.resourceNodes = nodes;
+    if (!broke) return;
+
+    this.decorLayer.removeTileAt(tile.x, tile.y);
+    if (kind === 'tree') this.aboveLayer.removeTileAt(tile.x, tile.y - 1);
+
+    const worldX = tile.x * TILE + TILE / 2;
+    const worldY = tile.y * TILE + TILE / 2;
+    if (kind === 'tree') {
+      const qty = rollWoodYield();
+      gameState.inventory = addItem(gameState.inventory, 'wood', qty).state;
+      this.showFloatingText(worldX, worldY, `+${qty} Gỗ`);
+    } else if (kind === 'rock') {
+      const qty = rollStoneYield();
+      gameState.inventory = addItem(gameState.inventory, 'stone', qty).state;
+      this.showFloatingText(worldX, worldY, `+${qty} Đá`);
+    } else {
+      const qty = rollFiberYield();
+      gameState.inventory = addItem(gameState.inventory, 'fiber', qty).state;
+      this.showFloatingText(worldX, worldY, `+${qty} Sợi`);
+    }
+  }
+
+  /** A short rising, fading label — used for resource/harvest gains. */
+  protected showFloatingText(x: number, y: number, text: string): void {
+    const label = this.add
+      .text(x, y, text, {
+        fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif',
+        fontSize: '13px',
+        color: '#fff6e0',
+      })
+      .setOrigin(0.5)
+      .setDepth(DEPTH_ABOVE + 1)
+      .setShadow(1, 1, '#000000', 2, false, true);
+    this.tweens.add({
+      targets: label,
+      y: y - 18,
+      alpha: 0,
+      duration: 900,
+      ease: 'Cubic.easeOut',
+      onComplete: () => label.destroy(),
+    });
   }
 
   private setupRain(): void {

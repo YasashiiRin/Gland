@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { HOTBAR_SIZE, itemAt, type InventoryState } from '../systems/InventorySystem';
-import { slotColor, slotLabel } from './itemVisuals';
+import { iconTextureKey } from './itemIcons';
 
 const SLOT_SIZE = 40;
 const GAP = 4;
@@ -8,8 +8,7 @@ const GAP = 4;
 /** The always-visible 12-slot hotbar along the bottom of the screen. */
 export class Hotbar {
   private readonly boxes: Phaser.GameObjects.Rectangle[] = [];
-  private readonly icons: Phaser.GameObjects.Rectangle[] = [];
-  private readonly labels: Phaser.GameObjects.Text[] = [];
+  private readonly icons: Phaser.GameObjects.Image[] = [];
   private readonly counts: Phaser.GameObjects.Text[] = [];
   private readonly container: Phaser.GameObjects.Container;
 
@@ -25,10 +24,7 @@ export class Hotbar {
       const box = scene.add
         .rectangle(x, y, SLOT_SIZE, SLOT_SIZE, 0x2a2420, 0.78)
         .setStrokeStyle(2, 0x6b5a46);
-      const icon = scene.add.rectangle(x, y, SLOT_SIZE - 12, SLOT_SIZE - 12, 0x888888).setVisible(false);
-      const label = scene.add
-        .text(x, y, '', { fontFamily: 'sans-serif', fontSize: '11px', color: '#fff6e0' })
-        .setOrigin(0.5);
+      const icon = scene.add.image(x, y, iconTextureKey('wood')).setVisible(false).setDisplaySize(26, 26);
       const count = scene.add
         .text(x + SLOT_SIZE / 2 - 4, y + SLOT_SIZE / 2 - 4, '', {
           fontFamily: 'sans-serif',
@@ -44,10 +40,9 @@ export class Hotbar {
           color: '#c9bca6',
         })
         .setOrigin(0, 0);
-      this.container.add([box, icon, label, count, keyLabel]);
+      this.container.add([box, icon, count, keyLabel]);
       this.boxes.push(box);
       this.icons.push(icon);
-      this.labels.push(label);
       this.counts.push(count);
     }
   }
@@ -60,15 +55,12 @@ export class Hotbar {
     for (let i = 0; i < HOTBAR_SIZE; i++) {
       const stack = itemAt(inventory, i);
       const icon = this.icons[i];
-      const label = this.labels[i];
       const count = this.counts[i];
       if (stack) {
-        icon.setVisible(true).setFillStyle(slotColor(stack.itemId));
-        label.setText(slotLabel(stack.itemId));
+        icon.setVisible(true).setTexture(iconTextureKey(stack.itemId));
         count.setText(stack.quantity > 1 ? String(stack.quantity) : '');
       } else {
         icon.setVisible(false);
-        label.setText('');
         count.setText('');
       }
       this.boxes[i].setStrokeStyle(2, i === equippedSlot ? 0xffd480 : 0x6b5a46);

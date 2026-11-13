@@ -59,6 +59,12 @@ export function startNewDay(state: TimeState, random: () => number = Math.random
   return { elapsedMinutes: 0, day, season, year, weather: rollWeather(season, random) };
 }
 
+/** A single ever-increasing day count, for comparing "how many days ago" across season/year boundaries. */
+export function absoluteDayNumber(state: TimeState): number {
+  const seasonIndex = SEASON_ORDER.indexOf(state.season);
+  return (state.year - 1) * SEASON_ORDER.length * SEASON_LENGTH_DAYS + seasonIndex * SEASON_LENGTH_DAYS + state.day;
+}
+
 /** Absolute clock minute of day (0-1439), wrapping past midnight. */
 export function clockMinuteOfDay(state: TimeState): number {
   return (DAY_START_CLOCK_MINUTES + state.elapsedMinutes) % (24 * 60);

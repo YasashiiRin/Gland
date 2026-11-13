@@ -15,6 +15,7 @@
   "strawberry": { "name": "Dâu tây", "category": "crop", "stackable": true, "sellPrice": 120, "description": "Quả dâu đỏ mọng." },
   "green_bean_seeds": { "name": "Hạt đậu que", "category": "seed", "stackable": true, "sellPrice": 60, "description": "Gieo vào mùa xuân, thu hoạch nhiều lần." },
   "green_bean": { "name": "Đậu que", "category": "crop", "stackable": true, "sellPrice": 40, "description": "Đậu que xanh giòn." },
-  "wood": { "name": "Gỗ", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản." },
-  "stone": { "name": "Đá", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản." }
+  "wood": { "name": "Gỗ", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản. Chặt cây bằng rìu để lấy." },
+  "stone": { "name": "Đá", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản. Đập đá bằng cuốc chim để lấy." },
+  "fiber": { "name": "Sợi", "category": "material", "stackable": true, "sellPrice": 1, "description": "Cắt cỏ dại bằng liềm để lấy." }
 }

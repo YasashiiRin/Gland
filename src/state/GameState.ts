@@ -3,6 +3,7 @@ import type { MapKey } from '../data/maps';
 import { createInitialEnergy, type EnergyState } from '../systems/EnergySystem';
 import type { FarmPlots } from '../systems/FarmingSystem';
 import { createEmptyInventory, type InventoryState } from '../systems/InventorySystem';
+import type { ResourceNodes } from '../systems/ResourceSystem';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
 /**
@@ -25,9 +26,11 @@ export interface GameState {
   shippingBin: Partial<Record<ItemId, number>>;
   playerName: string;
   farmName: string;
+  /** Trees/rocks/weeds that have been chopped/mined/cut, keyed by "mapKey:x,y". */
+  resourceNodes: ResourceNodes;
 }
 
-export const STATE_VERSION = 5;
+export const STATE_VERSION = 6;
 
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
@@ -60,6 +63,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     shippingBin: {},
     playerName,
     farmName,
+    resourceNodes: {},
   };
 }
 

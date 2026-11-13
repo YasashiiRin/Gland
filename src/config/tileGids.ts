@@ -12,6 +12,8 @@ export const TILE_GID = {
   FENCE: 6,
   TRUNK: 7,
   CANOPY: 8,
+  ROCK: 9,
+  BUSH: 20,
   SOIL: 21,
 } as const;
 

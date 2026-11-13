@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { ITEMS } from '../data/items';
 import { INVENTORY_SIZE, itemAt, moveItem, type InventoryState } from '../systems/InventorySystem';
-import { slotColor, slotLabel } from './itemVisuals';
+import { iconTextureKey } from './itemIcons';
 
 const COLS = 12;
 const SLOT_SIZE = 38;
@@ -14,8 +14,7 @@ const GAP = 4;
 export class InventoryMenu {
   private readonly root: Phaser.GameObjects.Container;
   private readonly slotBoxes: Phaser.GameObjects.Rectangle[] = [];
-  private readonly icons: Phaser.GameObjects.Rectangle[] = [];
-  private readonly labels: Phaser.GameObjects.Text[] = [];
+  private readonly icons: Phaser.GameObjects.Image[] = [];
   private readonly counts: Phaser.GameObjects.Text[] = [];
   private readonly nameText: Phaser.GameObjects.Text;
   private selected: number | null = null;
@@ -53,18 +52,14 @@ export class InventoryMenu {
       box.setInteractive({ useHandCursor: true });
       box.on('pointerdown', () => this.handleClick(i));
       box.on('pointerover', () => this.showName(i));
-      const icon = scene.add.rectangle(x, y, SLOT_SIZE - 10, SLOT_SIZE - 10, 0x888888).setVisible(false);
-      const label = scene.add
-        .text(x, y, '', { fontFamily: 'sans-serif', fontSize: '10px', color: '#fff6e0' })
-        .setOrigin(0.5);
+      const icon = scene.add.image(x, y, iconTextureKey('wood')).setVisible(false).setDisplaySize(26, 26);
       const count = scene.add
         .text(x + SLOT_SIZE / 2 - 3, y + SLOT_SIZE / 2 - 3, '', { fontFamily: 'sans-serif', fontSize: '11px', color: '#ffffff' })
         .setOrigin(1, 1)
         .setShadow(1, 1, '#000000', 2, false, true);
-      this.root.add([box, icon, label, count]);
+      this.root.add([box, icon, count]);
       this.slotBoxes.push(box);
       this.icons.push(icon);
-      this.labels.push(label);
       this.counts.push(count);
     }
   }
@@ -95,12 +90,10 @@ export class InventoryMenu {
     for (let i = 0; i < INVENTORY_SIZE; i++) {
       const stack = itemAt(inventory, i);
       if (stack) {
-        this.icons[i].setVisible(true).setFillStyle(slotColor(stack.itemId));
-        this.labels[i].setText(slotLabel(stack.itemId));
+        this.icons[i].setVisible(true).setTexture(iconTextureKey(stack.itemId));
         this.counts[i].setText(stack.quantity > 1 ? String(stack.quantity) : '');
       } else {
         this.icons[i].setVisible(false);
-        this.labels[i].setText('');
         this.counts[i].setText('');
       }
       this.slotBoxes[i].setStrokeStyle(2, i === this.selected ? 0xffd480 : 0x6b5a46);

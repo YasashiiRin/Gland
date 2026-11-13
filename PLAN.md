@@ -1,6 +1,14 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–6 đã xong (v0.6.0). Bước tiếp theo: Phase 7 (tài nguyên và hái lượm).
+> **Trạng thái:** Phase 0–7 đã xong (v0.7.0). Bước tiếp theo: Phase 8 (chế tạo & máy chế biến).
+>
+> Ghi chú Phase 7: `ResourceSystem` (logic thuần, có test) quản lý `GameState.resourceNodes` (key "mapKey:x,y").
+> Tái sử dụng tile trang trí có sẵn (TRUNK=cây, ROCK=đá, BUSH=cỏ dại) làm tài nguyên tương tác được — không cần
+> thêm object mới trên bản đồ. Logic dùng chung giữa mọi bản đồ qua `MapScene.applyGatheringToolEffect`, không
+> chỉ riêng Nông trại. Hiệu ứng chữ bay lên (`showFloatingText`) khi nhận gỗ/đá/sợi.
+>
+> Ghi chú giao diện: gộp HUD thành 2 bảng gọn (trạng thái + đồng hồ), thay toàn bộ icon vật phẩm ô-màu-chữ-tắt
+> bằng icon vẽ tay bằng code riêng cho từng món (`src/ui/itemIcons.ts`).
 >
 > Ghi chú Phase 6: `ShopSystem` (logic thuần, có test) + `ShopMenu` (UI). Cửa hàng hạt giống ở Làng, tương tác
 > bằng **E** đứng cạnh cửa. Đóng cửa bằng nút "Đóng" hoặc phím **Esc** (cũng dùng để đóng túi đồ).
@@ -127,9 +135,12 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - Ghi chú: cửa hàng tương tác ngay ở cửa ngoài trời (không có phòng nội thất riêng, để đơn giản hoá phạm vi).
   Mỗi lần bấm "Mua" lấy đúng 1 món; mở giờ 9:00–17:00, nghỉ 1 ngày/tuần (`ShopSystem.isShopOpen`).
 
-### Phase 7 – Tài nguyên và hái lượm
-- Cây (chặt nhiều nhát, gốc cây, cây mọc lại), đá, cỏ dại, gỗ khô.
-- Đồ hái lượm theo mùa xuất hiện ngẫu nhiên mỗi ngày.
+### Phase 7 – Tài nguyên và hái lượm  ✅ Đã xong (bản rút gọn)
+- Chặt cây bằng rìu (3 nhát, rơi 3-6 gỗ, mọc lại sau 3 ngày).
+- Đập đá bằng cuốc chim (1 nhát, rơi 1-3 đá, mọc lại sau 1 ngày).
+- Cắt cỏ dại bằng liềm (dùng lại tile bụi cây trang trí có sẵn, 1 nhát, rơi 1-2 sợi, mọc lại sau 1 ngày).
+- **Chưa làm**: đồ hái lượm theo mùa xuất hiện ngẫu nhiên mỗi sáng (nấm, quả mọng...) — để dành cho một bản cập nhật sau,
+  vì hệ thống chặt/đập/cắt ở trên đã là phần quan trọng nhất và dùng chung được object đã có sẵn trên bản đồ.
 
 ### Phase 8 – Chế tạo
 - Dữ liệu `recipes.json`, menu chế tạo.
