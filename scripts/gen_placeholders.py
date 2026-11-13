@@ -425,8 +425,7 @@ def build_farm() -> MapBuilder:
     # path from door down then east to exit
     m.fill_ground(10, 8, 10, 15, PATH)
     m.fill_ground(10, 15, 39, 15, PATH)
-    # tillable field area (fenced) for later phases
-    m.fill_ground(15, 18, 24, 25, SOIL)
+    # Fenced field: left as ordinary grass so the hoe can till it for real (Phase 4).
     for x in range(14, 26):
         m.put(x, 17, FENCE); m.put(x, 26, FENCE)
     for y in range(17, 27):
@@ -436,6 +435,7 @@ def build_farm() -> MapBuilder:
     m.fill_ground(28, 20, 33, 24, WATER)
     m.fill_ground(29, 19, 32, 19, WATER)
     m.put(16, 9, SIGN)
+    m.obj("shipping_bin", 13 * T, 8 * T, T, T)
     m.scatter(TRUNK, 14, (2, 2, 37, 27))
     m.scatter(ROCK, 12, (2, 2, 37, 27))
     m.scatter(BUSH, 10, (2, 2, 37, 27))

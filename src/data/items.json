@@ -7,6 +7,14 @@
   "fishing_rod": { "name": "Cần câu", "category": "tool", "stackable": false, "description": "Dùng để câu cá." },
   "parsnip_seeds": { "name": "Hạt củ cải trắng", "category": "seed", "stackable": true, "sellPrice": 10, "description": "Gieo vào mùa xuân." },
   "parsnip": { "name": "Củ cải trắng", "category": "crop", "stackable": true, "sellPrice": 35, "description": "Một loại củ quen thuộc." },
+  "potato_seeds": { "name": "Hạt khoai tây", "category": "seed", "stackable": true, "sellPrice": 25, "description": "Gieo vào mùa xuân." },
+  "potato": { "name": "Khoai tây", "category": "crop", "stackable": true, "sellPrice": 80, "description": "Củ khoai chắc bụng." },
+  "cauliflower_seeds": { "name": "Hạt súp lơ", "category": "seed", "stackable": true, "sellPrice": 80, "description": "Gieo vào mùa xuân, lớn khá lâu." },
+  "cauliflower": { "name": "Súp lơ", "category": "crop", "stackable": true, "sellPrice": 175, "description": "Bông súp lơ trắng to." },
+  "strawberry_seeds": { "name": "Hạt dâu tây", "category": "seed", "stackable": true, "sellPrice": 100, "description": "Gieo vào mùa xuân, thu hoạch nhiều lần." },
+  "strawberry": { "name": "Dâu tây", "category": "crop", "stackable": true, "sellPrice": 120, "description": "Quả dâu đỏ mọng." },
+  "green_bean_seeds": { "name": "Hạt đậu que", "category": "seed", "stackable": true, "sellPrice": 60, "description": "Gieo vào mùa xuân, thu hoạch nhiều lần." },
+  "green_bean": { "name": "Đậu que", "category": "crop", "stackable": true, "sellPrice": 40, "description": "Đậu que xanh giòn." },
   "wood": { "name": "Gỗ", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản." },
   "stone": { "name": "Đá", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản." }
 }

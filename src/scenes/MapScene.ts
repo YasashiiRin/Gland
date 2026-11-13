@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { DEPTH_ABOVE, FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
-import { ITEMS, TOOL_ENERGY_COST } from '../data/items';
+import { ITEMS, TOOL_ENERGY_COST, type ItemId } from '../data/items';
 import { isMapKey, MAPS, type MapKey } from '../data/maps';
 import { Player, type PlayerInput } from '../entities/Player';
 import {
@@ -13,6 +13,7 @@ import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
 import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/EnergySystem';
+import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
 import { HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
 import { startNewDay } from '../systems/TimeSystem';
@@ -61,6 +62,8 @@ const HOTBAR_KEY_CODES = [
 export abstract class MapScene extends Phaser.Scene {
   protected player!: Player;
   protected map!: Phaser.Tilemaps.Tilemap;
+  protected groundLayer!: Phaser.Tilemaps.TilemapLayer;
+  protected decorLayer!: Phaser.Tilemaps.TilemapLayer;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
   private transitioning = false;
@@ -95,6 +98,8 @@ export abstract class MapScene extends Phaser.Scene {
     above.setDepth(DEPTH_ABOVE);
     ground.setCollisionByProperty({ collides: true });
     decor.setCollisionByProperty({ collides: true });
+    this.groundLayer = ground;
+    this.decorLayer = decor;
 
     const { widthInPixels: w, heightInPixels: h } = this.map;
     this.physics.world.setBounds(0, 0, w, h);
@@ -109,6 +114,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.setupCamera(w, h);
     this.setupInput();
     this.setupRain();
+    this.afterMapBuilt();
 
     const onPassOut = () => this.sleepSequence('passedOut');
     EventBus.on(GameEvents.PassOutRequested, onPassOut);
@@ -133,8 +139,11 @@ export abstract class MapScene extends Phaser.Scene {
     this.player.updateMovement(this.readInput());
     this.readHotbarSelection();
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.interact) && this.isNearBed()) {
-      this.sleepSequence('manual');
+    if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
+      if (!this.tryHarvestFacingTile()) {
+        if (this.isNearBed()) this.sleepSequence('manual');
+        else this.tryUseShippingBin();
+      }
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.useTool)) {
       this.useEquippedTool();
@@ -145,6 +154,15 @@ export abstract class MapScene extends Phaser.Scene {
   protected defaultFacing(_spawn?: string): Direction {
     return 'down';
   }
+
+  /** Extension points for farmable maps (overridden by FarmScene). Harmless no-ops elsewhere. */
+  protected afterMapBuilt(): void {}
+  protected applyToolEffect(_itemId: ItemId, _tile: { x: number; y: number }): void {}
+  protected tryPlantFacingTile(_seedItemId: ItemId): void {}
+  protected tryHarvestFacingTile(): boolean {
+    return false;
+  }
+  protected tryUseShippingBin(): void {}
 
   private findSpawn(id: string): { x: number; y: number } {
     const objects = this.map.getObjectLayer('objects')?.objects ?? [];
@@ -177,16 +195,25 @@ export abstract class MapScene extends Phaser.Scene {
   }
 
   private createBeds(): void {
-    const objects = this.map.getObjectLayer('objects')?.objects ?? [];
-    this.bedZones = objects
-      .filter((o) => o.name === 'bed')
-      .map((o) => this.add.zone(o.x ?? 0, o.y ?? 0, o.width ?? 16, o.height ?? 16).setOrigin(0, 0));
+    this.bedZones = this.createZonesNamed('bed');
   }
 
   private isNearBed(): boolean {
+    return this.isNearAnyZone(this.bedZones);
+  }
+
+  protected isNearAnyZone(zones: Phaser.GameObjects.Zone[]): boolean {
     const b = this.player.body as Phaser.Physics.Arcade.Body;
     const playerRect = new Phaser.Geom.Rectangle(b.x, b.y, b.width, b.height);
-    return this.bedZones.some((zone) => Phaser.Geom.Rectangle.Overlaps(zone.getBounds(), playerRect));
+    return zones.some((zone) => Phaser.Geom.Rectangle.Overlaps(zone.getBounds(), playerRect));
+  }
+
+  /** Finds zones by object name in the "objects" layer, same pattern as beds/doors. */
+  protected createZonesNamed(name: string): Phaser.GameObjects.Zone[] {
+    const objects = this.map.getObjectLayer('objects')?.objects ?? [];
+    return objects
+      .filter((o) => o.name === name)
+      .map((o) => this.add.zone(o.x ?? 0, o.y ?? 0, o.width ?? 16, o.height ?? 16).setOrigin(0, 0));
   }
 
   private goTo(target: MapKey, spawn: string): void {
@@ -203,8 +230,17 @@ export abstract class MapScene extends Phaser.Scene {
     if (this.transitioning) return;
     this.beginTransition();
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      const wasRaining = gameState.time.weather === 'rainy';
       const nextTime = startNewDay(gameState.time);
       gameState.time = nextTime;
+      gameState.farmPlots = advanceFarmDay(gameState.farmPlots, nextTime.season, wasRaining);
+
+      let earnings = 0;
+      for (const [itemId, qty] of Object.entries(gameState.shippingBin)) {
+        earnings += (ITEMS[itemId as keyof typeof ITEMS].sellPrice ?? 0) * (qty ?? 0);
+      }
+      gameState.money += earnings;
+      gameState.shippingBin = {};
 
       if (reason === 'passedOut') {
         const penalty = Math.min(PASS_OUT_MONEY_PENALTY_MAX, Math.round(gameState.money * PASS_OUT_MONEY_PENALTY_RATE));
@@ -220,6 +256,7 @@ export abstract class MapScene extends Phaser.Scene {
         season: nextTime.season,
         year: nextTime.year,
         weather: nextTime.weather,
+        earnings,
       };
       this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
       // Emitted after scene.start queues the new scene's create(); UI is a separate
@@ -280,14 +317,20 @@ export abstract class MapScene extends Phaser.Scene {
   private useEquippedTool(): void {
     const stack = itemAt(gameState.inventory, gameState.equippedSlot);
     if (!stack) return;
+
+    if (ITEMS[stack.itemId].category === 'seed') {
+      this.tryPlantFacingTile(stack.itemId);
+      return;
+    }
+
     const cost = TOOL_ENERGY_COST[stack.itemId];
-    if (cost === undefined) return; // not a tool; nothing to do yet (Phase 4+ adds effects)
+    if (cost === undefined) return; // not a tool; nothing to do
     if (isExhausted(gameState.energy)) return;
 
     gameState.energy = consume(gameState.energy, cost);
     this.player.playUseToolFeedback();
     const tile = this.player.getFacingTile(TILE);
-    console.info(`Used ${ITEMS[stack.itemId].name} facing tile (${tile.x}, ${tile.y})`);
+    this.applyToolEffect(stack.itemId, tile);
   }
 
   private readInput(): PlayerInput {

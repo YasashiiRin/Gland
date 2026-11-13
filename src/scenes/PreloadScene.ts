@@ -7,6 +7,8 @@ import { gameState } from '../state/GameState';
 
 export const TILESET_TEXTURE = 'farm_tiles';
 export const RAIN_TEXTURE = 'rain_drop';
+export const CROP_TEXTURE = 'crop_plant';
+export const SHIPPING_BIN_TEXTURE = 'shipping_bin';
 
 export function mapCacheKey(file: string): string {
   return `map-${file}`;
@@ -35,6 +37,8 @@ export class PreloadScene extends Phaser.Scene {
   create(): void {
     this.createPlayerAnimations();
     this.createRainTexture();
+    this.createCropTexture();
+    this.createShippingBinTexture();
     this.scene.launch('UI');
     this.scene.start(gameState.currentMap, { spawn: gameState.spawnId });
   }
@@ -44,6 +48,32 @@ export class PreloadScene extends Phaser.Scene {
     g.fillStyle(0xcfe3f5, 1);
     g.fillRect(0, 0, 2, 10);
     g.generateTexture(RAIN_TEXTURE, 2, 10);
+    g.destroy();
+  }
+
+  /** A simple round sprout/plant placeholder; tinted and scaled per growth stage in FarmScene. */
+  private createCropTexture(): void {
+    const g = this.add.graphics();
+    g.fillStyle(0x4a8a4a, 1);
+    g.fillRect(7, 6, 2, 10); // stem
+    g.fillStyle(0x6fcf6f, 1);
+    g.fillEllipse(8, 6, 11, 9); // leafy head
+    g.fillStyle(0x8fe08f, 1);
+    g.fillEllipse(6, 4, 4, 3);
+    g.generateTexture(CROP_TEXTURE, 16, 16);
+    g.destroy();
+  }
+
+  /** A simple wooden crate placeholder for the shipping bin. */
+  private createShippingBinTexture(): void {
+    const g = this.add.graphics();
+    g.fillStyle(0x8a6a4a, 1);
+    g.fillRoundedRect(0, 4, 20, 16, 2);
+    g.fillStyle(0x6b4e34, 1);
+    g.fillRect(0, 4, 20, 3);
+    g.fillStyle(0xd9a441, 1);
+    g.fillRect(8, 9, 4, 4);
+    g.generateTexture(SHIPPING_BIN_TEXTURE, 20, 20);
     g.destroy();
   }
 

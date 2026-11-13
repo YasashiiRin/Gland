@@ -130,7 +130,8 @@ export class UIScene extends Phaser.Scene {
   }
 
   private showDayBanner(p: DayStartedPayload): void {
-    const text = `Ngày ${p.day}, mùa ${SEASON_LABELS[p.season]} — Thời tiết: ${WEATHER_LABELS[p.weather]}`;
+    const earningsLine = p.earnings > 0 ? `\nHôm qua bạn kiếm được ${p.earnings.toLocaleString('vi-VN')} ₫` : '';
+    const text = `Ngày ${p.day}, mùa ${SEASON_LABELS[p.season]} — Thời tiết: ${WEATHER_LABELS[p.weather]}${earningsLine}`;
     this.dayBanner.setText(text);
     this.dayBanner.setAlpha(1);
     this.tweens.add({

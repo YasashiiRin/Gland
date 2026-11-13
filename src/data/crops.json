@@ -1,0 +1,44 @@
+{
+  "parsnip": {
+    "name": "Củ cải trắng",
+    "seedItemId": "parsnip_seeds",
+    "harvestedItemId": "parsnip",
+    "season": ["spring"],
+    "growthStages": [1, 1, 1, 1],
+    "harvestYield": [1, 1]
+  },
+  "potato": {
+    "name": "Khoai tây",
+    "seedItemId": "potato_seeds",
+    "harvestedItemId": "potato",
+    "season": ["spring"],
+    "growthStages": [1, 1, 1, 1, 1],
+    "harvestYield": [1, 2]
+  },
+  "cauliflower": {
+    "name": "Súp lơ",
+    "seedItemId": "cauliflower_seeds",
+    "harvestedItemId": "cauliflower",
+    "season": ["spring"],
+    "growthStages": [1, 2, 2, 2, 2],
+    "harvestYield": [1, 1]
+  },
+  "strawberry": {
+    "name": "Dâu tây",
+    "seedItemId": "strawberry_seeds",
+    "harvestedItemId": "strawberry",
+    "season": ["spring"],
+    "growthStages": [1, 1, 2, 2, 2],
+    "regrowDays": 4,
+    "harvestYield": [1, 3]
+  },
+  "green_bean": {
+    "name": "Đậu que",
+    "seedItemId": "green_bean_seeds",
+    "harvestedItemId": "green_bean",
+    "season": ["spring"],
+    "growthStages": [1, 1, 1, 1],
+    "regrowDays": 3,
+    "harvestYield": [1, 2]
+  }
+}

@@ -1,11 +1,16 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–3 đã xong (v0.3.0). Bước tiếp theo: Phase 4 (trồng trọt, bán hàng).
+> **Trạng thái:** Phase 0–4 đã xong (v0.4.0). Bước tiếp theo: Phase 6 (cửa hàng và làng) — Phase 5 (lưu/tải game) sẽ làm sau khi còn phase gameplay để lưu thử đầy đủ hơn.
 >
 > Ghi chú Phase 3: `docs/game-design.md` mô tả đầy đủ cơ chế các phase 3–15.
 > Túi đồ 36 ô (`InventorySystem`), công cụ tốn năng lượng (`EnergySystem`), chọn hotbar bằng phím số/cuộn chuột,
-> dùng đồ bằng Space (hiện tại chỉ trừ năng lượng, hiệu ứng lên thế giới sẽ nối ở Phase 4/7).
-> Mở túi đồ bằng phím I (`uiState.inventoryOpen` khoá di chuyển + dừng đồng hồ trong lúc mở).
+> dùng đồ bằng Space, mở túi đồ bằng phím I.
+>
+> Ghi chú Phase 4: `FarmingSystem` (logic thuần) quản lý `GameState.farmPlots` (key "x,y" trên bản đồ Nông trại).
+> Cuốc/tưới/trồng bằng Space (dùng đúng công cụ/hạt giống đang chọn ở hotbar), thu hoạch bằng **E** khi đứng trước cây chín.
+> `FarmScene` vẽ lại tile đất + cây mỗi lần vào lại bản đồ (tilemap load lại từ file tĩnh nên phải tô lại từ `gameState.farmPlots`).
+> Thùng bán ở gần nhà (object `shipping_bin`): đứng cạnh, bấm **E** để gửi cả chồng đồ đang cầm vào thùng; tiền cộng vào `money` lúc ngủ qua đêm.
+> 5 loại cây đã có: củ cải trắng, khoai tây, súp lơ, dâu tây (thu hoạch lại), đậu que (thu hoạch lại).
 >
 > Ghi chú Phase 2: đồng hồ chạy trong `UIScene` (10 phút game ≈ 7 giây thực, xem `src/config/time.ts`).
 > Ngủ bằng cách lại gần giường trong nhà rồi bấm **E**; thức quá 2:00 sẽ tự ngất và bị đưa về giường.
@@ -92,8 +97,8 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - Thùng bán và màn hình tổng kết thu nhập cuối ngày.
 
 **Tiêu chí hoàn thành:**
-- [ ] Trồng, chăm, thu hoạch và bán được ít nhất 5 loại cây.
-- [ ] Có test cho FarmingSystem.
+- [x] Trồng, chăm, thu hoạch và bán được ít nhất 5 loại cây.
+- [x] Có test cho FarmingSystem.
 
 ### Phase 5 – Lưu và tải game
 - `SaveService`: lưu toàn bộ GameState khi đi ngủ, tải khi mở game.

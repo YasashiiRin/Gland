@@ -1,6 +1,7 @@
 import type { ItemId } from '../data/items';
 import type { MapKey } from '../data/maps';
 import { createInitialEnergy, type EnergyState } from '../systems/EnergySystem';
+import type { FarmPlots } from '../systems/FarmingSystem';
 import { createEmptyInventory, type InventoryState } from '../systems/InventorySystem';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
@@ -18,9 +19,13 @@ export interface GameState {
   energy: EnergyState;
   /** Index of the currently selected hotbar slot (0-11). */
   equippedSlot: number;
+  /** Tilled/planted plots on the Farm map, keyed by "x,y" tile coordinates. */
+  farmPlots: FarmPlots;
+  /** Items placed in the shipping bin, sold automatically when the next day starts. */
+  shippingBin: Partial<Record<ItemId, number>>;
 }
 
-export const STATE_VERSION = 3;
+export const STATE_VERSION = 4;
 
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
@@ -29,6 +34,10 @@ const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'pickaxe', quantity: 1 },
   { itemId: 'scythe', quantity: 1 },
   { itemId: 'parsnip_seeds', quantity: 15 },
+  { itemId: 'potato_seeds', quantity: 10 },
+  { itemId: 'cauliflower_seeds', quantity: 5 },
+  { itemId: 'strawberry_seeds', quantity: 5 },
+  { itemId: 'green_bean_seeds', quantity: 10 },
 ];
 
 export function createInitialState(): GameState {
@@ -45,6 +54,8 @@ export function createInitialState(): GameState {
     inventory,
     energy: createInitialEnergy(),
     equippedSlot: 0,
+    farmPlots: {},
+    shippingBin: {},
   };
 }
 

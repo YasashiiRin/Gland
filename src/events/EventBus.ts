@@ -26,4 +26,5 @@ export interface DayStartedPayload {
   season: Season;
   year: number;
   weather: Weather;
+  earnings: number;
 }
