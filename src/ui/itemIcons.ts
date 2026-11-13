@@ -187,6 +187,45 @@ const ICONS: Record<ItemId, Draw> = {
       g.strokePath();
     }
   },
+  chest: (g) => {
+    g.fillStyle(0xa5793f, 1);
+    g.fillRoundedRect(2, 6, 12, 8, 1);
+    g.lineStyle(1, INK, 1);
+    g.strokeRoundedRect(2, 6, 12, 8, 1);
+    g.fillStyle(0x8a6540, 1);
+    g.fillRect(2, 6, 12, 2);
+    g.fillStyle(0xe8c874, 1);
+    g.fillRect(7, 9, 2, 2);
+  },
+  scarecrow: (g) => {
+    g.lineStyle(1.5, 0x8a6a4a, 1);
+    g.lineBetween(8, 4, 8, 14);
+    g.lineBetween(3, 7, 13, 7);
+    g.fillStyle(0xe8d8b8, 1);
+    g.fillCircle(8, 4, 2.4);
+    g.lineStyle(1, INK, 1);
+    g.strokeCircle(8, 4, 2.4);
+    g.fillStyle(0xd9a441, 1);
+    g.fillTriangle(5, 2, 11, 2, 8, 5);
+  },
+  sprinkler: (g) => {
+    g.fillStyle(0x9a9aa2, 1);
+    g.fillRect(6, 9, 4, 5);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(6, 9, 4, 5);
+    g.fillStyle(0xb7b7bf, 1);
+    g.fillCircle(8, 7, 3);
+    g.lineStyle(1, INK, 1);
+    g.strokeCircle(8, 7, 3);
+    g.fillStyle(0x6ea8c9, 1);
+    for (const [dx, dy] of [
+      [-4, -2],
+      [4, -2],
+      [0, -5],
+    ]) {
+      g.fillCircle(8 + dx, 7 + dy, 1);
+    }
+  },
   stone: (g) => {
     g.fillStyle(0xaaaab2, 1);
     g.fillTriangle(3, 11, 8, 3, 13, 11);

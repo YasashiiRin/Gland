@@ -4,6 +4,7 @@ import { DEPTH_ABOVE } from '../config/constants';
 import {
   EventBus,
   GameEvents,
+  type ChestOpenRequestedPayload,
   type DayStartedPayload,
   type MapEnteredPayload,
   type ShopOpenRequestedPayload,
@@ -11,13 +12,19 @@ import {
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
+import { craft } from '../systems/CraftingSystem';
+import { addItem, itemAt } from '../systems/InventorySystem';
 import { buyItem } from '../systems/ShopSystem';
 import { advanceTime, darknessAlpha } from '../systems/TimeSystem';
+import { ChestMenu } from '../ui/ChestMenu';
+import { CraftingMenu } from '../ui/CraftingMenu';
 import { Hotbar } from '../ui/Hotbar';
 import { Hud } from '../ui/Hud';
 import { InventoryMenu } from '../ui/InventoryMenu';
 import { ShopMenu } from '../ui/ShopMenu';
 import { isShopId } from '../data/shops';
+
+const CHEST_SLOT_COUNT = 18;
 
 /** Runs on top of the map scenes: draws the HUD, the night overlay, and owns the game clock. */
 export class UIScene extends Phaser.Scene {
@@ -25,6 +32,9 @@ export class UIScene extends Phaser.Scene {
   private hotbar!: Hotbar;
   private inventoryMenu!: InventoryMenu;
   private shopMenu!: ShopMenu;
+  private craftingMenu!: CraftingMenu;
+  private chestMenu!: ChestMenu;
+  private openChestKey: string | null = null;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private dayBanner!: Phaser.GameObjects.Text;
   private accumulatorMs = 0;
@@ -73,12 +83,40 @@ export class UIScene extends Phaser.Scene {
       },
     );
 
+    this.craftingMenu = new CraftingMenu(this, DEPTH_ABOVE + 1);
+    this.craftingMenu.bind(
+      () => gameState.inventory,
+      (recipeId) => {
+        const result = craft(gameState.inventory, recipeId);
+        gameState.inventory = result.inventory;
+        this.craftingMenu.refresh();
+        this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
+      },
+    );
+
+    this.chestMenu = new ChestMenu(this, DEPTH_ABOVE + 1, CHEST_SLOT_COUNT);
+    this.chestMenu.bind(
+      (slotIndex) => this.depositIntoChest(slotIndex),
+      (slotIndex) => this.withdrawFromChest(slotIndex),
+    );
+
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+    const craftingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+    craftingKey.on('down', () => {
+      if (uiState.inventoryOpen || uiState.shopOpen || uiState.chestOpen) return;
+      if (uiState.craftingOpen) this.closeCrafting();
+      else {
+        this.craftingMenu.open();
+        uiState.craftingOpen = true;
+      }
+    });
     const escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     escKey.on('down', () => {
       if (uiState.shopOpen) this.closeShop();
+      else if (uiState.craftingOpen) this.closeCrafting();
+      else if (uiState.chestOpen) this.closeChest();
       else if (uiState.inventoryOpen) this.toggleInventory();
     });
 
@@ -89,6 +127,16 @@ export class UIScene extends Phaser.Scene {
     };
     EventBus.on(GameEvents.ShopOpenRequested, onShopOpen);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.ShopOpenRequested, onShopOpen));
+
+    const onChestOpen = (p: ChestOpenRequestedPayload) => {
+      const placed = gameState.placedObjects[p.chestKey];
+      if (!placed || placed.kind !== 'chest' || !placed.chest) return;
+      this.openChestKey = p.chestKey;
+      this.chestMenu.open(placed.chest);
+      uiState.chestOpen = true;
+    };
+    EventBus.on(GameEvents.ChestOpenRequested, onChestOpen);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.ChestOpenRequested, onChestOpen));
 
     this.dayBanner = this.add
       .text(width / 2, 70, '', {
@@ -119,7 +167,9 @@ export class UIScene extends Phaser.Scene {
     this.hud.setEnergy(gameState.energy);
     this.hud.setMoney(gameState.money);
 
-    if (timeControl.paused || uiState.inventoryOpen || uiState.shopOpen) return;
+    if (timeControl.paused || uiState.inventoryOpen || uiState.shopOpen || uiState.craftingOpen || uiState.chestOpen) {
+      return;
+    }
 
     this.accumulatorMs += delta;
     let ticked = false;
@@ -144,6 +194,57 @@ export class UIScene extends Phaser.Scene {
   private closeShop(): void {
     this.shopMenu.close();
     uiState.shopOpen = false;
+  }
+
+  private closeCrafting(): void {
+    this.craftingMenu.close();
+    uiState.craftingOpen = false;
+  }
+
+  private closeChest(): void {
+    this.chestMenu.close();
+    uiState.chestOpen = false;
+    this.openChestKey = null;
+  }
+
+  /** Moves the player's currently equipped stack into an empty chest slot. */
+  private depositIntoChest(slotIndex: number): void {
+    if (!this.openChestKey) return;
+    const placed = gameState.placedObjects[this.openChestKey];
+    if (!placed?.chest) return;
+    const stack = itemAt(gameState.inventory, gameState.equippedSlot);
+    if (!stack) return;
+
+    const chestSlots = placed.chest.slots.slice();
+    chestSlots[slotIndex] = stack;
+    placed.chest = { slots: chestSlots };
+
+    const invSlots = gameState.inventory.slots.slice();
+    invSlots[gameState.equippedSlot] = null;
+    gameState.inventory = { slots: invSlots };
+
+    this.chestMenu.refresh(placed.chest);
+    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
+  }
+
+  /** Moves a chest slot's contents into the first empty player inventory slot. */
+  private withdrawFromChest(slotIndex: number): void {
+    if (!this.openChestKey) return;
+    const placed = gameState.placedObjects[this.openChestKey];
+    if (!placed?.chest) return;
+    const stack = itemAt(placed.chest, slotIndex);
+    if (!stack) return;
+
+    const { state, leftover } = addItem(gameState.inventory, stack.itemId, stack.quantity);
+    if (leftover > 0 && leftover === stack.quantity) return; // inventory totally full; leave it in the chest
+
+    gameState.inventory = state;
+    const chestSlots = placed.chest.slots.slice();
+    chestSlots[slotIndex] = leftover > 0 ? { itemId: stack.itemId, quantity: leftover } : null;
+    placed.chest = { slots: chestSlots };
+
+    this.chestMenu.refresh(placed.chest);
+    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
   }
 
   private toggleInventory(): void {

@@ -17,6 +17,8 @@ import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/Energ
 import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
 import { addItem, HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
+import { waterPlot } from '../systems/FarmingSystem';
+import { sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import {
   advanceResourceDay,
   hitResource,
@@ -146,7 +148,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.player.setExhausted(isExhausted(gameState.energy));
 
-    if (uiState.inventoryOpen || uiState.shopOpen) {
+    if (uiState.inventoryOpen || uiState.shopOpen || uiState.craftingOpen || uiState.chestOpen) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
       return;
     }
@@ -155,7 +157,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.readHotbarSelection();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
-      if (!this.tryHarvestFacingTile()) {
+      if (!this.tryHarvestFacingTile() && !this.tryOpenChest()) {
         if (this.isNearBed()) this.sleepSequence('manual');
         else if (!this.tryOpenShop()) this.tryUseShippingBin();
       }
@@ -181,6 +183,10 @@ export abstract class MapScene extends Phaser.Scene {
   }
   protected tryUseShippingBin(): void {}
   protected tryOpenShop(): boolean {
+    return false;
+  }
+  protected tryPlaceFurniture(_itemId: ItemId): void {}
+  protected tryOpenChest(): boolean {
     return false;
   }
 
@@ -255,6 +261,10 @@ export abstract class MapScene extends Phaser.Scene {
       gameState.time = nextTime;
       gameState.farmPlots = advanceFarmDay(gameState.farmPlots, nextTime.season, wasRaining);
       gameState.resourceNodes = advanceResourceDay(gameState.resourceNodes, absoluteDayNumber(nextTime));
+      // Sprinklers water their tile for the day that's just starting.
+      for (const key of sprinklerTileKeysOnMap(gameState.placedObjects, 'Farm')) {
+        gameState.farmPlots = waterPlot(gameState.farmPlots, key);
+      }
 
       let earnings = 0;
       for (const [itemId, qty] of Object.entries(gameState.shippingBin)) {
@@ -345,6 +355,10 @@ export abstract class MapScene extends Phaser.Scene {
 
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);
+      return;
+    }
+    if (ITEMS[stack.itemId].category === 'furniture') {
+      this.tryPlaceFurniture(stack.itemId);
       return;
     }
 

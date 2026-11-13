@@ -17,5 +17,8 @@
   "green_bean": { "name": "Đậu que", "category": "crop", "stackable": true, "sellPrice": 40, "description": "Đậu que xanh giòn." },
   "wood": { "name": "Gỗ", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản. Chặt cây bằng rìu để lấy." },
   "stone": { "name": "Đá", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản. Đập đá bằng cuốc chim để lấy." },
-  "fiber": { "name": "Sợi", "category": "material", "stackable": true, "sellPrice": 1, "description": "Cắt cỏ dại bằng liềm để lấy." }
+  "fiber": { "name": "Sợi", "category": "material", "stackable": true, "sellPrice": 1, "description": "Cắt cỏ dại bằng liềm để lấy." },
+  "chest": { "name": "Rương", "category": "furniture", "stackable": false, "description": "Đặt xuống đất để có thêm chỗ chứa đồ." },
+  "scarecrow": { "name": "Bù nhìn", "category": "furniture", "stackable": false, "description": "Đặt giữa ruộng cho đẹp." },
+  "sprinkler": { "name": "Vòi tưới tự động", "category": "furniture", "stackable": false, "description": "Đặt lên ô đất đã cuốc để tự động tưới mỗi sáng." }
 }

@@ -11,10 +11,15 @@ export const GameEvents = {
   PassOutRequested: 'time:passOutRequested',
   ShopOpenRequested: 'shop:openRequested',
   ShopClosedMessage: 'shop:closedMessage',
+  ChestOpenRequested: 'chest:openRequested',
 } as const;
 
 export interface ShopOpenRequestedPayload {
   shopId: string;
+}
+
+export interface ChestOpenRequestedPayload {
+  chestKey: string;
 }
 
 export interface MapEnteredPayload {

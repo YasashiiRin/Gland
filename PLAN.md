@@ -1,6 +1,16 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–7 đã xong (v0.7.0). Bước tiếp theo: Phase 8 (chế tạo & máy chế biến).
+> **Trạng thái:** Phase 0–8 đã xong (v0.8.0). Bước tiếp theo: Phase 9 (dân làng).
+>
+> Ghi chú Phase 8: `CraftingSystem` + `PlacedObjectSystem` (logic thuần, có test). `GameState.placedObjects`
+> (key "mapKey:x,y") lưu rương/bù nhìn/vòi tưới. Vòi tưới tự tưới qua `sprinklerTileKeysOnMap` gọi trong
+> `MapScene.sleepSequence`. Rương dùng kiểu tương tác đơn giản (click ô trống=cất, ô đầy=lấy) thay vì kéo-thả đầy đủ.
+>
+> Ghi chú đồ họa: thêm sắc độ loang trên cỏ, điểm sáng trên tán cây, góc sáng trên mái nhà, vân rạn trên đá —
+> cho đỡ phẳng, gần phong cách Stardew Valley hơn (xem phần cập nhật bảng màu trong `scripts/gen_placeholders.py`).
+> Đã xem qua bộ asset nhân vật/texture do người dùng gửi (`files__1_.zip`) — xác nhận là asset tự sinh bằng script,
+> không vi phạm bản quyền, nhưng khác quy mô hoàn toàn với pixel art 16px hiện tại (ảnh tĩnh 300x480, không có
+> khung hình đi lại). Đề xuất dùng làm ảnh chân dung NPC ở Phase 9 thay vì thay nhân vật đi lại.
 >
 > Ghi chú Phase 7: `ResourceSystem` (logic thuần, có test) quản lý `GameState.resourceNodes` (key "mapKey:x,y").
 > Tái sử dụng tile trang trí có sẵn (TRUNK=cây, ROCK=đá, BUSH=cỏ dại) làm tài nguyên tương tác được — không cần

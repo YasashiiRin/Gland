@@ -19,6 +19,14 @@ import {
 } from '../systems/FarmingSystem';
 import { addItem } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
+import {
+  isOccupied,
+  placedObjectKey,
+  placeObject,
+  type PlacedObjectKind,
+} from '../systems/PlacedObjectSystem';
+import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/EventBus';
+import { iconTextureKey } from '../ui/itemIcons';
 import { CROP_TEXTURE, SHIPPING_BIN_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
 
@@ -30,6 +38,7 @@ const DRY_SOIL_TINT = 0xffffff;
 export class FarmScene extends MapScene {
   private cropSprites = new Map<string, Phaser.GameObjects.Image>();
   private binZones: Phaser.GameObjects.Zone[] = [];
+  private furnitureSprites = new Map<string, Phaser.GameObjects.Image>();
 
   constructor() {
     super('Farm');
@@ -60,6 +69,17 @@ export class FarmScene extends MapScene {
       this.setSoilTint(x, y, plot.wateredToday);
       if (plot.cropId) this.spawnOrUpdateCrop(key, x, y, plot);
     }
+
+    this.furnitureSprites.forEach((sprite) => sprite.destroy());
+    this.furnitureSprites.clear();
+    const prefix = `${this.mapKey}:`;
+    for (const [key, obj] of Object.entries(gameState.placedObjects)) {
+      if (!key.startsWith(prefix)) continue;
+      const [x, y] = key.slice(prefix.length).split(',').map(Number);
+      const sprite = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, iconTextureKey(obj.kind as ItemId));
+      sprite.setDepth(y * TILE + TILE / 2 - 1);
+      this.furnitureSprites.set(key, sprite);
+    }
   }
 
   protected override applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
@@ -89,7 +109,7 @@ export class FarmScene extends MapScene {
     if (!cropId) return;
 
     gameState.farmPlots = plantSeed(gameState.farmPlots, key, cropId);
-    gameState.inventory = removeOneSeed(gameState, seedItemId);
+    gameState.inventory = removeOneFromInventory(gameState, seedItemId);
     this.spawnOrUpdateCrop(key, tile.x, tile.y, gameState.farmPlots[key]);
   }
 
@@ -110,6 +130,38 @@ export class FarmScene extends MapScene {
       this.cropSprites.get(key)?.destroy();
       this.cropSprites.delete(key);
     }
+    return true;
+  }
+
+  protected override tryPlaceFurniture(itemId: ItemId): void {
+    if (itemId !== 'chest' && itemId !== 'scarecrow' && itemId !== 'sprinkler') return;
+    const tile = this.player.getFacingTile(TILE);
+    const key = placedObjectKey(this.mapKey, tile.x, tile.y);
+    if (isOccupied(gameState.placedObjects, key)) return;
+    if (this.decorLayer.getTileAt(tile.x, tile.y)) return; // no tree/rock/bush in the way
+
+    // A sprinkler is meant to sit on a tilled plot (so it can water it); the
+    // others are just scenery and belong on plain grass.
+    const groundGid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
+    const allowedGids: readonly number[] =
+      itemId === 'sprinkler' ? [...TILLABLE_GIDS, TILE_GID.SOIL] : TILLABLE_GIDS;
+    if (groundGid === undefined || !allowedGids.includes(groundGid)) return;
+
+    gameState.placedObjects = placeObject(gameState.placedObjects, key, itemId as PlacedObjectKind);
+    gameState.inventory = removeOneFromInventory(gameState, itemId);
+
+    const sprite = this.add.image(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2, iconTextureKey(itemId));
+    sprite.setDepth(tile.y * TILE + TILE / 2 - 1);
+    this.furnitureSprites.set(key, sprite);
+  }
+
+  protected override tryOpenChest(): boolean {
+    const tile = this.player.getFacingTile(TILE);
+    const key = placedObjectKey(this.mapKey, tile.x, tile.y);
+    const placed = gameState.placedObjects[key];
+    if (!placed || placed.kind !== 'chest') return false;
+    const payload: ChestOpenRequestedPayload = { chestKey: key };
+    EventBus.emit(GameEvents.ChestOpenRequested, payload);
     return true;
   }
 
@@ -147,7 +199,7 @@ export class FarmScene extends MapScene {
   }
 }
 
-function removeOneSeed(state: typeof gameState, seedItemId: ItemId): typeof gameState.inventory {
+function removeOneFromInventory(state: typeof gameState, seedItemId: ItemId): typeof gameState.inventory {
   const slots = state.inventory.slots.slice();
   const index = slots.findIndex((s) => s?.itemId === seedItemId);
   if (index === -1) return state.inventory;

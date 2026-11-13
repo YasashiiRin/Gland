@@ -1,0 +1,29 @@
+{
+  "chest": {
+    "name": "Rương",
+    "ingredients": [{ "itemId": "wood", "qty": 50 }],
+    "resultItemId": "chest",
+    "resultQty": 1,
+    "category": "craft"
+  },
+  "scarecrow": {
+    "name": "Bù nhìn",
+    "ingredients": [
+      { "itemId": "wood", "qty": 20 },
+      { "itemId": "fiber", "qty": 20 }
+    ],
+    "resultItemId": "scarecrow",
+    "resultQty": 1,
+    "category": "craft"
+  },
+  "sprinkler": {
+    "name": "Vòi tưới tự động",
+    "ingredients": [
+      { "itemId": "stone", "qty": 10 },
+      { "itemId": "wood", "qty": 5 }
+    ],
+    "resultItemId": "sprinkler",
+    "resultQty": 1,
+    "category": "craft"
+  }
+}

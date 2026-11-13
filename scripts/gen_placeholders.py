@@ -56,6 +56,7 @@ C = {
     "flower_pink": (247, 168, 184), "flower_yellow": (250, 219, 115),
     "flower_white": (255, 255, 250), "flower_center": (235, 150, 60),
     "skin_shadow": (222, 176, 142), "blush": (248, 150, 150),
+    "leaf_hi": (196, 236, 168), "grass_patch": (128, 186, 92),
 }
 
 # A dark, slightly warm "ink" used for outlines, in the spirit of a bolder,
@@ -82,6 +83,10 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
 
     if idx in (GRASS, GRASS2, FLOWERS, TRUNK, ROCK, BUSH, SIGN, FENCE):
         fill(C["grass"])
+        # A soft, irregular patch of a slightly different green underneath,
+        # so the lawn reads as organic ground rather than a flat fill.
+        px, py = rnd.randrange(-2, T), rnd.randrange(-2, T)
+        d.ellipse([px, py, px + 9, py + 7], fill=C["grass_patch"])
         # Soft rounded tufts instead of hard pixel speckle, for a plusher lawn.
         tuft_n = 5 if idx != GRASS2 else 8
         for _ in range(tuft_n):
@@ -123,21 +128,25 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
         d.ellipse([3, 11, 12, 15], fill=C["grass_d"])
         d.rectangle([6, 9, 9, 13], fill=C["wood"])
     elif idx == CANOPY:
-        # A single bold outline behind the cluster, then soft round puffs on top,
-        # for a fluffier but more clearly inked silhouette.
+        # A single bold outline behind the cluster, then soft round puffs on
+        # top with three tones (shadow/mid/highlight) for a rounder, more
+        # dimensional look instead of flat color blocks.
         d.ellipse([-1, 0, 15, 15], fill=INK)
         for (cx, cy, r, col) in [
             (7, 8, 7, C["leaf_d"]), (4, 6, 5, C["leaf"]), (11, 6, 5, C["leaf"]),
             (7, 3, 5, C["leaf"]), (5, 5, 2, C["leaf_l"]), (9, 4, 2, C["leaf_l"]),
         ]:
             d.ellipse([cx - r + 1, cy - r + 1, cx + r - 1, cy + r - 1], fill=col)
+        d.ellipse([4, 2, 7, 5], fill=C["leaf_hi"])  # sunlit highlight, upper-left
     elif idx == ROCK:
         outline_ellipse(d, [2, 5, 14, 15], C["rock_d"])
         outline_ellipse(d, [2, 3, 13, 13], C["rock"])
+        d.line([(5, 8), (9, 10)], fill=C["rock_d"])  # crevice for texture
         d.ellipse([4, 4, 8, 7], fill=C["rock_l"])
         d.ellipse([8, 8, 11, 10], fill=C["rock_l"])
     elif idx == WALL:
         fill(C["wall"])
+        d.rectangle([2, 0, 4, 15], fill=C["wall_l"])  # soft light streak
         for y in (4, 9, 14):
             d.line([(0, y), (15, y)], fill=C["wall_d"])
     elif idx == WINDOW:
@@ -148,6 +157,7 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
         d.line([(4, 7), (11, 7)], fill=C["wood_d"])
     elif idx == ROOF:
         fill(C["roof"])
+        d.polygon([(0, 0), (6, 0), (0, 6)], fill=C["roof_l"])  # sunlit corner
         for y in range(0, T, 4):
             d.line([(0, y + 3), (15, y + 3)], fill=C["roof_d"])
             off = 0 if (y // 4) % 2 == 0 else 4
