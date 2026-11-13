@@ -1,0 +1,12 @@
+{
+  "hoe": { "name": "Cuốc", "category": "tool", "stackable": false, "description": "Cuốc đất để trồng trọt." },
+  "watering_can": { "name": "Bình tưới", "category": "tool", "stackable": false, "description": "Tưới nước cho cây trồng." },
+  "axe": { "name": "Rìu", "category": "tool", "stackable": false, "description": "Chặt cây lấy gỗ." },
+  "pickaxe": { "name": "Cuốc chim", "category": "tool", "stackable": false, "description": "Đập đá lấy khoáng sản." },
+  "scythe": { "name": "Liềm", "category": "tool", "stackable": false, "description": "Cắt cỏ dại và thu hoạch một số loại cây." },
+  "fishing_rod": { "name": "Cần câu", "category": "tool", "stackable": false, "description": "Dùng để câu cá." },
+  "parsnip_seeds": { "name": "Hạt củ cải trắng", "category": "seed", "stackable": true, "sellPrice": 10, "description": "Gieo vào mùa xuân." },
+  "parsnip": { "name": "Củ cải trắng", "category": "crop", "stackable": true, "sellPrice": 35, "description": "Một loại củ quen thuộc." },
+  "wood": { "name": "Gỗ", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản." },
+  "stone": { "name": "Đá", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản." }
+}

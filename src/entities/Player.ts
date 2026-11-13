@@ -13,6 +13,7 @@ export interface PlayerInput extends MoveInput {
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private facing: Direction = 'down';
+  private exhausted = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, facing: Direction = 'down') {
     super(scene, x, y, PLAYER_TEXTURE, 0);
@@ -35,8 +36,40 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.facing;
   }
 
+  setExhausted(exhausted: boolean): void {
+    this.exhausted = exhausted;
+  }
+
+  /** The tile just in front of the player, where tools act and interactions happen. */
+  getFacingTile(tileSize: number): { x: number; y: number } {
+    const offsets: Record<Direction, [number, number]> = {
+      down: [0, 1],
+      up: [0, -1],
+      left: [-1, 0],
+      right: [1, 0],
+    };
+    const [dx, dy] = offsets[this.facing];
+    return {
+      x: Math.floor(this.x / tileSize) + dx,
+      y: Math.floor(this.y / tileSize) + dy,
+    };
+  }
+
+  /** Brief squash-and-stretch feedback for using a tool; purely cosmetic. */
+  playUseToolFeedback(): void {
+    this.scene.tweens.add({
+      targets: this,
+      scaleX: 1.15,
+      scaleY: 0.85,
+      duration: 90,
+      yoyo: true,
+      ease: 'Quad.easeOut',
+    });
+  }
+
   updateMovement(input: PlayerInput): void {
-    const speed = PLAYER_SPEED * (input.run ? RUN_MULTIPLIER : 1);
+    const speedScale = this.exhausted ? 0.5 : 1;
+    const speed = PLAYER_SPEED * (input.run ? RUN_MULTIPLIER : 1) * speedScale;
     const result = computeMovement(input, speed, this.facing);
     this.setVelocity(result.vx, result.vy);
     this.facing = result.facing;

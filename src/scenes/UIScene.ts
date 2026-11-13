@@ -9,15 +9,21 @@ import {
 } from '../events/EventBus';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
+import { uiState } from '../state/uiState';
 import { advanceTime, darknessAlpha } from '../systems/TimeSystem';
+import { Hotbar } from '../ui/Hotbar';
 import { Hud } from '../ui/Hud';
+import { InventoryMenu } from '../ui/InventoryMenu';
 
 /** Runs on top of the map scenes: draws the HUD, the night overlay, and owns the game clock. */
 export class UIScene extends Phaser.Scene {
   private hud!: Hud;
+  private hotbar!: Hotbar;
+  private inventoryMenu!: InventoryMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private dayBanner!: Phaser.GameObjects.Text;
   private accumulatorMs = 0;
+  private inventoryKey!: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super('UI');
@@ -35,7 +41,26 @@ export class UIScene extends Phaser.Scene {
 
     this.hud = new Hud(this);
     this.hud.setTime(gameState.time);
+    this.hud.setEnergy(gameState.energy);
+    this.hud.setMoney(gameState.money);
     this.updateNightOverlay();
+
+    this.hotbar = new Hotbar(this, DEPTH_ABOVE);
+    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
+
+    this.inventoryMenu = new InventoryMenu(this, DEPTH_ABOVE + 1);
+    this.inventoryMenu.bind(
+      () => gameState.inventory,
+      (next) => {
+        gameState.inventory = next;
+        this.inventoryMenu.refresh(next);
+        this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
+      },
+    );
+
+    const kb = this.input.keyboard;
+    if (!kb) throw new Error('Keyboard input is not available');
+    this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
 
     this.dayBanner = this.add
       .text(width / 2, 70, '', {
@@ -60,7 +85,13 @@ export class UIScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    if (timeControl.paused) return;
+    if (Phaser.Input.Keyboard.JustDown(this.inventoryKey)) this.toggleInventory();
+
+    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
+    this.hud.setEnergy(gameState.energy);
+    this.hud.setMoney(gameState.money);
+
+    if (timeControl.paused || uiState.inventoryOpen) return;
 
     this.accumulatorMs += delta;
     let ticked = false;
@@ -79,6 +110,16 @@ export class UIScene extends Phaser.Scene {
       this.hud.setTime(gameState.time);
       this.updateNightOverlay();
       EventBus.emit(GameEvents.TimeTick, { time: gameState.time });
+    }
+  }
+
+  private toggleInventory(): void {
+    if (uiState.inventoryOpen) {
+      this.inventoryMenu.close();
+      uiState.inventoryOpen = false;
+    } else {
+      this.inventoryMenu.open(gameState.inventory);
+      uiState.inventoryOpen = true;
     }
   }
 

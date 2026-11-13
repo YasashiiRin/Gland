@@ -1,6 +1,11 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0, 1, 2 đã xong (v0.2.0). Bước tiếp theo: Phase 3 (túi đồ, công cụ, năng lượng).
+> **Trạng thái:** Phase 0–3 đã xong (v0.3.0). Bước tiếp theo: Phase 4 (trồng trọt, bán hàng).
+>
+> Ghi chú Phase 3: `docs/game-design.md` mô tả đầy đủ cơ chế các phase 3–15.
+> Túi đồ 36 ô (`InventorySystem`), công cụ tốn năng lượng (`EnergySystem`), chọn hotbar bằng phím số/cuộn chuột,
+> dùng đồ bằng Space (hiện tại chỉ trừ năng lượng, hiệu ứng lên thế giới sẽ nối ở Phase 4/7).
+> Mở túi đồ bằng phím I (`uiState.inventoryOpen` khoá di chuyển + dừng đồng hồ trong lúc mở).
 >
 > Ghi chú Phase 2: đồng hồ chạy trong `UIScene` (10 phút game ≈ 7 giây thực, xem `src/config/time.ts`).
 > Ngủ bằng cách lại gần giường trong nhà rồi bấm **E**; thức quá 2:00 sẽ tự ngất và bị đưa về giường.
@@ -77,8 +82,8 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - Thanh năng lượng.
 
 **Tiêu chí hoàn thành:**
-- [ ] Đổi công cụ, dùng công cụ trừ năng lượng.
-- [ ] Có test cho InventorySystem.
+- [x] Đổi công cụ, dùng công cụ trừ năng lượng.
+- [x] Có test cho InventorySystem.
 
 ### Phase 4 – Trồng trọt và bán hàng
 - Dữ liệu `crops.json` (mùa, số ngày mỗi giai đoạn, thu hoạch lại, giá).

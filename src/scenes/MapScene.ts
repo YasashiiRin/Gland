@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { DEPTH_ABOVE, FADE_MS, WORLD_ZOOM } from '../config/constants';
+import { DEPTH_ABOVE, FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
+import { ITEMS, TOOL_ENERGY_COST } from '../data/items';
 import { isMapKey, MAPS, type MapKey } from '../data/maps';
 import { Player, type PlayerInput } from '../entities/Player';
 import {
@@ -10,9 +11,16 @@ import {
 } from '../events/EventBus';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
+import { uiState } from '../state/uiState';
+import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/EnergySystem';
+import { HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
 import { startNewDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE } from './PreloadScene';
+
+/** Money lost when passing out, capped so a bad night never wipes someone out. */
+const PASS_OUT_MONEY_PENALTY_RATE = 0.1;
+const PASS_OUT_MONEY_PENALTY_MAX = 1000;
 
 export interface MapSceneData {
   spawn?: string;
@@ -26,9 +34,24 @@ interface Door {
 }
 
 type Keys = Record<
-  'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'shift' | 'interact',
+  'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'shift' | 'interact' | 'useTool',
   Phaser.Input.Keyboard.Key
 >;
+
+const HOTBAR_KEY_CODES = [
+  Phaser.Input.Keyboard.KeyCodes.ONE,
+  Phaser.Input.Keyboard.KeyCodes.TWO,
+  Phaser.Input.Keyboard.KeyCodes.THREE,
+  Phaser.Input.Keyboard.KeyCodes.FOUR,
+  Phaser.Input.Keyboard.KeyCodes.FIVE,
+  Phaser.Input.Keyboard.KeyCodes.SIX,
+  Phaser.Input.Keyboard.KeyCodes.SEVEN,
+  Phaser.Input.Keyboard.KeyCodes.EIGHT,
+  Phaser.Input.Keyboard.KeyCodes.NINE,
+  Phaser.Input.Keyboard.KeyCodes.ZERO,
+  Phaser.Input.Keyboard.KeyCodes.MINUS,
+  Phaser.Input.Keyboard.KeyCodes.PLUS,
+];
 
 /**
  * Shared logic for every walkable map: loads the Tiled map, places the player
@@ -39,6 +62,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected player!: Player;
   protected map!: Phaser.Tilemaps.Tilemap;
   private keys!: Keys;
+  private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
   private transitioning = false;
   private bedZones: Phaser.GameObjects.Zone[] = [];
   private rain?: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -98,10 +122,22 @@ export abstract class MapScene extends Phaser.Scene {
 
   update(): void {
     if (this.transitioning) return;
+
+    this.player.setExhausted(isExhausted(gameState.energy));
+
+    if (uiState.inventoryOpen) {
+      this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
+      return;
+    }
+
     this.player.updateMovement(this.readInput());
+    this.readHotbarSelection();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact) && this.isNearBed()) {
       this.sleepSequence('manual');
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.useTool)) {
+      this.useEquippedTool();
     }
   }
 
@@ -169,6 +205,15 @@ export abstract class MapScene extends Phaser.Scene {
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       const nextTime = startNewDay(gameState.time);
       gameState.time = nextTime;
+
+      if (reason === 'passedOut') {
+        const penalty = Math.min(PASS_OUT_MONEY_PENALTY_MAX, Math.round(gameState.money * PASS_OUT_MONEY_PENALTY_RATE));
+        gameState.money = Math.max(0, gameState.money - penalty);
+        gameState.energy = restoreHalf(gameState.energy);
+      } else {
+        gameState.energy = restoreFull(gameState.energy);
+      }
+
       const payload: DayStartedPayload = {
         time: nextTime,
         day: nextTime.day,
@@ -180,9 +225,6 @@ export abstract class MapScene extends Phaser.Scene {
       // Emitted after scene.start queues the new scene's create(); UI is a separate
       // active scene so it still receives this straight away.
       EventBus.emit(GameEvents.DayStarted, payload);
-      if (reason === 'passedOut') {
-        console.info('Player passed out from staying up too late.');
-      }
     });
   }
 
@@ -216,8 +258,36 @@ export abstract class MapScene extends Phaser.Scene {
     const K = Phaser.Input.Keyboard.KeyCodes;
     this.keys = kb.addKeys({
       up: K.UP, down: K.DOWN, left: K.LEFT, right: K.RIGHT,
-      w: K.W, a: K.A, s: K.S, d: K.D, shift: K.SHIFT, interact: K.E,
+      w: K.W, a: K.A, s: K.S, d: K.D, shift: K.SHIFT, interact: K.E, useTool: K.SPACE,
     }) as Keys;
+    this.hotbarKeys = HOTBAR_KEY_CODES.map((code) => kb.addKey(code));
+
+    this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
+      if (uiState.inventoryOpen) return;
+      const delta = dy > 0 ? 1 : -1;
+      gameState.equippedSlot = (gameState.equippedSlot + delta + HOTBAR_SIZE) % HOTBAR_SIZE;
+    });
+  }
+
+  private readHotbarSelection(): void {
+    for (let i = 0; i < this.hotbarKeys.length; i++) {
+      if (Phaser.Input.Keyboard.JustDown(this.hotbarKeys[i])) {
+        gameState.equippedSlot = i;
+      }
+    }
+  }
+
+  private useEquippedTool(): void {
+    const stack = itemAt(gameState.inventory, gameState.equippedSlot);
+    if (!stack) return;
+    const cost = TOOL_ENERGY_COST[stack.itemId];
+    if (cost === undefined) return; // not a tool; nothing to do yet (Phase 4+ adds effects)
+    if (isExhausted(gameState.energy)) return;
+
+    gameState.energy = consume(gameState.energy, cost);
+    this.player.playUseToolFeedback();
+    const tile = this.player.getFacingTile(TILE);
+    console.info(`Used ${ITEMS[stack.itemId].name} facing tile (${tile.x}, ${tile.y})`);
   }
 
   private readInput(): PlayerInput {
