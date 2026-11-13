@@ -1,0 +1,5 @@
+{
+  "Farm": { "file": "farm", "displayName": "Nông trại" },
+  "House": { "file": "house", "displayName": "Nhà của bạn" },
+  "Town": { "file": "town", "displayName": "Làng" }
+}
