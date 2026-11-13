@@ -148,7 +148,13 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.player.setExhausted(isExhausted(gameState.energy));
 
-    if (uiState.inventoryOpen || uiState.shopOpen || uiState.craftingOpen || uiState.chestOpen) {
+    if (
+      uiState.inventoryOpen ||
+      uiState.shopOpen ||
+      uiState.craftingOpen ||
+      uiState.chestOpen ||
+      uiState.dialogueOpen
+    ) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
       return;
     }
@@ -157,7 +163,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.readHotbarSelection();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
-      if (!this.tryHarvestFacingTile() && !this.tryOpenChest()) {
+      if (!this.tryHarvestFacingTile() && !this.tryOpenChest() && !this.tryTalkToNpc()) {
         if (this.isNearBed()) this.sleepSequence('manual');
         else if (!this.tryOpenShop()) this.tryUseShippingBin();
       }
@@ -187,6 +193,9 @@ export abstract class MapScene extends Phaser.Scene {
   }
   protected tryPlaceFurniture(_itemId: ItemId): void {}
   protected tryOpenChest(): boolean {
+    return false;
+  }
+  protected tryTalkToNpc(): boolean {
     return false;
   }
 

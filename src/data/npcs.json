@@ -1,0 +1,56 @@
+{
+  "chu_tu": {
+    "name": "Chú Tư",
+    "portrait": "chu_tu.png",
+    "birthday": { "season": "spring", "day": 5 },
+    "lovedGifts": ["potato", "cauliflower"],
+    "likedGifts": ["parsnip", "green_bean"],
+    "dislikedGifts": ["strawberry"],
+    "hatedGifts": ["stone"],
+    "schedule": [
+      { "hour": 6, "mapKey": "Farm", "x": 30, "y": 12 },
+      { "hour": 13, "mapKey": "Town", "x": 24, "y": 9 },
+      { "hour": 19, "mapKey": "Town", "x": 6, "y": 4 }
+    ]
+  },
+  "co_hanh": {
+    "name": "Cô Hạnh",
+    "portrait": "co_hanh.png",
+    "birthday": { "season": "spring", "day": 12 },
+    "lovedGifts": ["strawberry"],
+    "likedGifts": ["parsnip_seeds", "potato_seeds", "cauliflower_seeds", "strawberry_seeds", "green_bean_seeds", "wood"],
+    "dislikedGifts": ["stone"],
+    "hatedGifts": [],
+    "schedule": [
+      { "hour": 9, "mapKey": "Town", "x": 18, "y": 4 },
+      { "hour": 17, "mapKey": "Town", "x": 32, "y": 5 }
+    ]
+  },
+  "linh": {
+    "name": "Linh",
+    "portrait": "linh.png",
+    "birthday": { "season": "spring", "day": 18 },
+    "lovedGifts": ["green_bean"],
+    "likedGifts": ["strawberry", "fiber"],
+    "dislikedGifts": ["potato"],
+    "hatedGifts": ["stone"],
+    "schedule": [
+      { "hour": 8, "mapKey": "Town", "x": 6, "y": 17 },
+      { "hour": 13, "mapKey": "Town", "x": 21, "y": 12 },
+      { "hour": 18, "mapKey": "Town", "x": 14, "y": 19 }
+    ]
+  },
+  "minh": {
+    "name": "Minh",
+    "portrait": "minh.png",
+    "birthday": { "season": "spring", "day": 25 },
+    "lovedGifts": ["stone", "wood"],
+    "likedGifts": ["fiber"],
+    "dislikedGifts": ["strawberry", "parsnip"],
+    "hatedGifts": [],
+    "schedule": [
+      { "hour": 9, "mapKey": "Town", "x": 31, "y": 4 },
+      { "hour": 20, "mapKey": "Town", "x": 31, "y": 18 }
+    ]
+  }
+}

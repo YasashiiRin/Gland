@@ -1,6 +1,12 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–8 đã xong (v0.8.0). Bước tiếp theo: Phase 9 (dân làng).
+> **Trạng thái:** Phase 0–9 đã xong (v0.9.0). Bước tiếp theo: Phase 10 (câu cá).
+>
+> Ghi chú Phase 9: `RelationshipSystem` (logic thuần, có test) quản lý `GameState.relationships`.
+> NPC data ở `data/npcs.json` + `data/dialogues.json`. Ảnh chân dung ghép từ bộ asset người dùng gửi,
+> lưu ở `public/assets/portraits/`, xem nguồn gốc trong `CREDITS.md`.
+> NPC chỉ xuất hiện ở bản đồ Làng trong bản này (chưa có ở Nông trại/Nhà), vị trí tính lại mỗi khi vào lại Làng
+> theo giờ hiện tại — không phải di chuyển real-time trong lúc bạn đứng nhìn.
 >
 > Ghi chú Phase 8: `CraftingSystem` + `PlacedObjectSystem` (logic thuần, có test). `GameState.placedObjects`
 > (key "mapKey:x,y") lưu rương/bù nhìn/vòi tưới. Vòi tưới tự tưới qua `sprinklerTileKeysOnMap` gọi trong
@@ -159,12 +165,14 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - Đặt đồ xuống đất: rương (có túi đồ riêng), vòi phun tự động, bù nhìn (quạ ăn cây nếu không có), hàng rào.
 - Máy chế biến (ví dụ: thùng ủ, lọ ngâm) chạy theo thời gian.
 
-### Phase 9 – Dân làng
-- Viết `docs/world.md`: tên làng, 6–8 NPC nguyên bản (tính cách, sở thích, sinh nhật).
-- NPC đi theo lịch, tìm đường (A*) trên bản đồ.
-- Hộp thoại có chân dung, lời thoại theo mùa/thời tiết/độ thân thiết.
-- Độ thân thiết (tim), tặng quà (thích/ghét), sinh nhật x8 điểm.
-- Menu xem quan hệ.
+### Phase 9 – Dân làng  ✅ Đã xong (bản rút gọn)
+- `docs/world.md`: Làng Suối Hiền, 4 dân làng nguyên bản (Chú Tư, Cô Hạnh, Linh, Minh) — giảm từ 6-8 xuống 4 để vừa phạm vi.
+- NPC xuất hiện đúng vị trí theo lịch 2-3 mốc giờ/ngày (`scheduleEntryAt`) — dịch chuyển tức thời, **chưa có pathfinding mượt**.
+- Hộp thoại (`DialogueBox`): ảnh chân dung + tên + 1 câu thoại ngẫu nhiên trong vài câu có sẵn/người (chưa đổi theo mùa/thời tiết).
+- Tặng quà: đứng cạnh, cầm đồ ăn được rồi bấm **E** — tự nhận biết yêu thích/thích/ghét/cực ghét, cộng điểm đúng,
+  giới hạn 2 quà/tuần/người, sinh nhật nhân đôi điểm. Không cầm gì thì bấm E chỉ để trò chuyện.
+- **Chưa làm**: menu xem danh sách độ thân thiết tất cả NPC (tim), lời thoại thay đổi theo thời tiết/mùa/độ thân thiết,
+  sự kiện sinh nhật đặc biệt, pathfinding mượt — để dành cho bản cập nhật sau.
 
 ### Phase 10 – Câu cá
 - Minigame câu cá; dữ liệu `fish.json` (địa điểm, mùa, giờ, thời tiết, độ khó).

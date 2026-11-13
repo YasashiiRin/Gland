@@ -1,6 +1,11 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../config/constants';
 import { MAP_KEYS, MAPS } from '../data/maps';
+import { NPC_IDS, NPCS } from '../data/npcs';
+
+export function portraitKey(npcId: string): string {
+  return `portrait_${npcId}`;
+}
 import { PLAYER_FRAME, PLAYER_TEXTURE } from '../entities/Player';
 import { DIRECTIONS } from '../systems/movement';
 import { gameState } from '../state/GameState';
@@ -33,6 +38,9 @@ export class PreloadScene extends Phaser.Scene {
     for (const key of MAP_KEYS) {
       const file = MAPS[key].file;
       this.load.tilemapTiledJSON(mapCacheKey(file), `maps/${file}.tmj`);
+    }
+    for (const npcId of NPC_IDS) {
+      this.load.image(portraitKey(npcId), `portraits/${NPCS[npcId].portrait}`);
     }
   }
 

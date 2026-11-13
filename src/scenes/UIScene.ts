@@ -7,8 +7,11 @@ import {
   type ChestOpenRequestedPayload,
   type DayStartedPayload,
   type MapEnteredPayload,
+  type NpcInteractedPayload,
   type ShopOpenRequestedPayload,
 } from '../events/EventBus';
+import { NPCS, isNpcId } from '../data/npcs';
+import { DialogueBox } from '../ui/DialogueBox';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
@@ -35,6 +38,7 @@ export class UIScene extends Phaser.Scene {
   private craftingMenu!: CraftingMenu;
   private chestMenu!: ChestMenu;
   private openChestKey: string | null = null;
+  private dialogueBox!: DialogueBox;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private dayBanner!: Phaser.GameObjects.Text;
   private accumulatorMs = 0;
@@ -100,6 +104,15 @@ export class UIScene extends Phaser.Scene {
       (slotIndex) => this.withdrawFromChest(slotIndex),
     );
 
+    this.dialogueBox = new DialogueBox(this, DEPTH_ABOVE + 1);
+    const onNpcInteracted = (p: NpcInteractedPayload) => {
+      if (!isNpcId(p.npcId)) return;
+      this.dialogueBox.open(p.npcId, NPCS[p.npcId].name, p.line);
+      uiState.dialogueOpen = true;
+    };
+    EventBus.on(GameEvents.NpcInteracted, onNpcInteracted);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.NpcInteracted, onNpcInteracted));
+
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
@@ -114,10 +127,15 @@ export class UIScene extends Phaser.Scene {
     });
     const escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     escKey.on('down', () => {
-      if (uiState.shopOpen) this.closeShop();
+      if (uiState.dialogueOpen) this.closeDialogue();
+      else if (uiState.shopOpen) this.closeShop();
       else if (uiState.craftingOpen) this.closeCrafting();
       else if (uiState.chestOpen) this.closeChest();
       else if (uiState.inventoryOpen) this.toggleInventory();
+    });
+    const interactKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    interactKey.on('down', () => {
+      if (uiState.dialogueOpen) this.closeDialogue();
     });
 
     const onShopOpen = (p: ShopOpenRequestedPayload) => {
@@ -167,7 +185,14 @@ export class UIScene extends Phaser.Scene {
     this.hud.setEnergy(gameState.energy);
     this.hud.setMoney(gameState.money);
 
-    if (timeControl.paused || uiState.inventoryOpen || uiState.shopOpen || uiState.craftingOpen || uiState.chestOpen) {
+    if (
+      timeControl.paused ||
+      uiState.inventoryOpen ||
+      uiState.shopOpen ||
+      uiState.craftingOpen ||
+      uiState.chestOpen ||
+      uiState.dialogueOpen
+    ) {
       return;
     }
 
@@ -205,6 +230,11 @@ export class UIScene extends Phaser.Scene {
     this.chestMenu.close();
     uiState.chestOpen = false;
     this.openChestKey = null;
+  }
+
+  private closeDialogue(): void {
+    this.dialogueBox.close();
+    uiState.dialogueOpen = false;
   }
 
   /** Moves the player's currently equipped stack into an empty chest slot. */
