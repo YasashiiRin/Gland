@@ -23,9 +23,11 @@ export interface GameState {
   farmPlots: FarmPlots;
   /** Items placed in the shipping bin, sold automatically when the next day starts. */
   shippingBin: Partial<Record<ItemId, number>>;
+  playerName: string;
+  farmName: string;
 }
 
-export const STATE_VERSION = 4;
+export const STATE_VERSION = 5;
 
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
@@ -40,7 +42,7 @@ const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'green_bean_seeds', quantity: 10 },
 ];
 
-export function createInitialState(): GameState {
+export function createInitialState(playerName = 'Nông dân', farmName = 'Nông trại nhỏ'): GameState {
   let inventory = createEmptyInventory();
   for (const { itemId, quantity } of STARTING_ITEMS) {
     inventory = addStartingItem(inventory, itemId, quantity);
@@ -56,6 +58,8 @@ export function createInitialState(): GameState {
     equippedSlot: 0,
     farmPlots: {},
     shippingBin: {},
+    playerName,
+    farmName,
   };
 }
 
@@ -67,5 +71,18 @@ function addStartingItem(inventory: InventoryState, itemId: ItemId, quantity: nu
   return { slots };
 }
 
-/** Shared in-memory state for this session. SaveService will persist it in Phase 5. */
+/**
+ * Shared in-memory state for this session. It's one mutable object so every
+ * module that imported `gameState` keeps seeing updates; loading a save or
+ * starting a new game therefore mutates this object in place rather than
+ * rebinding the export (which other modules wouldn't see).
+ */
 export const gameState: GameState = createInitialState();
+
+export function applyLoadedState(saved: GameState): void {
+  Object.assign(gameState, saved);
+}
+
+export function resetToNewGame(playerName?: string, farmName?: string): void {
+  Object.assign(gameState, createInitialState(playerName, farmName));
+}

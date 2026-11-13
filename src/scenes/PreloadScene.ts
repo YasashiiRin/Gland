@@ -4,6 +4,7 @@ import { MAP_KEYS, MAPS } from '../data/maps';
 import { PLAYER_FRAME, PLAYER_TEXTURE } from '../entities/Player';
 import { DIRECTIONS } from '../systems/movement';
 import { gameState } from '../state/GameState';
+import { sessionFlags } from '../state/sessionFlags';
 
 export const TILESET_TEXTURE = 'farm_tiles';
 export const RAIN_TEXTURE = 'rain_drop';
@@ -39,6 +40,7 @@ export class PreloadScene extends Phaser.Scene {
     this.createRainTexture();
     this.createCropTexture();
     this.createShippingBinTexture();
+    sessionFlags.gameStarted = true;
     this.scene.launch('UI');
     this.scene.start(gameState.currentMap, { spawn: gameState.spawnId });
   }

@@ -16,6 +16,7 @@ import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/Energ
 import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
 import { HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
+import * as SaveService from '../systems/SaveService';
 import { startNewDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE } from './PreloadScene';
 
@@ -258,6 +259,10 @@ export abstract class MapScene extends Phaser.Scene {
         weather: nextTime.weather,
         earnings,
       };
+      gameState.currentMap = 'House';
+      gameState.spawnId = 'default';
+      SaveService.save(gameState);
+
       this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
       // Emitted after scene.start queues the new scene's create(); UI is a separate
       // active scene so it still receives this straight away.

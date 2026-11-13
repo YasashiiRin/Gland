@@ -1,6 +1,12 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–4 đã xong (v0.4.0). Bước tiếp theo: Phase 6 (cửa hàng và làng) — Phase 5 (lưu/tải game) sẽ làm sau khi còn phase gameplay để lưu thử đầy đủ hơn.
+> **Trạng thái:** Phase 0–5 đã xong (v0.5.0). Bước tiếp theo: Phase 6 (cửa hàng và làng).
+>
+> Ghi chú Phase 5: `SaveService` lưu/tải qua `localStorage` (khoá `farm-game-save`), tự lưu mỗi khi sang ngày mới
+> và khi đóng/tải lại trang (`beforeunload`). Màn hình tiêu đề (`TitleScene`) là scene đầu tiên; "Tiếp tục" chỉ
+> sáng lên khi có save. Tên nhân vật/nông trại hiện dùng mặc định ("Nông dân" / "Nông trại nhỏ"), **chưa có** màn
+> hình nhập tên tuỳ chỉnh (Phaser không có input chữ sẵn, cần overlay HTML — để lại cho phase hoàn thiện sau).
+> Tên game tạm thời: "Vườn Nhà Nhỏ" — đổi dễ dàng trong `TitleScene.ts`.
 >
 > Ghi chú Phase 3: `docs/game-design.md` mô tả đầy đủ cơ chế các phase 3–15.
 > Túi đồ 36 ô (`InventorySystem`), công cụ tốn năng lượng (`EnergySystem`), chọn hotbar bằng phím số/cuộn chuột,
@@ -106,7 +112,7 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - Có số phiên bản trong file lưu để nâng cấp dữ liệu sau này.
 
 **Tiêu chí hoàn thành:**
-- [ ] Tắt trình duyệt, mở lại vẫn đúng ngày, tiền, túi đồ, cây trồng.
+- [x] Tắt trình duyệt, mở lại vẫn đúng ngày, tiền, túi đồ, cây trồng.
 
 ### Phase 6 – Cửa hàng và làng
 - Bản đồ làng, cửa hàng hạt giống (theo mùa), giờ mở cửa.

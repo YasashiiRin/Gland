@@ -4,9 +4,12 @@ import { BootScene } from './scenes/BootScene';
 import { FarmScene } from './scenes/FarmScene';
 import { HouseScene } from './scenes/HouseScene';
 import { PreloadScene } from './scenes/PreloadScene';
+import { TitleScene } from './scenes/TitleScene';
 import { TownScene } from './scenes/TownScene';
 import { UIScene } from './scenes/UIScene';
 import { gameState } from './state/GameState';
+import { sessionFlags } from './state/sessionFlags';
+import * as SaveService from './systems/SaveService';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -25,7 +28,14 @@ const game = new Phaser.Game({
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   // UI must come last so it draws on top of the map scenes.
-  scene: [BootScene, PreloadScene, FarmScene, HouseScene, TownScene, UIScene],
+  scene: [BootScene, TitleScene, PreloadScene, FarmScene, HouseScene, TownScene, UIScene],
+});
+
+// Safety-net autosave: catches anything since the last day-start save if the
+// tab is closed or refreshed mid-day. The main autosave is in MapScene,
+// right when a new day begins.
+window.addEventListener('beforeunload', () => {
+  if (sessionFlags.gameStarted) SaveService.save(gameState);
 });
 
 declare global {
