@@ -58,6 +58,16 @@ C = {
     "skin_shadow": (222, 176, 142), "blush": (248, 150, 150),
 }
 
+# A dark, slightly warm "ink" used for outlines, in the spirit of a bolder,
+# more hand-drawn illustration style (thick dark linework, less flat-looking
+# than plain filled shapes) — drawn freehand, not sampled from any game.
+INK = (42, 32, 28)
+
+
+def outline_ellipse(d: ImageDraw.ImageDraw, box, fill, outline=INK, width: int = 1) -> None:
+    """Fills an ellipse and gives it a clean dark outline in one call."""
+    d.ellipse(box, fill=fill, outline=outline, width=width)
+
 
 def tile_img(idx: int, rnd: random.Random) -> Image.Image:
     im = Image.new("RGBA", (T, T), (0, 0, 0, 0))
@@ -113,15 +123,17 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
         d.ellipse([3, 11, 12, 15], fill=C["grass_d"])
         d.rectangle([6, 9, 9, 13], fill=C["wood"])
     elif idx == CANOPY:
-        # A cluster of soft round puffs rather than one hard oval, for a fluffier look.
+        # A single bold outline behind the cluster, then soft round puffs on top,
+        # for a fluffier but more clearly inked silhouette.
+        d.ellipse([-1, 0, 15, 15], fill=INK)
         for (cx, cy, r, col) in [
             (7, 8, 7, C["leaf_d"]), (4, 6, 5, C["leaf"]), (11, 6, 5, C["leaf"]),
             (7, 3, 5, C["leaf"]), (5, 5, 2, C["leaf_l"]), (9, 4, 2, C["leaf_l"]),
         ]:
-            d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
+            d.ellipse([cx - r + 1, cy - r + 1, cx + r - 1, cy + r - 1], fill=col)
     elif idx == ROCK:
-        d.ellipse([2, 5, 14, 15], fill=C["rock_d"])
-        d.ellipse([2, 3, 13, 13], fill=C["rock"])
+        outline_ellipse(d, [2, 5, 14, 15], C["rock_d"])
+        outline_ellipse(d, [2, 3, 13, 13], C["rock"])
         d.ellipse([4, 4, 8, 7], fill=C["rock_l"])
         d.ellipse([8, 8, 11, 10], fill=C["rock_l"])
     elif idx == WALL:
@@ -177,11 +189,12 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
         d.rectangle([2, 2, 13, 13], outline=C["rug_l"])
         d.rectangle([5, 5, 10, 10], outline=C["rug_l"])
     elif idx == BUSH:
+        outline_ellipse(d, [1, 3, 15, 16], INK, outline=None)
         for (cx, cy, r, col) in [
             (8, 10, 6, C["leaf_d"]), (5, 9, 4, C["leaf"]), (11, 9, 4, C["leaf"]),
             (8, 6, 4, C["leaf"]), (6, 7, 2, C["leaf_l"]),
         ]:
-            d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
+            d.ellipse([cx - r + 1, cy - r + 1, cx + r - 1, cy + r - 1], fill=col)
     elif idx == SOIL:
         fill(C["soil"])
         for y in (3, 8, 13):
@@ -244,29 +257,29 @@ def player_frame(direction: str, step: int) -> Image.Image:
         d.rectangle([6 - sx // 2, 27, 9 - sx // 2, 28], fill=SHOE)
         d.rectangle([6 + sx, 27, 9 + sx // 2, 28], fill=SHOE)
 
-    # Round little overalls-and-shirt body.
-    d.rounded_rectangle([3, 16 + y0, 12, 24 + y0], radius=2, fill=OVERALLS)
-    d.rectangle([3, 16 + y0, 12, 18 + y0], fill=SHIRT)
-    d.line([(3, 18 + y0), (12, 18 + y0)], fill=SHIRT_D)
-    d.line([(3, 24 + y0), (12, 24 + y0)], fill=OVERALLS_D)
+    # Round little overalls-and-shirt body, with a clean dark outline.
+    d.rounded_rectangle([3, 16 + y0, 12, 24 + y0], radius=2, fill=OVERALLS, outline=INK, width=1)
+    d.rectangle([4, 16 + y0, 11, 18 + y0], fill=SHIRT)
+    d.line([(4, 18 + y0), (11, 18 + y0)], fill=SHIRT_D)
+    d.line([(4, 24 + y0), (11, 24 + y0)], fill=OVERALLS_D)
     d.rectangle([5, 19 + y0, 6, 22 + y0], fill=OVERALLS_D)
     d.rectangle([9, 19 + y0, 10, 22 + y0], fill=OVERALLS_D)
 
     # Stubby arms.
     if direction in ("down", "up"):
-        d.ellipse([1, 17 + y0, 4, 21 + y0 + swing[1]], fill=SKIN)
-        d.ellipse([11, 17 + y0, 14, 21 + y0 + swing[0]], fill=SKIN)
+        outline_ellipse(d, [1, 17 + y0, 4, 21 + y0 + swing[1]], SKIN)
+        outline_ellipse(d, [11, 17 + y0, 14, 21 + y0 + swing[0]], SKIN)
     else:
         ax = 7 + (swing[0] * 2)
-        d.ellipse([ax - 1, 18 + y0, ax + 2, 22 + y0], fill=SKIN)
+        outline_ellipse(d, [ax - 1, 18 + y0, ax + 2, 22 + y0], SKIN)
 
-    # Big round chibi head sits most of the sprite.
+    # Big round chibi head sits most of the sprite, with a bold outline.
     head = [2, 3 + y0, 13, 17 + y0]
-    d.ellipse(head, fill=SKIN)
+    outline_ellipse(d, head, SKIN, width=1)
     d.ellipse([2, 14 + y0, 13, 17 + y0], fill=SKIN_SHADE)  # soft jaw shading
 
     if direction == "down":
-        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR)
+        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR, outline=INK, width=1)
         d.rectangle([2, 7 + y0, 3, 11 + y0], fill=HAIR)
         d.rectangle([12, 7 + y0, 13, 11 + y0], fill=HAIR)
         d.point((4, 12 + y0), fill=BLUSH)
@@ -276,17 +289,17 @@ def player_frame(direction: str, step: int) -> Image.Image:
         d.point((6, 13 + y0), fill=(190, 120, 110))
         d.point((8, 13 + y0), fill=(190, 120, 110))
     elif direction == "up":
-        d.pieslice([2, 2 + y0, 13, 16 + y0], 180, 360, fill=HAIR)
+        d.pieslice([2, 2 + y0, 13, 16 + y0], 180, 360, fill=HAIR, outline=INK, width=1)
         d.rectangle([2, 7 + y0, 13, 10 + y0], fill=HAIR)
         d.point((5, 12 + y0), fill=HAIR_D)
         d.point((10, 12 + y0), fill=HAIR_D)
     elif direction == "left":
-        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR)
+        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR, outline=INK, width=1)
         d.rectangle([7, 7 + y0, 13, 11 + y0], fill=HAIR)
         d.point((3, 12 + y0), fill=BLUSH)
         d.rectangle([3, 9 + y0, 4, 10 + y0], fill=EYE)
     else:  # right
-        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR)
+        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR, outline=INK, width=1)
         d.rectangle([2, 7 + y0, 8, 11 + y0], fill=HAIR)
         d.point((11, 12 + y0), fill=BLUSH)
         d.rectangle([10, 9 + y0, 11, 10 + y0], fill=EYE)
@@ -465,6 +478,7 @@ def build_town() -> MapBuilder:
         m.put(door_x, y0 + 3, None)
         m.ground[y0 + 3][door_x] = DOOR
     building(16, 1, 6, SHOPWALL, 18)
+    m.obj("shop_seed", 18 * T, 4 * T, T, T)
     building(5, 3, 5, WALL, 7)
     building(30, 3, 5, WALL, 32)
     building(29, 16, 5, WALL, 31)

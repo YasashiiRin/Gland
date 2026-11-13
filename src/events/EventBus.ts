@@ -9,7 +9,13 @@ export const GameEvents = {
   TimeTick: 'time:tick',
   DayStarted: 'day:started',
   PassOutRequested: 'time:passOutRequested',
+  ShopOpenRequested: 'shop:openRequested',
+  ShopClosedMessage: 'shop:closedMessage',
 } as const;
+
+export interface ShopOpenRequestedPayload {
+  shopId: string;
+}
 
 export interface MapEnteredPayload {
   mapKey: string;

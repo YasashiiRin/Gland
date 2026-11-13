@@ -1,0 +1,9 @@
+{
+  "seed_shop": {
+    "name": "Cửa hàng Mùa Vụ",
+    "openHour": 9,
+    "closeHour": 17,
+    "closedWeekday": 6,
+    "stock": ["parsnip_seeds", "potato_seeds", "cauliflower_seeds", "strawberry_seeds", "green_bean_seeds"]
+  }
+}

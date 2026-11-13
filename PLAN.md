@@ -1,6 +1,13 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–5 đã xong (v0.5.0). Bước tiếp theo: Phase 6 (cửa hàng và làng).
+> **Trạng thái:** Phase 0–6 đã xong (v0.6.0). Bước tiếp theo: Phase 7 (tài nguyên và hái lượm).
+>
+> Ghi chú Phase 6: `ShopSystem` (logic thuần, có test) + `ShopMenu` (UI). Cửa hàng hạt giống ở Làng, tương tác
+> bằng **E** đứng cạnh cửa. Đóng cửa bằng nút "Đóng" hoặc phím **Esc** (cũng dùng để đóng túi đồ).
+>
+> Ghi chú đồ họa: đã thêm viền đậm (màu "ink") quanh nhân vật, cây, đá, bụi cây theo hướng phong cách
+> nét vẽ tay/viền rõ (lấy cảm hứng chung, không sao chép hình cụ thể từ game nào). Xem `INK`/`outline_ellipse`
+> trong `scripts/gen_placeholders.py`.
 >
 > Ghi chú Phase 5: `SaveService` lưu/tải qua `localStorage` (khoá `farm-game-save`), tự lưu mỗi khi sang ngày mới
 > và khi đóng/tải lại trang (`beforeunload`). Màn hình tiêu đề (`TitleScene`) là scene đầu tiên; "Tiếp tục" chỉ
@@ -114,9 +121,11 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 **Tiêu chí hoàn thành:**
 - [x] Tắt trình duyệt, mở lại vẫn đúng ngày, tiền, túi đồ, cây trồng.
 
-### Phase 6 – Cửa hàng và làng
+### Phase 6 – Cửa hàng và làng  ✅ Đã xong
 - Bản đồ làng, cửa hàng hạt giống (theo mùa), giờ mở cửa.
 - Giao diện mua bán, hiển thị tiền.
+- Ghi chú: cửa hàng tương tác ngay ở cửa ngoài trời (không có phòng nội thất riêng, để đơn giản hoá phạm vi).
+  Mỗi lần bấm "Mua" lấy đúng 1 món; mở giờ 9:00–17:00, nghỉ 1 ngày/tuần (`ShopSystem.isShopOpen`).
 
 ### Phase 7 – Tài nguyên và hái lượm
 - Cây (chặt nhiều nhát, gốc cây, cây mọc lại), đá, cỏ dại, gỗ khô.

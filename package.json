@@ -1,7 +1,7 @@
 {
   "name": "farm-game",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,6 +14,7 @@
     "phaser": "3.90.0"
   },
   "devDependencies": {
+    "@types/node": "^22.14.1",
     "typescript": "5.9.3",
     "vite": "6.4.5",
     "vitest": "3.2.7"

@@ -132,7 +132,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.player.setExhausted(isExhausted(gameState.energy));
 
-    if (uiState.inventoryOpen) {
+    if (uiState.inventoryOpen || uiState.shopOpen) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
       return;
     }
@@ -143,7 +143,7 @@ export abstract class MapScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
       if (!this.tryHarvestFacingTile()) {
         if (this.isNearBed()) this.sleepSequence('manual');
-        else this.tryUseShippingBin();
+        else if (!this.tryOpenShop()) this.tryUseShippingBin();
       }
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.useTool)) {
@@ -164,6 +164,9 @@ export abstract class MapScene extends Phaser.Scene {
     return false;
   }
   protected tryUseShippingBin(): void {}
+  protected tryOpenShop(): boolean {
+    return false;
+  }
 
   private findSpawn(id: string): { x: number; y: number } {
     const objects = this.map.getObjectLayer('objects')?.objects ?? [];

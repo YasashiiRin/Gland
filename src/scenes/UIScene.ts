@@ -6,20 +6,25 @@ import {
   GameEvents,
   type DayStartedPayload,
   type MapEnteredPayload,
+  type ShopOpenRequestedPayload,
 } from '../events/EventBus';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
+import { buyItem } from '../systems/ShopSystem';
 import { advanceTime, darknessAlpha } from '../systems/TimeSystem';
 import { Hotbar } from '../ui/Hotbar';
 import { Hud } from '../ui/Hud';
 import { InventoryMenu } from '../ui/InventoryMenu';
+import { ShopMenu } from '../ui/ShopMenu';
+import { isShopId } from '../data/shops';
 
 /** Runs on top of the map scenes: draws the HUD, the night overlay, and owns the game clock. */
 export class UIScene extends Phaser.Scene {
   private hud!: Hud;
   private hotbar!: Hotbar;
   private inventoryMenu!: InventoryMenu;
+  private shopMenu!: ShopMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private dayBanner!: Phaser.GameObjects.Text;
   private accumulatorMs = 0;
@@ -58,9 +63,32 @@ export class UIScene extends Phaser.Scene {
       },
     );
 
+    this.shopMenu = new ShopMenu(this, DEPTH_ABOVE + 1);
+    this.shopMenu.bind(
+      () => gameState.money,
+      (itemId) => {
+        const result = buyItem(gameState.inventory, gameState.money, itemId, 1);
+        gameState.inventory = result.inventory;
+        gameState.money = result.money;
+      },
+    );
+
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+    const escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    escKey.on('down', () => {
+      if (uiState.shopOpen) this.closeShop();
+      else if (uiState.inventoryOpen) this.toggleInventory();
+    });
+
+    const onShopOpen = (p: ShopOpenRequestedPayload) => {
+      if (!isShopId(p.shopId)) return;
+      this.shopMenu.open(p.shopId);
+      uiState.shopOpen = true;
+    };
+    EventBus.on(GameEvents.ShopOpenRequested, onShopOpen);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.ShopOpenRequested, onShopOpen));
 
     this.dayBanner = this.add
       .text(width / 2, 70, '', {
@@ -91,7 +119,7 @@ export class UIScene extends Phaser.Scene {
     this.hud.setEnergy(gameState.energy);
     this.hud.setMoney(gameState.money);
 
-    if (timeControl.paused || uiState.inventoryOpen) return;
+    if (timeControl.paused || uiState.inventoryOpen || uiState.shopOpen) return;
 
     this.accumulatorMs += delta;
     let ticked = false;
@@ -111,6 +139,11 @@ export class UIScene extends Phaser.Scene {
       this.updateNightOverlay();
       EventBus.emit(GameEvents.TimeTick, { time: gameState.time });
     }
+  }
+
+  private closeShop(): void {
+    this.shopMenu.close();
+    uiState.shopOpen = false;
   }
 
   private toggleInventory(): void {
