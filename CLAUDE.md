@@ -45,7 +45,7 @@ tests/                 # test Vitest cho systems/
 
 ## Asset
 
-- Nếu chưa có asset thật, tạo **placeholder** (hình khối màu đơn giản, đúng kích thước 16x16 / 16x32) bằng script trong `scripts/`, để gameplay chạy được trước.
+- Nếu chưa có asset thật, tạo **placeholder** (phong cách pastel ấm, nhân vật chibi, đúng kích thước 16x16 / 16x32) bằng script `scripts/gen_placeholders.py`, để gameplay chạy được trước. Không sao chép hình ảnh từ bất kỳ bộ asset có bản quyền nào (kể cả khi 'lấy cảm hứng' từ một bộ cụ thể) — chỉ học phong cách chung (màu pastel, hình tròn mềm mại), không sao chép bố cục/pixel cụ thể.
 - Asset thật sẽ do người dùng thêm vào (bộ asset có bản quyền hợp lệ từ itch.io). Viết code để chỉ cần thay file PNG, không cần sửa logic.
 - Ghi nguồn và giấy phép của mọi asset vào `CREDITS.md`.
 

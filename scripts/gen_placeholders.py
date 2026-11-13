@@ -34,21 +34,28 @@ TILE_NAMES = {
     BUSH: "bush", SOIL: "tilled_soil", SIGN: "sign", SHOPWALL: "shop_wall",
 }
 
+
+# Softer, warmer "cozy pastel" palette, in the spirit of cute cottagecore farm
+# games: lighter saturation, warm highlights, rounder forms. Chosen freely, not
+# sampled from any existing asset pack.
 C = {
-    "grass": (106, 176, 76), "grass_d": (84, 148, 62), "grass_l": (132, 196, 96),
-    "path": (196, 160, 112), "path_d": (170, 134, 92),
-    "water": (64, 132, 204), "water_l": (120, 180, 232),
-    "wood": (150, 96, 56), "wood_d": (110, 68, 40), "wood_l": (184, 128, 80),
-    "leaf": (52, 124, 60), "leaf_d": (36, 96, 48), "leaf_l": (80, 156, 80),
-    "rock": (136, 136, 144), "rock_d": (96, 96, 108), "rock_l": (176, 176, 184),
-    "wall": (232, 216, 184), "wall_d": (200, 180, 148),
-    "roof": (180, 72, 64), "roof_d": (140, 52, 48),
-    "floor": (176, 124, 76), "floor_d": (150, 100, 60),
-    "iwall": (120, 92, 72), "iwall_l": (150, 116, 90),
-    "sheet": (240, 240, 248), "blanket": (88, 120, 200),
-    "rug": (176, 64, 84), "rug_l": (216, 120, 120),
-    "glass": (160, 210, 240), "soil": (110, 76, 52), "soil_d": (86, 58, 40),
-    "shop": (120, 168, 200), "shop_d": (90, 136, 170),
+    "grass": (146, 199, 109), "grass_d": (112, 172, 88), "grass_l": (182, 222, 142),
+    "path": (227, 193, 143), "path_d": (203, 164, 112), "path_l": (240, 214, 174),
+    "water": (120, 190, 213), "water_d": (88, 158, 190), "water_l": (184, 228, 232),
+    "wood": (175, 128, 82), "wood_d": (134, 92, 56), "wood_l": (206, 164, 116),
+    "leaf": (104, 178, 104), "leaf_d": (70, 142, 82), "leaf_l": (158, 216, 140),
+    "rock": (182, 176, 188), "rock_d": (142, 136, 152), "rock_l": (218, 214, 224),
+    "wall": (248, 232, 206), "wall_d": (220, 198, 164), "wall_l": (255, 246, 230),
+    "roof": (224, 118, 102), "roof_d": (188, 86, 76), "roof_l": (242, 158, 138),
+    "floor": (210, 164, 118), "floor_d": (184, 136, 92), "floor_l": (230, 194, 152),
+    "iwall": (158, 130, 108), "iwall_l": (188, 156, 128),
+    "sheet": (250, 246, 240), "blanket": (132, 164, 214),
+    "rug": (219, 118, 128), "rug_l": (240, 170, 172),
+    "glass": (196, 230, 244), "soil": (150, 108, 76), "soil_d": (120, 82, 56),
+    "shop": (156, 202, 221), "shop_d": (120, 168, 190),
+    "flower_pink": (247, 168, 184), "flower_yellow": (250, 219, 115),
+    "flower_white": (255, 255, 250), "flower_center": (235, 150, 60),
+    "skin_shadow": (222, 176, 142), "blush": (248, 150, 150),
 }
 
 
@@ -65,44 +72,58 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
 
     if idx in (GRASS, GRASS2, FLOWERS, TRUNK, ROCK, BUSH, SIGN, FENCE):
         fill(C["grass"])
-        speckle(C["grass_d"], 14 if idx != GRASS2 else 30)
-        speckle(C["grass_l"], 6)
+        # Soft rounded tufts instead of hard pixel speckle, for a plusher lawn.
+        tuft_n = 5 if idx != GRASS2 else 8
+        for _ in range(tuft_n):
+            x, y = rnd.randrange(1, T - 1), rnd.randrange(1, T - 1)
+            d.ellipse([x - 1, y, x + 1, y + 1], fill=C["grass_d"])
+        for _ in range(3):
+            x, y = rnd.randrange(1, T - 1), rnd.randrange(1, T - 1)
+            d.point((x, y), fill=C["grass_l"])
     if idx == FLOWERS:
-        for (x, y, col) in [(3, 4, (240, 220, 80)), (10, 3, (240, 120, 160)),
-                            (6, 11, (250, 250, 250)), (12, 12, (240, 220, 80))]:
-            d.point((x, y), fill=col)
-            for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                d.point((x + dx, y + dy), fill=col)
-            d.point((x, y), fill=(200, 120, 40))
+        for (x, y, col) in [(3, 4, C["flower_yellow"]), (10, 3, C["flower_pink"]),
+                            (6, 11, C["flower_white"]), (12, 12, C["flower_yellow"])]:
+            d.ellipse([x - 1, y - 1, x + 1, y + 1], fill=col)
+            d.point((x, y), fill=C["flower_center"])
     elif idx == PATH:
-        fill(C["path"]); speckle(C["path_d"], 18)
+        fill(C["path"])
+        for _ in range(10):
+            x, y = rnd.randrange(T), rnd.randrange(T)
+            d.ellipse([x - 1, y, x + 1, y + 1], fill=C["path_d"])
+        for _ in range(4):
+            x, y = rnd.randrange(T), rnd.randrange(T)
+            d.point((x, y), fill=C["path_l"])
     elif idx == WATER:
         fill(C["water"])
-        for y in (3, 9, 14):
-            d.line([(2, y), (6, y)], fill=C["water_l"])
-            d.line([(9, y - 2), (13, y - 2)], fill=C["water_l"])
+        for y in (2, 7, 12):
+            off = 3 if (y // 5) % 2 else 0
+            d.arc([off, y, off + 6, y + 3], 0, 180, fill=C["water_l"], width=1)
+            d.arc([off + 8, y - 1, off + 14, y + 2], 0, 180, fill=C["water_d"], width=1)
     elif idx == FENCE:
-        d.rectangle([0, 5, 15, 6], fill=C["wood"])
+        d.rectangle([0, 6, 15, 7], fill=C["wood"])
         d.rectangle([0, 10, 15, 11], fill=C["wood"])
         for x in (2, 12):
-            d.rectangle([x, 2, x + 2, 14], fill=C["wood_l"])
-            d.rectangle([x, 13, x + 2, 14], fill=C["wood_d"])
+            d.rounded_rectangle([x, 2, x + 2, 14], radius=1, fill=C["wood_l"], outline=C["wood_d"])
     elif idx == TRUNK:
-        d.ellipse([1, 0, 14, 7], fill=C["leaf_d"])
-        d.rectangle([6, 2, 9, 13], fill=C["wood"])
-        d.line([(6, 2), (6, 13)], fill=C["wood_d"])
-        d.ellipse([3, 12, 12, 15], fill=(60, 110, 50))
+        # No leaves here — the fluffy canopy lives entirely in the CANOPY tile
+        # placed just above this one, so the two don't create a double bump.
+        d.rectangle([6, 0, 9, 13], fill=C["wood"])
+        d.rectangle([6, 0, 7, 13], fill=C["wood_l"])
+        d.line([(6, 0), (6, 13)], fill=C["wood_d"])
+        d.ellipse([3, 11, 12, 15], fill=C["grass_d"])
         d.rectangle([6, 9, 9, 13], fill=C["wood"])
     elif idx == CANOPY:
-        d.ellipse([0, 1, 15, 15], fill=C["leaf"])
-        d.ellipse([2, 2, 11, 9], fill=C["leaf_l"])
-        d.ellipse([0, 9, 15, 15], fill=C["leaf_d"])
-        d.ellipse([1, 4, 14, 13], fill=C["leaf"])
-        d.ellipse([3, 3, 9, 8], fill=C["leaf_l"])
+        # A cluster of soft round puffs rather than one hard oval, for a fluffier look.
+        for (cx, cy, r, col) in [
+            (7, 8, 7, C["leaf_d"]), (4, 6, 5, C["leaf"]), (11, 6, 5, C["leaf"]),
+            (7, 3, 5, C["leaf"]), (5, 5, 2, C["leaf_l"]), (9, 4, 2, C["leaf_l"]),
+        ]:
+            d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
     elif idx == ROCK:
-        d.ellipse([2, 4, 13, 14], fill=C["rock_d"])
-        d.ellipse([2, 3, 13, 12], fill=C["rock"])
+        d.ellipse([2, 5, 14, 15], fill=C["rock_d"])
+        d.ellipse([2, 3, 13, 13], fill=C["rock"])
         d.ellipse([4, 4, 8, 7], fill=C["rock_l"])
+        d.ellipse([8, 8, 11, 10], fill=C["rock_l"])
     elif idx == WALL:
         fill(C["wall"])
         for y in (4, 9, 14):
@@ -156,9 +177,11 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
         d.rectangle([2, 2, 13, 13], outline=C["rug_l"])
         d.rectangle([5, 5, 10, 10], outline=C["rug_l"])
     elif idx == BUSH:
-        d.ellipse([1, 3, 14, 15], fill=C["leaf_d"])
-        d.ellipse([2, 3, 13, 13], fill=C["leaf"])
-        d.ellipse([4, 4, 8, 8], fill=C["leaf_l"])
+        for (cx, cy, r, col) in [
+            (8, 10, 6, C["leaf_d"]), (5, 9, 4, C["leaf"]), (11, 9, 4, C["leaf"]),
+            (8, 6, 4, C["leaf"]), (6, 7, 2, C["leaf_l"]),
+        ]:
+            d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col)
     elif idx == SOIL:
         fill(C["soil"])
         for y in (3, 8, 13):
@@ -191,59 +214,82 @@ def make_tileset() -> Path:
 
 # ---------------------------------------------------------------- player
 # Spritesheet: 4 columns (walk frames) x 4 rows (down, left, right, up), 16x32 each.
-SKIN, HAIR = (244, 200, 160), (110, 70, 40)
-SHIRT, SHIRT_D = (220, 90, 70), (180, 66, 52)
-PANTS, SHOE, EYE = (60, 80, 140), (60, 40, 30), (30, 30, 40)
+# Chibi proportions (big head, small body) in a soft cottagecore palette —
+# an original design, not traced from any existing character.
+SKIN, SKIN_SHADE = (255, 218, 185), (235, 192, 158)
+HAIR, HAIR_D = (139, 94, 60), (110, 72, 46)
+SHIRT, SHIRT_D = (236, 132, 108), (208, 104, 86)
+OVERALLS, OVERALLS_D = (132, 170, 150), (104, 140, 122)
+SHOE, EYE, BLUSH = (120, 84, 64), (70, 56, 82), (248, 150, 150)
 
 
 def player_frame(direction: str, step: int) -> Image.Image:
     im = Image.new("RGBA", (16, 32), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
     bob = 1 if step in (1, 3) else 0
-    # shadow
-    d.ellipse([3, 28, 12, 31], fill=(0, 0, 0, 70))
-    # legs
+    y0 = -bob
+    d.ellipse([3, 29, 12, 31], fill=(0, 0, 0, 60))
+
+    # Short little legs with a simple walk-cycle swing.
     swing = {0: (0, 0), 1: (-1, 1), 2: (0, 0), 3: (1, -1)}[step]
     if direction in ("down", "up"):
-        d.rectangle([5, 22, 7, 27 + swing[0]], fill=PANTS)
-        d.rectangle([8, 22, 10, 27 + swing[1]], fill=PANTS)
+        d.rectangle([5, 24, 7, 27 + swing[0]], fill=SKIN_SHADE)
+        d.rectangle([8, 24, 10, 27 + swing[1]], fill=SKIN_SHADE)
         d.rectangle([5, 27 + swing[0], 7, 28 + swing[0]], fill=SHOE)
         d.rectangle([8, 27 + swing[1], 10, 28 + swing[1]], fill=SHOE)
     else:
         sx = 2 if step in (1, 3) else 0
-        d.rectangle([6 - sx // 2, 22, 9 - sx // 2, 27], fill=PANTS)
-        d.rectangle([6 + sx, 22, 9 + sx // 2, 27], fill=PANTS)
+        d.rectangle([6 - sx // 2, 24, 9 - sx // 2, 27], fill=SKIN_SHADE)
+        d.rectangle([6 + sx, 24, 9 + sx // 2, 27], fill=SKIN_SHADE)
         d.rectangle([6 - sx // 2, 27, 9 - sx // 2, 28], fill=SHOE)
         d.rectangle([6 + sx, 27, 9 + sx // 2, 28], fill=SHOE)
-    y0 = -bob
-    # body
-    d.rectangle([4, 14 + y0, 11, 22 + y0], fill=SHIRT)
-    d.line([(4, 22 + y0), (11, 22 + y0)], fill=SHIRT_D)
-    # arms
+
+    # Round little overalls-and-shirt body.
+    d.rounded_rectangle([3, 16 + y0, 12, 24 + y0], radius=2, fill=OVERALLS)
+    d.rectangle([3, 16 + y0, 12, 18 + y0], fill=SHIRT)
+    d.line([(3, 18 + y0), (12, 18 + y0)], fill=SHIRT_D)
+    d.line([(3, 24 + y0), (12, 24 + y0)], fill=OVERALLS_D)
+    d.rectangle([5, 19 + y0, 6, 22 + y0], fill=OVERALLS_D)
+    d.rectangle([9, 19 + y0, 10, 22 + y0], fill=OVERALLS_D)
+
+    # Stubby arms.
     if direction in ("down", "up"):
-        d.rectangle([3, 15 + y0, 3, 20 + y0 + swing[1]], fill=SKIN)
-        d.rectangle([12, 15 + y0, 12, 20 + y0 + swing[0]], fill=SKIN)
+        d.ellipse([1, 17 + y0, 4, 21 + y0 + swing[1]], fill=SKIN)
+        d.ellipse([11, 17 + y0, 14, 21 + y0 + swing[0]], fill=SKIN)
     else:
         ax = 7 + (swing[0] * 2)
-        d.rectangle([ax, 15 + y0, ax + 1, 20 + y0], fill=SKIN)
-    # head
-    d.rectangle([4, 5 + y0, 11, 13 + y0], fill=SKIN)
+        d.ellipse([ax - 1, 18 + y0, ax + 2, 22 + y0], fill=SKIN)
+
+    # Big round chibi head sits most of the sprite.
+    head = [2, 3 + y0, 13, 17 + y0]
+    d.ellipse(head, fill=SKIN)
+    d.ellipse([2, 14 + y0, 13, 17 + y0], fill=SKIN_SHADE)  # soft jaw shading
+
     if direction == "down":
-        d.rectangle([3, 3 + y0, 12, 6 + y0], fill=HAIR)
-        d.rectangle([3, 6 + y0, 3, 9 + y0], fill=HAIR)
-        d.rectangle([12, 6 + y0, 12, 9 + y0], fill=HAIR)
-        d.point((6, 9 + y0), fill=EYE); d.point((9, 9 + y0), fill=EYE)
-        d.line([(7, 11 + y0), (8, 11 + y0)], fill=(200, 120, 110))
+        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR)
+        d.rectangle([2, 7 + y0, 3, 11 + y0], fill=HAIR)
+        d.rectangle([12, 7 + y0, 13, 11 + y0], fill=HAIR)
+        d.point((4, 12 + y0), fill=BLUSH)
+        d.point((10, 12 + y0), fill=BLUSH)
+        for ex in (5, 9):
+            d.rectangle([ex, 9 + y0, ex, 10 + y0], fill=EYE)
+        d.point((6, 13 + y0), fill=(190, 120, 110))
+        d.point((8, 13 + y0), fill=(190, 120, 110))
     elif direction == "up":
-        d.rectangle([3, 3 + y0, 12, 12 + y0], fill=HAIR)
+        d.pieslice([2, 2 + y0, 13, 16 + y0], 180, 360, fill=HAIR)
+        d.rectangle([2, 7 + y0, 13, 10 + y0], fill=HAIR)
+        d.point((5, 12 + y0), fill=HAIR_D)
+        d.point((10, 12 + y0), fill=HAIR_D)
     elif direction == "left":
-        d.rectangle([3, 3 + y0, 12, 6 + y0], fill=HAIR)
-        d.rectangle([9, 6 + y0, 12, 11 + y0], fill=HAIR)
-        d.point((5, 9 + y0), fill=EYE)
+        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR)
+        d.rectangle([7, 7 + y0, 13, 11 + y0], fill=HAIR)
+        d.point((3, 12 + y0), fill=BLUSH)
+        d.rectangle([3, 9 + y0, 4, 10 + y0], fill=EYE)
     else:  # right
-        d.rectangle([3, 3 + y0, 12, 6 + y0], fill=HAIR)
-        d.rectangle([3, 6 + y0, 6, 11 + y0], fill=HAIR)
-        d.point((10, 9 + y0), fill=EYE)
+        d.pieslice([2, 2 + y0, 13, 13 + y0], 180, 360, fill=HAIR)
+        d.rectangle([2, 7 + y0, 8, 11 + y0], fill=HAIR)
+        d.point((11, 12 + y0), fill=BLUSH)
+        d.rectangle([10, 9 + y0, 11, 10 + y0], fill=EYE)
     return im
 
 
