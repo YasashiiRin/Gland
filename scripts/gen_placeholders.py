@@ -39,7 +39,7 @@ TILE_NAMES = {
 # games: lighter saturation, warm highlights, rounder forms. Chosen freely, not
 # sampled from any existing asset pack.
 C = {
-    "grass": (146, 199, 109), "grass_d": (112, 172, 88), "grass_l": (182, 222, 142),
+    "grass": (76, 140, 76), "grass_d": (62, 118, 64), "grass_l": (92, 158, 90),
     "path": (227, 193, 143), "path_d": (203, 164, 112), "path_l": (240, 214, 174),
     "water": (120, 190, 213), "water_d": (88, 158, 190), "water_l": (184, 228, 232),
     "wood": (175, 128, 82), "wood_d": (134, 92, 56), "wood_l": (206, 164, 116),
@@ -56,7 +56,7 @@ C = {
     "flower_pink": (247, 168, 184), "flower_yellow": (250, 219, 115),
     "flower_white": (255, 255, 250), "flower_center": (235, 150, 60),
     "skin_shadow": (222, 176, 142), "blush": (248, 150, 150),
-    "leaf_hi": (196, 236, 168), "grass_patch": (128, 186, 92),
+    "leaf_hi": (196, 236, 168), "grass_patch": (70, 130, 70),
     "soil_l": (178, 132, 94),
 }
 
@@ -83,20 +83,14 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
             d.point((rnd.randrange(T), rnd.randrange(T)), fill=c)
 
     if idx in (GRASS, GRASS2, FLOWERS, TRUNK, ROCK, BUSH, SIGN, FENCE):
+        # One flat, deep green fill — a single uniform grass color, with only
+        # a couple of barely-there darker flecks so it doesn't look sterile,
+        # rather than the previous patchwork of lighter/darker blotches.
         fill(C["grass"])
-        # A soft, irregular patch of a slightly different green underneath,
-        # so the lawn reads as organic ground rather than a flat fill.
-        px, py = rnd.randrange(-2, T), rnd.randrange(-2, T)
-        d.ellipse([px, py, px + 10, py + 8], fill=C["grass_patch"])
-        # A few soft, rounded tufts (bigger + fewer than before) read as a
-        # smooth, mown lawn instead of a busy speckled texture.
-        tuft_n = 2 if idx != GRASS2 else 3
+        tuft_n = 1 if idx != GRASS2 else 2
         for _ in range(tuft_n):
             x, y = rnd.randrange(2, T - 2), rnd.randrange(2, T - 2)
-            d.ellipse([x - 2, y - 1, x + 2, y + 1], fill=C["grass_d"])
-        # One gentle highlight blob rather than scattered single pixels.
-        hx, hy = rnd.randrange(2, T - 3), rnd.randrange(2, T - 3)
-        d.ellipse([hx - 1, hy - 1, hx + 2, hy + 2], fill=C["grass_l"])
+            d.ellipse([x - 1, y - 1, x + 1, y + 1], fill=C["grass_d"])
     if idx == FLOWERS:
         for (x, y, col) in [(3, 4, C["flower_yellow"]), (10, 3, C["flower_pink"]),
                             (6, 11, C["flower_white"]), (12, 12, C["flower_yellow"])]:

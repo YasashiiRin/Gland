@@ -43,6 +43,8 @@
 > cho đỡ phẳng, gần phong cách Stardew Valley hơn (xem phần cập nhật bảng màu trong `scripts/gen_placeholders.py`).
 > Cập nhật thêm: cỏ mượt hơn (bớt lốm đốm, mảng màu mềm thay vì chấm cứng), ô đất đã cuốc đổi từ vạch kẻ thẳng
 > sang từng luống đất tròn mềm — hết cảm giác "ô vuông cứng" khi cuốc đất liền khoảnh.
+> Cập nhật tiếp theo: đổi màu cỏ sang một màu xanh đậm đồng nhất (bỏ phần loang màu pastel nhạt trước đó) theo
+> yêu cầu người dùng — xem `C["grass"]` trong `scripts/gen_placeholders.py`.
 > Đã xem qua bộ asset nhân vật/texture do người dùng gửi (`files__1_.zip`) — xác nhận là asset tự sinh bằng script,
 > không vi phạm bản quyền, nhưng khác quy mô hoàn toàn với pixel art 16px hiện tại (ảnh tĩnh 300x480, không có
 > khung hình đi lại). Đề xuất dùng làm ảnh chân dung NPC ở Phase 9 thay vì thay nhân vật đi lại.
