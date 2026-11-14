@@ -1,6 +1,11 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–14 đã xong (v0.14.0). Bước tiếp theo: Phase 15 (đóng gói desktop) — phase cuối cùng!
+> **Trạng thái:** Phase 0–14 hoàn thành đầy đủ và đã kiểm thử (v0.14.0). Phase 15 chỉ hoàn thành được
+> phần cấu hình, chưa build/test thật được (xem ghi chú Phase 15 bên dưới) — đây là **giới hạn môi trường**,
+> không phải việc bỏ dở. Toàn bộ 16 phase trong kế hoạch gốc đã được triển khai ở một mức độ nào đó.
+>
+> Việc tiếp theo nếu muốn hoàn thiện Phase 15 thật sự: mở thư mục này trong Claude Code hoặc Claude Cowork
+> trên máy có cài Rust, chạy `cargo tauri dev` để thử, rồi `cargo tauri build` để ra file cài đặt.
 >
 > Ghi chú Phase 14: `SfxSystem` dùng trực tiếp Web Audio API (oscillator), không qua Phaser Sound Manager vì
 > không có file âm thanh. `GameState.settings` lưu âm lượng/tắt tiếng (lưu ý: hiện nằm trong save file, nên

@@ -63,3 +63,11 @@ tests/                 # test Vitest cho systems/
 - `npm run dev` – chạy game ở http://localhost:5173
 - `npm run build` – build kiểm tra lỗi
 - `npm test` – chạy test
+
+## Đóng gói desktop (Tauri)
+
+Thư mục `src-tauri/` chứa cấu hình Tauri (chưa build/test thật — xem README.md mục "Đóng gói thành ứng dụng
+desktop"). Khi làm tiếp phần này trong Claude Code/Cowork (có Rust + màn hình thật):
+- Chạy `cargo tauri dev` để thử, `cargo tauri build` để đóng gói.
+- Việc còn thiếu: chuyển `SaveService.ts` sang dùng `@tauri-apps/plugin-fs` khi phát hiện đang chạy trong Tauri
+  (kiểm tra `'__TAURI__' in window` hoặc tương đương), giữ `localStorage` làm phương án dự phòng khi chạy trên web.
