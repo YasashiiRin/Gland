@@ -503,6 +503,7 @@ def build_town() -> MapBuilder:
     building(30, 3, 5, WALL, 32)
     building(29, 16, 5, WALL, 31)
     m.put(13, 11, SIGN)
+    m.obj("quest_board", 13 * T, 11 * T, T, T)
     for x in range(14, 27, 3):
         m.put(x, 19, BUSH)
     m.scatter(TRUNK, 10, (2, 2, 37, 21))

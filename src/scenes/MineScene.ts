@@ -13,6 +13,7 @@ import {
 import { consume, isExhausted, restoreFull } from '../systems/EnergySystem';
 import { addItem } from '../systems/InventorySystem';
 import { generateFloor, type MineFloor, type MineTile } from '../systems/MineSystem';
+import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 
 const MINE_TILESET = 'mine_tiles';
 const TILE_GID_FOR: Record<MineTile, number> = { floor: 1, wall: 2, ore: 3, ladderDown: 6 };
@@ -199,6 +200,7 @@ export class MineScene extends Phaser.Scene {
       const result = attackMonster(target.data, 15);
       target.data = result.monster;
       if (result.killed) {
+        gameState.skills = addXp(gameState.skills, 'combat', XP_REWARDS.killMonster).skills;
         target.sprite.destroy();
         this.monsters = this.monsters.filter((m) => m !== target);
       }
@@ -220,6 +222,7 @@ export class MineScene extends Phaser.Scene {
       const itemId = ORE_ITEM_FOR_KIND[this.floor.oreKind];
       const qty = 1 + Math.floor(Math.random() * 2);
       gameState.inventory = addItem(gameState.inventory, itemId, qty).state;
+      gameState.skills = addXp(gameState.skills, 'mining', XP_REWARDS.mineOre).skills;
       this.player.playUseToolFeedback();
     }
   }

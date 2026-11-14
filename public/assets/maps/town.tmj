@@ -10,7 +10,7 @@
  "tileheight": 16,
  "infinite": false,
  "nextlayerid": 5,
- "nextobjectid": 5,
+ "nextobjectid": 6,
  "layers": [
   {
    "id": 1,
@@ -2954,6 +2954,17 @@
     },
     {
      "id": 2,
+     "name": "quest_board",
+     "type": "",
+     "x": 208,
+     "y": 176,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true
+    },
+    {
+     "id": 3,
      "name": "door",
      "type": "",
      "x": 0,
@@ -2976,7 +2987,7 @@
      ]
     },
     {
-     "id": 3,
+     "id": 4,
      "name": "spawn_fromFarm",
      "type": "",
      "x": 40.0,
@@ -2988,7 +2999,7 @@
      "point": true
     },
     {
-     "id": 4,
+     "id": 5,
      "name": "spawn_default",
      "type": "",
      "x": 40.0,

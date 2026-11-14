@@ -26,6 +26,7 @@ import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
 import { craft } from '../systems/CraftingSystem';
+import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { addItem, itemAt } from '../systems/InventorySystem';
 import { buyItem } from '../systems/ShopSystem';
 import { advanceTime, darknessAlpha } from '../systems/TimeSystem';
@@ -290,6 +291,7 @@ export class UIScene extends Phaser.Scene {
 
     if (outcome === 'caught') {
       gameState.inventory = addItem(gameState.inventory, fishId as ItemId, 1).state;
+      gameState.skills = addXp(gameState.skills, 'fishing', XP_REWARDS.catchFish).skills;
       this.showBanner(`Câu được: ${FISH[fishId as keyof typeof FISH].name}!`, 0x3a5f3a);
     } else {
       this.showBanner('Cá đã chạy mất!', 0x5f3a3a);

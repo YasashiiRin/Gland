@@ -21,6 +21,7 @@ import { addItem, HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
 import { waterPlot } from '../systems/FarmingSystem';
 import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
+import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { advanceAnimalDay } from '../systems/AnimalSystem';
 import {
   advanceResourceDay,
@@ -171,7 +172,8 @@ export abstract class MapScene extends Phaser.Scene {
         !this.tryOpenChest() &&
         !this.tryTalkToNpc() &&
         !this.tryEnterMine() &&
-        !this.tryUseCoop()
+        !this.tryUseCoop() &&
+        !this.tryUseQuestBoard()
       ) {
         if (this.isNearBed()) this.sleepSequence('manual');
         else if (!this.tryOpenShop()) this.tryUseShippingBin();
@@ -230,6 +232,9 @@ export abstract class MapScene extends Phaser.Scene {
     return false;
   }
   protected tryUseCoop(): boolean {
+    return false;
+  }
+  protected tryUseQuestBoard(): boolean {
     return false;
   }
 
@@ -491,14 +496,17 @@ export abstract class MapScene extends Phaser.Scene {
     if (kind === 'tree') {
       const qty = rollWoodYield();
       gameState.inventory = addItem(gameState.inventory, 'wood', qty).state;
+      gameState.skills = addXp(gameState.skills, 'foraging', XP_REWARDS.chopTree).skills;
       this.showFloatingText(worldX, worldY, `+${qty} Gỗ`);
     } else if (kind === 'rock') {
       const qty = rollStoneYield();
       gameState.inventory = addItem(gameState.inventory, 'stone', qty).state;
+      gameState.skills = addXp(gameState.skills, 'mining', XP_REWARDS.mineOre).skills;
       this.showFloatingText(worldX, worldY, `+${qty} Đá`);
     } else {
       const qty = rollFiberYield();
       gameState.inventory = addItem(gameState.inventory, 'fiber', qty).state;
+      gameState.skills = addXp(gameState.skills, 'foraging', XP_REWARDS.cutWeed).skills;
       this.showFloatingText(worldX, worldY, `+${qty} Sợi`);
     }
   }

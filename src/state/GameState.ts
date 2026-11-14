@@ -5,6 +5,8 @@ import type { FarmPlots } from '../systems/FarmingSystem';
 import { createEmptyInventory, type InventoryState } from '../systems/InventorySystem';
 import type { PlacedObjects } from '../systems/PlacedObjectSystem';
 import type { Relationships } from '../systems/RelationshipSystem';
+import { createInitialSkills, type SkillXp } from '../systems/SkillSystem';
+import { createQuestState, type QuestState } from '../systems/QuestSystem';
 import type { ResourceNodes } from '../systems/ResourceSystem';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
@@ -36,9 +38,11 @@ export interface GameState {
   playerHealth: EnergyState;
   /** Deepest mine floor reached so far (persisted across visits). */
   deepestFloor: number;
+  skills: SkillXp;
+  communityFund: QuestState;
 }
 
-export const STATE_VERSION = 9;
+export const STATE_VERSION = 10;
 
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
@@ -77,6 +81,8 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     relationships: {},
     playerHealth: createInitialHealth(),
     deepestFloor: 0,
+    skills: createInitialSkills(),
+    communityFund: createQuestState(),
   };
 }
 

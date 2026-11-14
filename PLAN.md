@@ -1,6 +1,10 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–12 đã xong (v0.12.0). Bước tiếp theo: Phase 13 (kỹ năng, nhiệm vụ, lễ hội).
+> **Trạng thái:** Phase 0–13 đã xong (v0.13.0). Bước tiếp theo: Phase 14 (hoàn thiện: âm thanh, cài đặt, cân bằng).
+>
+> Ghi chú Phase 13: `SkillSystem` + `QuestSystem` (logic thuần, có test). XP cộng trực tiếp tại nơi hành động xảy ra
+> (`MapScene`, `FarmScene`, `MineScene`, `UIScene.resolveFishing`) — chưa có menu riêng hiển thị cấp độ, chỉ lưu
+> trong `GameState.skills`. Quỹ cộng đồng dùng lại chính object `quest_board` đặt cạnh biển chỉ dẫn có sẵn ở Làng.
 >
 > Ghi chú Phase 12: `AnimalSystem` (logic thuần, có test). Vật nuôi gắn vào `PlacedObjectSystem` (thêm kind
 > `chicken_coop`, field `animal`), xử lý qua đêm trong `MapScene.sleepSequence` cùng chỗ với vòi tưới tự động.
@@ -209,10 +213,14 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - **Chưa làm**: nhiều loại vật nuôi (bò, cừu...), thức ăn phải mua/trữ cỏ khô riêng (hiện cho ăn miễn phí mỗi lần
   tương tác), chất lượng sản phẩm theo cấp (thường/bạc/vàng), chuồng gia súc (Barn) riêng — để dành bản cập nhật sau.
 
-### Phase 13 – Kỹ năng và nhiệm vụ dài hạn
-- 5 kỹ năng, kinh nghiệm, lên cấp mở công thức.
-- Hệ thống bộ sưu tập/nhiệm vụ mở khóa khu vực mới.
-- Sự kiện lễ hội (1 lễ mỗi mùa).
+### Phase 13 – Kỹ năng và nhiệm vụ dài hạn  ✅ Đã xong (bản rút gọn: không có lễ hội)
+- 5 kỹ năng (Trồng trọt/Khai thác/Hái lượm/Câu cá/Chiến đấu), XP cộng dồn, cấp 1-10 theo công thức `n*(n-1)*25`.
+  Thu hoạch +3 XP Trồng trọt, chặt cây +4 Hái lượm, cắt cỏ +2 Hái lượm, đào quặng/đập đá +5 Khai thác,
+  câu được cá +6 Câu cá, hạ quái +8 Chiến đấu — đã test từng loại qua trình duyệt thật.
+- Quỹ cộng đồng (bảng ở Làng, cạnh biển chỉ dẫn): góp đủ 5 loại nông sản (củ cải, khoai tây, súp lơ, dâu tây,
+  đậu que) để nhận 1000₫ — đã test hoàn thành đầy đủ.
+- **Chưa làm**: lên cấp mở khoá công thức chế tạo mới (hiện công thức không phân biệt cấp độ), menu xem cấp
+  độ kỹ năng, mở khu vực mới khi hoàn thành nhiệm vụ, lễ hội theo mùa — để dành bản cập nhật sau.
 
 ### Phase 14 – Hoàn thiện
 - Âm thanh và nhạc nền theo mùa, menu cài đặt (âm lượng, phím), hỗ trợ tay cầm.

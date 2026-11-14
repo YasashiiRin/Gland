@@ -15,6 +15,7 @@ import {
 } from '../systems/RelationshipSystem';
 import { isShopOpen } from '../systems/ShopSystem';
 import { absoluteDayNumber, clockMinuteOfDay } from '../systems/TimeSystem';
+import { donateItem, remainingItems } from '../systems/QuestSystem';
 import type { Direction } from '../systems/movement';
 import { MapScene } from './MapScene';
 
@@ -30,6 +31,7 @@ const GIFTABLE_CATEGORIES = new Set(['crop', 'material', 'food', 'fish']);
 
 export class TownScene extends MapScene {
   private shopZones: Phaser.GameObjects.Zone[] = [];
+  private questZones: Phaser.GameObjects.Zone[] = [];
   private npcZones = new Map<NpcId, Phaser.GameObjects.Zone>();
   private npcSprites: Phaser.GameObjects.Image[] = [];
 
@@ -47,6 +49,7 @@ export class TownScene extends MapScene {
 
   protected override afterMapBuilt(): void {
     this.shopZones = this.createZonesNamed('shop_seed');
+    this.questZones = this.createZonesNamed('quest_board');
 
     this.npcSprites.forEach((s) => s.destroy());
     this.npcSprites = [];
@@ -76,6 +79,37 @@ export class TownScene extends MapScene {
     }
     const payload: ShopOpenRequestedPayload = { shopId: 'seed_shop' };
     EventBus.emit(GameEvents.ShopOpenRequested, payload);
+    return true;
+  }
+
+  protected override tryUseQuestBoard(): boolean {
+    if (!this.isNearAnyZone(this.questZones)) return false;
+
+    if (gameState.communityFund.completed) {
+      this.showFloatingText(this.player.x, this.player.y - 20, 'Quỹ cộng đồng đã hoàn thành. Cảm ơn bạn!');
+      return true;
+    }
+
+    const stack = gameState.inventory.slots[gameState.equippedSlot];
+    const result = donateItem(gameState.communityFund, gameState.inventory, (stack?.itemId ?? 'hoe') as ItemId);
+    if (!result.donated) {
+      const needed = remainingItems(gameState.communityFund)
+        .map((id) => ITEMS[id].name)
+        .join(', ');
+      console.info(`Quỹ cộng đồng còn cần: ${needed}`);
+      this.showFloatingText(this.player.x, this.player.y - 20, `Cần: ${needed}`);
+      return true;
+    }
+
+    gameState.communityFund = result.state;
+    gameState.inventory = result.inventory;
+    if (gameState.communityFund.completed) {
+      gameState.money += 1000;
+      this.showFloatingText(this.player.x, this.player.y - 20, 'Hoàn thành! +1000 ₫');
+    } else {
+      const left = remainingItems(gameState.communityFund).length;
+      this.showFloatingText(this.player.x, this.player.y - 20, `Đã góp! Còn cần ${left} loại`);
+    }
     return true;
   }
 
