@@ -264,3 +264,11 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
   chuột trên canvas (`user-select: none`, chặn sự kiện `dragstart`/`selectstart`) — đây là nguyên nhân phổ biến
   khiến phím đang giữ bị "quên" giữa chừng. Đã kiểm tra kỹ bằng cách đọc mã nguồn Phaser: không có lỗi tạm dừng
   vòng lặp game ở tầng engine liên quan tới việc rê chuột.
+
+
+## Ghi chú: ô highlight xanh/đỏ (theo yêu cầu người dùng)
+Thêm ô vuông bán trong suốt báo trước hành động tại ô đang nhìn, lấy cảm hứng từ quy ước giao diện chung của
+thể loại game nông trại (không sao chép hình ảnh cụ thể từ game nào): xanh lá nếu hành động hợp lệ, đỏ nếu không.
+Áp dụng cho: cuốc, bình tưới, hạt giống, vật thể đặt (rương/bù nhìn/vòi tưới/chuồng gà) ở `FarmScene`;
+rìu/cuốc chim/liềm/cần câu dùng chung logic ở `MapScene` (áp dụng mọi bản đồ). Đã test bằng cách đọc trực tiếp
+trạng thái ô highlight (vị trí, màu) qua trình duyệt thật, khớp chính xác với luật hợp lệ của từng công cụ.

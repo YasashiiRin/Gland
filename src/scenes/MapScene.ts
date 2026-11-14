@@ -87,6 +87,7 @@ export abstract class MapScene extends Phaser.Scene {
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
   private transitioning = false;
+  private targetHighlight!: Phaser.GameObjects.Rectangle;
   private bedZones: Phaser.GameObjects.Zone[] = [];
   private rain?: Phaser.GameObjects.Particles.ParticleEmitter;
 
@@ -135,6 +136,11 @@ export abstract class MapScene extends Phaser.Scene {
     this.setupCamera(w, h);
     this.setupInput();
     this.setupRain();
+    this.targetHighlight = this.add
+      .rectangle(0, 0, TILE, TILE, 0x4caf50, 0.4)
+      .setOrigin(0, 0)
+      .setDepth(1)
+      .setVisible(false);
     this.applyResourceNodeVisuals();
     this.afterMapBuilt();
 
@@ -162,11 +168,13 @@ export abstract class MapScene extends Phaser.Scene {
       uiState.settingsOpen
     ) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
+      this.targetHighlight.setVisible(false);
       return;
     }
 
     this.player.updateMovement(this.readInput());
     this.readHotbarSelection();
+    this.updateTargetHighlight();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
       if (
@@ -235,6 +243,45 @@ export abstract class MapScene extends Phaser.Scene {
   }
   protected tryUseCoop(): boolean {
     return false;
+  }
+
+  private updateTargetHighlight(): void {
+    const state = this.getTargetHighlightState();
+    if (state === 'none') {
+      this.targetHighlight.setVisible(false);
+      return;
+    }
+    const tile = this.player.getFacingTile(TILE);
+    this.targetHighlight
+      .setVisible(true)
+      .setPosition(tile.x * TILE, tile.y * TILE)
+      .setFillStyle(state === 'valid' ? 0x4caf50 : 0xe53935, 0.4);
+  }
+
+  /**
+   * Whether the tile the player is facing is a valid target for the
+   * currently equipped item — shown as a green/red highlight, in the spirit
+   * of the cursor-highlight convention common to farming/crafting games.
+   * Base implementation covers the gathering tools (valid everywhere, since
+   * it's the same check for any map); FarmScene extends this for
+   * hoe/watering-can/seeds/furniture.
+   */
+  protected getTargetHighlightState(): 'none' | 'valid' | 'invalid' {
+    const stack = itemAt(gameState.inventory, gameState.equippedSlot);
+    if (!stack) return 'none';
+    const tile = this.player.getFacingTile(TILE);
+
+    if (stack.itemId === 'fishing_rod') {
+      const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
+      return gid === TILE_GID.WATER ? 'valid' : 'invalid';
+    }
+
+    const kind =
+      stack.itemId === 'axe' ? 'tree' : stack.itemId === 'pickaxe' ? 'rock' : stack.itemId === 'scythe' ? 'weed' : undefined;
+    if (!kind) return 'none';
+    const gid = this.decorLayer.getTileAt(tile.x, tile.y)?.index;
+    const expectedGid = kind === 'tree' ? TILE_GID.TRUNK : kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH;
+    return gid === expectedGid ? 'valid' : 'invalid';
   }
   protected tryUseQuestBoard(): boolean {
     return false;

@@ -90,6 +90,37 @@ export class FarmScene extends MapScene {
     }
   }
 
+  protected override getTargetHighlightState(): 'none' | 'valid' | 'invalid' {
+    const stack = gameState.inventory.slots[gameState.equippedSlot];
+    if (stack) {
+      const tile = this.player.getFacingTile(TILE);
+      const key = plotKey(tile.x, tile.y);
+      const def = ITEMS[stack.itemId];
+
+      if (stack.itemId === 'hoe') {
+        const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
+        const blocked = !!this.decorLayer.getTileAt(tile.x, tile.y);
+        const tillable = gid !== undefined && TILLABLE_GIDS.includes(gid) && !blocked && canTill(gameState.farmPlots, key);
+        return tillable ? 'valid' : 'invalid';
+      }
+      if (stack.itemId === 'watering_can') {
+        return canWater(gameState.farmPlots, key) ? 'valid' : 'invalid';
+      }
+      if (def.category === 'seed') {
+        return canPlant(gameState.farmPlots, key) ? 'valid' : 'invalid';
+      }
+      if (def.category === 'furniture') {
+        const objKey = placedObjectKey(this.mapKey, tile.x, tile.y);
+        if (isOccupied(gameState.placedObjects, objKey) || this.decorLayer.getTileAt(tile.x, tile.y)) return 'invalid';
+        const groundGid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
+        const allowedGids: readonly number[] =
+          stack.itemId === 'sprinkler' ? [...TILLABLE_GIDS, TILE_GID.SOIL] : TILLABLE_GIDS;
+        return groundGid !== undefined && allowedGids.includes(groundGid) ? 'valid' : 'invalid';
+      }
+    }
+    return super.getTargetHighlightState();
+  }
+
   protected override applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
     const key = plotKey(tile.x, tile.y);
     if (itemId === 'hoe') {
