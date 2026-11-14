@@ -1,6 +1,10 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–13 đã xong (v0.13.0). Bước tiếp theo: Phase 14 (hoàn thiện: âm thanh, cài đặt, cân bằng).
+> **Trạng thái:** Phase 0–14 đã xong (v0.14.0). Bước tiếp theo: Phase 15 (đóng gói desktop) — phase cuối cùng!
+>
+> Ghi chú Phase 14: `SfxSystem` dùng trực tiếp Web Audio API (oscillator), không qua Phaser Sound Manager vì
+> không có file âm thanh. `GameState.settings` lưu âm lượng/tắt tiếng (lưu ý: hiện nằm trong save file, nên
+> "Chơi mới" sẽ reset về mặc định thay vì giữ nguyên tuỳ chọn cũ — có thể tách riêng khỏi save sau).
 >
 > Ghi chú Phase 13: `SkillSystem` + `QuestSystem` (logic thuần, có test). XP cộng trực tiếp tại nơi hành động xảy ra
 > (`MapScene`, `FarmScene`, `MineScene`, `UIScene.resolveFishing`) — chưa có menu riêng hiển thị cấp độ, chỉ lưu
@@ -222,9 +226,14 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - **Chưa làm**: lên cấp mở khoá công thức chế tạo mới (hiện công thức không phân biệt cấp độ), menu xem cấp
   độ kỹ năng, mở khu vực mới khi hoàn thành nhiệm vụ, lễ hội theo mùa — để dành bản cập nhật sau.
 
-### Phase 14 – Hoàn thiện
-- Âm thanh và nhạc nền theo mùa, menu cài đặt (âm lượng, phím), hỗ trợ tay cầm.
-- Tối ưu hiệu năng, sửa lỗi, cân bằng giá cả.
+### Phase 14 – Hoàn thiện  ✅ Đã xong (bản rút gọn)
+- Hiệu ứng âm thanh tổng hợp bằng Web Audio (dao động âm thuần, không dùng file nhạc nào): dùng công cụ, nhặt đồ,
+  đánh trúng, chuông đầu ngày, click giao diện. Tất cả tự nghĩ, không sao chép từ đâu.
+- Menu cài đặt (phím **Tab**): thanh âm lượng (bấm để chỉnh), nút tắt/bật tiếng, nút toàn màn hình.
+- Rà soát nhanh giá bán/mua/chi phí chế tạo — không thấy bất thường rõ rệt.
+- **Chưa làm**: nhạc nền theo mùa/khu vực (cần tổng hợp nhạc phức tạp hơn nhiều so với hiệu ứng ngắn, để dành sau),
+  đổi phím tuỳ ý, hỗ trợ tay cầm/rung, cân bằng sâu dựa trên dữ liệu người chơi thật (cần người chơi thật để
+  thu thập, không làm được chỉ bằng cách đọc code).
 
 ### Phase 15 – Đóng gói desktop
 - Đóng gói bằng Tauri thành file chạy Windows/Mac.

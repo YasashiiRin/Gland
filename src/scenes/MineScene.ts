@@ -14,6 +14,7 @@ import { consume, isExhausted, restoreFull } from '../systems/EnergySystem';
 import { addItem } from '../systems/InventorySystem';
 import { generateFloor, type MineFloor, type MineTile } from '../systems/MineSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
+import { playHit, playPickup } from '../systems/SfxSystem';
 
 const MINE_TILESET = 'mine_tiles';
 const TILE_GID_FOR: Record<MineTile, number> = { floor: 1, wall: 2, ore: 3, ladderDown: 6 };
@@ -63,7 +64,7 @@ export class MineScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    if (this.transitioning || uiState.inventoryOpen) return;
+    if (this.transitioning || uiState.inventoryOpen || uiState.settingsOpen) return;
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.player.updateMovement(this.readInput());
@@ -205,6 +206,7 @@ export class MineScene extends Phaser.Scene {
         this.monsters = this.monsters.filter((m) => m !== target);
       }
       this.player.playUseToolFeedback();
+      playHit(gameState.settings);
     } else if (stack.itemId === 'pickaxe') {
       if (isExhausted(gameState.energy)) return;
       const t = this.floor.tiles[tile.y]?.[tile.x];
@@ -224,6 +226,7 @@ export class MineScene extends Phaser.Scene {
       gameState.inventory = addItem(gameState.inventory, itemId, qty).state;
       gameState.skills = addXp(gameState.skills, 'mining', XP_REWARDS.mineOre).skills;
       this.player.playUseToolFeedback();
+      playPickup(gameState.settings);
     }
   }
 

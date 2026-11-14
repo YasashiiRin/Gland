@@ -21,6 +21,7 @@ import {
 } from '../systems/FarmingSystem';
 import { feed as feedAnimal, pet as petAnimal } from '../systems/AnimalSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
+import { playPickup } from '../systems/SfxSystem';
 import { addItem } from '../systems/InventorySystem';
 import { absoluteDayNumber } from '../systems/TimeSystem';
 import type { Direction } from '../systems/movement';
@@ -130,6 +131,7 @@ export class FarmScene extends MapScene {
     gameState.farmPlots = result.plots;
     gameState.inventory = addItem(gameState.inventory, result.harvestedItemId as ItemId, result.quantity).state;
     gameState.skills = addXp(gameState.skills, 'farming', XP_REWARDS.harvestCrop).skills;
+    playPickup(gameState.settings);
 
     const remaining = gameState.farmPlots[key];
     if (remaining?.cropId) {

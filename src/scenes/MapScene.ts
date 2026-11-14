@@ -22,6 +22,7 @@ import type { Direction } from '../systems/movement';
 import { waterPlot } from '../systems/FarmingSystem';
 import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
+import { playPickup, playUseTool } from '../systems/SfxSystem';
 import { advanceAnimalDay } from '../systems/AnimalSystem';
 import {
   advanceResourceDay,
@@ -157,7 +158,8 @@ export abstract class MapScene extends Phaser.Scene {
       uiState.shopOpen ||
       uiState.craftingOpen ||
       uiState.chestOpen ||
-      uiState.dialogueOpen
+      uiState.dialogueOpen ||
+      uiState.settingsOpen
     ) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
       return;
@@ -441,6 +443,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     gameState.energy = consume(gameState.energy, cost);
     this.player.playUseToolFeedback();
+    playUseTool(gameState.settings);
     const tile = this.player.getFacingTile(TILE);
     this.applyToolEffect(stack.itemId, tile);
   }
@@ -493,6 +496,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     const worldX = tile.x * TILE + TILE / 2;
     const worldY = tile.y * TILE + TILE / 2;
+    playPickup(gameState.settings);
     if (kind === 'tree') {
       const qty = rollWoodYield();
       gameState.inventory = addItem(gameState.inventory, 'wood', qty).state;

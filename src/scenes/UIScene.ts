@@ -22,6 +22,8 @@ import {
 } from '../systems/FishingSystem';
 import { DialogueBox } from '../ui/DialogueBox';
 import { FishingMinigame } from '../ui/FishingMinigame';
+import { SettingsMenu } from '../ui/SettingsMenu';
+import { playClick, playDayChime, playPickup } from '../systems/SfxSystem';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { uiState } from '../state/uiState';
@@ -54,6 +56,7 @@ export class UIScene extends Phaser.Scene {
   private fishingFishId: string | null = null;
   private fishingState: FishingState | null = null;
   private fishingKey!: Phaser.Input.Keyboard.Key;
+  private settingsMenu!: SettingsMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private dayBanner!: Phaser.GameObjects.Text;
   private accumulatorMs = 0;
@@ -100,6 +103,7 @@ export class UIScene extends Phaser.Scene {
         const result = buyItem(gameState.inventory, gameState.money, itemId, 1);
         gameState.inventory = result.inventory;
         gameState.money = result.money;
+        if (result.boughtQty > 0) playClick(gameState.settings);
       },
     );
 
@@ -109,6 +113,7 @@ export class UIScene extends Phaser.Scene {
       (recipeId) => {
         const result = craft(gameState.inventory, recipeId);
         gameState.inventory = result.inventory;
+        if (result.crafted) playClick(gameState.settings);
         this.craftingMenu.refresh();
         this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
       },
@@ -141,8 +146,41 @@ export class UIScene extends Phaser.Scene {
     EventBus.on(GameEvents.FishingStarted, onFishingStarted);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.FishingStarted, onFishingStarted));
 
+    this.settingsMenu = new SettingsMenu(this, DEPTH_ABOVE + 1);
+    this.settingsMenu.bind(
+      (ratio) => {
+        gameState.settings.volume = ratio;
+        this.settingsMenu.refresh(gameState.settings.volume, gameState.settings.muted);
+      },
+      () => {
+        gameState.settings.muted = !gameState.settings.muted;
+        this.settingsMenu.refresh(gameState.settings.volume, gameState.settings.muted);
+        playClick(gameState.settings);
+      },
+      () => {
+        if (this.scale.isFullscreen) this.scale.stopFullscreen();
+        else this.scale.startFullscreen();
+      },
+    );
+
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
+    kb.addCapture(Phaser.Input.Keyboard.KeyCodes.TAB); // stop the browser from tabbing focus away
+    const settingsKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.TAB);
+    settingsKey.on('down', () => {
+      if (uiState.settingsOpen) this.closeSettings();
+      else if (
+        !uiState.inventoryOpen &&
+        !uiState.shopOpen &&
+        !uiState.craftingOpen &&
+        !uiState.chestOpen &&
+        !uiState.dialogueOpen &&
+        !uiState.fishingOpen
+      ) {
+        this.settingsMenu.open(gameState.settings.volume, gameState.settings.muted);
+        uiState.settingsOpen = true;
+      }
+    });
     this.fishingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
     const craftingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.C);
@@ -156,7 +194,8 @@ export class UIScene extends Phaser.Scene {
     });
     const escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     escKey.on('down', () => {
-      if (uiState.dialogueOpen) this.closeDialogue();
+      if (uiState.settingsOpen) this.closeSettings();
+      else if (uiState.dialogueOpen) this.closeDialogue();
       else if (uiState.shopOpen) this.closeShop();
       else if (uiState.craftingOpen) this.closeCrafting();
       else if (uiState.chestOpen) this.closeChest();
@@ -235,7 +274,8 @@ export class UIScene extends Phaser.Scene {
       uiState.craftingOpen ||
       uiState.chestOpen ||
       uiState.dialogueOpen ||
-      uiState.fishingOpen
+      uiState.fishingOpen ||
+      uiState.settingsOpen
     ) {
       return;
     }
@@ -281,6 +321,11 @@ export class UIScene extends Phaser.Scene {
     uiState.dialogueOpen = false;
   }
 
+  private closeSettings(): void {
+    this.settingsMenu.close();
+    uiState.settingsOpen = false;
+  }
+
   private resolveFishing(outcome: 'caught' | 'escaped'): void {
     const fishId = this.fishingFishId;
     this.fishingMinigame.close();
@@ -292,6 +337,7 @@ export class UIScene extends Phaser.Scene {
     if (outcome === 'caught') {
       gameState.inventory = addItem(gameState.inventory, fishId as ItemId, 1).state;
       gameState.skills = addXp(gameState.skills, 'fishing', XP_REWARDS.catchFish).skills;
+      playPickup(gameState.settings);
       this.showBanner(`Câu được: ${FISH[fishId as keyof typeof FISH].name}!`, 0x3a5f3a);
     } else {
       this.showBanner('Cá đã chạy mất!', 0x5f3a3a);
@@ -376,6 +422,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   private showDayBanner(p: DayStartedPayload): void {
+    playDayChime(gameState.settings);
     const earningsLine = p.earnings > 0 ? `\nHôm qua bạn kiếm được ${p.earnings.toLocaleString('vi-VN')} ₫` : '';
     const text = `Ngày ${p.day}, mùa ${SEASON_LABELS[p.season]} — Thời tiết: ${WEATHER_LABELS[p.weather]}${earningsLine}`;
     this.dayBanner.setText(text);

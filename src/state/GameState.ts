@@ -40,9 +40,10 @@ export interface GameState {
   deepestFloor: number;
   skills: SkillXp;
   communityFund: QuestState;
+  settings: { muted: boolean; volume: number };
 }
 
-export const STATE_VERSION = 10;
+export const STATE_VERSION = 11;
 
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
@@ -83,6 +84,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     deepestFloor: 0,
     skills: createInitialSkills(),
     communityFund: createQuestState(),
+    settings: { muted: false, volume: 0.6 },
   };
 }
 

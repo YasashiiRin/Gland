@@ -10,4 +10,5 @@ export const uiState = {
   chestOpen: false,
   dialogueOpen: false,
   fishingOpen: false,
+  settingsOpen: false,
 };
