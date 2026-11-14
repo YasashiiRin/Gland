@@ -253,3 +253,14 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - **Sau Phase 5:** bản chơi được tối thiểu (trồng, bán, lưu game). Dừng lại chơi thử vài ngày trong game, ghi lại cảm nhận trước khi đi tiếp.
 - **Sau Phase 9:** game bắt đầu có "hồn". Thay asset placeholder bằng asset thật tại đây.
 - **Sau Phase 14:** bản hoàn chỉnh.
+
+
+## Ghi chú sửa lỗi (sau khi hoàn thành 16 phase)
+- **Thanh đen giữa màn hình + chữ "Âm lượng" nổi lơ lửng:** do `FishingMinigame.ts` và `SettingsMenu.ts` tạo
+  một vài phần tử trang trí (nền thanh tiến trình câu cá, nhãn "Âm lượng") nhưng quên thêm vào container ẩn của
+  menu, nên chúng hiển thị vĩnh viễn dù menu đang đóng. Đã rà soát toàn bộ các file UI khác, không còn chỗ nào bị tương tự.
+- **Màu cỏ:** đổi từ pastel loang màu sang một màu xanh đậm đồng nhất theo yêu cầu người dùng.
+- **"Vừa di chuyển vừa rê chuột không được":** thêm CSS chặn trình duyệt tự kéo-chọn văn bản/hình ảnh khi rê
+  chuột trên canvas (`user-select: none`, chặn sự kiện `dragstart`/`selectstart`) — đây là nguyên nhân phổ biến
+  khiến phím đang giữ bị "quên" giữa chừng. Đã kiểm tra kỹ bằng cách đọc mã nguồn Phaser: không có lỗi tạm dừng
+  vòng lặp game ở tầng engine liên quan tới việc rê chuột.
