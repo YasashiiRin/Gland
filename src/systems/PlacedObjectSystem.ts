@@ -1,12 +1,15 @@
+import { createAnimal, type AnimalState } from './AnimalSystem';
 import type { InventoryState } from './InventorySystem';
 import { createEmptyInventory } from './InventorySystem';
 
-export type PlacedObjectKind = 'chest' | 'scarecrow' | 'sprinkler';
+export type PlacedObjectKind = 'chest' | 'scarecrow' | 'sprinkler' | 'chicken_coop';
 
 export interface PlacedObjectState {
   kind: PlacedObjectKind;
   /** Only chests use this; their own small storage. */
   chest?: InventoryState;
+  /** Only chicken_coop uses this; the one chicken living there. */
+  animal?: AnimalState;
 }
 
 export type PlacedObjects = Record<string, PlacedObjectState>;
@@ -16,7 +19,17 @@ export function placedObjectKey(mapKey: string, x: number, y: number): string {
 }
 
 export function createPlacedObject(kind: PlacedObjectKind): PlacedObjectState {
-  return kind === 'chest' ? { kind, chest: createEmptyInventory() } : { kind };
+  if (kind === 'chest') return { kind, chest: createEmptyInventory() };
+  if (kind === 'chicken_coop') return { kind, animal: createAnimal() };
+  return { kind };
+}
+
+/** All chicken coops on a given map, as "x,y" strings (without the map prefix). */
+export function coopTileKeysOnMap(objects: PlacedObjects, mapKey: string): string[] {
+  const prefix = `${mapKey}:`;
+  return Object.entries(objects)
+    .filter(([key, node]) => key.startsWith(prefix) && node.kind === 'chicken_coop')
+    .map(([key]) => key.slice(prefix.length));
 }
 
 export function isOccupied(objects: PlacedObjects, key: string): boolean {

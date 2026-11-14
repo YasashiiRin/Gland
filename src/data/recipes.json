@@ -16,6 +16,16 @@
     "resultQty": 1,
     "category": "craft"
   },
+  "chicken_coop": {
+    "name": "Chuồng gà",
+    "ingredients": [
+      { "itemId": "wood", "qty": 80 },
+      { "itemId": "stone", "qty": 30 }
+    ],
+    "resultItemId": "chicken_coop",
+    "resultQty": 1,
+    "category": "craft"
+  },
   "sprinkler": {
     "name": "Vòi tưới tự động",
     "ingredients": [

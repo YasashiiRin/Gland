@@ -293,6 +293,26 @@ const ICONS: Record<ItemId, Draw> = {
     g.arc(8, 8, 6, Phaser.Math.DegToRad(40), Phaser.Math.DegToRad(320), false);
     g.strokePath();
   },
+  chicken_coop: (g) => {
+    g.fillStyle(0xd9a441, 1);
+    g.fillTriangle(2, 7, 14, 7, 8, 1);
+    g.lineStyle(1, INK, 1);
+    g.strokeTriangle(2, 7, 14, 7, 8, 1);
+    g.fillStyle(0xe8d8b8, 1);
+    g.fillRect(3, 7, 10, 7);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(3, 7, 10, 7);
+    g.fillStyle(0x8a6540, 1);
+    g.fillRect(7, 10, 3, 4);
+  },
+  egg: (g) => {
+    g.fillStyle(0xf2ead8, 1);
+    g.fillEllipse(8, 9, 6, 7);
+    g.lineStyle(1, INK, 1);
+    g.strokeEllipse(8, 9, 6, 7);
+    g.fillStyle(0xffffff, 1);
+    g.fillEllipse(6, 6, 2, 1.4);
+  },
   stone: (g) => {
     g.fillStyle(0xaaaab2, 1);
     g.fillTriangle(3, 11, 8, 3, 13, 11);

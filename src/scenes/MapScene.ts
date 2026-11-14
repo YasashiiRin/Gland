@@ -20,7 +20,8 @@ import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
 import { addItem, HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
 import type { Direction } from '../systems/movement';
 import { waterPlot } from '../systems/FarmingSystem';
-import { sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
+import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
+import { advanceAnimalDay } from '../systems/AnimalSystem';
 import {
   advanceResourceDay,
   hitResource,
@@ -165,7 +166,13 @@ export abstract class MapScene extends Phaser.Scene {
     this.readHotbarSelection();
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
-      if (!this.tryHarvestFacingTile() && !this.tryOpenChest() && !this.tryTalkToNpc() && !this.tryEnterMine()) {
+      if (
+        !this.tryHarvestFacingTile() &&
+        !this.tryOpenChest() &&
+        !this.tryTalkToNpc() &&
+        !this.tryEnterMine() &&
+        !this.tryUseCoop()
+      ) {
         if (this.isNearBed()) this.sleepSequence('manual');
         else if (!this.tryOpenShop()) this.tryUseShippingBin();
       }
@@ -220,6 +227,9 @@ export abstract class MapScene extends Phaser.Scene {
     return false;
   }
   protected tryEnterMine(): boolean {
+    return false;
+  }
+  protected tryUseCoop(): boolean {
     return false;
   }
 
@@ -300,6 +310,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.beginTransition();
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       const wasRaining = gameState.time.weather === 'rainy';
+      const yesterdayAbsolute = absoluteDayNumber(gameState.time);
       const nextTime = startNewDay(gameState.time);
       gameState.time = nextTime;
       gameState.farmPlots = advanceFarmDay(gameState.farmPlots, nextTime.season, wasRaining);
@@ -307,6 +318,20 @@ export abstract class MapScene extends Phaser.Scene {
       // Sprinklers water their tile for the day that's just starting.
       for (const key of sprinklerTileKeysOnMap(gameState.placedObjects, 'Farm')) {
         gameState.farmPlots = waterPlot(gameState.farmPlots, key);
+      }
+
+      // Chicken coops: yesterday's feeding decides today's happiness and
+      // whether an egg turns up this morning.
+      for (const tileKey of coopTileKeysOnMap(gameState.placedObjects, 'Farm')) {
+        const [cx, cy] = tileKey.split(',').map(Number);
+        const fullKey = placedObjectKey('Farm', cx, cy);
+        const placed = gameState.placedObjects[fullKey];
+        if (!placed?.animal) continue;
+        const result = advanceAnimalDay(placed.animal, yesterdayAbsolute);
+        placed.animal = result.animal;
+        if (result.producedEgg) {
+          gameState.inventory = addItem(gameState.inventory, 'egg', 1).state;
+        }
       }
 
       let earnings = 0;

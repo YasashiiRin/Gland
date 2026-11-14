@@ -1,6 +1,9 @@
 # PLAN.md – Kế hoạch phát triển game nông trại 2D (offline)
 
-> **Trạng thái:** Phase 0–11 đã xong (v0.11.0). Bước tiếp theo: Phase 12 (vật nuôi).
+> **Trạng thái:** Phase 0–12 đã xong (v0.12.0). Bước tiếp theo: Phase 13 (kỹ năng, nhiệm vụ, lễ hội).
+>
+> Ghi chú Phase 12: `AnimalSystem` (logic thuần, có test). Vật nuôi gắn vào `PlacedObjectSystem` (thêm kind
+> `chicken_coop`, field `animal`), xử lý qua đêm trong `MapScene.sleepSequence` cùng chỗ với vòi tưới tự động.
 >
 > Ghi chú Phase 11: `MineSystem` + `CombatSystem` (logic thuần, có test). `MineScene` là scene riêng, **không** kế thừa
 > `MapScene` (hầm mỏ không dùng Tiled, không có cửa/giường/NPC) — tilemap dựng trực tiếp từ mảng số qua
@@ -196,8 +199,15 @@ Mỗi phase là một phiên làm việc với Claude Code. Làm xong, chơi th�
 - Quái vật đơn giản, vũ khí, máu, ăn đồ để hồi phục, ngất trong mỏ mất đồ.
 - Thợ rèn: nấu quặng, nâng cấp công cụ.
 
-### Phase 12 – Vật nuôi
-- Xây chuồng (thợ mộc), mua gà/bò, cho ăn cỏ khô, vuốt ve, thu trứng/sữa.
+### Phase 12 – Vật nuôi  ✅ Đã xong (bản rút gọn: chỉ gà)
+- Chuồng gà là công thức chế tạo (80 gỗ + 30 đá) rồi đặt xuống đất như rương/vòi tưới — không qua thợ mộc riêng,
+  không tốn ngày chờ xây (để đơn giản hoá, khác thiết kế gốc).
+- Tương tác **E**: chưa cho ăn hôm nay → cho ăn; đã cho ăn → vuốt ve (giới hạn 1 lần/ngày, tăng thân thiết);
+  cả hai rồi → chỉ hiện thông báo.
+- Mỗi sáng: nếu hôm qua được cho ăn → vui vẻ tăng, thân thiết tăng nhẹ; không cho ăn → vui vẻ giảm mạnh.
+  Xác suất đẻ trứng tăng theo vui vẻ + thân thiết (đã test: gà vui/thân thiết cao đẻ trứng gần như chắc chắn).
+- **Chưa làm**: nhiều loại vật nuôi (bò, cừu...), thức ăn phải mua/trữ cỏ khô riêng (hiện cho ăn miễn phí mỗi lần
+  tương tác), chất lượng sản phẩm theo cấp (thường/bạc/vàng), chuồng gia súc (Barn) riêng — để dành bản cập nhật sau.
 
 ### Phase 13 – Kỹ năng và nhiệm vụ dài hạn
 - 5 kỹ năng, kinh nghiệm, lên cấp mở công thức.

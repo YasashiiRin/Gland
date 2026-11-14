@@ -28,5 +28,7 @@
   "golden_loach": { "name": "Cá chạch vàng", "category": "fish", "stackable": true, "sellPrice": 150, "description": "Hiếm, chỉ xuất hiện ban đêm." },
   "chest": { "name": "Rương", "category": "furniture", "stackable": false, "description": "Đặt xuống đất để có thêm chỗ chứa đồ." },
   "scarecrow": { "name": "Bù nhìn", "category": "furniture", "stackable": false, "description": "Đặt giữa ruộng cho đẹp." },
-  "sprinkler": { "name": "Vòi tưới tự động", "category": "furniture", "stackable": false, "description": "Đặt lên ô đất đã cuốc để tự động tưới mỗi sáng." }
+  "sprinkler": { "name": "Vòi tưới tự động", "category": "furniture", "stackable": false, "description": "Đặt lên ô đất đã cuốc để tự động tưới mỗi sáng." },
+  "chicken_coop": { "name": "Chuồng gà", "category": "furniture", "stackable": false, "description": "Nhà cho một chú gà. Cho ăn mỗi ngày, thỉnh thoảng vuốt ve." },
+  "egg": { "name": "Trứng gà", "category": "food", "stackable": true, "sellPrice": 50, "description": "Gà đẻ ra nếu được chăm sóc tốt." }
 }

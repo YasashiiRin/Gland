@@ -19,7 +19,9 @@ import {
   waterPlot,
   type FarmPlot,
 } from '../systems/FarmingSystem';
+import { feed as feedAnimal, pet as petAnimal } from '../systems/AnimalSystem';
 import { addItem } from '../systems/InventorySystem';
+import { absoluteDayNumber } from '../systems/TimeSystem';
 import type { Direction } from '../systems/movement';
 import {
   isOccupied,
@@ -138,7 +140,7 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryPlaceFurniture(itemId: ItemId): void {
-    if (itemId !== 'chest' && itemId !== 'scarecrow' && itemId !== 'sprinkler') return;
+    if (itemId !== 'chest' && itemId !== 'scarecrow' && itemId !== 'sprinkler' && itemId !== 'chicken_coop') return;
     const tile = this.player.getFacingTile(TILE);
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     if (isOccupied(gameState.placedObjects, key)) return;
@@ -166,6 +168,25 @@ export class FarmScene extends MapScene {
     if (!placed || placed.kind !== 'chest') return false;
     const payload: ChestOpenRequestedPayload = { chestKey: key };
     EventBus.emit(GameEvents.ChestOpenRequested, payload);
+    return true;
+  }
+
+  protected override tryUseCoop(): boolean {
+    const tile = this.player.getFacingTile(TILE);
+    const key = placedObjectKey(this.mapKey, tile.x, tile.y);
+    const placed = gameState.placedObjects[key];
+    if (!placed || placed.kind !== 'chicken_coop' || !placed.animal) return false;
+
+    const today = absoluteDayNumber(gameState.time);
+    if (placed.animal.fedOnDay !== today) {
+      placed.animal = feedAnimal(placed.animal, today);
+      this.showFloatingText(this.player.x, this.player.y - 20, 'Đã cho gà ăn');
+    } else if (placed.animal.pettedOnDay !== today) {
+      placed.animal = petAnimal(placed.animal, today);
+      this.showFloatingText(this.player.x, this.player.y - 20, 'Gà có vẻ vui hơn ♥');
+    } else {
+      this.showFloatingText(this.player.x, this.player.y - 20, 'Hôm nay đã chăm gà rồi');
+    }
     return true;
   }
 
