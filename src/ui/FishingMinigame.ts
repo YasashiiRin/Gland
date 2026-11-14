@@ -30,7 +30,9 @@ export class FishingMinigame {
     this.bar = scene.add.rectangle(cx, cy, TRACK_W - 14, 10, 0x6fcf6f, 0.9).setOrigin(0.5, 0);
 
     const barTrackX = cx + TRACK_W / 2 + 26;
-    scene.add.rectangle(barTrackX, cy, 14, TRACK_H, 0x1c1814, 0.9).setStrokeStyle(1, 0x6b5a46);
+    const progressTrackBg = scene.add
+      .rectangle(barTrackX, cy, 14, TRACK_H, 0x1c1814, 0.9)
+      .setStrokeStyle(1, 0x6b5a46);
     this.progressFill = scene.add.rectangle(barTrackX, cy + TRACK_H / 2, 10, 0, 0x6fcf6f).setOrigin(0.5, 1);
 
     const hint = scene.add
@@ -41,7 +43,7 @@ export class FishingMinigame {
       })
       .setOrigin(0.5);
 
-    this.root.add([panelBg, track, this.zone, this.bar, this.progressFill, hint]);
+    this.root.add([panelBg, track, this.zone, this.bar, progressTrackBg, this.progressFill, hint]);
   }
 
   open(): void {

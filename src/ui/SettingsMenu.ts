@@ -29,7 +29,9 @@ export class SettingsMenu {
 
     const barY = top + 70;
     const barX = cx - BAR_W / 2;
-    scene.add.text(cx, barY - 18, 'Âm lượng', { fontFamily: 'sans-serif', fontSize: '13px', color: '#d8c8a8' }).setOrigin(0.5);
+    const volumeCaption = scene.add
+      .text(cx, barY - 18, 'Âm lượng', { fontFamily: 'sans-serif', fontSize: '13px', color: '#d8c8a8' })
+      .setOrigin(0.5);
     const barBg = scene.add.rectangle(barX, barY, BAR_W, 16, 0x1c1814, 0.9).setOrigin(0, 0.5).setStrokeStyle(1, 0x6b5a46);
     barBg.setInteractive({ useHandCursor: true });
     barBg.on('pointerdown', (p: Phaser.Input.Pointer) => {
@@ -38,7 +40,7 @@ export class SettingsMenu {
     });
     this.volumeFill = scene.add.rectangle(barX + 2, barY, 0, 12, 0x6fcf6f).setOrigin(0, 0.5);
     this.volumeLabel = scene.add.text(cx, barY + 20, '', { fontFamily: 'sans-serif', fontSize: '12px', color: '#fff6e0' }).setOrigin(0.5);
-    this.root.add([barBg, this.volumeFill, this.volumeLabel]);
+    this.root.add([volumeCaption, barBg, this.volumeFill, this.volumeLabel]);
 
     this.muteButton = scene.add
       .rectangle(cx, top + 130, 160, 34, 0x3a2f24, 0.9)
