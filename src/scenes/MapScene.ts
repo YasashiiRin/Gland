@@ -15,6 +15,8 @@ import { pickFish } from '../systems/FishingSystem';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked, uiState } from '../state/uiState';
+import { worldView } from '../state/worldView';
+import { buildMinimap } from '../systems/MinimapSystem';
 import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/EnergySystem';
 import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
 import { addItem, HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
@@ -160,7 +162,13 @@ export abstract class MapScene extends Phaser.Scene {
 
     gameState.currentMap = this.mapKey;
     gameState.spawnId = data.spawn ?? 'default';
-    const payload: MapEnteredPayload = { mapKey: this.mapKey, displayName: info.displayName };
+    const minimap = buildMinimap(
+      this.map.width,
+      this.map.height,
+      (x, y) => ground.getTileAt(x, y)?.index,
+      (x, y) => decor.getTileAt(x, y)?.index,
+    );
+    const payload: MapEnteredPayload = { mapKey: this.mapKey, displayName: info.displayName, minimap };
     EventBus.emit(GameEvents.MapEntered, payload);
   }
 
@@ -169,6 +177,8 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.trees.updateOcclusion(this.player.x, this.player.y);
+    worldView.playerTileX = Math.floor(this.player.x / TILE);
+    worldView.playerTileY = Math.floor(this.player.y / TILE);
 
     if (isWorldInputBlocked()) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });

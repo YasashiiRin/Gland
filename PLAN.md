@@ -279,3 +279,24 @@ trạng thái ô highlight (vị trí, màu) qua trình duyệt thật, khớp c
   nhiều mảnh hơn ở nhát cuối cùng khi cây đổ. Dùng `MapScene.playBurstEffect` (particle emitter dùng 1 lần rồi tự huỷ).
 - Tưới nước: giọt nước nhỏ (`water_droplet`) rơi xuống ô đất mỗi khi tưới thành công.
 - Texture `wood_chip`/`water_droplet` tự vẽ bằng code (Phaser Graphics), không dùng ảnh có sẵn nào.
+
+
+## Cập nhật: điều khiển chuột, đồ hoạ mới, nông trại 64×48, giao diện mới, minimap
+- **Chuột:** click trái = dùng công cụ/hạt giống, click phải = tương tác (thu hoạch, rương, giường, bán...). Nhắm vào ô
+  dưới con trỏ nếu ô đó sát nhân vật, nếu xa thì ô kế bên theo hướng con trỏ; dùng được cả khi đang đi. Bấm phím di
+  chuyển thì quay lại nhắm bằng hướng nhìn (Space). Click ô hotbar để chọn; giữ chuột trái để kéo cần khi câu cá.
+  Lưu ý: trên laptop Linux, touchpad mặc định bị tắt khi đang giữ phím — tắt "Disable while typing" trong cài đặt
+  Touchpad của Ubuntu (lỗi hệ điều hành, không phải lỗi game).
+- **Đồ hoạ:** bộ sinh hình tách thành `scripts/art/*` (tiles, characters, nature, buildings, furniture, crops, maps).
+  Mọi sprite liệt kê trong `public/assets/sprites/pack.json` (game tự tải) → thay asset thật chỉ cần thay PNG cùng kích thước.
+  Tile nước/đường tự nối viền (autotile 16 biến thể); cây, nhà, nội thất là sprite (`prop` trong Tiled) nằm trên ô va chạm
+  vô hình `BLOCK`; cây rung khi chặt, đổ khi gãy, trong suốt khi đi phía sau. Cây trồng có ảnh riêng 5 giai đoạn
+  (`sprites/crops/<cropId>.png`; cây mới chưa có ảnh thì dùng hình chồi mặc định).
+- **Bản đồ:** nông trại 64×48 (rừng bao quanh, hầm mỏ góc đông bắc, 2 ao, rừng nhỏ phía tây, khoảnh đất trống cạnh nhà),
+  nhà trong rộng 16×12 có bếp, lò sưởi, kệ sách, bàn ghế. Save cũ vẫn dùng được: ô đất/đồ đặt nằm sai chỗ trên bản đồ
+  mới tự gỡ (đồ + đồ trong rương trả về túi).
+- **Giao diện:** đồng hồ ngày-đêm + ngày/thời tiết/mùa + tiền ở góc trên phải; thanh năng lượng/máu dọc ở góc dưới phải
+  (rê chuột để xem số); hotbar khung gỗ sát đáy; minimap + tên khu vực ở góc trên trái (phím **M** ẩn/hiện, có test cho
+  `MinimapSystem`). Các menu (túi đồ, cửa hàng...) chưa đổi sang khung gỗ mới.
+- **Chưa làm:** hầm mỏ vẫn dùng hình cũ (quái vật là hình tròn), icon vật phẩm vẫn vẽ bằng code cũ, đất cuốc chưa nối
+  liền nhau giữa các ô kề, `MapScene.ts` đã vượt ~300 dòng (nên tách tiếp ở lần sau).

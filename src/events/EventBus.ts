@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { MinimapData } from '../systems/MinimapSystem';
 import type { Season, TimeState, Weather } from '../systems/TimeSystem';
 
 /** Global event bus so scenes and systems can talk without importing each other. */
@@ -37,6 +38,8 @@ export interface ChestOpenRequestedPayload {
 export interface MapEnteredPayload {
   mapKey: string;
   displayName: string;
+  /** Overview for the minimap; absent for places without one (the mine). */
+  minimap?: MinimapData;
 }
 
 export interface TimeTickPayload {

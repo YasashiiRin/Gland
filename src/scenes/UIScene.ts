@@ -1,3 +1,5 @@
+import { Minimap } from '../ui/Minimap';
+import { worldView } from '../state/worldView';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
 import { DEPTH_ABOVE } from '../config/constants';
@@ -58,6 +60,7 @@ export class UIScene extends Phaser.Scene {
   private fishingKey!: Phaser.Input.Keyboard.Key;
   private settingsMenu!: SettingsMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
+  private minimap!: Minimap;
   private dayBanner!: Phaser.GameObjects.Text;
   private accumulatorMs = 0;
   private inventoryKey!: Phaser.Input.Keyboard.Key;
@@ -76,7 +79,8 @@ export class UIScene extends Phaser.Scene {
       .setDepth(DEPTH_ABOVE - 1)
       .setAlpha(0);
 
-    this.hud = new Hud(this);
+    this.hud = new Hud(this, DEPTH_ABOVE);
+    this.minimap = new Minimap(this, DEPTH_ABOVE);
     this.hud.setTime(gameState.time);
     this.hud.setEnergy(gameState.energy);
     this.hud.setHealth(gameState.playerHealth);
@@ -186,6 +190,7 @@ export class UIScene extends Phaser.Scene {
     });
     this.fishingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+    kb.addKey(Phaser.Input.Keyboard.KeyCodes.M).on('down', () => this.minimap.toggle());
     const craftingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.C);
     craftingKey.on('down', () => {
       if (uiState.inventoryOpen || uiState.shopOpen || uiState.chestOpen) return;
@@ -239,7 +244,10 @@ export class UIScene extends Phaser.Scene {
       .setDepth(DEPTH_ABOVE)
       .setAlpha(0);
 
-    const onMap = (p: MapEnteredPayload) => this.hud.setLocation(p.displayName);
+    const onMap = (p: MapEnteredPayload) => {
+      this.hud.setLocation(p.displayName);
+      this.minimap.setMap(p.minimap, p.displayName);
+    };
     const onDay = (p: DayStartedPayload) => this.showDayBanner(p);
     EventBus.on(GameEvents.MapEntered, onMap);
     EventBus.on(GameEvents.DayStarted, onDay);
@@ -256,6 +264,7 @@ export class UIScene extends Phaser.Scene {
     this.hud.setEnergy(gameState.energy);
     this.hud.setHealth(gameState.playerHealth);
     this.hud.setMoney(gameState.money);
+    this.minimap.setPlayerTile(worldView.playerTileX, worldView.playerTileY);
 
     if (uiState.fishingOpen && this.fishingState && this.fishingFishId) {
       const dt = delta / 1000;

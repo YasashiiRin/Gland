@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
 import { Player, type PlayerInput } from '../entities/Player';
+import { EventBus, GameEvents, type MapEnteredPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked } from '../state/uiState';
@@ -58,6 +59,9 @@ export class MineScene extends Phaser.Scene {
     this.spawnMonsters();
     this.setupCamera();
     this.setupInput();
+    // No minimap underground (floors are random); the UI shows just the floor name.
+    const entered: MapEnteredPayload = { mapKey: 'Mine', displayName: `Hầm mỏ – tầng ${this.depth}` };
+    EventBus.emit(GameEvents.MapEntered, entered);
 
     const cam = this.cameras.main;
     cam.fadeIn(FADE_MS, 0, 0, 0);

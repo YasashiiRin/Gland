@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { HOTBAR_SIZE, itemAt, type InventoryState } from '../systems/InventorySystem';
 import { iconTextureKey } from './itemIcons';
+import { drawWoodPanel, UI_COLORS } from './uiStyle';
 
 const SLOT_SIZE = 40;
 const GAP = 4;
@@ -17,15 +18,19 @@ export class Hotbar {
   constructor(scene: Phaser.Scene, depth: number) {
     const totalWidth = HOTBAR_SIZE * SLOT_SIZE + (HOTBAR_SIZE - 1) * GAP;
     const startX = (scene.scale.width - totalWidth) / 2;
-    const y = scene.scale.height - SLOT_SIZE / 2 - 48;
+    const y = scene.scale.height - SLOT_SIZE / 2 - 14;
 
     this.container = scene.add.container(0, 0).setDepth(depth);
+    // One wooden tray along the bottom edge holding all slots.
+    const tray = scene.add.graphics();
+    drawWoodPanel(tray, startX - 10, y - SLOT_SIZE / 2 - 8, totalWidth + 20, SLOT_SIZE + 16, false);
+    this.container.add(tray);
 
     for (let i = 0; i < HOTBAR_SIZE; i++) {
       const x = startX + i * (SLOT_SIZE + GAP) + SLOT_SIZE / 2;
       const box = scene.add
-        .rectangle(x, y, SLOT_SIZE, SLOT_SIZE, 0x2a2420, 0.78)
-        .setStrokeStyle(2, 0x6b5a46)
+        .rectangle(x, y, SLOT_SIZE, SLOT_SIZE, UI_COLORS.parchment, 1)
+        .setStrokeStyle(2, UI_COLORS.edge)
         .setInteractive({ useHandCursor: true });
       // Interactive, so the click is captured here and never reaches the map scene below.
       box.on('pointerdown', () => this.onSelect?.(i));
@@ -34,7 +39,7 @@ export class Hotbar {
         .text(x + SLOT_SIZE / 2 - 4, y + SLOT_SIZE / 2 - 4, '', {
           fontFamily: 'sans-serif',
           fontSize: '12px',
-          color: '#ffffff',
+          color: '#fff6e0',
         })
         .setOrigin(1, 1)
         .setShadow(1, 1, '#000000', 2, false, true);
@@ -42,7 +47,7 @@ export class Hotbar {
         .text(x - SLOT_SIZE / 2 + 3, y - SLOT_SIZE / 2 + 2, String((i + 1) % 10), {
           fontFamily: 'sans-serif',
           fontSize: '10px',
-          color: '#c9bca6',
+          color: '#8a6440',
         })
         .setOrigin(0, 0);
       this.container.add([box, icon, count, keyLabel]);
@@ -68,7 +73,9 @@ export class Hotbar {
         icon.setVisible(false);
         count.setText('');
       }
-      this.boxes[i].setStrokeStyle(2, i === equippedSlot ? 0xffd480 : 0x6b5a46);
+      const selected = i === equippedSlot;
+      this.boxes[i].setStrokeStyle(selected ? 3 : 2, selected ? 0xd0402c : UI_COLORS.edge);
+      this.boxes[i].setFillStyle(selected ? 0xfff0c8 : UI_COLORS.parchment, 1);
     }
   }
 }
