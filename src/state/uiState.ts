@@ -28,3 +28,14 @@ export function isWorldInputBlocked(): boolean {
     uiState.sleepWait
   );
 }
+
+/** Drops every open menu flag (the UI is about to be rebuilt, e.g. after a screen resize). */
+export function closeAllMenus(): void {
+  uiState.inventoryOpen = false;
+  uiState.shopOpen = false;
+  uiState.craftingOpen = false;
+  uiState.chestOpen = false;
+  uiState.dialogueOpen = false;
+  uiState.fishingOpen = false;
+  uiState.settingsOpen = false;
+}

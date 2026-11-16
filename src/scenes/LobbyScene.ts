@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH } from '../config/constants';
 import { net, NetEvents } from '../net/NetSession';
 import { MAX_PLAYERS, pickShared, type LobbyPlayer, type SharedWorld } from '../net/protocol';
 import { applySharedWorld, gameState, resetToNewGame } from '../state/GameState';
@@ -29,7 +28,7 @@ export class LobbyScene extends Phaser.Scene {
   create(data: LobbySceneData): void {
     this.data_ = data;
     drawTitleBackground(this);
-    const cx = GAME_WIDTH / 2;
+    const cx = this.scale.width / 2;
     const g = this.add.graphics();
     drawWoodPanel(g, cx - 200, 110, 400, 330);
     inkText(this, cx, 140, data.mode === 'host' ? 'Phòng của bạn' : 'Vào phòng', 22).setOrigin(0.5);

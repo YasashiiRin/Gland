@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH } from '../config/constants';
 import { normalizeRoomCode } from '../net/protocol';
 import { applyLoadedState, resetToNewGame } from '../state/GameState';
 import * as SaveService from '../systems/SaveService';
@@ -24,16 +23,16 @@ export class TitleScene extends Phaser.Scene {
   create(data: { message?: string } = {}): void {
     drawTitleBackground(this);
     this.add
-      .text(GAME_WIDTH / 2, 92, 'Làng Việt', { fontFamily: UI_FONT, fontSize: '54px', color: '#fff6e0', fontStyle: 'bold' })
+      .text(this.scale.width / 2, 92, 'Làng Việt', { fontFamily: UI_FONT, fontSize: '54px', color: '#fff6e0', fontStyle: 'bold' })
       .setOrigin(0.5)
       .setStroke('#5a3018', 8)
       .setShadow(3, 4, '#2b1a10', 0, true, true);
     this.add
-      .text(GAME_WIDTH / 2, 142, 'Nông trại làng quê', { fontFamily: UI_FONT, fontSize: '18px', color: '#fff2d0', fontStyle: 'bold' })
+      .text(this.scale.width / 2, 142, 'Nông trại làng quê', { fontFamily: UI_FONT, fontSize: '18px', color: '#fff2d0', fontStyle: 'bold' })
       .setOrigin(0.5)
       .setStroke('#5a3018', 4);
     this.message = this.add
-      .text(GAME_WIDTH / 2, 500, data.message ?? '', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff6e0', backgroundColor: '#2b1a10cc' })
+      .text(this.scale.width / 2, 500, data.message ?? '', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff6e0', backgroundColor: '#2b1a10cc' })
       .setPadding(8, 4, 8, 4)
       .setOrigin(0.5)
       .setVisible(!!data.message);
@@ -57,7 +56,7 @@ export class TitleScene extends Phaser.Scene {
     this.menu?.destroy();
     this.inputs.forEach((i) => i.remove());
     this.inputs = [];
-    const cx = GAME_WIDTH / 2;
+    const cx = this.scale.width / 2;
     this.menu = this.add.container(0, 0);
     const panel = this.add.graphics();
     panel.fillStyle(UI_COLORS.edge, 0.55).fillRoundedRect(cx - 170, 188, 340, 280, 10);

@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../config/constants';
 import { MAP_KEYS, MAPS } from '../data/maps';
 import { NPC_IDS, NPCS } from '../data/npcs';
 
@@ -119,12 +118,12 @@ export class PreloadScene extends Phaser.Scene {
 
   private drawProgressBar(): void {
     const width = 320;
-    const x = (GAME_WIDTH - width) / 2;
-    const y = GAME_HEIGHT / 2;
-    this.add.rectangle(GAME_WIDTH / 2, y, width + 8, 24, 0x3a2f24).setStrokeStyle(2, 0xe8d8b8);
+    const x = (this.scale.width - width) / 2;
+    const y = this.scale.height / 2;
+    this.add.rectangle(this.scale.width / 2, y, width + 8, 24, 0x3a2f24).setStrokeStyle(2, 0xe8d8b8);
     const bar = this.add.rectangle(x, y, 0, 16, 0x8bc34a).setOrigin(0, 0.5);
     this.add
-      .text(GAME_WIDTH / 2, y - 32, 'Đang tải…', { fontFamily: 'sans-serif', fontSize: '18px', color: '#e8d8b8' })
+      .text(this.scale.width / 2, y - 32, 'Đang tải…', { fontFamily: 'sans-serif', fontSize: '18px', color: '#e8d8b8' })
       .setOrigin(0.5);
     this.load.on('progress', (value: number) => {
       bar.width = width * value;

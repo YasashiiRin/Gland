@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from './config/constants';
+import { fitGameWidth, GAME_HEIGHT, GAME_WIDTH } from './config/constants';
+import { EventBus, GameEvents } from './events/EventBus';
+import { closeAllMenus } from './state/uiState';
 import { BootScene } from './scenes/BootScene';
 import { FarmScene } from './scenes/FarmScene';
 import { HouseScene } from './scenes/HouseScene';
@@ -32,6 +34,28 @@ const game = new Phaser.Game({
   },
   // UI must come last so it draws on top of the map scenes.
   scene: [BootScene, TitleScene, LobbyScene, PreloadScene, FarmScene, HouseScene, TownScene, MineScene, UIScene],
+});
+
+// Fill the screen: when the window (or phone orientation, or fullscreen)
+// changes shape, widen/narrow the canvas to match and lay the UI out again.
+let resizeTimer: number | undefined;
+function refit(): void {
+  const w = fitGameWidth(window.innerWidth, window.innerHeight);
+  if (Math.abs(w - game.scale.gameSize.width) < 4) return;
+  game.scale.setGameSize(w, GAME_HEIGHT);
+  for (const scene of game.scene.getScenes(true)) {
+    if (scene.scene.key === 'UI') {
+      closeAllMenus();
+      scene.scene.restart();
+    } else if (scene.scene.key === 'Title') {
+      scene.scene.restart();
+    }
+  }
+  EventBus.emit(GameEvents.ZoomChanged); // world cameras re-centre / re-clamp
+}
+window.addEventListener('resize', () => {
+  window.clearTimeout(resizeTimer);
+  resizeTimer = window.setTimeout(refit, 200);
 });
 
 // Safety-net autosave: catches anything since the last day-start save if the

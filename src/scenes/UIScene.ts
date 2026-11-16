@@ -63,6 +63,8 @@ const CHEST_SLOT_COUNT = 18;
 const VEHICLE_KEY_PREFIX = 'vehicle:';
 /** Guests send their bag/energy/skills to the host this often (ms). */
 const PROFILE_SEND_MS = 5000;
+/** The map on screen, so a rebuilt UI (after a resize) can redraw the minimap. */
+let currentMap: MapEnteredPayload | null = null;
 
 /** Runs on top of the map scenes: draws the HUD, the night overlay, and owns the game clock. */
 export class UIScene extends Phaser.Scene {
@@ -340,6 +342,7 @@ export class UIScene extends Phaser.Scene {
       .setAlpha(0);
 
     const onMap = (p: MapEnteredPayload) => {
+      currentMap = p;
       this.hud.setLocation(p.displayName);
       this.minimap.setMap(p.minimap, p.displayName);
     };
@@ -372,6 +375,8 @@ export class UIScene extends Phaser.Scene {
     };
     EventBus.on(GameEvents.MapEntered, onMap);
     EventBus.on(GameEvents.DayStarted, onDay);
+    if (currentMap) onMap(currentMap);
+    if (uiState.sleepWait) this.sleepOverlay.show(net.sleepers.size, net.players.length);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       EventBus.off(GameEvents.MapEntered, onMap);
       EventBus.off(GameEvents.DayStarted, onDay);

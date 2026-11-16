@@ -25,6 +25,9 @@ export class HorrorOverlay {
 
   constructor(private readonly scene: Phaser.Scene, depth: number) {
     const { width, height } = scene.scale;
+    if (scene.textures.exists(VIGNETTE_KEY) && scene.textures.get(VIGNETTE_KEY).getSourceImage().width !== width) {
+      scene.textures.remove(VIGNETTE_KEY); // the screen changed shape
+    }
     if (!scene.textures.exists(VIGNETTE_KEY)) {
       const tex = scene.textures.createCanvas(VIGNETTE_KEY, width, height);
       const ctx = tex?.getContext();
