@@ -5,5 +5,5 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .run(tauri::generate_context!())
-        .expect("error while running the Vườn Nhà Nhỏ app");
+        .expect("error while running the Làng Việt app");
 }

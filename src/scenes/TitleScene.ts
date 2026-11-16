@@ -24,7 +24,7 @@ export class TitleScene extends Phaser.Scene {
   create(data: { message?: string } = {}): void {
     drawTitleBackground(this);
     this.add
-      .text(GAME_WIDTH / 2, 92, 'Vườn Nhà Nhỏ', { fontFamily: UI_FONT, fontSize: '54px', color: '#fff6e0', fontStyle: 'bold' })
+      .text(GAME_WIDTH / 2, 92, 'Làng Việt', { fontFamily: UI_FONT, fontSize: '54px', color: '#fff6e0', fontStyle: 'bold' })
       .setOrigin(0.5)
       .setStroke('#5a3018', 8)
       .setShadow(3, 4, '#2b1a10', 0, true, true);

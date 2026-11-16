@@ -68,7 +68,7 @@
 > và khi đóng/tải lại trang (`beforeunload`). Màn hình tiêu đề (`TitleScene`) là scene đầu tiên; "Tiếp tục" chỉ
 > sáng lên khi có save. Tên nhân vật/nông trại hiện dùng mặc định ("Nông dân" / "Nông trại nhỏ"), **chưa có** màn
 > hình nhập tên tuỳ chỉnh (Phaser không có input chữ sẵn, cần overlay HTML — để lại cho phase hoàn thiện sau).
-> Tên game tạm thời: "Vườn Nhà Nhỏ" — đổi dễ dàng trong `TitleScene.ts`.
+> Tên game: "Làng Việt" (trước đây tạm gọi "Vườn Nhà Nhỏ") — đổi trong `TitleScene.ts`, `index.html`, `src-tauri`.
 >
 > Ghi chú Phase 3: `docs/game-design.md` mô tả đầy đủ cơ chế các phase 3–15.
 > Túi đồ 36 ô (`InventorySystem`), công cụ tốn năng lượng (`EnergySystem`), chọn hotbar bằng phím số/cuộn chuột,

@@ -6,7 +6,7 @@ import type { TimeState } from '../systems/TimeSystem';
 export const MAX_PLAYERS = 3;
 export const ROOM_CODE_LENGTH = 6;
 /** Peer ids are namespaced so a room code can't collide with other PeerJS apps. */
-export const PEER_PREFIX = 'gland-vuon-nha-nho-';
+export const PEER_PREFIX = 'gland-lang-viet-';
 
 /**
  * The parts of GameState that belong to the whole farm and are shared by
