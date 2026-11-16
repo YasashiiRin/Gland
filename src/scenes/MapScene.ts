@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { DEPTH_ABOVE, FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
+import { DEPTH_ABOVE, FADE_MS, TILE } from '../config/constants';
+import { setupWorldCamera } from './cameraFit';
 import { ITEMS, TOOL_ENERGY_COST, type ItemId } from '../data/items';
 import { isWaterGid, TILE_GID } from '../config/tileGids';
 import { isMapKey, MAPS, type MapKey } from '../data/maps';
@@ -13,6 +14,7 @@ import {
 } from '../events/EventBus';
 import { pickFish } from '../systems/FishingSystem';
 import { gameState } from '../state/GameState';
+import { currentSpeedMultiplier, eatHeldFood } from '../state/playerStats';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { worldView } from '../state/worldView';
@@ -58,7 +60,7 @@ interface Door {
 }
 
 type Keys = Record<
-  'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'shift' | 'interact' | 'useTool',
+  'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'interact' | 'useTool',
   Phaser.Input.Keyboard.Key
 >;
 
@@ -181,13 +183,13 @@ export abstract class MapScene extends Phaser.Scene {
     worldView.playerTileY = Math.floor(this.player.y / TILE);
 
     if (isWorldInputBlocked()) {
-      this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
+      this.player.updateMovement({ up: false, down: false, left: false, right: false });
       this.targetHighlight.setVisible(false);
       return;
     }
 
     this.trackMoveKeyPresses();
-    this.player.updateMovement(this.readInput());
+    this.player.updateMovement(this.readInput(), currentSpeedMultiplier());
     this.readHotbarSelection();
     this.mouseAimTile = this.lastPointerMoveAt > this.lastMoveKeyAt ? this.pointerAimTile() : null;
     this.updateTargetHighlight();
@@ -488,20 +490,8 @@ export abstract class MapScene extends Phaser.Scene {
   }
 
   private setupCamera(w: number, h: number): void {
-    const cam = this.cameras.main;
-    cam.setZoom(WORLD_ZOOM);
-    cam.setRoundPixels(true);
-    cam.setBackgroundColor('#1b1f17');
-    const viewW = cam.width / WORLD_ZOOM;
-    const viewH = cam.height / WORLD_ZOOM;
-    if (w <= viewW && h <= viewH) {
-      // Small rooms: keep the whole room centered on screen.
-      cam.centerOn(w / 2, h / 2);
-    } else {
-      cam.setBounds(0, 0, w, h);
-      cam.startFollow(this.player, true, 0.15, 0.15);
-    }
-    cam.fadeIn(FADE_MS, 0, 0, 0);
+    setupWorldCamera(this, w, h, this.player, '#1b1f17');
+    this.cameras.main.fadeIn(FADE_MS, 0, 0, 0);
   }
 
   private setupInput(): void {
@@ -510,7 +500,7 @@ export abstract class MapScene extends Phaser.Scene {
     const K = Phaser.Input.Keyboard.KeyCodes;
     this.keys = kb.addKeys({
       up: K.UP, down: K.DOWN, left: K.LEFT, right: K.RIGHT,
-      w: K.W, a: K.A, s: K.S, d: K.D, shift: K.SHIFT, interact: K.E, useTool: K.SPACE,
+      w: K.W, a: K.A, s: K.S, d: K.D, interact: K.E, useTool: K.SPACE,
     }) as Keys;
     this.hotbarKeys = HOTBAR_KEY_CODES.map((code) => kb.addKey(code));
 
@@ -548,6 +538,14 @@ export abstract class MapScene extends Phaser.Scene {
       this.tryPlaceFurniture(stack.itemId);
       return;
     }
+    if (ITEMS[stack.itemId].category === 'food') {
+      const message = eatHeldFood();
+      if (message) {
+        playPickup(gameState.settings);
+        this.showFloatingText(this.player.x, this.player.y - 26, message);
+      }
+      return;
+    }
 
     const cost = TOOL_ENERGY_COST[stack.itemId];
     if (cost === undefined) return; // not a tool; nothing to do
@@ -567,7 +565,6 @@ export abstract class MapScene extends Phaser.Scene {
       down: k.down.isDown || k.s.isDown,
       left: k.left.isDown || k.a.isDown,
       right: k.right.isDown || k.d.isDown,
-      run: k.shift.isDown,
     };
   }
 

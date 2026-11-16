@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import type { MinimapData } from '../systems/MinimapSystem';
-import { drawWoodPanel, inkText, UI_COLORS } from './uiStyle';
+import { inkText, UI_COLORS } from './uiStyle';
 
-const MARGIN = 12;
-const MAX_W = 150;
-const MAX_H = 112;
-const PAD = 8;
+const MARGIN = 10;
+const MAX_W = 96;
+const MAX_H = 72;
+const PAD = 4;
 const TEXTURE_KEY = 'minimap';
 
 /**
@@ -26,8 +26,8 @@ export class Minimap {
     this.container = scene.add.container(MARGIN, MARGIN).setDepth(depth);
     this.frame = scene.add.graphics();
     this.image = scene.add.image(PAD, PAD, '__DEFAULT').setOrigin(0, 0);
-    this.dot = scene.add.rectangle(0, 0, 4, 4, 0xe8402a).setStrokeStyle(1, 0xffffff);
-    this.label = inkText(scene, 0, 0, '', 14).setOrigin(0.5, 0.5);
+    this.dot = scene.add.rectangle(0, 0, 3, 3, 0xe8402a).setStrokeStyle(1, 0xffffff);
+    this.label = inkText(scene, 0, 0, '', 11).setOrigin(0.5, 0.5);
     this.container.add([this.frame, this.image, this.dot, this.label]);
     scene.tweens.add({ targets: this.dot, alpha: 0.35, duration: 450, yoyo: true, repeat: -1 });
   }
@@ -51,15 +51,15 @@ export class Minimap {
         this.image.setTexture(TEXTURE_KEY);
       }
       this.frame.clear();
-      drawWoodPanel(this.frame, 0, 0, w + PAD * 2, h + PAD * 2 + 22, false);
-      this.frame.fillStyle(UI_COLORS.edge, 1).fillRect(PAD - 1, PAD - 1, w + 2, h + 2);
-      this.frame.fillStyle(UI_COLORS.parchment, 1).fillRoundedRect(PAD, h + PAD + 3, w, 18, 3);
-      this.label.setPosition(PAD + w / 2, h + PAD + 12);
+      this.frame.fillStyle(UI_COLORS.edge, 0.9).fillRoundedRect(0, 0, w + PAD * 2, h + PAD * 2 + 15, 4);
+      this.frame.fillStyle(UI_COLORS.parchment, 1).fillRoundedRect(PAD, h + PAD + 2, w, 12, 2);
+      this.label.setPosition(PAD + w / 2, h + PAD + 8);
     } else {
       // No overview (mine): just a small name plate.
       this.frame.clear();
-      drawWoodPanel(this.frame, 0, 0, 150, 34);
-      this.label.setPosition(75, 17);
+      this.frame.fillStyle(UI_COLORS.edge, 0.9).fillRoundedRect(0, 0, 110, 20, 4);
+      this.frame.fillStyle(UI_COLORS.parchment, 1).fillRoundedRect(3, 3, 104, 14, 3);
+      this.label.setPosition(55, 10);
     }
     this.label.setText(name);
     this.image.setVisible(this.hasMap);

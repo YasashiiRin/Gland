@@ -3,7 +3,8 @@ import { TILE } from '../config/constants';
 import { randomLine } from '../data/dialogues';
 import { ITEMS, type ItemId } from '../data/items';
 import { NPC_IDS, NPCS, scheduleEntryAt, type NpcId } from '../data/npcs';
-import { SHOPS } from '../data/shops';
+import { isShopId, SHOPS, type ShopId } from '../data/shops';
+import { readProp } from './worldSprites';
 import { EventBus, GameEvents, type NpcInteractedPayload, type ShopOpenRequestedPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
 import { portraitKey } from './PreloadScene';
@@ -30,7 +31,7 @@ const REACTION_LINES: Record<GiftReaction, string> = {
 const GIFTABLE_CATEGORIES = new Set(['crop', 'material', 'food', 'fish']);
 
 export class TownScene extends MapScene {
-  private shopZones: Phaser.GameObjects.Zone[] = [];
+  private shopZones: { zone: Phaser.GameObjects.Zone; shopId: ShopId }[] = [];
   private questZones: Phaser.GameObjects.Zone[] = [];
   private npcZones = new Map<NpcId, Phaser.GameObjects.Zone>();
   private npcSprites: Phaser.GameObjects.Image[] = [];
@@ -48,7 +49,16 @@ export class TownScene extends MapScene {
   }
 
   protected override afterMapBuilt(): void {
-    this.shopZones = this.createZonesNamed('shop_seed');
+    // Each shop door is an object named "shop" with a shopId property.
+    const pad = 4;
+    this.shopZones = (this.map.getObjectLayer('objects')?.objects ?? []).flatMap((o) => {
+      const shopId = readProp(o, 'shopId');
+      if (o.name !== 'shop' || !shopId || !isShopId(shopId)) return [];
+      const zone = this.add
+        .zone((o.x ?? 0) - pad, (o.y ?? 0) - pad, (o.width ?? TILE) + pad * 2, (o.height ?? TILE) + pad * 2)
+        .setOrigin(0, 0);
+      return [{ zone, shopId }];
+    });
     this.questZones = this.createZonesNamed('quest_board');
 
     this.npcSprites.forEach((s) => s.destroy());
@@ -76,13 +86,14 @@ export class TownScene extends MapScene {
   }
 
   protected override tryOpenShop(): boolean {
-    if (!this.isNearAnyZone(this.shopZones)) return false;
-    const shop = SHOPS.seed_shop;
+    const near = this.shopZones.find((s) => this.isNearAnyZone([s.zone]));
+    if (!near) return false;
+    const shop = SHOPS[near.shopId];
     if (!isShopOpen(shop, gameState.time)) {
-      console.info(`${shop.name} hiện đang đóng cửa (mở ${shop.openHour}:00–${shop.closeHour}:00).`);
+      this.showFloatingText(this.player.x, this.player.y - 26, `${shop.name} đang đóng cửa (${shop.openHour}:00–${shop.closeHour}:00)`);
       return true;
     }
-    const payload: ShopOpenRequestedPayload = { shopId: 'seed_shop' };
+    const payload: ShopOpenRequestedPayload = { shopId: near.shopId };
     EventBus.emit(GameEvents.ShopOpenRequested, payload);
     return true;
   }

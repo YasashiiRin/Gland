@@ -1,8 +1,10 @@
 import Phaser from 'phaser';
-import { FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
+import { FADE_MS, TILE } from '../config/constants';
+import { setupWorldCamera } from './cameraFit';
 import { Player, type PlayerInput } from '../entities/Player';
 import { EventBus, GameEvents, type MapEnteredPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
+import { currentSpeedMultiplier } from '../state/playerStats';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked } from '../state/uiState';
 import {
@@ -38,7 +40,7 @@ export class MineScene extends Phaser.Scene {
   private floor!: MineFloor;
   private layer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
-  private keys!: Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'shift' | 'interact' | 'attack', Phaser.Input.Keyboard.Key>;
+  private keys!: Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'interact' | 'attack', Phaser.Input.Keyboard.Key>;
   private monsters: { data: Monster; sprite: Phaser.GameObjects.Arc }[] = [];
   private monsterTimer = 0;
   private transitioning = false;
@@ -71,7 +73,7 @@ export class MineScene extends Phaser.Scene {
     if (this.transitioning || isWorldInputBlocked()) return;
 
     this.player.setExhausted(isExhausted(gameState.energy));
-    this.player.updateMovement(this.readInput());
+    this.player.updateMovement(this.readInput(), currentSpeedMultiplier());
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) this.tryUseLadder();
     if (Phaser.Input.Keyboard.JustDown(this.keys.attack)) this.tryAttackOrMine();
@@ -129,12 +131,7 @@ export class MineScene extends Phaser.Scene {
   }
 
   private setupCamera(): void {
-    const cam = this.cameras.main;
-    cam.setZoom(WORLD_ZOOM);
-    cam.setRoundPixels(true);
-    cam.setBackgroundColor('#15110f');
-    cam.setBounds(0, 0, this.floor.width * TILE, this.floor.height * TILE);
-    cam.startFollow(this.player, true, 0.15, 0.15);
+    setupWorldCamera(this, this.floor.width * TILE, this.floor.height * TILE, this.player, '#15110f');
   }
 
   private setupInput(): void {
@@ -143,7 +140,7 @@ export class MineScene extends Phaser.Scene {
     const K = Phaser.Input.Keyboard.KeyCodes;
     this.keys = kb.addKeys({
       up: K.UP, down: K.DOWN, left: K.LEFT, right: K.RIGHT,
-      w: K.W, a: K.A, s: K.S, d: K.D, shift: K.SHIFT, interact: K.E, attack: K.SPACE,
+      w: K.W, a: K.A, s: K.S, d: K.D, interact: K.E, attack: K.SPACE,
     }) as typeof this.keys;
 
     // Mouse: left click attacks/mines toward the pointer, right click uses the ladder.
@@ -174,7 +171,6 @@ export class MineScene extends Phaser.Scene {
       down: k.down.isDown || k.s.isDown,
       left: k.left.isDown || k.a.isDown,
       right: k.right.isDown || k.d.isDown,
-      run: k.shift.isDown,
     };
   }
 

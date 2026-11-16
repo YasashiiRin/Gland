@@ -15,6 +15,8 @@ export const GameEvents = {
   ChestOpenRequested: 'chest:openRequested',
   NpcInteracted: 'npc:interacted',
   FishingStarted: 'fishing:started',
+  /** settings.zoom changed; world cameras re-apply it. */
+  ZoomChanged: 'settings:zoomChanged',
 } as const;
 
 export interface FishingStartedPayload {

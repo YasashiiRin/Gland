@@ -1,8 +1,16 @@
 import items from './items.json';
+import type { ItemStats } from '../systems/StatsSystem';
 
 export type ItemId = keyof typeof items;
 
-export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture';
+export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle';
+
+export interface FoodDef {
+  /** Energy restored when eaten. */
+  energy: number;
+  /** If set, the item's `stats` apply for this many game minutes after eating. */
+  buffMinutes?: number;
+}
 
 export interface ItemDef {
   name: string;
@@ -10,6 +18,9 @@ export interface ItemDef {
   stackable: boolean;
   sellPrice?: number;
   description: string;
+  /** Stat bonuses: while held (weapons), while riding (vehicles) or after eating (food buffs). */
+  stats?: ItemStats;
+  food?: FoodDef;
 }
 
 export const ITEMS: Record<ItemId, ItemDef> = items as Record<ItemId, ItemDef>;

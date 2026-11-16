@@ -26,9 +26,9 @@ import { DialogueBox } from '../ui/DialogueBox';
 import { FishingMinigame } from '../ui/FishingMinigame';
 import { SettingsMenu } from '../ui/SettingsMenu';
 import { playClick, playDayChime, playPickup } from '../systems/SfxSystem';
-import { gameState } from '../state/GameState';
+import { gameState, ZOOM_LEVELS } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
-import { uiState } from '../state/uiState';
+import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { craft } from '../systems/CraftingSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { addItem, itemAt } from '../systems/InventorySystem';
@@ -154,40 +154,36 @@ export class UIScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.FishingStarted, onFishingStarted));
 
     this.settingsMenu = new SettingsMenu(this, DEPTH_ABOVE + 1);
-    this.settingsMenu.bind(
-      (ratio) => {
+    this.settingsMenu.bind({
+      onVolumeChange: (ratio) => {
         gameState.settings.volume = ratio;
-        this.settingsMenu.refresh(gameState.settings.volume, gameState.settings.muted);
+        this.settingsMenu.refresh(gameState.settings);
       },
-      () => {
+      onToggleMute: () => {
         gameState.settings.muted = !gameState.settings.muted;
-        this.settingsMenu.refresh(gameState.settings.volume, gameState.settings.muted);
+        this.settingsMenu.refresh(gameState.settings);
         playClick(gameState.settings);
       },
-      () => {
+      onToggleFullscreen: () => {
         if (this.scale.isFullscreen) this.scale.stopFullscreen();
         else this.scale.startFullscreen();
       },
-    );
+      onZoomStep: (direction) => {
+        const i = ZOOM_LEVELS.indexOf(gameState.settings.zoom);
+        const next = ZOOM_LEVELS[Phaser.Math.Clamp((i === -1 ? 1 : i) + direction, 0, ZOOM_LEVELS.length - 1)];
+        gameState.settings.zoom = next;
+        this.settingsMenu.refresh(gameState.settings);
+        EventBus.emit(GameEvents.ZoomChanged);
+      },
+      onClose: () => this.closeSettings(),
+    });
+    this.hud.onSettings = () => this.toggleSettings();
 
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
     kb.addCapture(Phaser.Input.Keyboard.KeyCodes.TAB); // stop the browser from tabbing focus away
     const settingsKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.TAB);
-    settingsKey.on('down', () => {
-      if (uiState.settingsOpen) this.closeSettings();
-      else if (
-        !uiState.inventoryOpen &&
-        !uiState.shopOpen &&
-        !uiState.craftingOpen &&
-        !uiState.chestOpen &&
-        !uiState.dialogueOpen &&
-        !uiState.fishingOpen
-      ) {
-        this.settingsMenu.open(gameState.settings.volume, gameState.settings.muted);
-        uiState.settingsOpen = true;
-      }
-    });
+    settingsKey.on('down', () => this.toggleSettings());
     this.fishingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
     kb.addKey(Phaser.Input.Keyboard.KeyCodes.M).on('down', () => this.minimap.toggle());
@@ -331,6 +327,16 @@ export class UIScene extends Phaser.Scene {
   private closeDialogue(): void {
     this.dialogueBox.close();
     uiState.dialogueOpen = false;
+  }
+
+  private toggleSettings(): void {
+    if (uiState.settingsOpen) {
+      this.closeSettings();
+      return;
+    }
+    if (isWorldInputBlocked()) return; // another menu is open
+    this.settingsMenu.open(gameState.settings);
+    uiState.settingsOpen = true;
   }
 
   private closeSettings(): void {

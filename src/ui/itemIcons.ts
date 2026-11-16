@@ -313,6 +313,46 @@ const ICONS: Record<ItemId, Draw> = {
     g.fillStyle(0xffffff, 1);
     g.fillEllipse(6, 6, 2, 1.4);
   },
+  com_nam: (g) => {
+    // Triangular rice ball with a sesame-salt dusting, on a banana leaf.
+    g.fillStyle(0x5f9a4a, 1);
+    g.fillEllipse(8, 12, 13, 5);
+    g.fillStyle(0xf4efe2, 1);
+    g.fillTriangle(3, 12, 8, 3, 13, 12);
+    g.lineStyle(1, INK, 1);
+    g.strokeTriangle(3, 12, 8, 3, 13, 12);
+    g.fillStyle(0x3a3030, 1);
+    g.fillRect(6, 9, 1, 1);
+    g.fillRect(9, 8, 1, 1);
+    g.fillRect(8, 10, 1, 1);
+  },
+  banh_mi: (g) => {
+    // Golden baguette with a slit showing the filling.
+    g.fillStyle(0xd9a25a, 1);
+    g.fillEllipse(8, 9, 14, 6);
+    g.lineStyle(1, INK, 1);
+    g.strokeEllipse(8, 9, 14, 6);
+    g.fillStyle(0x6fae52, 1);
+    g.fillRect(4, 8, 8, 1);
+    g.fillStyle(0xc0563c, 1);
+    g.fillRect(5, 9, 6, 1);
+    g.fillStyle(0xf0c888, 1);
+    g.fillRect(4, 7, 3, 1);
+  },
+  ca_phe_sua_da: (g) => {
+    // Tall glass: dark coffee over condensed milk, with ice and a straw.
+    g.fillStyle(0xe8e2d0, 1);
+    g.fillRect(5, 11, 6, 3);
+    g.fillStyle(0x5a3420, 1);
+    g.fillRect(5, 5, 6, 6);
+    g.fillStyle(0xcfe8f0, 0.9);
+    g.fillRect(6, 6, 2, 2);
+    g.fillRect(8, 8, 2, 2);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(4.5, 3.5, 7, 11);
+    g.lineStyle(1, 0xd04a3a, 1);
+    g.lineBetween(9, 1, 10, 6);
+  },
   stone: (g) => {
     g.fillStyle(0xaaaab2, 1);
     g.fillTriangle(3, 11, 8, 3, 13, 11);

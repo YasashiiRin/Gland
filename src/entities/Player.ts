@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { PLAYER_SPEED, RUN_MULTIPLIER } from '../config/constants';
+import { PLAYER_SPEED } from '../config/constants';
 import { computeMovement, type Direction, type MoveInput } from '../systems/movement';
 
 export const PLAYER_TEXTURE = 'player';
@@ -7,9 +7,7 @@ export const PLAYER_TEXTURE = 'player';
 /** Frame size of the player spritesheet (4 frames per row, rows: down, left, right, up). */
 export const PLAYER_FRAME = { width: 16, height: 32 } as const;
 
-export interface PlayerInput extends MoveInput {
-  run: boolean;
-}
+export type PlayerInput = MoveInput;
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private facing: Direction = 'down';
@@ -79,16 +77,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  updateMovement(input: PlayerInput): void {
+  /**
+   * There is no "run" button: speed comes only from stats (vehicle, held
+   * weapon, food buffs), passed in as `speedMultiplier`.
+   */
+  updateMovement(input: PlayerInput, speedMultiplier = 1): void {
     const speedScale = this.exhausted ? 0.5 : 1;
-    const speed = PLAYER_SPEED * (input.run ? RUN_MULTIPLIER : 1) * speedScale;
+    const speed = PLAYER_SPEED * speedMultiplier * speedScale;
     const result = computeMovement(input, speed, this.facing);
     this.setVelocity(result.vx, result.vy);
     this.facing = result.facing;
 
     const anim = `${result.moving ? 'walk' : 'idle'}-${this.facing}`;
     this.anims.play(anim, true);
-    this.anims.timeScale = input.run ? 1.5 : 1;
+    this.anims.timeScale = Math.min(2, Math.max(0.6, speedMultiplier));
 
     // Things lower on screen draw in front of things above them.
     this.setDepth(this.y);

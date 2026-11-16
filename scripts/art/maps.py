@@ -202,8 +202,9 @@ def build_town() -> MapBuilder:
         for x in range(x0, x0 + w):  # no border trees poking through the roof
             m.put(x, y0 - 1, None)
     building(16, 1, 6, "shop", 18)
-    m.obj("shop_seed", 18 * T, 4 * T, T, T)
+    m.obj("shop", 18 * T, 4 * T, T, T, {"shopId": "seed_shop"})
     building(5, 3, 5, "house_a", 7)
+    m.obj("shop", 7 * T, 6 * T, T, T, {"shopId": "grocery"})
     building(30, 3, 5, "house_b", 32)
     building(29, 16, 5, "house_c", 31)
     m.put(13, 11, SIGN)

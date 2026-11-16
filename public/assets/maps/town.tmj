@@ -10,7 +10,7 @@
  "tileheight": 16,
  "infinite": false,
  "nextlayerid": 5,
- "nextobjectid": 10,
+ "nextobjectid": 11,
  "layers": [
   {
    "id": 1,
@@ -2966,14 +2966,21 @@
     },
     {
      "id": 2,
-     "name": "shop_seed",
+     "name": "shop",
      "type": "",
      "x": 288,
      "y": 64,
      "width": 16,
      "height": 16,
      "rotation": 0,
-     "visible": true
+     "visible": true,
+     "properties": [
+      {
+       "name": "shopId",
+       "type": "string",
+       "value": "seed_shop"
+      }
+     ]
     },
     {
      "id": 3,
@@ -3000,6 +3007,24 @@
     },
     {
      "id": 4,
+     "name": "shop",
+     "type": "",
+     "x": 112,
+     "y": 96,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "shopId",
+       "type": "string",
+       "value": "grocery"
+      }
+     ]
+    },
+    {
+     "id": 5,
      "name": "prop",
      "type": "",
      "x": 480,
@@ -3022,7 +3047,7 @@
      ]
     },
     {
-     "id": 5,
+     "id": 6,
      "name": "prop",
      "type": "",
      "x": 464,
@@ -3045,7 +3070,7 @@
      ]
     },
     {
-     "id": 6,
+     "id": 7,
      "name": "quest_board",
      "type": "",
      "x": 208,
@@ -3056,7 +3081,7 @@
      "visible": true
     },
     {
-     "id": 7,
+     "id": 8,
      "name": "door",
      "type": "",
      "x": 0,
@@ -3079,7 +3104,7 @@
      ]
     },
     {
-     "id": 8,
+     "id": 9,
      "name": "spawn_fromFarm",
      "type": "",
      "x": 40.0,
@@ -3091,7 +3116,7 @@
      "point": true
     },
     {
-     "id": 9,
+     "id": 10,
      "name": "spawn_default",
      "type": "",
      "x": 40.0,

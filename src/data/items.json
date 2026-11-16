@@ -1,34 +1,259 @@
 {
-  "hoe": { "name": "Cuốc", "category": "tool", "stackable": false, "description": "Cuốc đất để trồng trọt." },
-  "watering_can": { "name": "Bình tưới", "category": "tool", "stackable": false, "description": "Tưới nước cho cây trồng." },
-  "axe": { "name": "Rìu", "category": "tool", "stackable": false, "description": "Chặt cây lấy gỗ." },
-  "pickaxe": { "name": "Cuốc chim", "category": "tool", "stackable": false, "description": "Đập đá lấy khoáng sản." },
-  "scythe": { "name": "Liềm", "category": "tool", "stackable": false, "description": "Cắt cỏ dại và thu hoạch một số loại cây." },
-  "fishing_rod": { "name": "Cần câu", "category": "tool", "stackable": false, "description": "Dùng để câu cá." },
-  "sword": { "name": "Kiếm", "category": "tool", "stackable": false, "description": "Dùng để chiến đấu trong hầm mỏ." },
-  "copper_ore": { "name": "Quặng đồng", "category": "material", "stackable": true, "sellPrice": 8, "description": "Đào được ở hầm mỏ tầng nông." },
-  "iron_ore": { "name": "Quặng sắt", "category": "material", "stackable": true, "sellPrice": 18, "description": "Đào được ở hầm mỏ tầng giữa." },
-  "gold_ore": { "name": "Quặng vàng", "category": "material", "stackable": true, "sellPrice": 35, "description": "Đào được ở hầm mỏ tầng sâu." },
-  "parsnip_seeds": { "name": "Hạt củ cải trắng", "category": "seed", "stackable": true, "sellPrice": 10, "description": "Gieo vào mùa xuân." },
-  "parsnip": { "name": "Củ cải trắng", "category": "crop", "stackable": true, "sellPrice": 35, "description": "Một loại củ quen thuộc." },
-  "potato_seeds": { "name": "Hạt khoai tây", "category": "seed", "stackable": true, "sellPrice": 25, "description": "Gieo vào mùa xuân." },
-  "potato": { "name": "Khoai tây", "category": "crop", "stackable": true, "sellPrice": 80, "description": "Củ khoai chắc bụng." },
-  "cauliflower_seeds": { "name": "Hạt súp lơ", "category": "seed", "stackable": true, "sellPrice": 80, "description": "Gieo vào mùa xuân, lớn khá lâu." },
-  "cauliflower": { "name": "Súp lơ", "category": "crop", "stackable": true, "sellPrice": 175, "description": "Bông súp lơ trắng to." },
-  "strawberry_seeds": { "name": "Hạt dâu tây", "category": "seed", "stackable": true, "sellPrice": 100, "description": "Gieo vào mùa xuân, thu hoạch nhiều lần." },
-  "strawberry": { "name": "Dâu tây", "category": "crop", "stackable": true, "sellPrice": 120, "description": "Quả dâu đỏ mọng." },
-  "green_bean_seeds": { "name": "Hạt đậu que", "category": "seed", "stackable": true, "sellPrice": 60, "description": "Gieo vào mùa xuân, thu hoạch nhiều lần." },
-  "green_bean": { "name": "Đậu que", "category": "crop", "stackable": true, "sellPrice": 40, "description": "Đậu que xanh giòn." },
-  "wood": { "name": "Gỗ", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản. Chặt cây bằng rìu để lấy." },
-  "stone": { "name": "Đá", "category": "material", "stackable": true, "sellPrice": 2, "description": "Vật liệu chế tạo cơ bản. Đập đá bằng cuốc chim để lấy." },
-  "fiber": { "name": "Sợi", "category": "material", "stackable": true, "sellPrice": 1, "description": "Cắt cỏ dại bằng liềm để lấy." },
-  "carp": { "name": "Cá chép nhỏ", "category": "fish", "stackable": true, "sellPrice": 30, "description": "Loại cá phổ biến quanh năm." },
-  "perch": { "name": "Cá rô", "category": "fish", "stackable": true, "sellPrice": 55, "description": "Hay gặp vào mùa xuân và mùa thu." },
-  "grass_carp": { "name": "Cá trắm", "category": "fish", "stackable": true, "sellPrice": 80, "description": "Thích cắn câu vào ngày mưa." },
-  "golden_loach": { "name": "Cá chạch vàng", "category": "fish", "stackable": true, "sellPrice": 150, "description": "Hiếm, chỉ xuất hiện ban đêm." },
-  "chest": { "name": "Rương", "category": "furniture", "stackable": false, "description": "Đặt xuống đất để có thêm chỗ chứa đồ." },
-  "scarecrow": { "name": "Bù nhìn", "category": "furniture", "stackable": false, "description": "Đặt giữa ruộng cho đẹp." },
-  "sprinkler": { "name": "Vòi tưới tự động", "category": "furniture", "stackable": false, "description": "Đặt lên ô đất đã cuốc để tự động tưới mỗi sáng." },
-  "chicken_coop": { "name": "Chuồng gà", "category": "furniture", "stackable": false, "description": "Nhà cho một chú gà. Cho ăn mỗi ngày, thỉnh thoảng vuốt ve." },
-  "egg": { "name": "Trứng gà", "category": "food", "stackable": true, "sellPrice": 50, "description": "Gà đẻ ra nếu được chăm sóc tốt." }
+  "hoe": {
+    "name": "Cuốc",
+    "category": "tool",
+    "stackable": false,
+    "description": "Cuốc đất để trồng trọt."
+  },
+  "watering_can": {
+    "name": "Bình tưới",
+    "category": "tool",
+    "stackable": false,
+    "description": "Tưới nước cho cây trồng."
+  },
+  "axe": {
+    "name": "Rìu",
+    "category": "tool",
+    "stackable": false,
+    "description": "Chặt cây lấy gỗ."
+  },
+  "pickaxe": {
+    "name": "Cuốc chim",
+    "category": "tool",
+    "stackable": false,
+    "description": "Đập đá lấy khoáng sản."
+  },
+  "scythe": {
+    "name": "Liềm",
+    "category": "tool",
+    "stackable": false,
+    "description": "Cắt cỏ dại và thu hoạch một số loại cây."
+  },
+  "fishing_rod": {
+    "name": "Cần câu",
+    "category": "tool",
+    "stackable": false,
+    "description": "Dùng để câu cá."
+  },
+  "sword": {
+    "name": "Kiếm",
+    "category": "tool",
+    "stackable": false,
+    "description": "Dùng để chiến đấu trong hầm mỏ. Cầm kiếm đi chậm hơn một chút (-5% tốc độ).",
+    "stats": {
+      "speed": -0.05
+    }
+  },
+  "copper_ore": {
+    "name": "Quặng đồng",
+    "category": "material",
+    "stackable": true,
+    "sellPrice": 8,
+    "description": "Đào được ở hầm mỏ tầng nông."
+  },
+  "iron_ore": {
+    "name": "Quặng sắt",
+    "category": "material",
+    "stackable": true,
+    "sellPrice": 18,
+    "description": "Đào được ở hầm mỏ tầng giữa."
+  },
+  "gold_ore": {
+    "name": "Quặng vàng",
+    "category": "material",
+    "stackable": true,
+    "sellPrice": 35,
+    "description": "Đào được ở hầm mỏ tầng sâu."
+  },
+  "parsnip_seeds": {
+    "name": "Hạt củ cải trắng",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 10,
+    "description": "Gieo vào mùa xuân."
+  },
+  "parsnip": {
+    "name": "Củ cải trắng",
+    "category": "crop",
+    "stackable": true,
+    "sellPrice": 35,
+    "description": "Một loại củ quen thuộc."
+  },
+  "potato_seeds": {
+    "name": "Hạt khoai tây",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 25,
+    "description": "Gieo vào mùa xuân."
+  },
+  "potato": {
+    "name": "Khoai tây",
+    "category": "crop",
+    "stackable": true,
+    "sellPrice": 80,
+    "description": "Củ khoai chắc bụng."
+  },
+  "cauliflower_seeds": {
+    "name": "Hạt súp lơ",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 80,
+    "description": "Gieo vào mùa xuân, lớn khá lâu."
+  },
+  "cauliflower": {
+    "name": "Súp lơ",
+    "category": "crop",
+    "stackable": true,
+    "sellPrice": 175,
+    "description": "Bông súp lơ trắng to."
+  },
+  "strawberry_seeds": {
+    "name": "Hạt dâu tây",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 100,
+    "description": "Gieo vào mùa xuân, thu hoạch nhiều lần."
+  },
+  "strawberry": {
+    "name": "Dâu tây",
+    "category": "crop",
+    "stackable": true,
+    "sellPrice": 120,
+    "description": "Quả dâu đỏ mọng."
+  },
+  "green_bean_seeds": {
+    "name": "Hạt đậu que",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 60,
+    "description": "Gieo vào mùa xuân, thu hoạch nhiều lần."
+  },
+  "green_bean": {
+    "name": "Đậu que",
+    "category": "crop",
+    "stackable": true,
+    "sellPrice": 40,
+    "description": "Đậu que xanh giòn."
+  },
+  "wood": {
+    "name": "Gỗ",
+    "category": "material",
+    "stackable": true,
+    "sellPrice": 2,
+    "description": "Vật liệu chế tạo cơ bản. Chặt cây bằng rìu để lấy."
+  },
+  "stone": {
+    "name": "Đá",
+    "category": "material",
+    "stackable": true,
+    "sellPrice": 2,
+    "description": "Vật liệu chế tạo cơ bản. Đập đá bằng cuốc chim để lấy."
+  },
+  "fiber": {
+    "name": "Sợi",
+    "category": "material",
+    "stackable": true,
+    "sellPrice": 1,
+    "description": "Cắt cỏ dại bằng liềm để lấy."
+  },
+  "carp": {
+    "name": "Cá chép nhỏ",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 30,
+    "description": "Loại cá phổ biến quanh năm."
+  },
+  "perch": {
+    "name": "Cá rô",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 55,
+    "description": "Hay gặp vào mùa xuân và mùa thu."
+  },
+  "grass_carp": {
+    "name": "Cá trắm",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 80,
+    "description": "Thích cắn câu vào ngày mưa."
+  },
+  "golden_loach": {
+    "name": "Cá chạch vàng",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 150,
+    "description": "Hiếm, chỉ xuất hiện ban đêm."
+  },
+  "chest": {
+    "name": "Rương",
+    "category": "furniture",
+    "stackable": false,
+    "description": "Đặt xuống đất để có thêm chỗ chứa đồ."
+  },
+  "scarecrow": {
+    "name": "Bù nhìn",
+    "category": "furniture",
+    "stackable": false,
+    "description": "Đặt giữa ruộng cho đẹp."
+  },
+  "sprinkler": {
+    "name": "Vòi tưới tự động",
+    "category": "furniture",
+    "stackable": false,
+    "description": "Đặt lên ô đất đã cuốc để tự động tưới mỗi sáng."
+  },
+  "chicken_coop": {
+    "name": "Chuồng gà",
+    "category": "furniture",
+    "stackable": false,
+    "description": "Nhà cho một chú gà. Cho ăn mỗi ngày, thỉnh thoảng vuốt ve."
+  },
+  "egg": {
+    "name": "Trứng gà",
+    "category": "food",
+    "stackable": true,
+    "sellPrice": 50,
+    "description": "Gà đẻ ra nếu được chăm sóc tốt.",
+    "food": {
+      "energy": 20
+    }
+  },
+  "com_nam": {
+    "name": "Cơm nắm muối vừng",
+    "category": "food",
+    "stackable": true,
+    "sellPrice": 40,
+    "description": "Nắm cơm chắc bụng. Hồi 60 năng lượng.",
+    "food": {
+      "energy": 60
+    }
+  },
+  "banh_mi": {
+    "name": "Bánh mì",
+    "category": "food",
+    "stackable": true,
+    "sellPrice": 60,
+    "description": "Hồi 40 năng lượng, đi nhanh hơn 10% trong 1 giờ.",
+    "food": {
+      "energy": 40,
+      "buffMinutes": 60
+    },
+    "stats": {
+      "speed": 0.1
+    }
+  },
+  "ca_phe_sua_da": {
+    "name": "Cà phê sữa đá",
+    "category": "food",
+    "stackable": true,
+    "sellPrice": 35,
+    "description": "Tỉnh cả người! Hồi 15 năng lượng, đi nhanh hơn 30% trong 2 giờ.",
+    "food": {
+      "energy": 15,
+      "buffMinutes": 120
+    },
+    "stats": {
+      "speed": 0.3
+    }
+  }
 }

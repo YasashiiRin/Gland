@@ -4,6 +4,23 @@
     "openHour": 9,
     "closeHour": 17,
     "closedWeekday": 6,
-    "stock": ["parsnip_seeds", "potato_seeds", "cauliflower_seeds", "strawberry_seeds", "green_bean_seeds"]
+    "stock": [
+      "parsnip_seeds",
+      "potato_seeds",
+      "cauliflower_seeds",
+      "strawberry_seeds",
+      "green_bean_seeds"
+    ]
+  },
+  "grocery": {
+    "name": "Quán tạp hoá Cô Hạnh",
+    "openHour": 7,
+    "closeHour": 21,
+    "closedWeekday": 3,
+    "stock": [
+      "com_nam",
+      "banh_mi",
+      "ca_phe_sua_da"
+    ]
   }
 }

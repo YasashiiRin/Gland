@@ -1,80 +1,116 @@
 import Phaser from 'phaser';
+import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
 
-const PANEL_W = 320;
-const PANEL_H = 220;
-const BAR_W = 200;
+const PANEL_W = 380;
+const PANEL_H = 330;
+const BAR_W = 180;
 
-/** A small settings overlay: master volume, mute, fullscreen. Opened with Tab. */
+export interface SettingsHandlers {
+  onVolumeChange: (ratio: number) => void;
+  onToggleMute: () => void;
+  onToggleFullscreen: () => void;
+  /** -1 = zoom out one step, +1 = zoom in one step. */
+  onZoomStep: (direction: -1 | 1) => void;
+  onClose: () => void;
+}
+
+const CONTROLS = [
+  'WASD / mũi tên: đi lại',
+  'Chuột trái / Space: dùng đồ đang cầm (công cụ, hạt, đồ ăn, xe)',
+  'Chuột phải / E: tương tác, thu hoạch, nói chuyện',
+  'I: túi đồ · C: chế tạo · M: bản đồ nhỏ · Tab / ⚙: cài đặt',
+];
+
+/** Settings overlay (gear button or Tab): volume, mute, zoom, fullscreen, controls list. */
 export class SettingsMenu {
   private readonly root: Phaser.GameObjects.Container;
   private readonly volumeFill: Phaser.GameObjects.Rectangle;
   private readonly volumeLabel: Phaser.GameObjects.Text;
-  private readonly muteButton: Phaser.GameObjects.Rectangle;
   private readonly muteText: Phaser.GameObjects.Text;
-  private onVolumeChange?: (ratio: number) => void;
-  private onToggleMute?: () => void;
-  private onToggleFullscreen?: () => void;
+  private readonly zoomText: Phaser.GameObjects.Text;
+  private handlers?: SettingsHandlers;
 
   constructor(scene: Phaser.Scene, depth: number) {
     const cx = scene.scale.width / 2;
     const cy = scene.scale.height / 2;
+    const left = cx - PANEL_W / 2;
     const top = cy - PANEL_H / 2;
-
     this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
-    const panel = scene.add.rectangle(cx, cy, PANEL_W, PANEL_H, 0x241d17, 0.96).setStrokeStyle(2, 0xc9a66b);
-    const title = scene.add
-      .text(cx, top + 22, 'Cài đặt (Tab để đóng)', { fontFamily: 'sans-serif', fontSize: '17px', color: '#fff6e0' })
-      .setOrigin(0.5);
-    this.root.add([panel, title]);
 
-    const barY = top + 70;
-    const barX = cx - BAR_W / 2;
-    const volumeCaption = scene.add
-      .text(cx, barY - 18, 'Âm lượng', { fontFamily: 'sans-serif', fontSize: '13px', color: '#d8c8a8' })
-      .setOrigin(0.5);
-    const barBg = scene.add.rectangle(barX, barY, BAR_W, 16, 0x1c1814, 0.9).setOrigin(0, 0.5).setStrokeStyle(1, 0x6b5a46);
-    barBg.setInteractive({ useHandCursor: true });
-    barBg.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      const ratio = Phaser.Math.Clamp((p.x - barX) / BAR_W, 0, 1);
-      this.onVolumeChange?.(ratio);
+    const g = scene.add.graphics();
+    drawWoodPanel(g, left, top, PANEL_W, PANEL_H);
+    const title = inkText(scene, cx, top + 26, 'Cài đặt', 18).setOrigin(0.5);
+    const close = this.button(scene, left + PANEL_W - 30, top + 26, 26, '✕', () => this.handlers?.onClose());
+    this.root.add([g, title, ...close]);
+
+    // Volume
+    const rowX = left + 30;
+    let y = top + 64;
+    const barX = rowX + 110;
+    const barBg = scene.add.rectangle(barX, y, BAR_W, 14, UI_COLORS.edge).setOrigin(0, 0.5).setInteractive({ useHandCursor: true });
+    barBg.on('pointerdown', (p: Phaser.Input.Pointer) => this.handlers?.onVolumeChange(Phaser.Math.Clamp((p.x - barX) / BAR_W, 0, 1)));
+    this.volumeFill = scene.add.rectangle(barX + 2, y, 0, 10, 0x7ccf5a).setOrigin(0, 0.5);
+    this.volumeLabel = inkText(scene, barX + BAR_W + 10, y, '', 13).setOrigin(0, 0.5);
+    this.root.add([inkText(scene, rowX, y, 'Âm lượng', 14).setOrigin(0, 0.5), barBg, this.volumeFill, this.volumeLabel]);
+
+    // Mute
+    y += 40;
+    const mute = this.button(scene, barX + 70, y, 140, '', () => this.handlers?.onToggleMute());
+    this.muteText = mute[1] as Phaser.GameObjects.Text;
+    this.root.add([inkText(scene, rowX, y, 'Âm thanh', 14).setOrigin(0, 0.5), ...mute]);
+
+    // Zoom
+    y += 40;
+    const minus = this.button(scene, barX + 14, y, 28, '−', () => this.handlers?.onZoomStep(-1));
+    const plus = this.button(scene, barX + 126, y, 28, '+', () => this.handlers?.onZoomStep(1));
+    this.zoomText = inkText(scene, barX + 70, y, '', 15).setOrigin(0.5);
+    this.root.add([inkText(scene, rowX, y, 'Thu phóng', 14).setOrigin(0, 0.5), ...minus, ...plus, this.zoomText]);
+
+    // Fullscreen
+    y += 40;
+    const fs = this.button(scene, barX + 70, y, 140, 'Bật / tắt', () => this.handlers?.onToggleFullscreen());
+    this.root.add([inkText(scene, rowX, y, 'Toàn màn hình', 14).setOrigin(0, 0.5), ...fs]);
+
+    // Controls
+    y += 36;
+    const controls = scene.add.text(rowX, y, CONTROLS.join('\n'), {
+      fontFamily: UI_FONT,
+      fontSize: '12px',
+      color: UI_COLORS.inkSoft,
+      lineSpacing: 3,
     });
-    this.volumeFill = scene.add.rectangle(barX + 2, barY, 0, 12, 0x6fcf6f).setOrigin(0, 0.5);
-    this.volumeLabel = scene.add.text(cx, barY + 20, '', { fontFamily: 'sans-serif', fontSize: '12px', color: '#fff6e0' }).setOrigin(0.5);
-    this.root.add([volumeCaption, barBg, this.volumeFill, this.volumeLabel]);
-
-    this.muteButton = scene.add
-      .rectangle(cx, top + 130, 160, 34, 0x3a2f24, 0.9)
-      .setStrokeStyle(2, 0xc9a66b)
-      .setInteractive({ useHandCursor: true });
-    this.muteText = scene.add.text(cx, top + 130, '', { fontFamily: 'sans-serif', fontSize: '14px', color: '#fff6e0' }).setOrigin(0.5);
-    this.muteButton.on('pointerdown', () => this.onToggleMute?.());
-    this.root.add([this.muteButton, this.muteText]);
-
-    const fsButton = scene.add
-      .rectangle(cx, top + 175, 160, 34, 0x3a2f24, 0.9)
-      .setStrokeStyle(2, 0xc9a66b)
-      .setInteractive({ useHandCursor: true });
-    const fsText = scene.add
-      .text(cx, top + 175, 'Toàn màn hình', { fontFamily: 'sans-serif', fontSize: '14px', color: '#fff6e0' })
-      .setOrigin(0.5);
-    fsButton.on('pointerdown', () => this.onToggleFullscreen?.());
-    this.root.add([fsButton, fsText]);
+    this.root.add(controls);
   }
 
-  bind(onVolumeChange: (ratio: number) => void, onToggleMute: () => void, onToggleFullscreen: () => void): void {
-    this.onVolumeChange = onVolumeChange;
-    this.onToggleMute = onToggleMute;
-    this.onToggleFullscreen = onToggleFullscreen;
+  private button(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    w: number,
+    label: string,
+    onClick: () => void,
+  ): [Phaser.GameObjects.Rectangle, Phaser.GameObjects.Text] {
+    const box = scene.add.rectangle(x, y, w, 26, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
+    const text = scene.add.text(x, y, label, { fontFamily: UI_FONT, fontSize: '13px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5);
+    box.on('pointerdown', onClick);
+    box.on('pointerover', () => box.setFillStyle(UI_COLORS.woodLight));
+    box.on('pointerout', () => box.setFillStyle(UI_COLORS.wood));
+    return [box, text];
   }
 
-  refresh(volume: number, muted: boolean): void {
-    this.volumeFill.width = (BAR_W - 4) * volume;
-    this.volumeLabel.setText(`${Math.round(volume * 100)}%`);
-    this.muteText.setText(muted ? 'Đã tắt tiếng (bấm để bật)' : 'Đang bật tiếng (bấm để tắt)');
+  bind(handlers: SettingsHandlers): void {
+    this.handlers = handlers;
   }
 
-  open(volume: number, muted: boolean): void {
-    this.refresh(volume, muted);
+  refresh(settings: { volume: number; muted: boolean; zoom: number }): void {
+    this.volumeFill.width = (BAR_W - 4) * settings.volume;
+    this.volumeLabel.setText(`${Math.round(settings.volume * 100)}%`);
+    this.muteText.setText(settings.muted ? 'Đang tắt — bật' : 'Đang bật — tắt');
+    this.zoomText.setText(`${settings.zoom}x`);
+  }
+
+  open(settings: { volume: number; muted: boolean; zoom: number }): void {
+    this.refresh(settings);
     this.root.setVisible(true);
   }
 

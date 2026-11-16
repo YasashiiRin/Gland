@@ -8,6 +8,7 @@ import type { Relationships } from '../systems/RelationshipSystem';
 import { createInitialSkills, type SkillXp } from '../systems/SkillSystem';
 import { createQuestState, type QuestState } from '../systems/QuestSystem';
 import type { ResourceNodes } from '../systems/ResourceSystem';
+import type { ActiveBuff } from '../systems/StatsSystem';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
 /**
@@ -40,10 +41,18 @@ export interface GameState {
   deepestFloor: number;
   skills: SkillXp;
   communityFund: QuestState;
-  settings: { muted: boolean; volume: number };
+  settings: { muted: boolean; volume: number; zoom: number };
+  /** Timed stat bonuses from food. */
+  buffs: ActiveBuff[];
+  /** The vehicle item the player is riding right now, or null when on foot. */
+  riding: ItemId | null;
 }
 
 export const STATE_VERSION = 11;
+
+/** Default camera zoom (world pixels are drawn this many times larger). */
+export const DEFAULT_ZOOM = 2;
+export const ZOOM_LEVELS: readonly number[] = [1, 2, 3, 4];
 
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
@@ -84,7 +93,9 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     deepestFloor: 0,
     skills: createInitialSkills(),
     communityFund: createQuestState(),
-    settings: { muted: false, volume: 0.6 },
+    settings: { muted: false, volume: 0.6, zoom: DEFAULT_ZOOM },
+    buffs: [],
+    riding: null,
   };
 }
 
@@ -104,8 +115,13 @@ function addStartingItem(inventory: InventoryState, itemId: ItemId, quantity: nu
  */
 export const gameState: GameState = createInitialState();
 
+/**
+ * Loads a save into the shared state. Fields added after the save was made
+ * (e.g. buffs, zoom) fall back to their new-game defaults.
+ */
 export function applyLoadedState(saved: GameState): void {
-  Object.assign(gameState, saved);
+  const defaults = createInitialState(saved.playerName, saved.farmName);
+  Object.assign(gameState, defaults, saved, { settings: { ...defaults.settings, ...saved.settings } });
 }
 
 export function resetToNewGame(playerName?: string, farmName?: string): void {
