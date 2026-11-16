@@ -16,7 +16,7 @@ export interface SettingsHandlers {
 
 const CONTROLS = [
   'WASD / mũi tên: đi lại',
-  'Chuột trái / Space: dùng đồ đang cầm · khi lái xe: bật/tắt chế độ cày/gặt, bấm còi'
+  'Chuột trái / Space: dùng đồ đang cầm · khi lái xe: bật/tắt chế độ cày/gặt, bấm còi',
   'Chuột phải / E: tương tác, thu hoạch · đứng cạnh xe: lên xe · đang lái: xuống xe',
   'I: túi đồ · C: chế tạo · M: bản đồ nhỏ · Tab / ⚙: cài đặt',
 ];
