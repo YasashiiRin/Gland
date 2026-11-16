@@ -323,5 +323,12 @@
     "vehicle": {
       "ability": "harvest"
     }
+  },
+  "gao": {
+    "name": "Gạo",
+    "category": "material",
+    "stackable": true,
+    "sellPrice": 60,
+    "description": "Gạo trắng thơm, xay từ lúa của làng. Dùng để nấu ăn sau này."
   }
 }

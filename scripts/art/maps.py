@@ -206,6 +206,10 @@ def build_town() -> MapBuilder:
     m.fill(14, 6, 26, 18, PATH)
     m.prop("well", 19, 11, 2, 2, solid_from=1)      # village well in the square
     m.prop("banyan", 5, 15, 3, 2)                   # the old banyan tree
+    # morning market: three stalls in the square, customers stand in front of each
+    for x, kind, shop in ((14, "fish", "market_fish"), (18, "veg", "market_veg"), (22, "rice", "market_rice")):
+        m.prop(f"stall_{kind}", x, 14, 3, 3, solid_from=1)
+        m.obj("shop", (x + 1) * T, 17 * T, T, T, {"shopId": shop})
 
     def building(x0: int, y0: int, w: int, sprite: str, door_x: int) -> None:
         m.prop(sprite, x0, y0 - 1, w, 5, solid_from=1, door=(door_x, y0 + 3), base=DIRT)

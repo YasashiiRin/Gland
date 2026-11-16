@@ -27,12 +27,13 @@ from art.tiles import make_tileset  # noqa: E402
 from art.vehicles import make_vehicles  # noqa: E402
 from art.vn_nature import make_vn_nature  # noqa: E402
 from art.horror import make_horror  # noqa: E402
+from art.market import make_market  # noqa: E402
 
 
 def main() -> None:
     make_tileset()
     make_mine_tileset()
-    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles() + make_vn_nature() + make_horror()
+    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles() + make_vn_nature() + make_horror() + make_market()
     pack = {"generated": {"files": files}}
     (ASSETS / "sprites" / "pack.json").write_text(json.dumps(pack, indent=1))
     make_maps()

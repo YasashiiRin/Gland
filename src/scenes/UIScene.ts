@@ -1,3 +1,4 @@
+import { MarketMenu } from '../ui/MarketMenu';
 import { HorrorOverlay } from '../ui/HorrorOverlay';
 import type { HorrorMode } from '../systems/HorrorSystem';
 import { TouchControls } from '../ui/TouchControls';
@@ -46,7 +47,7 @@ import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { craft } from '../systems/CraftingSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { addItem, itemAt } from '../systems/InventorySystem';
-import { buyItem } from '../systems/ShopSystem';
+import { buyFromStall, buyItem, marketBuyPrice, marketSellPrice, sellToStall } from '../systems/ShopSystem';
 import { advanceTime, darknessAlpha } from '../systems/TimeSystem';
 import { ChestMenu } from '../ui/ChestMenu';
 import { CraftingMenu } from '../ui/CraftingMenu';
@@ -54,7 +55,7 @@ import { Hotbar } from '../ui/Hotbar';
 import { Hud } from '../ui/Hud';
 import { InventoryMenu } from '../ui/InventoryMenu';
 import { ShopMenu } from '../ui/ShopMenu';
-import { isShopId } from '../data/shops';
+import { isShopId, SHOPS, type ShopId } from '../data/shops';
 
 const CHEST_SLOT_COUNT = 18;
 const VEHICLE_KEY_PREFIX = 'vehicle:';
@@ -84,6 +85,8 @@ export class UIScene extends Phaser.Scene {
   private dayBanner!: Phaser.GameObjects.Text;
   private sleepOverlay!: SleepWaitOverlay;
   private touchControls!: TouchControls;
+  private marketMenu!: MarketMenu;
+  private marketShopId: ShopId = 'market_veg';
   private horrorOverlay!: HorrorOverlay;
   private rotateHint!: Phaser.GameObjects.Text;
   private toastText!: Phaser.GameObjects.Text;
@@ -266,9 +269,40 @@ export class UIScene extends Phaser.Scene {
       if (uiState.dialogueOpen) this.closeDialogue();
     });
 
+    this.marketMenu = new MarketMenu(this, DEPTH_ABOVE + 1);
+    this.marketMenu.onClosed = () => {
+      uiState.shopOpen = this.shopMenu.isOpen;
+    };
+    this.marketMenu.bind({
+      getMoney: () => gameState.money,
+      getInventory: () => gameState.inventory,
+      buy: (itemId) => {
+        const shop = SHOPS[this.marketShopId];
+        const r = buyFromStall(gameState.inventory, gameState.money, shop, itemId);
+        if (!r.bought) return gameState.money < marketSellPrice(shop, itemId) ? 'Thiếu tiền rồi con ơi.' : 'Túi con đầy rồi kìa.';
+        gameState.inventory = r.inventory;
+        gameState.money = r.money;
+        playClick(gameState.settings);
+        return Phaser.Utils.Array.GetRandom(['Cảm ơn con nha!', 'Ăn ngon thì ghé nữa nghen!', 'Bán mở hàng cho cô may mắn nè!']);
+      },
+      sell: (itemId, all) => {
+        const shop = SHOPS[this.marketShopId];
+        const r = sellToStall(gameState.inventory, gameState.money, shop, itemId, all ? 999 : 1);
+        if (!r.soldQty) return 'Món này sạp không mua con ơi.';
+        gameState.inventory = r.inventory;
+        gameState.money = r.money;
+        playPickup(gameState.settings);
+        return `Lấy ${r.soldQty} ${ITEMS[itemId].name.toLowerCase()}, gửi con ${(r.soldQty * marketBuyPrice(shop, itemId)).toLocaleString('vi-VN')} ₫ nè.`;
+      },
+    });
     const onShopOpen = (p: ShopOpenRequestedPayload) => {
       if (!isShopId(p.shopId)) return;
-      this.shopMenu.open(p.shopId);
+      if (SHOPS[p.shopId].kind === 'market') {
+        this.marketShopId = p.shopId;
+        this.marketMenu.open(p.shopId);
+      } else {
+        this.shopMenu.open(p.shopId);
+      }
       uiState.shopOpen = true;
     };
     EventBus.on(GameEvents.ShopOpenRequested, onShopOpen);
@@ -403,6 +437,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   private closeShop(): void {
+    if (this.marketMenu.isOpen) this.marketMenu.close();
     this.shopMenu.close();
     uiState.shopOpen = false;
   }

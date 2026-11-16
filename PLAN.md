@@ -391,3 +391,14 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - Cài đặt **Kinh dị ban đêm: Bật / Nhẹ (không hù, tỷ lệ một nửa) / Tắt** — cho người yếu tim / nhạy cảm ánh sáng nhấp nháy.
 - Mỗi người chơi trong phòng gặp hiện tượng riêng của mình (không đồng bộ — mỗi người sợ theo cách riêng).
 - Chưa có trong hầm mỏ. Âm thanh chưa nghe thử bằng tai (chỉ kiểm tra chạy không lỗi).
+
+
+## Cập nhật: chợ ngoài trời ở làng
+- 3 sạp chợ trên quảng trường (dưới giếng làng), họp **6:00–14:00** mỗi ngày, đứng trước sạp bấm E/chuột phải:
+  sạp cá cô Hoa (bán cá, **thu mua mọi loại cá**), sạp rau củ bà Sáu (bán rau củ, **thu mua toàn bộ nông sản**),
+  sạp gạo chú Bảy (bán **gạo** + lúa giống, **thu mua lúa** giá cao). Bán ở chợ nhận tiền ngay; sạp đúng chuyên môn
+  trả thêm 10% (sạp gạo +20% cho lúa) so với thùng bán qua đêm; mua ở chợ đắt hơn giá gốc (x1,5–1,6).
+  Dữ liệu trong `shops.json` (`kind: "market"`, `buysCategories`, `buysItems`, `buyBonus`, `sellMarkup`); giá trong
+  `ShopSystem` (có test). Món mới: **Gạo**.
+- Giao diện chợ (`src/ui/MarketMenu.ts`): mái bạt sọc theo màu dù của sạp, biển bìa các-tông, người bán + bong bóng
+  lời thoại (chào mời, cảm ơn, "thiếu tiền rồi con ơi"…), hàng bày trên mẹt tre với giá viết tay, thẻ Mua/Bán, "Bán hết".

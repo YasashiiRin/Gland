@@ -35,5 +35,67 @@
       "tractor",
       "harvester"
     ]
+  },
+  "market_fish": {
+    "name": "Sạp cá cô Hoa",
+    "kind": "market",
+    "vendor": "Cô Hoa",
+    "openHour": 6,
+    "closeHour": 14,
+    "closedWeekday": -1,
+    "greeting": "Cá tươi rói mới vớt sáng nay nè con!",
+    "stock": [
+      "carp",
+      "perch",
+      "grass_carp"
+    ],
+    "buysCategories": [
+      "fish"
+    ],
+    "buysItems": [],
+    "buyBonus": 0.1,
+    "sellMarkup": 1.6
+  },
+  "market_veg": {
+    "name": "Sạp rau củ bà Sáu",
+    "kind": "market",
+    "vendor": "Bà Sáu",
+    "openHour": 6,
+    "closeHour": 14,
+    "closedWeekday": -1,
+    "greeting": "Rau nhà trồng đó, mua đi con, bà bớt cho!",
+    "stock": [
+      "parsnip",
+      "potato",
+      "cauliflower",
+      "green_bean",
+      "strawberry"
+    ],
+    "buysCategories": [
+      "crop"
+    ],
+    "buysItems": [],
+    "buyBonus": 0.1,
+    "sellMarkup": 1.6
+  },
+  "market_rice": {
+    "name": "Sạp gạo chú Bảy",
+    "kind": "market",
+    "vendor": "Chú Bảy",
+    "openHour": 6,
+    "closeHour": 14,
+    "closedWeekday": -1,
+    "greeting": "Gạo mới, nấu dẻo thơm. Có lúa thì đem chú mua giá cao!",
+    "stock": [
+      "gao",
+      "rice_seeds"
+    ],
+    "buysCategories": [],
+    "buysItems": [
+      "rice",
+      "gao"
+    ],
+    "buyBonus": 0.2,
+    "sellMarkup": 1.5
   }
 }

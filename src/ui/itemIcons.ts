@@ -420,6 +420,20 @@ const ICONS: Record<ItemId, Draw> = {
     g.lineStyle(1, INK, 1);
     g.strokeRect(2.5, 4.5, 8, 7);
   },
+  gao: (g) => {
+    // A small sack of white rice, open at the top.
+    g.fillStyle(0xd8c49a, 1);
+    g.fillRoundedRect(3, 5, 10, 10, 2);
+    g.fillStyle(0xf6f2e6, 1);
+    g.fillEllipse(8, 5, 9, 4);
+    g.fillStyle(0xffffff, 1);
+    g.fillRect(6, 4, 1, 1);
+    g.fillRect(9, 5, 1, 1);
+    g.lineStyle(1, INK, 1);
+    g.strokeRoundedRect(3, 5, 10, 10, 2);
+    g.fillStyle(0xb8402c, 1);
+    g.fillRect(5, 10, 6, 2);
+  },
   stone: (g) => {
     g.fillStyle(0xaaaab2, 1);
     g.fillTriangle(3, 11, 8, 3, 13, 11);

@@ -291,6 +291,36 @@
     "type": "image",
     "key": "horror_face",
     "url": "sprites/horror/face.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_stall_fish",
+    "url": "sprites/props/stall_fish.png"
+   },
+   {
+    "type": "image",
+    "key": "vendor_fish",
+    "url": "sprites/npcs/vendor_fish.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_stall_veg",
+    "url": "sprites/props/stall_veg.png"
+   },
+   {
+    "type": "image",
+    "key": "vendor_veg",
+    "url": "sprites/npcs/vendor_veg.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_stall_rice",
+    "url": "sprites/props/stall_rice.png"
+   },
+   {
+    "type": "image",
+    "key": "vendor_rice",
+    "url": "sprites/npcs/vendor_rice.png"
    }
   ]
  }
