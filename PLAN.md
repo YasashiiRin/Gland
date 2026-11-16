@@ -368,3 +368,12 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - 2 chỗ ngồi (chơi nhiều người): đứng cạnh xe bò bạn đang lái, E/chuột phải = ngồi ké (đi theo xe, không tự lái);
   E lần nữa = xuống; người lái đậu xe hoặc sang bản đồ khác thì người ngồi ké tự xuống. Xe hết chỗ thì báo.
 - Bỏ tính năng cũ "chất nông sản lên xe để bán từ xa" (trùng nút với xuống xe) — giờ chở hàng tới thùng bán.
+
+
+## Cập nhật: chơi trên điện thoại (điều khiển cảm ứng)
+- Tự bật trên thiết bị cảm ứng (cài đặt "Nút cảm ứng": Tự động / Luôn bật / Tắt). Cần điều khiển ảo góc trái (đi 8
+  hướng), nút góc phải: **Dùng** (= Space/chuột trái), **Tương tác** (= E/chuột phải), **Túi**, **Chế tạo**; khi mở
+  menu hiện nút **✕ Đóng** ở trên. Chạm vào bản đồ vẫn dùng đồ vào ô được chạm. Cầm dọc máy thì nhắc xoay ngang.
+  Trang chặn phóng to/kéo trang khi chạm. Code: `src/ui/TouchControls.ts`, `src/state/touchInput.ts`.
+- Đã thử bằng giả lập điện thoại của Chrome (844x390, chạm): đi bằng cần điều khiển, cuốc bằng nút Dùng, mở/đóng túi.
+  Chưa thử trên điện thoại thật.

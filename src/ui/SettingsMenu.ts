@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
 
 const PANEL_W = 380;
-const PANEL_H = 330;
+const PANEL_H = 370;
 const BAR_W = 180;
 
 export interface SettingsHandlers {
@@ -12,6 +12,8 @@ export interface SettingsHandlers {
   /** -1 = zoom out one step, +1 = zoom in one step. */
   onZoomStep: (direction: -1 | 1) => void;
   onClose: () => void;
+  /** Cycle the phone controls setting: auto → on → off. */
+  onTouchCycle: () => void;
 }
 
 const CONTROLS = [
@@ -28,6 +30,7 @@ export class SettingsMenu {
   private readonly volumeLabel: Phaser.GameObjects.Text;
   private readonly muteText: Phaser.GameObjects.Text;
   private readonly zoomText: Phaser.GameObjects.Text;
+  private readonly touchText: Phaser.GameObjects.Text;
   private handlers?: SettingsHandlers;
 
   constructor(scene: Phaser.Scene, depth: number) {
@@ -71,6 +74,12 @@ export class SettingsMenu {
     const fs = this.button(scene, barX + 70, y, 140, 'Bật / tắt', () => this.handlers?.onToggleFullscreen());
     this.root.add([inkText(scene, rowX, y, 'Toàn màn hình', 14).setOrigin(0, 0.5), ...fs]);
 
+    // Touch controls (phones)
+    y += 40;
+    const touch = this.button(scene, barX + 70, y, 140, '', () => this.handlers?.onTouchCycle());
+    this.touchText = touch[1];
+    this.root.add([inkText(scene, rowX, y, 'Nút cảm ứng', 14).setOrigin(0, 0.5), ...touch]);
+
     // Controls
     y += 36;
     const controls = scene.add.text(rowX, y, CONTROLS.join('\n'), {
@@ -102,14 +111,15 @@ export class SettingsMenu {
     this.handlers = handlers;
   }
 
-  refresh(settings: { volume: number; muted: boolean; zoom: number }): void {
+  refresh(settings: { volume: number; muted: boolean; zoom: number; touch: string }): void {
+    this.touchText.setText(settings.touch === 'auto' ? 'Tự động' : settings.touch === 'on' ? 'Luôn bật' : 'Tắt');
     this.volumeFill.width = (BAR_W - 4) * settings.volume;
     this.volumeLabel.setText(`${Math.round(settings.volume * 100)}%`);
     this.muteText.setText(settings.muted ? 'Đang tắt — bật' : 'Đang bật — tắt');
     this.zoomText.setText(`${settings.zoom}x`);
   }
 
-  open(settings: { volume: number; muted: boolean; zoom: number }): void {
+  open(settings: { volume: number; muted: boolean; zoom: number; touch: string }): void {
     this.refresh(settings);
     this.root.setVisible(true);
   }

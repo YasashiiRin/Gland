@@ -14,6 +14,7 @@ import { DEV_GIVE_ALL_VEHICLES } from '../config/dev';
 import { vehicleHome, VEHICLE_IDS } from '../data/garage';
 import { ITEMS } from '../data/items';
 import type { PlayerProfile } from '../net/protocol';
+import type { TouchMode } from './touchInput';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
 /**
@@ -46,7 +47,8 @@ export interface GameState {
   deepestFloor: number;
   skills: SkillXp;
   communityFund: QuestState;
-  settings: { muted: boolean; volume: number; zoom: number };
+  /** touch: on-screen phone controls — auto-detect, always on, or off. */
+  settings: { muted: boolean; volume: number; zoom: number; touch: TouchMode };
   /** Timed stat bonuses from food. */
   buffs: ActiveBuff[];
   /** The vehicle the player is riding right now, or null when on foot. */
@@ -110,7 +112,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     deepestFloor: 0,
     skills: createInitialSkills(),
     communityFund: createQuestState(),
-    settings: { muted: false, volume: 0.6, zoom: DEFAULT_ZOOM },
+    settings: { muted: false, volume: 0.6, zoom: DEFAULT_ZOOM, touch: 'auto' },
     buffs: [],
     riding: null,
     vehicles: DEV_GIVE_ALL_VEHICLES ? grantAllVehicles({}) : {},

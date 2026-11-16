@@ -1,3 +1,5 @@
+import { TouchControls } from '../ui/TouchControls';
+import { touchInput, wantsTouchControls, type TouchMode } from '../state/touchInput';
 import { pickProfile, type LobbyPlayer, type PlayerProfile } from '../net/protocol';
 import { SleepWaitOverlay } from '../ui/SleepWaitOverlay';
 import { UI_FONT } from '../ui/uiStyle';
@@ -78,6 +80,8 @@ export class UIScene extends Phaser.Scene {
   private minimap!: Minimap;
   private dayBanner!: Phaser.GameObjects.Text;
   private sleepOverlay!: SleepWaitOverlay;
+  private touchControls!: TouchControls;
+  private rotateHint!: Phaser.GameObjects.Text;
   private toastText!: Phaser.GameObjects.Text;
   private lastProfileSent = 0;
   private knownPlayers = new Map<string, string>();
@@ -211,6 +215,11 @@ export class UIScene extends Phaser.Scene {
         EventBus.emit(GameEvents.ZoomChanged);
       },
       onClose: () => this.closeSettings(),
+      onTouchCycle: () => {
+        const order: TouchMode[] = ['auto', 'on', 'off'];
+        gameState.settings.touch = order[(order.indexOf(gameState.settings.touch) + 1) % order.length];
+        this.settingsMenu.refresh(gameState.settings);
+      },
     });
     this.hud.onSettings = () => this.toggleSettings();
 
@@ -240,23 +249,9 @@ export class UIScene extends Phaser.Scene {
     this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
     kb.addKey(Phaser.Input.Keyboard.KeyCodes.M).on('down', () => this.minimap.toggle());
     const craftingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.C);
-    craftingKey.on('down', () => {
-      if (uiState.inventoryOpen || uiState.shopOpen || uiState.chestOpen) return;
-      if (uiState.craftingOpen) this.closeCrafting();
-      else {
-        this.craftingMenu.open();
-        uiState.craftingOpen = true;
-      }
-    });
+    craftingKey.on('down', () => this.toggleCrafting());
     const escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-    escKey.on('down', () => {
-      if (uiState.settingsOpen) this.closeSettings();
-      else if (uiState.dialogueOpen) this.closeDialogue();
-      else if (uiState.shopOpen) this.closeShop();
-      else if (uiState.craftingOpen) this.closeCrafting();
-      else if (uiState.chestOpen) this.closeChest();
-      else if (uiState.inventoryOpen) this.toggleInventory();
-    });
+    escKey.on('down', () => this.closeTopMenu());
     const interactKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     interactKey.on('down', () => {
       if (uiState.dialogueOpen) this.closeDialogue();
@@ -298,6 +293,23 @@ export class UIScene extends Phaser.Scene {
       this.minimap.setMap(p.minimap, p.displayName);
     };
     this.setupMultiplayerUi();
+    this.touchControls = new TouchControls(this, DEPTH_ABOVE + 1, {
+      onInventory: () => this.toggleInventory(),
+      onCrafting: () => this.toggleCrafting(),
+      onClose: () => this.closeTopMenu(),
+    });
+    this.rotateHint = this.add
+      .text(this.scale.width / 2, this.scale.height / 2, '↻ Hãy xoay ngang điện thoại để chơi', {
+        fontFamily: UI_FONT,
+        fontSize: '28px',
+        color: '#fff6e0',
+        backgroundColor: '#2b1a10ee',
+        align: 'center',
+      })
+      .setPadding(20, 14, 20, 14)
+      .setOrigin(0.5)
+      .setDepth(DEPTH_ABOVE + 20)
+      .setVisible(false);
     const onDay = (p: DayStartedPayload) => {
       this.leaveSleepWait(false);
       this.showDayBanner(p);
@@ -312,6 +324,7 @@ export class UIScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     worldSync.update(time); // multiplayer: exchange changes to the shared farm
+    this.updateTouchControls();
     if (net.role === 'guest' && time - this.lastProfileSent > PROFILE_SEND_MS) {
       // Let the host keep my bag/energy/skills in its save.
       this.lastProfileSent = time;
@@ -330,7 +343,7 @@ export class UIScene extends Phaser.Scene {
       this.fishingState = stepFishing(
         this.fishingState,
         dt,
-        this.fishingKey.isDown || this.input.activePointer.leftButtonDown(),
+        this.fishingKey.isDown || this.input.manager.pointers.some((p) => p.isDown),
         FISH[this.fishingFishId as keyof typeof FISH].difficulty,
       );
       this.fishingMinigame.refresh(this.fishingState);
@@ -528,6 +541,35 @@ export class UIScene extends Phaser.Scene {
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
   }
 
+
+  /** Phone controls: shown when wanted, swapped for a close button while a menu is open. */
+  private updateTouchControls(): void {
+    const on = wantsTouchControls(gameState.settings.touch);
+    touchInput.enabled = on;
+    const menuOpen =
+      uiState.inventoryOpen || uiState.shopOpen || uiState.craftingOpen || uiState.chestOpen || uiState.dialogueOpen || uiState.settingsOpen;
+    this.touchControls.update(on, menuOpen);
+    this.rotateHint.setVisible(on && window.innerHeight > window.innerWidth);
+  }
+
+  private toggleCrafting(): void {
+    if (uiState.inventoryOpen || uiState.shopOpen || uiState.chestOpen) return;
+    if (uiState.craftingOpen) this.closeCrafting();
+    else {
+      this.craftingMenu.open();
+      uiState.craftingOpen = true;
+    }
+  }
+
+  /** Esc (or the on-screen close button): closes whichever menu is on top. */
+  private closeTopMenu(): void {
+    if (uiState.settingsOpen) this.closeSettings();
+    else if (uiState.dialogueOpen) this.closeDialogue();
+    else if (uiState.shopOpen) this.closeShop();
+    else if (uiState.craftingOpen) this.closeCrafting();
+    else if (uiState.chestOpen) this.closeChest();
+    else if (uiState.inventoryOpen) this.toggleInventory();
+  }
 
   private toggleInventory(): void {
     if (uiState.inventoryOpen) {

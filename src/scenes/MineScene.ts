@@ -7,6 +7,7 @@ import { gameState } from '../state/GameState';
 import { currentSpeedMultiplier } from '../state/playerStats';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked } from '../state/uiState';
+import { consumeTouchInteract, consumeTouchUse, touchInput } from '../state/touchInput';
 import {
   attackMonster,
   isAdjacent,
@@ -76,8 +77,8 @@ export class MineScene extends Phaser.Scene {
     this.player.setExhausted(isExhausted(gameState.energy));
     this.player.updateMovement(this.readInput(), currentSpeedMultiplier());
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) this.tryUseLadder();
-    if (Phaser.Input.Keyboard.JustDown(this.keys.attack)) this.tryAttackOrMine();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.interact) || consumeTouchInteract()) this.tryUseLadder();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.attack) || consumeTouchUse()) this.tryAttackOrMine();
 
     this.monsterTimer += delta;
     if (this.monsterTimer >= MONSTER_STEP_MS) {
@@ -168,10 +169,10 @@ export class MineScene extends Phaser.Scene {
   private readInput(): PlayerInput {
     const k = this.keys;
     return {
-      up: k.up.isDown || k.w.isDown,
-      down: k.down.isDown || k.s.isDown,
-      left: k.left.isDown || k.a.isDown,
-      right: k.right.isDown || k.d.isDown,
+      up: k.up.isDown || k.w.isDown || touchInput.up,
+      down: k.down.isDown || k.s.isDown || touchInput.down,
+      left: k.left.isDown || k.a.isDown || touchInput.left,
+      right: k.right.isDown || k.d.isDown || touchInput.right,
     };
   }
 

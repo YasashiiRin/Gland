@@ -50,6 +50,7 @@ import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
 import { worldSync } from '../net/worldSync';
 import { rideState } from '../state/rideState';
+import { consumeTouchInteract, consumeTouchUse, touchInput } from '../state/touchInput';
 
 const NO_INPUT = { up: false, down: false, left: false, right: false };
 
@@ -228,6 +229,8 @@ export abstract class MapScene extends Phaser.Scene {
     if (isWorldInputBlocked()) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false });
       this.targetHighlight.setVisible(false);
+      consumeTouchUse(); // a tap that closed a menu must not also swing a tool
+      consumeTouchInteract();
       return;
     }
 
@@ -235,11 +238,13 @@ export abstract class MapScene extends Phaser.Scene {
     // A passenger doesn't steer: the driver's vehicle carries them (see RideController).
     this.player.updateMovement(rideState.passengerOf ? NO_INPUT : this.readInput(), currentSpeedMultiplier());
     this.readHotbarSelection();
-    this.mouseAimTile = this.lastPointerMoveAt > this.lastMoveKeyAt ? this.pointerAimTile() : null;
+    // With touch controls, a finger on the joystick isn't "aiming": tools use the facing tile
+    // (tapping the world still aims at the tapped tile, see onWorldPointerDown).
+    this.mouseAimTile = !touchInput.enabled && this.lastPointerMoveAt > this.lastMoveKeyAt ? this.pointerAimTile() : null;
     this.updateTargetHighlight();
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) this.interact();
-    if (Phaser.Input.Keyboard.JustDown(this.keys.useTool)) this.useEquippedTool();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.interact) || consumeTouchInteract()) this.interact();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.useTool) || consumeTouchUse()) this.useEquippedTool();
   }
 
   /** Multiplayer: send my position now and then, and draw the other players. */
@@ -697,10 +702,10 @@ export abstract class MapScene extends Phaser.Scene {
   private readInput(): PlayerInput {
     const k = this.keys;
     return {
-      up: k.up.isDown || k.w.isDown,
-      down: k.down.isDown || k.s.isDown,
-      left: k.left.isDown || k.a.isDown,
-      right: k.right.isDown || k.d.isDown,
+      up: k.up.isDown || k.w.isDown || touchInput.up,
+      down: k.down.isDown || k.s.isDown || touchInput.down,
+      left: k.left.isDown || k.a.isDown || touchInput.left,
+      right: k.right.isDown || k.d.isDown || touchInput.right,
     };
   }
 
