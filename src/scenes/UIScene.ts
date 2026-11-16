@@ -1,3 +1,4 @@
+import { net, NetEvents } from '../net/NetSession';
 import { Minimap } from '../ui/Minimap';
 import { worldView } from '../state/worldView';
 import Phaser from 'phaser';
@@ -200,6 +201,23 @@ export class UIScene extends Phaser.Scene {
     });
     this.hud.onSettings = () => this.toggleSettings();
 
+    const onHostTime = (time: typeof gameState.time) => {
+      gameState.time = time;
+      this.hud.setTime(time);
+      this.updateNightOverlay();
+      EventBus.emit(GameEvents.TimeTick, { time });
+    };
+    const onLostHost = () => {
+      for (const s of this.scene.manager.getScenes(true)) if (s.scene.key !== 'UI') s.scene.stop();
+      this.scene.start('Title', { message: 'Mất kết nối với chủ phòng.' });
+    };
+    net.events.on(NetEvents.Time, onHostTime);
+    net.events.on(NetEvents.Disconnected, onLostHost);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      net.events.off(NetEvents.Time, onHostTime);
+      net.events.off(NetEvents.Disconnected, onLostHost);
+    });
+
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
     kb.addCapture(Phaser.Input.Keyboard.KeyCodes.TAB); // stop the browser from tabbing focus away
@@ -310,6 +328,8 @@ export class UIScene extends Phaser.Scene {
       return;
     }
 
+    // In a room the host's clock is the only clock; guests just display it.
+    if (net.role === 'guest') return;
     this.accumulatorMs += delta;
     let ticked = false;
     while (this.accumulatorMs >= MS_PER_TICK) {
@@ -327,6 +347,7 @@ export class UIScene extends Phaser.Scene {
       this.hud.setTime(gameState.time);
       this.updateNightOverlay();
       EventBus.emit(GameEvents.TimeTick, { time: gameState.time });
+      if (net.role === 'host') net.broadcastTime(gameState.time);
     }
   }
 

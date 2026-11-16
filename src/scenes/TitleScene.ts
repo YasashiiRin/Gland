@@ -1,65 +1,163 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH } from '../config/constants';
+import { normalizeRoomCode } from '../net/protocol';
 import { applyLoadedState, resetToNewGame } from '../state/GameState';
 import * as SaveService from '../systems/SaveService';
+import { createHtmlInput } from '../ui/htmlInput';
+import { drawTitleBackground } from '../ui/titleBackground';
+import { UI_COLORS, UI_FONT } from '../ui/uiStyle';
+import type { LobbySceneData } from './LobbyScene';
 
-const TITLE_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
-  fontFamily: '"Trebuchet MS", "Segoe UI", sans-serif',
-  color: '#fff6e0',
-};
+type Page = 'main' | 'solo' | 'host' | 'join';
+const NAME_KEY = 'farm-game-player-name';
 
-/** The very first screen: start a new game or continue a saved one. */
+/** First screen: play alone, open a room for friends, or join one by code. */
 export class TitleScene extends Phaser.Scene {
+  private menu?: Phaser.GameObjects.Container;
+  private inputs: HTMLInputElement[] = [];
+  private message?: Phaser.GameObjects.Text;
+
   constructor() {
     super('Title');
   }
 
-  create(): void {
-    this.cameras.main.setBackgroundColor('#4a7a4a');
+  create(data: { message?: string } = {}): void {
+    drawTitleBackground(this);
     this.add
-      .text(GAME_WIDTH / 2, 140, 'Vườn Nhà Nhỏ', { ...TITLE_STYLE, fontSize: '48px' })
+      .text(GAME_WIDTH / 2, 92, 'Vườn Nhà Nhỏ', { fontFamily: UI_FONT, fontSize: '54px', color: '#fff6e0', fontStyle: 'bold' })
       .setOrigin(0.5)
-      .setShadow(2, 3, '#1b3a1b', 0, false, true);
+      .setStroke('#5a3018', 8)
+      .setShadow(3, 4, '#2b1a10', 0, true, true);
     this.add
-      .text(GAME_WIDTH / 2, 190, '(Phiên bản đang phát triển)', { ...TITLE_STYLE, fontSize: '16px', color: '#d8ecd8' })
-      .setOrigin(0.5);
-
-    this.makeButton(GAME_WIDTH / 2, 300, 'Chơi mới', () => this.startNewGame());
-
-    const canContinue = SaveService.hasSave();
-    this.makeButton(GAME_WIDTH / 2, 370, 'Tiếp tục', () => this.continueGame(), canContinue);
+      .text(GAME_WIDTH / 2, 142, 'Nông trại làng quê', { fontFamily: UI_FONT, fontSize: '18px', color: '#fff2d0', fontStyle: 'bold' })
+      .setOrigin(0.5)
+      .setStroke('#5a3018', 4);
+    this.message = this.add
+      .text(GAME_WIDTH / 2, 500, data.message ?? '', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff6e0', backgroundColor: '#2b1a10cc' })
+      .setPadding(8, 4, 8, 4)
+      .setOrigin(0.5)
+      .setVisible(!!data.message);
+    this.showPage('main');
   }
 
-  private startNewGame(): void {
-    resetToNewGame();
+  /** Kept public: also used by automated browser checks. */
+  startNewGame(): void {
+    resetToNewGame(this.savedName());
     this.scene.start('Preload');
   }
 
   private continueGame(): void {
     const saved = SaveService.load();
-    if (!saved) {
-      this.startNewGame();
-      return;
-    }
+    if (!saved) return this.startNewGame();
     applyLoadedState(saved);
     this.scene.start('Preload');
   }
 
-  private makeButton(x: number, y: number, label: string, onClick: () => void, enabled = true): void {
-    const width = 220;
-    const height = 48;
-    const box = this.add
-      .rectangle(x, y, width, height, enabled ? 0x3a2f24 : 0x2a241f, enabled ? 0.9 : 0.6)
-      .setStrokeStyle(2, enabled ? 0xc9a66b : 0x6b6356);
-    const text = this.add
-      .text(x, y, label, { ...TITLE_STYLE, fontSize: '20px', color: enabled ? '#fff6e0' : '#8a8378' })
-      .setOrigin(0.5);
+  private showPage(page: Page): void {
+    this.menu?.destroy();
+    this.inputs.forEach((i) => i.remove());
+    this.inputs = [];
+    const cx = GAME_WIDTH / 2;
+    this.menu = this.add.container(0, 0);
+    const panel = this.add.graphics();
+    panel.fillStyle(UI_COLORS.edge, 0.55).fillRoundedRect(cx - 170, 188, 340, 280, 10);
+    this.menu.add(panel);
+    const hasSave = SaveService.hasSave();
 
+    if (page === 'main') {
+      this.button(cx, 240, 'Chơi một mình', () => this.showPage('solo'));
+      this.button(cx, 310, 'Tạo phòng', () => this.showPage('host'));
+      this.button(cx, 380, 'Vào phòng', () => this.showPage('join'));
+      this.caption(cx, 440, 'Chơi cùng tối đa 2 người bạn qua mã phòng');
+    } else if (page === 'solo') {
+      this.button(cx, 240, 'Chơi mới', () => this.startNewGame());
+      this.button(cx, 310, 'Tiếp tục', () => this.continueGame(), hasSave);
+      this.button(cx, 400, '‹ Quay lại', () => this.showPage('main'), true, 160);
+    } else if (page === 'host') {
+      this.caption(cx, 214, 'Tên của bạn');
+      const name = this.textField(cx, 244, { value: this.savedName(), maxLength: 16 });
+      this.button(cx, 306, 'Nông trại mới', () => this.openRoom(name.value, 'new'));
+      this.button(cx, 366, 'Nông trại đã lưu', () => this.openRoom(name.value, 'saved'), hasSave);
+      this.button(cx, 432, '‹ Quay lại', () => this.showPage('main'), true, 160);
+    } else {
+      this.caption(cx, 214, 'Tên của bạn');
+      const name = this.textField(cx, 244, { value: this.savedName(), maxLength: 16 });
+      this.caption(cx, 286, 'Mã phòng (6 ký tự)');
+      const code = this.textField(cx, 316, { placeholder: 'VD: K7M2QX', maxLength: 6, uppercase: true });
+      this.button(cx, 376, 'Vào phòng', () => this.joinRoom(name.value, code.value));
+      this.button(cx, 436, '‹ Quay lại', () => this.showPage('main'), true, 160);
+    }
+  }
+
+  private openRoom(rawName: string, world: 'new' | 'saved'): void {
+    const name = this.rememberName(rawName);
+    if (world === 'saved') {
+      const saved = SaveService.load();
+      if (saved) applyLoadedState(saved);
+      else resetToNewGame(name);
+    } else {
+      resetToNewGame(name);
+    }
+    this.scene.start('Lobby', { mode: 'host', name } satisfies LobbySceneData);
+  }
+
+  private joinRoom(rawName: string, rawCode: string): void {
+    const code = normalizeRoomCode(rawCode);
+    if (!code) {
+      this.flash('Mã phòng gồm 6 chữ/số, ví dụ K7M2QX');
+      return;
+    }
+    const name = this.rememberName(rawName);
+    this.scene.start('Lobby', { mode: 'guest', name, code } satisfies LobbySceneData);
+  }
+
+  private savedName(): string {
+    try {
+      return localStorage.getItem(NAME_KEY) ?? 'Nông dân';
+    } catch {
+      return 'Nông dân';
+    }
+  }
+
+  private rememberName(raw: string): string {
+    const name = raw.trim().slice(0, 16) || 'Nông dân';
+    try {
+      localStorage.setItem(NAME_KEY, name);
+    } catch {
+      /* private mode: just don't remember it */
+    }
+    return name;
+  }
+
+  private flash(text: string): void {
+    this.message?.setText(text).setVisible(true);
+  }
+
+  private caption(x: number, y: number, text: string): void {
+    const t = this.add
+      .text(x, y, text, { fontFamily: UI_FONT, fontSize: '14px', color: '#fff2d0', fontStyle: 'bold' })
+      .setOrigin(0.5);
+    this.menu?.add(t);
+  }
+
+  private textField(x: number, y: number, options: Parameters<typeof createHtmlInput>[4]): HTMLInputElement {
+    const el = createHtmlInput(this, x, y, 220, options);
+    this.inputs.push(el);
+    return el;
+  }
+
+  private button(x: number, y: number, label: string, onClick: () => void, enabled = true, width = 240): void {
+    const box = this.add
+      .rectangle(x, y, width, 46, enabled ? UI_COLORS.wood : 0x5a4a3a)
+      .setStrokeStyle(3, UI_COLORS.edge);
+    const text = this.add
+      .text(x, y, label, { fontFamily: UI_FONT, fontSize: '20px', fontStyle: 'bold', color: enabled ? '#fff2d0' : '#a89880' })
+      .setOrigin(0.5);
+    this.menu?.add([box, text]);
     if (!enabled) return;
     box.setInteractive({ useHandCursor: true });
-    box.on('pointerover', () => box.setFillStyle(0x4a3c2e, 0.95));
-    box.on('pointerout', () => box.setFillStyle(0x3a2f24, 0.9));
+    box.on('pointerover', () => box.setFillStyle(UI_COLORS.woodLight));
+    box.on('pointerout', () => box.setFillStyle(UI_COLORS.wood));
     box.on('pointerdown', onClick);
-    void text;
   }
 }

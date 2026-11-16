@@ -3,6 +3,8 @@ import { GAME_HEIGHT, GAME_WIDTH } from './config/constants';
 import { BootScene } from './scenes/BootScene';
 import { FarmScene } from './scenes/FarmScene';
 import { HouseScene } from './scenes/HouseScene';
+import { LobbyScene } from './scenes/LobbyScene';
+import { net } from './net/NetSession';
 import { MineScene } from './scenes/MineScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { TitleScene } from './scenes/TitleScene';
@@ -29,14 +31,15 @@ const game = new Phaser.Game({
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   // UI must come last so it draws on top of the map scenes.
-  scene: [BootScene, TitleScene, PreloadScene, FarmScene, HouseScene, TownScene, MineScene, UIScene],
+  scene: [BootScene, TitleScene, LobbyScene, PreloadScene, FarmScene, HouseScene, TownScene, MineScene, UIScene],
 });
 
 // Safety-net autosave: catches anything since the last day-start save if the
 // tab is closed or refreshed mid-day. The main autosave is in MapScene,
 // right when a new day begins.
 window.addEventListener('beforeunload', () => {
-  if (sessionFlags.gameStarted) SaveService.save(gameState);
+  // A guest is playing on the host's farm: the host keeps the save, not the guest.
+  if (sessionFlags.gameStarted && net.role !== 'guest') SaveService.save(gameState);
 });
 
 declare global {
@@ -45,7 +48,10 @@ declare global {
     game?: Phaser.Game;
     /** Exposed for debugging only; the saved game never reads this directly. */
     gameState?: typeof gameState;
+    /** Exposed for debugging only: the multiplayer session. */
+    netDebug?: typeof net;
   }
 }
 window.game = game;
 window.gameState = gameState;
+window.netDebug = net;

@@ -44,6 +44,13 @@ import { absoluteDayNumber, clockMinuteOfDay, startNewDay } from '../systems/Tim
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
 import { RideController } from './rideController';
+import { RemotePlayers } from './remotePlayers';
+import { net, NetEvents } from '../net/NetSession';
+import { pickShared, type SharedWorld } from '../net/protocol';
+import { applySharedWorld } from '../state/GameState';
+
+/** How often (ms) this player's position is sent to the others in a room. */
+const POSE_SEND_MS = 100;
 import type { VehicleAbility } from '../data/items';
 
 /** Money lost when passing out, capped so a bad night never wipes someone out. */
@@ -94,6 +101,8 @@ export abstract class MapScene extends Phaser.Scene {
   protected aboveLayer!: Phaser.Tilemaps.TilemapLayer;
   protected trees!: TreeSprites;
   protected ride!: RideController;
+  private remotes!: RemotePlayers;
+  private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
   private transitioning = false;
@@ -163,6 +172,15 @@ export abstract class MapScene extends Phaser.Scene {
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.afterMapBuilt();
 
+    this.remotes = new RemotePlayers(this, this.mapKey);
+    // Guest: the host started a new day (or resynced) — take its world and redraw the map.
+    const onWorld = (world: SharedWorld) => {
+      applySharedWorld(world);
+      if (!this.transitioning) this.scene.restart({ spawn: gameState.spawnId });
+    };
+    net.events.on(NetEvents.World, onWorld);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => net.events.off(NetEvents.World, onWorld));
+
     const onPassOut = () => this.sleepSequence('passedOut');
     EventBus.on(GameEvents.PassOutRequested, onPassOut);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.PassOutRequested, onPassOut));
@@ -179,8 +197,9 @@ export abstract class MapScene extends Phaser.Scene {
     EventBus.emit(GameEvents.MapEntered, payload);
   }
 
-  update(): void {
+  update(time: number): void {
     if (this.transitioning) return;
+    this.syncNetwork(time);
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.trees.updateOcclusion(this.player.x, this.player.y);
@@ -204,6 +223,23 @@ export abstract class MapScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.keys.useTool)) this.useEquippedTool();
   }
 
+  /** Multiplayer: send my position now and then, and draw the other players. */
+  private syncNetwork(time: number): void {
+    if (!net.online) return;
+    this.remotes.update();
+    if (time - this.lastPoseSent < POSE_SEND_MS) return;
+    this.lastPoseSent = time;
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    net.sendPose({
+      map: this.mapKey,
+      x: Math.round(this.player.x),
+      y: Math.round(this.player.y),
+      dir: this.player.direction,
+      moving: body.velocity.x !== 0 || body.velocity.y !== 0,
+      riding: gameState.riding,
+    });
+  }
+
   /** E key / right click: harvest, open, talk, sleep, sell... whichever applies first. */
   private interact(): void {
     if (gameState.riding) {
@@ -220,7 +256,11 @@ export abstract class MapScene extends Phaser.Scene {
       !this.tryUseCoop() &&
       !this.tryUseQuestBoard()
     ) {
-      if (this.isNearBed()) this.sleepSequence('manual');
+      if (this.isNearBed()) {
+        // In a room only the host decides when the day ends.
+        if (net.role === 'guest') this.say('Chủ phòng đi ngủ thì cả nhóm sang ngày mới');
+        else this.sleepSequence('manual');
+      }
       else if (!this.tryOpenShop()) this.tryUseShippingBin();
     }
   }
@@ -490,6 +530,7 @@ export abstract class MapScene extends Phaser.Scene {
       gameState.currentMap = 'House';
       gameState.spawnId = 'default';
       SaveService.save(gameState);
+      if (net.role === 'host') net.broadcastWorld(pickShared(gameState));
 
       this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
       // Emitted after scene.start queues the new scene's create(); UI is a separate

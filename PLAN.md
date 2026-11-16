@@ -333,3 +333,22 @@ trạng thái ô highlight (vị trí, màu) qua trình duyệt thật, khớp c
 - **Khi lái:** chuột trái/Space = bật/tắt chế độ làm việc (máy cày: cày; máy gặt: gặt) hoặc bấm còi (xe máy).
   Máy cày/máy gặt to 2x2 ô (thân va chạm rộng hơn), làm việc trên cả 4 ô dưới máy (ô vàng hiển thị vùng làm việc).
   Xe máy, máy cày, máy gặt nhả khói khi chạy (máy đang làm việc nhả khói dày hơn).
+
+
+## Phase 16 – Chơi nhiều người (co-op, 1 chủ phòng + tối đa 2 khách)
+Kết nối bằng **mã phòng 6 ký tự** qua Internet (WebRTC, thư viện `peerjs` 1.5.5). Máy chủ môi giới mặc định là dịch vụ
+miễn phí `0.peerjs.com` (chỉ thấy mã phòng ngẫu nhiên; dữ liệu game đi thẳng giữa các máy). Có thể tự chạy
+`peerjs-server` sau này. **Chung một nông trại**: phần dùng chung = `SHARED_KEYS` trong `src/net/protocol.ts`
+(thời gian, tiền, đất, tài nguyên, đồ đặt, xe, nhà kho...); túi đồ/năng lượng/kỹ năng là riêng từng người.
+Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải luôn hiển thị (trình duyệt dừng game ở tab nền).
+
+- [x] **Bước 1:** màn hình tiêu đề mới (Chơi một mình / Tạo phòng / Vào phòng, nền làng quê Việt), phòng chờ có mã
+  phòng + danh sách người chơi, từ chối người thứ 4 ("Phòng đã đủ người"), vào giữa chừng được. Trong game: thấy
+  nhau đi lại (nhuộm màu + tên, kể cả đang lái xe), giờ theo chủ phòng, khách nhận thế giới khi vào và mỗi sáng
+  (chủ phòng ngủ → cả nhóm sang ngày mới; khách không tự ngủ được). Mất kết nối → khách về màn hình tiêu đề.
+  Đã thử thật với 4 trình duyệt (1 chủ + 2 khách + 1 bị từ chối).
+- [ ] **Bước 2:** đồng bộ hành động trong ngày: cuốc/trồng/tưới/thu hoạch, chặt cây/đập đá, đồ đặt & rương, xe (ai
+  đang lái), tiền, thùng bán, mua bán. Hiện tại thay đổi của khách chỉ thấy trên máy khách cho tới sáng hôm sau
+  (khi đó bị thay bằng thế giới của chủ phòng).
+- [ ] **Bước 3:** cả nhóm cùng phải đi ngủ mới sang ngày; lưu túi đồ/năng lượng/kỹ năng của khách vào save chủ phòng
+  (theo tên); hai người không lái cùng một xe; thông báo khi có người vào/ra.

@@ -156,3 +156,8 @@ function grantAllVehicles(owned: OwnedVehicles): OwnedVehicles {
 export function resetToNewGame(playerName?: string, farmName?: string): void {
   Object.assign(gameState, createInitialState(playerName, farmName));
 }
+
+/** Multiplayer: replaces the shared (farm-wide) parts of the state with the host's copy. */
+export function applySharedWorld(world: Partial<GameState>): void {
+  Object.assign(gameState, structuredClone(world));
+}
