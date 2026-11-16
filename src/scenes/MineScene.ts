@@ -61,6 +61,7 @@ export class MineScene extends Phaser.Scene {
     this.spawnMonsters();
     this.setupCamera();
     this.setupInput();
+    gameState.riding = null; // no vehicles underground
     // No minimap underground (floors are random); the UI shows just the floor name.
     const entered: MapEnteredPayload = { mapKey: 'Mine', displayName: `Hầm mỏ – tầng ${this.depth}` };
     EventBus.emit(GameEvents.MapEntered, entered);

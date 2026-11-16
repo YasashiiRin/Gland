@@ -24,12 +24,13 @@ from art.maps import make_maps  # noqa: E402
 from art.mine import make_mine_tileset  # noqa: E402
 from art.nature import make_nature  # noqa: E402
 from art.tiles import make_tileset  # noqa: E402
+from art.vehicles import make_vehicles  # noqa: E402
 
 
 def main() -> None:
     make_tileset()
     make_mine_tileset()
-    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops()
+    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles()
     pack = {"generated": {"files": files}}
     (ASSETS / "sprites" / "pack.json").write_text(json.dumps(pack, indent=1))
     make_maps()

@@ -206,6 +206,7 @@ def build_town() -> MapBuilder:
     building(5, 3, 5, "house_a", 7)
     m.obj("shop", 7 * T, 6 * T, T, T, {"shopId": "grocery"})
     building(30, 3, 5, "house_b", 32)
+    m.obj("shop", 32 * T, 6 * T, T, T, {"shopId": "vehicle_shop"})
     building(29, 16, 5, "house_c", 31)
     m.put(13, 11, SIGN)
     m.obj("quest_board", 13 * T, 11 * T, T, T)

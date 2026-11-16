@@ -353,6 +353,73 @@ const ICONS: Record<ItemId, Draw> = {
     g.lineStyle(1, 0xd04a3a, 1);
     g.lineBetween(9, 1, 10, 6);
   },
+  rice_seeds: seedPacket(0xd8b84a),
+  rice: (g) => {
+    // A tied sheaf of golden rice with drooping ears.
+    g.fillStyle(0xc8a848, 1);
+    g.fillRect(6, 6, 4, 9);
+    g.fillStyle(0xe8c860, 1);
+    g.fillEllipse(5, 4, 4, 6);
+    g.fillEllipse(11, 4, 4, 6);
+    g.fillEllipse(8, 3, 4, 6);
+    g.fillStyle(0x8a5a30, 1);
+    g.fillRect(5, 10, 6, 1);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(5.5, 6.5, 5, 8);
+  },
+  ox_cart: (g) => {
+    g.fillStyle(0x8a6040, 1);
+    g.fillRect(1, 6, 8, 5);
+    g.fillStyle(0x9a6038, 1);
+    g.fillRect(9, 5, 6, 5);
+    g.fillStyle(0xe8dcbe, 1);
+    g.fillRect(13, 3, 1, 2);
+    g.fillRect(15, 3, 1, 2);
+    g.fillStyle(0x2a2420, 1);
+    g.fillCircle(5, 12, 3);
+    g.fillRect(10, 10, 1, 4);
+    g.fillRect(13, 10, 1, 4);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(1.5, 6.5, 7, 4);
+  },
+  motorbike: (g) => {
+    g.fillStyle(0x2a2420, 1);
+    g.fillCircle(4, 12, 3);
+    g.fillCircle(12, 12, 3);
+    g.fillStyle(0xac342c, 1);
+    g.fillRect(2, 6, 5, 5);
+    g.fillRect(10, 5, 3, 7);
+    g.fillStyle(0x464242, 1);
+    g.fillRect(5, 10, 6, 2);
+    g.fillRect(9, 3, 5, 1);
+    g.fillStyle(0x2a2420, 1);
+    g.fillRect(2, 6, 5, 1);
+  },
+  tractor: (g) => {
+    g.fillStyle(0xc45c28, 1);
+    g.fillRect(4, 5, 10, 6);
+    g.fillStyle(0x3c3838, 1);
+    g.fillRect(10, 2, 1, 3);
+    g.fillStyle(0x2a2420, 1);
+    g.fillCircle(5, 11, 4);
+    g.fillCircle(13, 13, 2);
+    g.fillStyle(0x787470, 1);
+    g.fillCircle(5, 11, 2);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(4.5, 5.5, 9, 5);
+  },
+  harvester: (g) => {
+    g.fillStyle(0x4e8852, 1);
+    g.fillRect(2, 4, 9, 8);
+    g.fillStyle(0xaac8d2, 1);
+    g.fillRect(6, 2, 4, 3);
+    g.fillStyle(0xd6b03c, 1);
+    g.fillRect(10, 9, 5, 4);
+    g.fillStyle(0x32302c, 1);
+    g.fillRect(2, 12, 9, 3);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(2.5, 4.5, 8, 7);
+  },
   stone: (g) => {
     g.fillStyle(0xaaaab2, 1);
     g.fillTriangle(3, 11, 8, 3, 13, 11);

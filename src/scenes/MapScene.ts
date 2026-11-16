@@ -43,6 +43,8 @@ import * as SaveService from '../systems/SaveService';
 import { absoluteDayNumber, clockMinuteOfDay, startNewDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
+import { RideController } from './rideController';
+import type { VehicleAbility } from '../data/items';
 
 /** Money lost when passing out, capped so a bad night never wipes someone out. */
 const PASS_OUT_MONEY_PENALTY_RATE = 0.1;
@@ -91,6 +93,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected decorLayer!: Phaser.Tilemaps.TilemapLayer;
   protected aboveLayer!: Phaser.Tilemaps.TilemapLayer;
   protected trees!: TreeSprites;
+  protected ride!: RideController;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
   private transitioning = false;
@@ -156,6 +159,8 @@ export abstract class MapScene extends Phaser.Scene {
     this.applyResourceNodeVisuals();
     createProps(this, this.map);
     this.trees = new TreeSprites(this, decor);
+    if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
+    this.ride = new RideController(this, this.player, (tile, ability) => this.onRideTile(tile, ability));
     this.afterMapBuilt();
 
     const onPassOut = () => this.sleepSequence('passedOut');
@@ -179,6 +184,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.trees.updateOcclusion(this.player.x, this.player.y);
+    this.ride.update();
     worldView.playerTileX = Math.floor(this.player.x / TILE);
     worldView.playerTileY = Math.floor(this.player.y / TILE);
 
@@ -200,6 +206,7 @@ export abstract class MapScene extends Phaser.Scene {
 
   /** E key / right click: harvest, open, talk, sleep, sell... whichever applies first. */
   private interact(): void {
+    if (this.tryLoadOntoCart()) return;
     if (
       !this.tryHarvestFacingTile() &&
       !this.tryOpenChest() &&
@@ -526,9 +533,37 @@ export abstract class MapScene extends Phaser.Scene {
     }
   }
 
+  /** A vehicle's ability, applied whenever the rider reaches a new tile. Farm overrides this. */
+  protected onRideTile(_tile: { x: number; y: number }, _ability: VehicleAbility): void {}
+
+  /** Ox cart: ship the held produce straight from the cart, wherever you are. */
+  private tryLoadOntoCart(): boolean {
+    if (this.ride.ability !== 'carry') return false;
+    const stack = itemAt(gameState.inventory, gameState.equippedSlot);
+    if (!stack || !ITEMS[stack.itemId].sellPrice || ITEMS[stack.itemId].category === 'vehicle') return false;
+    gameState.shippingBin[stack.itemId] = (gameState.shippingBin[stack.itemId] ?? 0) + stack.quantity;
+    const slots = gameState.inventory.slots.slice();
+    slots[gameState.equippedSlot] = null;
+    gameState.inventory = { slots };
+    playPickup(gameState.settings);
+    this.showFloatingText(this.player.x, this.player.y - 26, `Chất ${stack.quantity} ${ITEMS[stack.itemId].name} lên xe để bán`);
+    return true;
+  }
+
   private useEquippedTool(): void {
     const stack = itemAt(gameState.inventory, gameState.equippedSlot);
     if (!stack) return;
+    const category = ITEMS[stack.itemId].category;
+
+    if (category === 'vehicle') {
+      const message = this.ride.toggle(stack.itemId, this.isOutdoor);
+      this.showFloatingText(this.player.x, this.player.y - 26, message);
+      return;
+    }
+    if (gameState.riding && category !== 'food') {
+      this.showFloatingText(this.player.x, this.player.y - 26, 'Xuống xe trước đã');
+      return;
+    }
 
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);

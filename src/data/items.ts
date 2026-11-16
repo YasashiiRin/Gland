@@ -21,6 +21,18 @@ export interface ItemDef {
   /** Stat bonuses: while held (weapons), while riding (vehicles) or after eating (food buffs). */
   stats?: ItemStats;
   food?: FoodDef;
+  vehicle?: VehicleDef;
+}
+
+/**
+ * What a vehicle does besides moving faster (its speed lives in `stats`):
+ * till = tills grass it drives over, harvest = harvests ripe crops it drives
+ * over, carry = ships held produce from anywhere, none = just a ride.
+ */
+export type VehicleAbility = 'none' | 'till' | 'harvest' | 'carry';
+
+export interface VehicleDef {
+  ability: VehicleAbility;
 }
 
 export const ITEMS: Record<ItemId, ItemDef> = items as Record<ItemId, ItemDef>;

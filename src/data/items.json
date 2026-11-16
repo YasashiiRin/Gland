@@ -255,5 +255,71 @@
     "stats": {
       "speed": 0.3
     }
+  },
+  "rice_seeds": {
+    "name": "Lúa giống",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 30,
+    "description": "Gieo vào mùa xuân hoặc mùa hạ. Gặt bằng tay hoặc máy gặt."
+  },
+  "rice": {
+    "name": "Lúa",
+    "category": "crop",
+    "stackable": true,
+    "sellPrice": 75,
+    "description": "Bó lúa vàng óng, hạt chắc mẩy."
+  },
+  "ox_cart": {
+    "name": "Xe bò",
+    "category": "vehicle",
+    "stackable": false,
+    "sellPrice": 800,
+    "description": "Chậm mà chắc (+35% tốc độ). Khi ngồi xe, cầm nông sản và bấm chuột phải/E để chất lên xe bán luôn, khỏi ra thùng.",
+    "stats": {
+      "speed": 0.35
+    },
+    "vehicle": {
+      "ability": "carry"
+    }
+  },
+  "motorbike": {
+    "name": "Xe máy",
+    "category": "vehicle",
+    "stackable": false,
+    "sellPrice": 2500,
+    "description": "Phóng vèo vèo (+120% tốc độ) giữa nông trại và làng.",
+    "stats": {
+      "speed": 1.2
+    },
+    "vehicle": {
+      "ability": "none"
+    }
+  },
+  "tractor": {
+    "name": "Máy cày",
+    "category": "vehicle",
+    "stackable": false,
+    "sellPrice": 4000,
+    "description": "Chạy qua bãi cỏ trong nông trại là tự cày đất (1 năng lượng/ô). +15% tốc độ.",
+    "stats": {
+      "speed": 0.15
+    },
+    "vehicle": {
+      "ability": "till"
+    }
+  },
+  "harvester": {
+    "name": "Máy gặt lúa",
+    "category": "vehicle",
+    "stackable": false,
+    "sellPrice": 5000,
+    "description": "Chạy qua cây đã chín là tự gặt vào túi. +10% tốc độ.",
+    "stats": {
+      "speed": 0.1
+    },
+    "vehicle": {
+      "ability": "harvest"
+    }
   }
 }

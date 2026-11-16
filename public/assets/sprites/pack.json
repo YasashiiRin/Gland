@@ -186,6 +186,51 @@
      "frameWidth": 16,
      "frameHeight": 32
     }
+   },
+   {
+    "type": "spritesheet",
+    "key": "crop_rice",
+    "url": "sprites/crops/rice.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "vehicle_motorbike",
+    "url": "sprites/vehicles/motorbike.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "vehicle_tractor",
+    "url": "sprites/vehicles/tractor.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "vehicle_harvester",
+    "url": "sprites/vehicles/harvester.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "vehicle_ox_cart",
+    "url": "sprites/vehicles/ox_cart.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 32
+    }
    }
   ]
  }

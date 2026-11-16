@@ -9,7 +9,8 @@
       "potato_seeds",
       "cauliflower_seeds",
       "strawberry_seeds",
-      "green_bean_seeds"
+      "green_bean_seeds",
+      "rice_seeds"
     ]
   },
   "grocery": {
@@ -21,6 +22,18 @@
       "com_nam",
       "banh_mi",
       "ca_phe_sua_da"
+    ]
+  },
+  "vehicle_shop": {
+    "name": "Tiệm xe & máy nông nghiệp",
+    "openHour": 8,
+    "closeHour": 18,
+    "closedWeekday": 6,
+    "stock": [
+      "ox_cart",
+      "motorbike",
+      "tractor",
+      "harvester"
     ]
   }
 }

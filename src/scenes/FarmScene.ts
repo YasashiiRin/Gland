@@ -4,7 +4,8 @@ import type { MineSceneData } from './MineScene';
 import { timeControl } from '../state/timeControl';
 import { TILE_GID, TILLABLE_GIDS } from '../config/tileGids';
 import { cropForSeed } from '../data/crops';
-import { ITEMS, type ItemId } from '../data/items';
+import { ITEMS, type ItemId, type VehicleAbility } from '../data/items';
+import { consume, isExhausted } from '../systems/EnergySystem';
 import { gameState } from '../state/GameState';
 import {
   canPlant,
@@ -36,6 +37,8 @@ import { iconTextureKey } from '../ui/itemIcons';
 import { CROP_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
 
+/** Energy the tractor uses per tile it tills (the hand hoe costs 2). */
+const TRACTOR_ENERGY_PER_TILE = 1;
 const CROP_GROWING_TINT = 0x8fd98f;
 const CROP_READY_TINT = 0xffe066;
 /** Watered soil just looks darker and damp (multiplied tint), not blue. */
@@ -159,7 +162,25 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryHarvestFacingTile(): boolean {
-    const tile = this.actionTile();
+    return this.harvestAt(this.actionTile());
+  }
+
+  /** Tractor tills grass it drives over; the harvester gathers ripe crops it drives over. */
+  protected override onRideTile(tile: { x: number; y: number }, ability: VehicleAbility): void {
+    if (ability === 'harvest') {
+      this.harvestAt(tile);
+      return;
+    }
+    if (ability !== 'till' || isExhausted(gameState.energy)) return;
+    const key = plotKey(tile.x, tile.y);
+    const before = gameState.farmPlots[key];
+    const objKey = placedObjectKey(this.mapKey, tile.x, tile.y);
+    if (before || isOccupied(gameState.placedObjects, objKey)) return;
+    this.applyToolEffect('hoe', tile);
+    if (gameState.farmPlots[key]) gameState.energy = consume(gameState.energy, TRACTOR_ENERGY_PER_TILE);
+  }
+
+  private harvestAt(tile: { x: number; y: number }): boolean {
     const key = plotKey(tile.x, tile.y);
     if (!isReadyToHarvest(gameState.farmPlots[key])) return false;
 

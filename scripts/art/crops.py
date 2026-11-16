@@ -97,9 +97,23 @@ def green_bean(im: Image.Image, stage: int) -> None:
             rect(im, x, ROOT_Y + y, x, ROOT_Y + y + 4, (110, 168, 72)); put(im, x, ROOT_Y + y, (150, 200, 96))
 
 
+def rice(im: Image.Image, stage: int) -> None:
+    """Paddy rice: green tillers that turn golden with drooping ears."""
+    ripe = stage == 4
+    leaf, tip = ((176, 160, 70), (222, 196, 96)) if ripe else (P["f2"], P["f4"])
+    height = 4 + stage * 3
+    for dx in (-4, -2, 0, 2, 4)[: 2 + stage]:
+        stalk(im, ROOT_X + dx // 2, ROOT_Y, dx, -height + abs(dx), leaf, tip)
+    if stage >= 3:
+        for dx in (-4, 0, 4):
+            x, y = ROOT_X + dx, ROOT_Y - height + abs(dx)
+            c = (232, 200, 90) if ripe else (190, 200, 110)
+            put(im, x, y, c); put(im, x + (1 if dx >= 0 else -1), y + 1, c); put(im, x + (2 if dx >= 0 else -2), y + 2, c)
+
+
 CROPS: dict[str, Callable[[Image.Image, int], None]] = {
     "parsnip": parsnip, "potato": potato, "cauliflower": cauliflower,
-    "strawberry": strawberry, "green_bean": green_bean,
+    "strawberry": strawberry, "green_bean": green_bean, "rice": rice,
 }
 
 
