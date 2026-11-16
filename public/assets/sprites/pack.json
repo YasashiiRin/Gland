@@ -1,0 +1,192 @@
+{
+ "generated": {
+  "files": [
+   {
+    "type": "spritesheet",
+    "key": "npc_chu_tu",
+    "url": "sprites/npcs/chu_tu.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "npc_co_hanh",
+    "url": "sprites/npcs/co_hanh.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "npc_linh",
+    "url": "sprites/npcs/linh.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "npc_minh",
+    "url": "sprites/npcs/minh.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "image",
+    "key": "tree_oak_0",
+    "url": "sprites/trees/oak_0.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_oak_1",
+    "url": "sprites/trees/oak_1.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_pine",
+    "url": "sprites/trees/pine.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_cave",
+    "url": "sprites/props/cave.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shipping_bin",
+    "url": "sprites/props/shipping_bin.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_farmhouse",
+    "url": "sprites/props/farmhouse.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shop",
+    "url": "sprites/props/shop.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_house_a",
+    "url": "sprites/props/house_a.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_house_b",
+    "url": "sprites/props/house_b.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_house_c",
+    "url": "sprites/props/house_c.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_bed",
+    "url": "sprites/furniture/bed.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_table",
+    "url": "sprites/furniture/table.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_chair",
+    "url": "sprites/furniture/chair.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_counter",
+    "url": "sprites/furniture/counter.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_stove",
+    "url": "sprites/furniture/stove.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_bookshelf",
+    "url": "sprites/furniture/bookshelf.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_fireplace",
+    "url": "sprites/furniture/fireplace.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_plant",
+    "url": "sprites/furniture/plant.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_rug",
+    "url": "sprites/furniture/rug.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_window",
+    "url": "sprites/furniture/window.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_painting",
+    "url": "sprites/furniture/painting.png"
+   },
+   {
+    "type": "spritesheet",
+    "key": "crop_parsnip",
+    "url": "sprites/crops/parsnip.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "crop_potato",
+    "url": "sprites/crops/potato.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "crop_cauliflower",
+    "url": "sprites/crops/cauliflower.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "crop_strawberry",
+    "url": "sprites/crops/strawberry.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "crop_green_bean",
+    "url": "sprites/crops/green_bean.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 32
+    }
+   }
+  ]
+ }
+}

@@ -33,12 +33,15 @@ import {
 } from '../systems/PlacedObjectSystem';
 import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/EventBus';
 import { iconTextureKey } from '../ui/itemIcons';
-import { CROP_TEXTURE, SHIPPING_BIN_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
+import { CROP_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
 
 const CROP_GROWING_TINT = 0x8fd98f;
 const CROP_READY_TINT = 0xffe066;
-const WATERED_SOIL_TINT = 0x9cc3e8;
+/** Watered soil just looks darker and damp (multiplied tint), not blue. */
+const WATERED_SOIL_TINT = 0xb4a69c;
+/** Frames in a crop spritesheet: seeded, sprout, young, grown, ready. */
+const CROP_FRAMES = 5;
 const DRY_SOIL_TINT = 0xffffff;
 
 export class FarmScene extends MapScene {
@@ -62,13 +65,8 @@ export class FarmScene extends MapScene {
   protected override afterMapBuilt(): void {
     this.binZones = this.createZonesNamed('shipping_bin');
     this.mineZones = this.createZonesNamed('mine_entrance');
-    const binObj = this.map.getObjectLayer('objects')?.objects.find((o) => o.name === 'shipping_bin');
-    if (binObj) {
-      this.add
-        .image((binObj.x ?? 0) + 10, (binObj.y ?? 0) + 10, SHIPPING_BIN_TEXTURE)
-        .setDepth((binObj.y ?? 0) + 10);
-    }
 
+    this.dropPlacementsInvalidOnThisMap();
     this.cropSprites.forEach((sprite) => sprite.destroy());
     this.cropSprites.clear();
     for (const [key, plot] of Object.entries(gameState.farmPlots)) {
@@ -258,6 +256,44 @@ export class FarmScene extends MapScene {
     console.info(`Đã gửi bán ${stack.quantity} ${def.name}`);
   }
 
+  /**
+   * Saves made before the farm map was redesigned can have plots/objects that
+   * now sit on a path, pond or building. Tilled plots there are dropped and
+   * placed objects (plus any chest contents) go back into the inventory.
+   */
+  private dropPlacementsInvalidOnThisMap(): void {
+    const groundOk = (x: number, y: number, allowSoil: boolean): boolean => {
+      const gid = this.groundLayer.getTileAt(x, y)?.index;
+      const okGround = gid !== undefined && (TILLABLE_GIDS.includes(gid) || (allowSoil && gid === TILE_GID.SOIL));
+      return okGround && !this.decorLayer.getTileAt(x, y);
+    };
+    const plots = { ...gameState.farmPlots };
+    let changed = false;
+    for (const key of Object.keys(plots)) {
+      const [x, y] = key.split(',').map(Number);
+      if (!groundOk(x, y, false)) {
+        delete plots[key];
+        changed = true;
+      }
+    }
+    if (changed) gameState.farmPlots = plots;
+
+    const prefix = `${this.mapKey}:`;
+    for (const [key, obj] of Object.entries(gameState.placedObjects)) {
+      if (!key.startsWith(prefix)) continue;
+      const [x, y] = key.slice(prefix.length).split(',').map(Number);
+      if (groundOk(x, y, true) || gameState.farmPlots[`${x},${y}`]) continue;
+      let inventory = addItem(gameState.inventory, obj.kind as ItemId, 1).state;
+      for (const stack of obj.chest?.slots ?? []) {
+        if (stack) inventory = addItem(inventory, stack.itemId, stack.quantity).state;
+      }
+      gameState.inventory = inventory;
+      const rest = { ...gameState.placedObjects };
+      delete rest[key];
+      gameState.placedObjects = rest;
+    }
+  }
+
   private setSoilTint(x: number, y: number, watered: boolean): void {
     const tile = this.groundLayer.getTileAt(x, y);
     if (tile) tile.tint = watered ? WATERED_SOIL_TINT : DRY_SOIL_TINT;
@@ -266,15 +302,24 @@ export class FarmScene extends MapScene {
   private spawnOrUpdateCrop(key: string, x: number, y: number, plot: FarmPlot): void {
     const fraction = growthFraction(plot);
     const ready = isReadyToHarvest(plot);
+    const sheetKey = `crop_${plot.cropId ?? ''}`;
     let sprite = this.cropSprites.get(key);
     if (!sprite) {
-      sprite = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, CROP_TEXTURE);
+      sprite = this.add.image(0, 0, CROP_TEXTURE);
       this.cropSprites.set(key, sprite);
     }
     sprite.setDepth(y * TILE + TILE / 2 - 1);
-    const scale = 0.4 + fraction * 0.6;
-    sprite.setScale(scale);
-    sprite.setTint(ready ? CROP_READY_TINT : CROP_GROWING_TINT);
+    if (this.textures.exists(sheetKey)) {
+      // Per-crop growth art, rooted on the tile's bottom edge (tall plants overlap the tile above).
+      const frame = ready ? CROP_FRAMES - 1 : Math.min(CROP_FRAMES - 2, Math.floor(fraction * (CROP_FRAMES - 1)));
+      sprite.setTexture(sheetKey, frame).setOrigin(0.5, 1).setPosition(x * TILE + TILE / 2, y * TILE + TILE);
+      sprite.setScale(1).clearTint();
+    } else {
+      // Fallback for a crop added to crops.json without its own art yet.
+      sprite.setTexture(CROP_TEXTURE).setOrigin(0.5).setPosition(x * TILE + TILE / 2, y * TILE + TILE / 2);
+      sprite.setScale(0.4 + fraction * 0.6);
+      sprite.setTint(ready ? CROP_READY_TINT : CROP_GROWING_TINT);
+    }
   }
 }
 

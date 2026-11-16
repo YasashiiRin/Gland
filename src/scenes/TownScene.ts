@@ -59,9 +59,14 @@ export class TownScene extends MapScene {
       const def = NPCS[npcId];
       const entry = scheduleEntryAt(def, hour);
       if (entry.mapKey !== 'Town') continue;
-      const sprite = this.add.image(entry.x * TILE + TILE / 2, entry.y * TILE + TILE / 2, portraitKey(npcId));
-      sprite.setDisplaySize(TILE, TILE);
-      sprite.setDepth(entry.y * TILE + TILE / 2 - 1);
+      // Walking-style villager sprite (frame 0 = standing, facing down); the
+      // portrait is only a fallback if the sprite sheet is missing.
+      const npcKey = `npc_${npcId}`;
+      const feetY = entry.y * TILE + TILE / 2 + 4;
+      const sprite = this.textures.exists(npcKey)
+        ? this.add.image(entry.x * TILE + TILE / 2, feetY, npcKey, 0).setOrigin(0.5, 28 / 32)
+        : this.add.image(entry.x * TILE + TILE / 2, entry.y * TILE + TILE / 2, portraitKey(npcId)).setDisplaySize(TILE, TILE);
+      sprite.setDepth(feetY);
       this.npcSprites.push(sprite);
       const zone = this.add
         .zone(entry.x * TILE, entry.y * TILE, TILE, TILE)

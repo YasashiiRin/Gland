@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { DEPTH_ABOVE, FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
 import { ITEMS, TOOL_ENERGY_COST, type ItemId } from '../data/items';
-import { TILE_GID } from '../config/tileGids';
+import { isWaterGid, TILE_GID } from '../config/tileGids';
 import { isMapKey, MAPS, type MapKey } from '../data/maps';
 import { Player, type PlayerInput } from '../entities/Player';
 import {
@@ -38,6 +38,7 @@ import {
 import * as SaveService from '../systems/SaveService';
 import { absoluteDayNumber, clockMinuteOfDay, startNewDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
+import { createProps, readProp, TreeSprites } from './worldSprites';
 
 /** Money lost when passing out, capped so a bad night never wipes someone out. */
 const PASS_OUT_MONEY_PENALTY_RATE = 0.1;
@@ -85,6 +86,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected groundLayer!: Phaser.Tilemaps.TilemapLayer;
   protected decorLayer!: Phaser.Tilemaps.TilemapLayer;
   protected aboveLayer!: Phaser.Tilemaps.TilemapLayer;
+  protected trees!: TreeSprites;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
   private transitioning = false;
@@ -148,6 +150,8 @@ export abstract class MapScene extends Phaser.Scene {
       .setDepth(1)
       .setVisible(false);
     this.applyResourceNodeVisuals();
+    createProps(this, this.map);
+    this.trees = new TreeSprites(this, decor);
     this.afterMapBuilt();
 
     const onPassOut = () => this.sleepSequence('passedOut');
@@ -164,6 +168,7 @@ export abstract class MapScene extends Phaser.Scene {
     if (this.transitioning) return;
 
     this.player.setExhausted(isExhausted(gameState.energy));
+    this.trees.updateOcclusion(this.player.x, this.player.y);
 
     if (isWorldInputBlocked()) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
@@ -255,7 +260,7 @@ export abstract class MapScene extends Phaser.Scene {
   private tryStartFishing(tile: { x: number; y: number }): void {
     if (uiState.fishingOpen) return;
     const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
-    if (gid !== TILE_GID.WATER) return;
+    if (!isWaterGid(gid)) return;
 
     const hour = Math.floor(clockMinuteOfDay(gameState.time) / 60);
     const fishId = pickFish({ mapKey: this.mapKey, season: gameState.time.season, hour, weather: gameState.time.weather });
@@ -316,7 +321,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     if (stack.itemId === 'fishing_rod') {
       const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
-      return gid === TILE_GID.WATER ? 'valid' : 'invalid';
+      return isWaterGid(gid) ? 'valid' : 'invalid';
     }
 
     const kind =
@@ -565,8 +570,11 @@ export abstract class MapScene extends Phaser.Scene {
       const [xStr, yStr] = key.slice(prefix.length).split(',');
       const x = Number(xStr);
       const y = Number(yStr);
+      // Only clear the tile if it still is that resource: after a map redesign
+      // an old key may point at a wall/fence that must stay.
+      const expected = node.kind === 'tree' ? TILE_GID.TRUNK : node.kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH;
+      if (this.decorLayer.getTileAt(x, y)?.index !== expected) continue;
       this.decorLayer.removeTileAt(x, y);
-      if (node.kind === 'tree') this.aboveLayer.removeTileAt(x, y - 1);
     }
   }
 
@@ -588,6 +596,8 @@ export abstract class MapScene extends Phaser.Scene {
     gameState.resourceNodes = nodes;
 
     if (kind === 'tree') {
+      if (broke) this.trees.fell(tile.x, tile.y, this.player.x < tile.x * TILE + TILE / 2);
+      else this.trees.shake(tile.x, tile.y);
       this.playBurstEffect(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2, WOOD_CHIP_TEXTURE, {
         count: broke ? 10 : 5,
         speed: { min: 50, max: 130 },
@@ -690,10 +700,4 @@ export abstract class MapScene extends Phaser.Scene {
     });
     this.rain.setDepth(DEPTH_ABOVE - 2);
   }
-}
-
-function readProp(obj: Phaser.Types.Tilemaps.TiledObject, name: string): string | undefined {
-  const props = obj.properties as { name: string; value: unknown }[] | undefined;
-  const found = props?.find((p) => p.name === name);
-  return typeof found?.value === 'string' ? found.value : undefined;
 }

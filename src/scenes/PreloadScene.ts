@@ -17,7 +17,6 @@ export const RAIN_TEXTURE = 'rain_drop';
 export const WOOD_CHIP_TEXTURE = 'wood_chip';
 export const WATER_DROPLET_TEXTURE = 'water_droplet';
 export const CROP_TEXTURE = 'crop_plant';
-export const SHIPPING_BIN_TEXTURE = 'shipping_bin';
 
 export function mapCacheKey(file: string): string {
   return `map-${file}`;
@@ -34,6 +33,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.setPath('assets');
     this.load.image(TILESET_TEXTURE, 'tilesets/farm_tiles.png');
     this.load.image('mine_tiles', 'tilesets/mine_tiles.png');
+    // Every generated sprite (trees, buildings, furniture, crops, villagers) is
+    // listed in this pack, so swapping in real art only means replacing PNGs.
+    this.load.pack('generated', 'sprites/pack.json');
     this.load.spritesheet(PLAYER_TEXTURE, 'sprites/player.png', {
       frameWidth: PLAYER_FRAME.width,
       frameHeight: PLAYER_FRAME.height,
@@ -53,7 +55,6 @@ export class PreloadScene extends Phaser.Scene {
     this.createWoodChipTexture();
     this.createWaterDropletTexture();
     this.createCropTexture();
-    this.createShippingBinTexture();
     createItemIconTextures(this);
     sessionFlags.gameStarted = true;
     this.scene.launch('UI');
@@ -100,19 +101,6 @@ export class PreloadScene extends Phaser.Scene {
     g.fillStyle(0x8fe08f, 1);
     g.fillEllipse(6, 4, 4, 3);
     g.generateTexture(CROP_TEXTURE, 16, 16);
-    g.destroy();
-  }
-
-  /** A simple wooden crate placeholder for the shipping bin. */
-  private createShippingBinTexture(): void {
-    const g = this.add.graphics();
-    g.fillStyle(0x8a6a4a, 1);
-    g.fillRoundedRect(0, 4, 20, 16, 2);
-    g.fillStyle(0x6b4e34, 1);
-    g.fillRect(0, 4, 20, 3);
-    g.fillStyle(0xd9a441, 1);
-    g.fillRect(8, 9, 4, 4);
-    g.generateTexture(SHIPPING_BIN_TEXTURE, 20, 20);
     g.destroy();
   }
 
