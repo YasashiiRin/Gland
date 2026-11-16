@@ -402,3 +402,15 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
   `ShopSystem` (có test). Món mới: **Gạo**.
 - Giao diện chợ (`src/ui/MarketMenu.ts`): mái bạt sọc theo màu dù của sạp, biển bìa các-tông, người bán + bong bóng
   lời thoại (chào mời, cảm ơn, "thiếu tiền rồi con ơi"…), hàng bày trên mẹt tre với giá viết tay, thẻ Mua/Bán, "Bán hết".
+
+
+## Cập nhật: bàn chế tác và ba lô
+- Chế tạo **phải đứng ở bàn chế tác**: E/chuột phải vào bàn, hoặc C / nút "Chế tạo" khi đứng cạnh (đứng xa thì có nhắc).
+  **Bàn chế tác thô sơ** có sẵn từ đầu ở sân trước nhà; làm được Ba lô vải, Rương, Bù nhìn, **Bàn thợ mộc**.
+  Bàn thợ mộc (đặt xuống đất như đồ nội thất) làm được thêm Ba lô lớn, Vòi tưới, Chuồng gà. Mỗi công thức có
+  `station` trong `recipes.json`; bàn tốt hơn làm được mọi món của bàn kém hơn (`CraftingSystem`, có test).
+- Màn hình chế tạo mới: danh sách bên trái (món chưa làm được ở bàn này bị mờ), bên phải mô tả + từng nguyên liệu
+  "có X / cần Y" kèm "thiếu Z" (đỏ) hoặc "✓ đủ" (xanh), nút ghi rõ lý do nếu chưa làm được.
+- **Ba lô:** cầm ba lô và dùng (Space/chuột trái) để đeo → túi đồ 36 → 48 ô (ba lô vải) hoặc 60 ô (ba lô lớn).
+  Chỉ đổi lên ba lô to hơn, không tháo ra (để không mất đồ). Ô chưa mở hiện ổ khoá trong túi đồ.
+- Save cũ: ô đất/đồ đặt trùng chỗ bàn chế tác ở sân được tự trả lại như các lần đổi bản đồ trước.

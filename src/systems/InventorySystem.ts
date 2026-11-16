@@ -107,3 +107,16 @@ export function moveItem(state: InventoryState, from: number, to: number): Inven
 export function itemAt(state: InventoryState, slot: number): Slot {
   return state.slots[slot] ?? null;
 }
+
+export function countItem(state: InventoryState, itemId: ItemId): number {
+  return state.slots.reduce((n, s) => n + (s?.itemId === itemId ? s.quantity : 0), 0);
+}
+
+/** Largest inventory possible (base + the biggest backpack); the bag screen is laid out for this. */
+export const MAX_INVENTORY_SIZE = INVENTORY_SIZE + 24;
+
+/** Wearing a backpack: grow the inventory to `size` slots (never shrinks, never loses items). */
+export function expandInventory(state: InventoryState, size: number): InventoryState {
+  if (size <= state.slots.length) return state;
+  return { slots: [...state.slots, ...new Array(size - state.slots.length).fill(null)] };
+}

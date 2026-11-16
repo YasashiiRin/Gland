@@ -21,7 +21,9 @@ import { worldView } from '../state/worldView';
 import { buildMinimap } from '../systems/MinimapSystem';
 import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/EnergySystem';
 import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
-import { addItem, HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
+import { addItem, expandInventory, HOTBAR_SIZE, INVENTORY_SIZE, itemAt, removeItem } from '../systems/InventorySystem';
+import { craftingState } from '../state/craftingState';
+import type { Station } from '../data/recipes';
 import type { Direction } from '../systems/movement';
 import { waterPlot } from '../systems/FarmingSystem';
 import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
@@ -115,6 +117,7 @@ export abstract class MapScene extends Phaser.Scene {
   private transitioning = false;
   private targetHighlight!: Phaser.GameObjects.Rectangle;
   private bedZones: Phaser.GameObjects.Zone[] = [];
+  private benchZones: Phaser.GameObjects.Zone[] = [];
   private rain?: Phaser.GameObjects.Particles.ParticleEmitter;
   /** Last time (scene clock, ms) the mouse moved / a movement key went down; decides who aims tools. */
   private lastPointerMoveAt = Number.NEGATIVE_INFINITY;
@@ -164,6 +167,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.createDoors();
     this.createBeds();
+    this.benchZones = this.createZonesNamed('craft_bench', 6);
     this.setupCamera(w, h);
     this.setupInput();
     this.setupRain();
@@ -223,6 +227,7 @@ export abstract class MapScene extends Phaser.Scene {
     if (this.transitioning) return;
     this.syncNetwork(time);
     this.horror.update(time);
+    craftingState.nearStation = this.nearestStation();
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.trees.updateOcclusion(this.player.x, this.player.y);
@@ -277,6 +282,10 @@ export abstract class MapScene extends Phaser.Scene {
       return;
     }
     if (this.say(this.ride.tryMount())) return;
+    if (craftingState.nearStation) {
+      EventBus.emit(GameEvents.CraftingOpenRequested, { station: craftingState.nearStation });
+      return;
+    }
     if (
       !this.tryHarvestFacingTile() &&
       !this.tryOpenChest() &&
@@ -658,6 +667,20 @@ export abstract class MapScene extends Phaser.Scene {
     }
   }
 
+  /** The crafting bench within reach, if any. Farm adds benches the player has built. */
+  protected nearestStation(): Station | null {
+    return this.isNearAnyZone(this.benchZones) ? 'rough' : null;
+  }
+
+  /** Wearing a backpack grows the bag; it can only be swapped for a bigger one. */
+  private wearBackpack(itemId: ItemId): string {
+    const size = INVENTORY_SIZE + (ITEMS[itemId].backpackSlots ?? 0);
+    if (size <= gameState.inventory.slots.length) return 'Ba lô đang đeo đã đủ to rồi';
+    gameState.inventory = expandInventory(removeItem(gameState.inventory, itemId, 1), size);
+    playPickup(gameState.settings);
+    return `Đã đeo ${ITEMS[itemId].name}: túi đồ có ${size} ô`;
+  }
+
   /** Shows a short message above the player; returns whether there was one. */
   protected say(message: string | null): boolean {
     if (!message) return false;
@@ -677,6 +700,10 @@ export abstract class MapScene extends Phaser.Scene {
 
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);
+      return;
+    }
+    if (ITEMS[stack.itemId].category === 'equipment') {
+      this.say(this.wearBackpack(stack.itemId));
       return;
     }
     if (ITEMS[stack.itemId].category === 'furniture') {

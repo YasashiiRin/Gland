@@ -163,6 +163,9 @@ def build_farm() -> MapBuilder:
     m.prop("shipping_bin", 13, 10, 2, 1)
     m.obj("shipping_bin", 13 * T, 10 * T, 2 * T, T)
     m.put(16, 11, SIGN)
+    # the rough crafting bench you start with, in the yard by the path
+    m.prop("rough_bench", 12, 12, 2, 1)
+    m.obj("craft_bench", 12 * T, 12 * T, 2 * T, T)
     # warehouse / vehicle shed with a dirt yard of 4 parking bays in front
     # (bay columns 17, 20, 23, 26 on row 10 — keep in sync with src/data/garage.ts)
     m.fill(17, 8, 28, 11, PATH)

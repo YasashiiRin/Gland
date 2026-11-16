@@ -3,7 +3,7 @@ import type { ItemStats } from '../systems/StatsSystem';
 
 export type ItemId = keyof typeof items;
 
-export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle';
+export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment';
 
 export interface FoodDef {
   /** Energy restored when eaten. */
@@ -22,6 +22,8 @@ export interface ItemDef {
   stats?: ItemStats;
   food?: FoodDef;
   vehicle?: VehicleDef;
+  /** Equipment: extra inventory slots this backpack gives when worn. */
+  backpackSlots?: number;
 }
 
 /**

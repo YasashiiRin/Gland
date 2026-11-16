@@ -148,6 +148,16 @@
     "url": "sprites/furniture/painting.png"
    },
    {
+    "type": "image",
+    "key": "prop_rough_bench",
+    "url": "sprites/furniture/rough_bench.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_carpenter_bench",
+    "url": "sprites/furniture/carpenter_bench.png"
+   },
+   {
     "type": "spritesheet",
     "key": "crop_parsnip",
     "url": "sprites/crops/parsnip.png",

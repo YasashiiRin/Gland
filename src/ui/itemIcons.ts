@@ -434,6 +434,46 @@ const ICONS: Record<ItemId, Draw> = {
     g.fillStyle(0xb8402c, 1);
     g.fillRect(5, 10, 6, 2);
   },
+  backpack_cloth: (g) => {
+    // Plain cloth rucksack with a flap and two straps.
+    g.fillStyle(0x7a8a5a, 1);
+    g.fillRoundedRect(3, 4, 10, 11, 3);
+    g.fillStyle(0x93a46c, 1);
+    g.fillRoundedRect(3, 4, 10, 5, 2);
+    g.lineStyle(1, INK, 1);
+    g.strokeRoundedRect(3, 4, 10, 11, 3);
+    g.lineStyle(1, 0x4a3a28, 1);
+    g.lineBetween(6, 2, 6, 5);
+    g.lineBetween(10, 2, 10, 5);
+  },
+  backpack_large: (g) => {
+    // Bigger pack with leather straps and a brass buckle.
+    g.fillStyle(0x8a5a34, 1);
+    g.fillRoundedRect(2, 3, 12, 12, 3);
+    g.fillStyle(0xa8743e, 1);
+    g.fillRoundedRect(2, 3, 12, 6, 2);
+    g.fillStyle(0x5a3a22, 1);
+    g.fillRect(4, 8, 2, 7);
+    g.fillRect(10, 8, 2, 7);
+    g.fillStyle(0xe0b84a, 1);
+    g.fillRect(7, 8, 2, 2);
+    g.lineStyle(1, INK, 1);
+    g.strokeRoundedRect(2, 3, 12, 12, 3);
+  },
+  carpenter_bench: (g) => {
+    // Sturdy workbench with a vice and a saw.
+    g.fillStyle(0x9a6a40, 1);
+    g.fillRect(1, 6, 14, 3);
+    g.fillStyle(0x6a4428, 1);
+    g.fillRect(2, 9, 2, 6);
+    g.fillRect(12, 9, 2, 6);
+    g.fillStyle(0x8a8a90, 1);
+    g.fillRect(11, 4, 3, 2);
+    g.fillStyle(0xc8c8d0, 1);
+    g.fillTriangle(3, 5, 9, 5, 3, 3);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(1.5, 6.5, 13, 2);
+  },
   stone: (g) => {
     g.fillStyle(0xaaaab2, 1);
     g.fillTriangle(3, 11, 8, 3, 13, 11);

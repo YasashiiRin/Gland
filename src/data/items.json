@@ -330,5 +330,27 @@
     "stackable": true,
     "sellPrice": 60,
     "description": "Gạo trắng thơm, xay từ lúa của làng. Dùng để nấu ăn sau này."
+  },
+  "backpack_cloth": {
+    "name": "Ba lô vải",
+    "category": "equipment",
+    "stackable": false,
+    "sellPrice": 150,
+    "description": "Đeo vào (cầm rồi bấm chuột trái/Space) để túi đồ có thêm 12 ô.",
+    "backpackSlots": 12
+  },
+  "backpack_large": {
+    "name": "Ba lô lớn",
+    "category": "equipment",
+    "stackable": false,
+    "sellPrice": 600,
+    "description": "Ba lô vải dày, quai da, khoá đồng. Đeo vào để túi đồ có thêm 24 ô.",
+    "backpackSlots": 24
+  },
+  "carpenter_bench": {
+    "name": "Bàn thợ mộc",
+    "category": "furniture",
+    "stackable": false,
+    "description": "Đặt xuống đất để chế tạo được đồ cao cấp hơn (ba lô lớn, vòi tưới, chuồng gà)."
   }
 }

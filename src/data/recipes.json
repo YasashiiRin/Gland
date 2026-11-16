@@ -1,38 +1,120 @@
 {
+  "backpack_cloth": {
+    "name": "Ba lô vải",
+    "station": "rough",
+    "ingredients": [
+      {
+        "itemId": "fiber",
+        "qty": 40
+      },
+      {
+        "itemId": "wood",
+        "qty": 10
+      }
+    ],
+    "resultItemId": "backpack_cloth",
+    "resultQty": 1,
+    "category": "craft"
+  },
   "chest": {
     "name": "Rương",
-    "ingredients": [{ "itemId": "wood", "qty": 50 }],
+    "station": "rough",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "qty": 50
+      }
+    ],
     "resultItemId": "chest",
     "resultQty": 1,
     "category": "craft"
   },
   "scarecrow": {
     "name": "Bù nhìn",
+    "station": "rough",
     "ingredients": [
-      { "itemId": "wood", "qty": 20 },
-      { "itemId": "fiber", "qty": 20 }
+      {
+        "itemId": "wood",
+        "qty": 20
+      },
+      {
+        "itemId": "fiber",
+        "qty": 20
+      }
     ],
     "resultItemId": "scarecrow",
     "resultQty": 1,
     "category": "craft"
   },
-  "chicken_coop": {
-    "name": "Chuồng gà",
+  "carpenter_bench": {
+    "name": "Bàn thợ mộc",
+    "station": "rough",
     "ingredients": [
-      { "itemId": "wood", "qty": 80 },
-      { "itemId": "stone", "qty": 30 }
+      {
+        "itemId": "wood",
+        "qty": 60
+      },
+      {
+        "itemId": "stone",
+        "qty": 25
+      }
     ],
-    "resultItemId": "chicken_coop",
+    "resultItemId": "carpenter_bench",
+    "resultQty": 1,
+    "category": "craft"
+  },
+  "backpack_large": {
+    "name": "Ba lô lớn",
+    "station": "carpenter",
+    "ingredients": [
+      {
+        "itemId": "fiber",
+        "qty": 80
+      },
+      {
+        "itemId": "wood",
+        "qty": 30
+      },
+      {
+        "itemId": "copper_ore",
+        "qty": 10
+      }
+    ],
+    "resultItemId": "backpack_large",
     "resultQty": 1,
     "category": "craft"
   },
   "sprinkler": {
     "name": "Vòi tưới tự động",
+    "station": "carpenter",
     "ingredients": [
-      { "itemId": "stone", "qty": 10 },
-      { "itemId": "wood", "qty": 5 }
+      {
+        "itemId": "stone",
+        "qty": 10
+      },
+      {
+        "itemId": "wood",
+        "qty": 5
+      }
     ],
     "resultItemId": "sprinkler",
+    "resultQty": 1,
+    "category": "craft"
+  },
+  "chicken_coop": {
+    "name": "Chuồng gà",
+    "station": "carpenter",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "qty": 80
+      },
+      {
+        "itemId": "stone",
+        "qty": 30
+      }
+    ],
+    "resultItemId": "chicken_coop",
     "resultQty": 1,
     "category": "craft"
   }

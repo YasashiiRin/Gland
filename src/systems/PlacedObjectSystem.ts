@@ -2,7 +2,7 @@ import { createAnimal, type AnimalState } from './AnimalSystem';
 import type { InventoryState } from './InventorySystem';
 import { createEmptyInventory } from './InventorySystem';
 
-export type PlacedObjectKind = 'chest' | 'scarecrow' | 'sprinkler' | 'chicken_coop';
+export type PlacedObjectKind = 'chest' | 'scarecrow' | 'sprinkler' | 'chicken_coop' | 'carpenter_bench';
 
 export interface PlacedObjectState {
   kind: PlacedObjectKind;

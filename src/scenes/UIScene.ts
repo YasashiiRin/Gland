@@ -1,3 +1,5 @@
+import { craftingState } from '../state/craftingState';
+import type { Station } from '../data/recipes';
 import { MarketMenu } from '../ui/MarketMenu';
 import { HorrorOverlay } from '../ui/HorrorOverlay';
 import type { HorrorMode } from '../systems/HorrorSystem';
@@ -155,6 +157,12 @@ export class UIScene extends Phaser.Scene {
     );
 
     this.craftingMenu = new CraftingMenu(this, DEPTH_ABOVE + 1);
+    this.craftingMenu.onClosed = () => {
+      uiState.craftingOpen = false;
+    };
+    const onCraftOpen = (p: { station: Station }) => this.openCrafting(p.station);
+    EventBus.on(GameEvents.CraftingOpenRequested, onCraftOpen);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.CraftingOpenRequested, onCraftOpen));
     this.craftingMenu.bind(
       () => gameState.inventory,
       (recipeId) => {
@@ -602,13 +610,18 @@ export class UIScene extends Phaser.Scene {
     this.rotateHint.setVisible(on && window.innerHeight > window.innerWidth);
   }
 
+  /** C key / touch button: crafting only works standing at a bench. */
   private toggleCrafting(): void {
     if (uiState.inventoryOpen || uiState.shopOpen || uiState.chestOpen) return;
     if (uiState.craftingOpen) this.closeCrafting();
-    else {
-      this.craftingMenu.open();
-      uiState.craftingOpen = true;
-    }
+    else if (craftingState.nearStation) this.openCrafting(craftingState.nearStation);
+    else this.toast('Hãy đứng cạnh bàn chế tác (ở sân trước nhà) để chế tạo');
+  }
+
+  private openCrafting(station: Station): void {
+    if (isWorldInputBlocked()) return;
+    this.craftingMenu.open(station);
+    uiState.craftingOpen = true;
   }
 
   /** Esc (or the on-screen close button): closes whichever menu is on top. */

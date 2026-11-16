@@ -23,6 +23,8 @@ export const GameEvents = {
   SleepWaitRequested: 'sleep:waitRequested',
   /** A screen-wide horror effect for the UI (payload: HorrorScreenPayload). */
   HorrorScreen: 'horror:screen',
+  /** Open the crafting screen for a bench (payload: { station }). */
+  CraftingOpenRequested: 'crafting:openRequested',
 } as const;
 
 export interface HorrorScreenPayload {

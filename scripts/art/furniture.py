@@ -182,9 +182,41 @@ def painting() -> Image.Image:
     return im
 
 
+def rough_bench() -> Image.Image:
+    """The starting workbench: rough planks on log legs, an axe stuck in it, a coil of rope."""
+    im = new(32, 26)
+    soft_shadow(im, 16, 24, 15, 2)
+    for x in (4, 25):
+        rect(im, x, 13, x + 3, 23, (110, 76, 46)); rect(im, x, 13, x, 23, (140, 100, 62))
+    rect(im, 1, 8, 30, 14, (150, 108, 66)); rect(im, 1, 8, 30, 9, (178, 134, 86))
+    for x in (9, 18, 24):
+        rect(im, x, 9, x, 13, (118, 82, 50))
+    rect(im, 20, 2, 21, 8, P["k1"]); rect(im, 17, 2, 23, 4, (170, 172, 178))      # axe
+    disc(im, 8, 7, 3, (196, 176, 120)); disc(im, 8, 7, 1.5, (150, 130, 84))        # rope coil
+    rect(im, 11, 6, 16, 7, (200, 200, 206))                                          # hand saw
+    outline(im, 0.45)
+    return im
+
+
+def carpenter_bench() -> Image.Image:
+    """A proper joiner's bench with a vice and a tool rack."""
+    im = new(24, 28)
+    soft_shadow(im, 12, 26, 11, 2)
+    rect(im, 2, 2, 21, 9, P["k1"]); rect(im, 2, 2, 21, 2, P["k2"])                   # tool rack
+    for x, c in ((5, (170, 172, 178)), (9, (200, 160, 90)), (13, (170, 172, 178)), (17, (130, 90, 60))):
+        rect(im, x, 3, x + 1, 8, c)
+    _box(im, 0, 10, 23, 17, (152, 104, 62), top_h=3)
+    rect(im, 2, 18, 4, 26, (100, 66, 40)); rect(im, 19, 18, 21, 26, (100, 66, 40))
+    rect(im, 3, 22, 20, 23, (120, 82, 50))                                           # stretcher
+    rect(im, 18, 8, 22, 12, (110, 112, 118)); rect(im, 19, 7, 21, 7, (150, 152, 158))  # vice
+    outline(im, 0.45)
+    return im
+
+
 PIECES = {"bed": bed, "table": table, "chair": chair, "dish_cabinet": dish_cabinet,
           "kitchen_stove": kitchen_stove, "tea_cabinet": tea_cabinet, "bookshelf": bookshelf,
-          "plant": plant, "rug": rug, "window": window, "painting": painting}
+          "plant": plant, "rug": rug, "window": window, "painting": painting,
+          "rough_bench": rough_bench, "carpenter_bench": carpenter_bench}
 
 
 def make_furniture() -> list[dict]:

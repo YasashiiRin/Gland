@@ -36,6 +36,7 @@ import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/
 import { iconTextureKey } from '../ui/itemIcons';
 import { CROP_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
+import type { Station } from '../data/recipes';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
 import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
 import { recallAll } from '../systems/VehicleSystem';
@@ -94,7 +95,11 @@ export class FarmScene extends MapScene {
     for (const [key, obj] of Object.entries(gameState.placedObjects)) {
       if (!key.startsWith(prefix)) continue;
       const [x, y] = key.slice(prefix.length).split(',').map(Number);
-      const sprite = this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, iconTextureKey(obj.kind as ItemId));
+      // A placed object uses its own sprite if one exists (e.g. the carpenter bench), else its item icon.
+      const propKey = `prop_${obj.kind}`;
+      const sprite = this.textures.exists(propKey)
+        ? this.add.image(x * TILE + TILE / 2, y * TILE + TILE, propKey).setOrigin(0.5, 1)
+        : this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, iconTextureKey(obj.kind as ItemId));
       sprite.setDepth(y * TILE + TILE / 2 - 1);
       this.furnitureSprites.set(key, sprite);
     }
@@ -241,7 +246,7 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryPlaceFurniture(itemId: ItemId): void {
-    if (itemId !== 'chest' && itemId !== 'scarecrow' && itemId !== 'sprinkler' && itemId !== 'chicken_coop') return;
+    if (itemId !== 'chest' && itemId !== 'scarecrow' && itemId !== 'sprinkler' && itemId !== 'chicken_coop' && itemId !== 'carpenter_bench') return;
     const tile = this.actionTile();
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     if (isOccupied(gameState.placedObjects, key)) return;
@@ -257,9 +262,18 @@ export class FarmScene extends MapScene {
     gameState.placedObjects = placeObject(gameState.placedObjects, key, itemId as PlacedObjectKind);
     gameState.inventory = removeOneFromInventory(gameState, itemId);
 
-    const sprite = this.add.image(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2, iconTextureKey(itemId));
-    sprite.setDepth(tile.y * TILE + TILE / 2 - 1);
-    this.furnitureSprites.set(key, sprite);
+    this.renderPlacedObjects();
+  }
+
+  /** Also counts carpenter benches the player has built and placed on the farm. */
+  protected override nearestStation(): Station | null {
+    const prefix = `${this.mapKey}:`;
+    for (const [key, obj] of Object.entries(gameState.placedObjects)) {
+      if (obj.kind !== 'carpenter_bench' || !key.startsWith(prefix)) continue;
+      const [x, y] = key.slice(prefix.length).split(',').map(Number);
+      if (Math.hypot(x * TILE + TILE / 2 - this.player.x, y * TILE + TILE / 2 - this.player.y) < 24) return 'carpenter';
+    }
+    return super.nearestStation();
   }
 
   protected override tryOpenChest(): boolean {
