@@ -17,6 +17,8 @@ export const GameEvents = {
   FishingStarted: 'fishing:started',
   /** settings.zoom changed; world cameras re-apply it. */
   ZoomChanged: 'settings:zoomChanged',
+  /** Another player changed the shared farm (payload: WorldPatch); maps redraw what's affected. */
+  WorldPatched: 'world:patched',
 } as const;
 
 export interface FishingStartedPayload {

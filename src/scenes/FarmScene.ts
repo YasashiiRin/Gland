@@ -36,6 +36,7 @@ import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/
 import { iconTextureKey } from '../ui/itemIcons';
 import { CROP_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
+import { touchedKeys, type WorldPatch } from '../net/worldPatch';
 import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
 import { recallAll } from '../systems/VehicleSystem';
 
@@ -83,6 +84,10 @@ export class FarmScene extends MapScene {
       if (plot.cropId) this.spawnOrUpdateCrop(key, x, y, plot);
     }
 
+    this.renderPlacedObjects();
+  }
+
+  private renderPlacedObjects(): void {
     this.furnitureSprites.forEach((sprite) => sprite.destroy());
     this.furnitureSprites.clear();
     const prefix = `${this.mapKey}:`;
@@ -93,6 +98,28 @@ export class FarmScene extends MapScene {
       sprite.setDepth(y * TILE + TILE / 2 - 1);
       this.furnitureSprites.set(key, sprite);
     }
+  }
+
+  /** Another player tilled/planted/watered/harvested or placed something: redraw those tiles. */
+  protected override onWorldPatched(patch: WorldPatch): void {
+    super.onWorldPatched(patch);
+    for (const key of touchedKeys(patch, 'farmPlots')) {
+      const [x, y] = key.split(',').map(Number);
+      const plot = gameState.farmPlots[key];
+      if (plot) {
+        this.groundLayer.putTileAt(TILE_GID.SOIL, x, y);
+        this.setSoilTint(x, y, plot.wateredToday);
+      } else {
+        this.groundLayer.putTileAt(TILE_GID.GRASS, x, y);
+      }
+      if (plot?.cropId) {
+        this.spawnOrUpdateCrop(key, x, y, plot);
+      } else {
+        this.cropSprites.get(key)?.destroy();
+        this.cropSprites.delete(key);
+      }
+    }
+    if (touchedKeys(patch, 'placedObjects').length) this.renderPlacedObjects();
   }
 
   protected override getTargetHighlightState(): 'none' | 'valid' | 'invalid' {

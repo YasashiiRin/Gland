@@ -46,8 +46,9 @@ import { createProps, readProp, TreeSprites } from './worldSprites';
 import { RideController } from './rideController';
 import { RemotePlayers } from './remotePlayers';
 import { net, NetEvents } from '../net/NetSession';
-import { pickShared, type SharedWorld } from '../net/protocol';
-import { applySharedWorld } from '../state/GameState';
+import { pickShared } from '../net/protocol';
+import { touchedKeys, type WorldPatch } from '../net/worldPatch';
+import { worldSync } from '../net/worldSync';
 
 /** How often (ms) this player's position is sent to the others in a room. */
 const POSE_SEND_MS = 100;
@@ -174,12 +175,17 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.remotes = new RemotePlayers(this, this.mapKey);
     // Guest: the host started a new day (or resynced) — take its world and redraw the map.
-    const onWorld = (world: SharedWorld) => {
-      applySharedWorld(world);
+    // (worldSync has already applied the new world by the time the restart runs.)
+    const onWorld = () => {
       if (!this.transitioning) this.scene.restart({ spawn: gameState.spawnId });
     };
+    const onPatched = (patch: WorldPatch) => this.onWorldPatched(patch);
     net.events.on(NetEvents.World, onWorld);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => net.events.off(NetEvents.World, onWorld));
+    EventBus.on(GameEvents.WorldPatched, onPatched);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      net.events.off(NetEvents.World, onWorld);
+      EventBus.off(GameEvents.WorldPatched, onPatched);
+    });
 
     const onPassOut = () => this.sleepSequence('passedOut');
     EventBus.on(GameEvents.PassOutRequested, onPassOut);
@@ -530,7 +536,10 @@ export abstract class MapScene extends Phaser.Scene {
       gameState.currentMap = 'House';
       gameState.spawnId = 'default';
       SaveService.save(gameState);
-      if (net.role === 'host') net.broadcastWorld(pickShared(gameState));
+      if (net.role === 'host') {
+        net.broadcastWorld(pickShared(gameState));
+        worldSync.rebase();
+      }
 
       this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
       // Emitted after scene.start queues the new scene's create(); UI is a separate
@@ -585,6 +594,24 @@ export abstract class MapScene extends Phaser.Scene {
 
   /** A working tractor/harvester reached a new 2x2 area. Farm overrides this to plough/harvest. */
   protected onVehicleWork(_tiles: { x: number; y: number }[], _ability: VehicleAbility): void {}
+
+  /**
+   * Someone else changed the shared farm: redraw what's visible here. The
+   * base map handles felled trees / broken rocks / cut weeds; Farm extends it.
+   */
+  protected onWorldPatched(patch: WorldPatch): void {
+    const prefix = `${this.mapKey}:`;
+    const today = absoluteDayNumber(gameState.time);
+    for (const key of touchedKeys(patch, 'resourceNodes')) {
+      if (!key.startsWith(prefix)) continue;
+      const [x, y] = key.slice(prefix.length).split(',').map(Number);
+      if (!isCleared(gameState.resourceNodes[key], today)) continue;
+      const tile = this.decorLayer.getTileAt(x, y);
+      if (!tile || tile.index === TILE_GID.BLOCK) continue;
+      if (tile.index === TILE_GID.TRUNK) this.trees.fell(x, y, true);
+      this.decorLayer.removeTileAt(x, y);
+    }
+  }
 
   /** Shows a short message above the player; returns whether there was one. */
   protected say(message: string | null): boolean {

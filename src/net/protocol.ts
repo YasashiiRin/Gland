@@ -1,6 +1,7 @@
 import type { GameState } from '../state/GameState';
 import type { Direction } from '../systems/movement';
 import type { TimeState } from '../systems/TimeSystem';
+import type { WorldPatch } from './worldPatch';
 
 /** Room size: the host plus up to two guests. */
 export const MAX_PLAYERS = 3;
@@ -62,7 +63,8 @@ export type NetMessage =
   | { t: 'world'; world: SharedWorld }
   | { t: 'pose'; pose: PlayerPose }
   | { t: 'left'; id: string }
-  | { t: 'time'; time: TimeState };
+  | { t: 'time'; time: TimeState }
+  | { t: 'patch'; from: string; patch: WorldPatch };
 
 /** Room codes avoid look-alike characters (0/O, 1/I/L). */
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

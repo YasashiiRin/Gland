@@ -10,6 +10,7 @@ import {
   type PlayerPose,
   type SharedWorld,
 } from './protocol';
+import type { WorldPatch } from './worldPatch';
 
 export type NetRole = 'offline' | 'host' | 'guest';
 
@@ -19,6 +20,8 @@ export const NetEvents = {
   Start: 'net:start',
   World: 'net:world',
   Time: 'net:time',
+  /** A world patch from someone else: { from, patch }. */
+  Patch: 'net:patch',
   Error: 'net:error',
   Disconnected: 'net:disconnected',
 } as const;
@@ -120,6 +123,13 @@ class NetSession {
     this.toGuests({ t: 'time', time });
   }
 
+  /** Guest: my changes go to the host. Host: my changes (or a guest's, relayed) go to the other guests. */
+  sendPatch(patch: WorldPatch, relayFrom?: string): void {
+    const msg: NetMessage = { t: 'patch', from: relayFrom ?? this.myId, patch };
+    if (this.role === 'host') this.toGuests(msg, relayFrom);
+    else if (this.role === 'guest') this.hostConn?.send(msg);
+  }
+
   sendPose(pose: Omit<PlayerPose, 'id'>): void {
     const msg: NetMessage = { t: 'pose', pose: { ...pose, id: this.myId } };
     if (this.role === 'host') this.toGuests(msg);
@@ -149,6 +159,8 @@ class NetSession {
         this.events.emit(NetEvents.Lobby, this.players);
         // Joining a game already in progress: hand over the world right away.
         if (this.worldProvider) conn.send({ t: 'start', you: conn.peer, world: this.worldProvider() } satisfies NetMessage);
+      } else if (data.t === 'patch') {
+        this.events.emit(NetEvents.Patch, { from: conn.peer, patch: data.patch });
       } else if (data.t === 'pose' && data.pose.id === conn.peer) {
         this.poses.set(conn.peer, data.pose);
         this.toGuests(data, conn.peer);
@@ -189,6 +201,9 @@ class NetSession {
         break;
       case 'time':
         this.events.emit(NetEvents.Time, data.time);
+        break;
+      case 'patch':
+        this.events.emit(NetEvents.Patch, { from: data.from, patch: data.patch });
         break;
       case 'pose':
         if (data.pose.id !== this.myId) this.poses.set(data.pose.id, data.pose);

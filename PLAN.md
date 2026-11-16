@@ -347,8 +347,10 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
   nhau đi lại (nhuộm màu + tên, kể cả đang lái xe), giờ theo chủ phòng, khách nhận thế giới khi vào và mỗi sáng
   (chủ phòng ngủ → cả nhóm sang ngày mới; khách không tự ngủ được). Mất kết nối → khách về màn hình tiêu đề.
   Đã thử thật với 4 trình duyệt (1 chủ + 2 khách + 1 bị từ chối).
-- [ ] **Bước 2:** đồng bộ hành động trong ngày: cuốc/trồng/tưới/thu hoạch, chặt cây/đập đá, đồ đặt & rương, xe (ai
-  đang lái), tiền, thùng bán, mua bán. Hiện tại thay đổi của khách chỉ thấy trên máy khách cho tới sáng hôm sau
-  (khi đó bị thay bằng thế giới của chủ phòng).
+- [x] **Bước 2:** đồng bộ hành động trong ngày (`src/net/worldPatch.ts` có test, `src/net/worldSync.ts`): mỗi ~0,15s
+  mỗi máy gửi phần thế giới chung vừa đổi (ô đất, tài nguyên, đồ đặt/rương, xe, độ thân thiết, nhà kho, quỹ cộng
+  đồng); chủ phòng áp dụng và chuyển tiếp cho khách còn lại. Tiền và thùng bán gửi dạng cộng/trừ nên hai người làm
+  cùng lúc vẫn cộng đủ; các thứ khác "ai sửa sau thắng". Không lái chung một xe ("X đang lái xe này").
+  Đã thử thật 3 trình duyệt: cuốc/gieo/tưới/chặt cây/bán/tiêu tiền khớp ở cả 3 máy.
 - [ ] **Bước 3:** cả nhóm cùng phải đi ngủ mới sang ngày; lưu túi đồ/năng lượng/kỹ năng của khách vào save chủ phòng
   (theo tên); hai người không lái cùng một xe; thông báo khi có người vào/ra.

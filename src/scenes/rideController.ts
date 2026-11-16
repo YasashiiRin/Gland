@@ -3,6 +3,7 @@ import { TILE } from '../config/constants';
 import { ITEMS, type ItemId, type VehicleAbility } from '../data/items';
 import type { Player } from '../entities/Player';
 import { gameState } from '../state/GameState';
+import { net } from '../net/NetSession';
 import { DIRECTIONS } from '../systems/movement';
 import { nearestParked, parkVehicle, workArea } from '../systems/VehicleSystem';
 import { SMOKE_TEXTURE } from './PreloadScene';
@@ -54,6 +55,10 @@ export class RideController {
   tryMount(): string | null {
     const id = nearestParked(gameState.vehicles, this.mapKey, this.player.x, this.player.y, MOUNT_RANGE);
     if (!id) return null;
+    // Multiplayer: someone else is already driving it.
+    for (const pose of net.poses.values()) {
+      if (pose.riding === id) return `${net.nameOf(pose.id)} đang lái xe này`;
+    }
     gameState.riding = id as ItemId;
     gameState.vehicleWorking = false;
     const spot = gameState.vehicles[id];
@@ -114,8 +119,10 @@ export class RideController {
   }
 
   private syncParked(): void {
+    const drivenByOthers = new Set([...net.poses.values()].map((p) => p.riding));
     for (const [id, spot] of Object.entries(gameState.vehicles)) {
-      const show = !!spot && spot.mapKey === this.mapKey && id !== gameState.riding;
+      // Hide it while anyone (me or a friend) is driving it.
+      const show = !!spot && spot.mapKey === this.mapKey && id !== gameState.riding && !drivenByOthers.has(id);
       let img = this.parked.get(id);
       if (!show || !spot) {
         img?.destroy();

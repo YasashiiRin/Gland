@@ -1,3 +1,4 @@
+import { worldSync } from '../net/worldSync';
 import { net, NetEvents } from '../net/NetSession';
 import { Minimap } from '../ui/Minimap';
 import { worldView } from '../state/worldView';
@@ -293,7 +294,8 @@ export class UIScene extends Phaser.Scene {
     });
   }
 
-  update(_time: number, delta: number): void {
+  update(time: number, delta: number): void {
+    worldSync.update(time); // multiplayer: exchange changes to the shared farm
     if (Phaser.Input.Keyboard.JustDown(this.inventoryKey)) this.toggleInventory();
 
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
