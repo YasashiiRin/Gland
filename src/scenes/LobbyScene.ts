@@ -81,7 +81,10 @@ export class LobbyScene extends Phaser.Scene {
 
   private startAsHost(): void {
     if (net.role !== 'host') return;
-    net.startGame(() => pickShared(gameState));
+    net.startGame(
+      () => pickShared(gameState),
+      (name) => gameState.guestProfiles[name],
+    );
     this.scene.start('Preload');
   }
 
@@ -89,6 +92,8 @@ export class LobbyScene extends Phaser.Scene {
     // Personal things (inventory, energy, skills) start fresh; the farm is the host's.
     resetToNewGame(this.data_.name);
     applySharedWorld(world);
+    // Coming back to a farm we've played on: the host kept our bag, energy and skills.
+    if (net.receivedProfile) Object.assign(gameState, structuredClone(net.receivedProfile));
     gameState.currentMap = 'Farm';
     gameState.spawnId = 'fromHouse';
     gameState.riding = null;

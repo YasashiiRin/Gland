@@ -1,0 +1,46 @@
+import Phaser from 'phaser';
+import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
+
+/**
+ * Multiplayer: shown while you're in bed waiting for the others. The screen
+ * dims, a small panel shows how many are asleep, and "Dậy" gets you up again.
+ */
+export class SleepWaitOverlay {
+  private readonly root: Phaser.GameObjects.Container;
+  private readonly countText: Phaser.GameObjects.Text;
+  onWakeUp?: () => void;
+
+  constructor(scene: Phaser.Scene, depth: number) {
+    const { width, height } = scene.scale;
+    this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
+    const dim = scene.add.rectangle(0, 0, width, height, 0x0a1232, 0.55).setOrigin(0, 0);
+    const g = scene.add.graphics();
+    drawWoodPanel(g, width / 2 - 170, height / 2 - 70, 340, 140);
+    const title = inkText(scene, width / 2, height / 2 - 40, 'Zzz… Bạn đã lên giường', 17).setOrigin(0.5);
+    this.countText = scene.add
+      .text(width / 2, height / 2 - 8, '', { fontFamily: UI_FONT, fontSize: '14px', color: UI_COLORS.inkSoft, align: 'center' })
+      .setOrigin(0.5);
+    const button = scene.add
+      .rectangle(width / 2, height / 2 + 36, 110, 30, UI_COLORS.wood)
+      .setStrokeStyle(2, UI_COLORS.edge)
+      .setInteractive({ useHandCursor: true });
+    const label = scene.add
+      .text(width / 2, height / 2 + 36, 'Dậy', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff2d0', fontStyle: 'bold' })
+      .setOrigin(0.5);
+    button.on('pointerdown', () => this.onWakeUp?.());
+    this.root.add([dim, g, title, this.countText, button, label]);
+  }
+
+  show(asleep: number, total: number): void {
+    this.countText.setText(`Đã ngủ: ${asleep}/${total}\nCả nhóm sang ngày mới khi mọi người cùng ngủ`);
+    this.root.setVisible(true);
+  }
+
+  hide(): void {
+    this.root.setVisible(false);
+  }
+
+  get visible(): boolean {
+    return this.root.visible;
+  }
+}

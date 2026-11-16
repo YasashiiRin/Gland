@@ -13,6 +13,7 @@ import { addVehicle, type OwnedVehicles } from '../systems/VehicleSystem';
 import { DEV_GIVE_ALL_VEHICLES } from '../config/dev';
 import { vehicleHome, VEHICLE_IDS } from '../data/garage';
 import { ITEMS } from '../data/items';
+import type { PlayerProfile } from '../net/protocol';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
 /**
@@ -56,6 +57,8 @@ export interface GameState {
   vehicleWorking: boolean;
   /** The big storage in the farm warehouse. */
   warehouse: InventoryState;
+  /** Host only: each guest's inventory/energy/skills, by name, so they keep them between sessions. */
+  guestProfiles: Record<string, PlayerProfile>;
 }
 
 export const WAREHOUSE_SLOT_COUNT = 36;
@@ -111,6 +114,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     vehicles: DEV_GIVE_ALL_VEHICLES ? grantAllVehicles({}) : {},
     vehicleWorking: false,
     warehouse: { slots: Array.from({ length: WAREHOUSE_SLOT_COUNT }, () => null) },
+    guestProfiles: {},
   };
 }
 

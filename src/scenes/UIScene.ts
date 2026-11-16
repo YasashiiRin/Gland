@@ -1,3 +1,6 @@
+import { pickProfile, type LobbyPlayer, type PlayerProfile } from '../net/protocol';
+import { SleepWaitOverlay } from '../ui/SleepWaitOverlay';
+import { UI_FONT } from '../ui/uiStyle';
 import { worldSync } from '../net/worldSync';
 import { net, NetEvents } from '../net/NetSession';
 import { Minimap } from '../ui/Minimap';
@@ -49,6 +52,8 @@ import { ShopMenu } from '../ui/ShopMenu';
 import { isShopId } from '../data/shops';
 
 const CHEST_SLOT_COUNT = 18;
+/** Guests send their bag/energy/skills to the host this often (ms). */
+const PROFILE_SEND_MS = 5000;
 
 /** Runs on top of the map scenes: draws the HUD, the night overlay, and owns the game clock. */
 export class UIScene extends Phaser.Scene {
@@ -70,6 +75,10 @@ export class UIScene extends Phaser.Scene {
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private minimap!: Minimap;
   private dayBanner!: Phaser.GameObjects.Text;
+  private sleepOverlay!: SleepWaitOverlay;
+  private toastText!: Phaser.GameObjects.Text;
+  private lastProfileSent = 0;
+  private knownPlayers = new Map<string, string>();
   private accumulatorMs = 0;
   private inventoryKey!: Phaser.Input.Keyboard.Key;
 
@@ -285,7 +294,11 @@ export class UIScene extends Phaser.Scene {
       this.hud.setLocation(p.displayName);
       this.minimap.setMap(p.minimap, p.displayName);
     };
-    const onDay = (p: DayStartedPayload) => this.showDayBanner(p);
+    this.setupMultiplayerUi();
+    const onDay = (p: DayStartedPayload) => {
+      this.leaveSleepWait(false);
+      this.showDayBanner(p);
+    };
     EventBus.on(GameEvents.MapEntered, onMap);
     EventBus.on(GameEvents.DayStarted, onDay);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -296,6 +309,11 @@ export class UIScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     worldSync.update(time); // multiplayer: exchange changes to the shared farm
+    if (net.role === 'guest' && time - this.lastProfileSent > PROFILE_SEND_MS) {
+      // Let the host keep my bag/energy/skills in its save.
+      this.lastProfileSent = time;
+      net.sendProfile(pickProfile(gameState));
+    }
     if (Phaser.Input.Keyboard.JustDown(this.inventoryKey)) this.toggleInventory();
 
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
@@ -497,6 +515,61 @@ export class UIScene extends Phaser.Scene {
     // The rectangle's own alpha (not fillAlpha) controls how dark the tint looks;
     // fillAlpha was only needed at creation time to pick a fill color.
     this.nightOverlay.setAlpha(darknessAlpha(gameState.time));
+  }
+
+  /** Sleeping together, join/leave notices, and storing guests' profiles (host). */
+  private setupMultiplayerUi(): void {
+    this.sleepOverlay = new SleepWaitOverlay(this, DEPTH_ABOVE + 2);
+    this.sleepOverlay.onWakeUp = () => this.leaveSleepWait(true);
+    this.toastText = this.add
+      .text(this.scale.width / 2, 40, '', { fontFamily: UI_FONT, fontSize: '14px', color: '#fff6e0', backgroundColor: '#2b1a10dd' })
+      .setPadding(8, 4, 8, 4)
+      .setOrigin(0.5)
+      .setDepth(DEPTH_ABOVE + 3)
+      .setAlpha(0);
+    this.knownPlayers = new Map(net.players.map((p) => [p.id, p.name]));
+
+    const onSleepWait = () => {
+      uiState.sleepWait = true;
+      net.setSleepReady(true);
+      this.sleepOverlay.show(net.sleepers.size, net.players.length);
+    };
+    const onSleepers = () => {
+      if (this.sleepOverlay.visible) this.sleepOverlay.show(net.sleepers.size, net.players.length);
+    };
+    const onLobby = (players: LobbyPlayer[]) => {
+      const now = new Map(players.map((p) => [p.id, p.name]));
+      for (const [id, name] of now) if (!this.knownPlayers.has(id)) this.toast(`${name} đã vào nông trại`);
+      for (const [id, name] of this.knownPlayers) if (!now.has(id)) this.toast(`${name} đã rời phòng`);
+      this.knownPlayers = now;
+      onSleepers();
+    };
+    const onProfile = (p: { name: string; profile: PlayerProfile }) => {
+      gameState.guestProfiles = { ...gameState.guestProfiles, [p.name]: p.profile };
+    };
+    EventBus.on(GameEvents.SleepWaitRequested, onSleepWait);
+    net.events.on(NetEvents.Sleepers, onSleepers);
+    net.events.on(NetEvents.Lobby, onLobby);
+    net.events.on(NetEvents.Profile, onProfile);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EventBus.off(GameEvents.SleepWaitRequested, onSleepWait);
+      net.events.off(NetEvents.Sleepers, onSleepers);
+      net.events.off(NetEvents.Lobby, onLobby);
+      net.events.off(NetEvents.Profile, onProfile);
+    });
+  }
+
+  private leaveSleepWait(tellOthers: boolean): void {
+    if (!uiState.sleepWait) return;
+    uiState.sleepWait = false;
+    this.sleepOverlay.hide();
+    if (tellOthers) net.setSleepReady(false);
+  }
+
+  private toast(text: string): void {
+    this.toastText.setText(text).setAlpha(1);
+    this.tweens.killTweensOf(this.toastText);
+    this.tweens.add({ targets: this.toastText, alpha: 0, delay: 2500, duration: 500 });
   }
 
   private showDayBanner(p: DayStartedPayload): void {

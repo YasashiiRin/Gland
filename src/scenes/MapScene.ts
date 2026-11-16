@@ -46,7 +46,7 @@ import { createProps, readProp, TreeSprites } from './worldSprites';
 import { RideController } from './rideController';
 import { RemotePlayers } from './remotePlayers';
 import { net, NetEvents } from '../net/NetSession';
-import { pickShared } from '../net/protocol';
+import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
 import { worldSync } from '../net/worldSync';
 
@@ -176,9 +176,18 @@ export abstract class MapScene extends Phaser.Scene {
     this.remotes = new RemotePlayers(this, this.mapKey);
     // Guest: the host started a new day (or resynced) — take its world and redraw the map.
     // (worldSync has already applied the new world by the time the restart runs.)
-    const onWorld = () => {
-      if (!this.transitioning) this.scene.restart({ spawn: gameState.spawnId });
+    const onWorld = (p: { newDay?: NewDayInfo }) => {
+      if (p.newDay) this.wakeUpAsGuest(p.newDay);
+      else if (!this.transitioning) this.scene.restart({ spawn: gameState.spawnId });
     };
+    // Host: once everyone in the room is in bed, the day ends for all.
+    const onSleepers = () => {
+      if (net.role === 'host' && net.sleepers.has(net.myId) && everyoneAsleep(net.players, net.sleepers)) {
+        this.sleepSequence('manual');
+      }
+    };
+    net.events.on(NetEvents.Sleepers, onSleepers);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => net.events.off(NetEvents.Sleepers, onSleepers));
     const onPatched = (patch: WorldPatch) => this.onWorldPatched(patch);
     net.events.on(NetEvents.World, onWorld);
     EventBus.on(GameEvents.WorldPatched, onPatched);
@@ -263,8 +272,8 @@ export abstract class MapScene extends Phaser.Scene {
       !this.tryUseQuestBoard()
     ) {
       if (this.isNearBed()) {
-        // In a room only the host decides when the day ends.
-        if (net.role === 'guest') this.say('Chủ phòng đi ngủ thì cả nhóm sang ngày mới');
+        // In a room you lie down and wait; the day ends when everyone is in bed.
+        if (net.online) EventBus.emit(GameEvents.SleepWaitRequested);
         else this.sleepSequence('manual');
       }
       else if (!this.tryOpenShop()) this.tryUseShippingBin();
@@ -479,6 +488,26 @@ export abstract class MapScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Guest: the host ended the day. The new world is already applied (by
+   * worldSync); restore my energy (half if I wasn't in bed) and wake up at home.
+   */
+  private wakeUpAsGuest(newDay: NewDayInfo): void {
+    if (this.transitioning) return;
+    const slept = newDay.sleepers.includes(net.myId);
+    gameState.energy = slept ? restoreFull(gameState.energy) : restoreHalf(gameState.energy);
+    gameState.riding = null;
+    gameState.currentMap = 'House';
+    gameState.spawnId = 'default';
+    const t = gameState.time;
+    const payload: DayStartedPayload = { time: t, day: t.day, season: t.season, year: t.year, weather: t.weather, earnings: newDay.earnings };
+    this.beginTransition();
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
+      EventBus.emit(GameEvents.DayStarted, payload);
+    });
+  }
+
   /** Falling asleep in bed, or passing out from staying up past 2 AM. Both end the day. */
   private sleepSequence(reason: 'manual' | 'passedOut'): void {
     if (this.transitioning) return;
@@ -517,7 +546,8 @@ export abstract class MapScene extends Phaser.Scene {
       gameState.money += earnings;
       gameState.shippingBin = {};
 
-      if (reason === 'passedOut') {
+      // In a room, the host may have been waiting in bed when the clock hit 2 AM.
+      if (reason === 'passedOut' && !net.sleepers.has(net.myId)) {
         const penalty = Math.min(PASS_OUT_MONEY_PENALTY_MAX, Math.round(gameState.money * PASS_OUT_MONEY_PENALTY_RATE));
         gameState.money = Math.max(0, gameState.money - penalty);
         gameState.energy = restoreHalf(gameState.energy);
@@ -537,7 +567,7 @@ export abstract class MapScene extends Phaser.Scene {
       gameState.spawnId = 'default';
       SaveService.save(gameState);
       if (net.role === 'host') {
-        net.broadcastWorld(pickShared(gameState));
+        net.broadcastWorld(pickShared(gameState), { earnings, sleepers: [...net.sleepers] });
         worldSync.rebase();
       }
 

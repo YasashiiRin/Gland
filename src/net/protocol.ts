@@ -38,6 +38,28 @@ export function pickShared(state: GameState): SharedWorld {
   return out as SharedWorld;
 }
 
+/** A guest's personal things, kept in the host's save under the guest's name. */
+export const PROFILE_KEYS = ['inventory', 'energy', 'playerHealth', 'skills', 'buffs', 'equippedSlot'] as const satisfies readonly (keyof GameState)[];
+export type PlayerProfile = Pick<GameState, (typeof PROFILE_KEYS)[number]>;
+
+export function pickProfile(state: GameState): PlayerProfile {
+  const out: Partial<PlayerProfile> = {};
+  for (const key of PROFILE_KEYS) Object.assign(out, { [key]: structuredClone(state[key]) });
+  return out as PlayerProfile;
+}
+
+/** Sent with the world when a new day starts. */
+export interface NewDayInfo {
+  earnings: number;
+  /** Players who were in bed; everyone else passed out at 2 AM. */
+  sleepers: string[];
+}
+
+/** The day ends once every player in the room is in bed. */
+export function everyoneAsleep(players: readonly { id: string }[], sleepers: ReadonlySet<string>): boolean {
+  return players.length > 0 && players.every((p) => sleepers.has(p.id));
+}
+
 export interface LobbyPlayer {
   id: string;
   name: string;
@@ -59,8 +81,11 @@ export type NetMessage =
   | { t: 'hello'; name: string }
   | { t: 'full' }
   | { t: 'lobby'; players: LobbyPlayer[] }
-  | { t: 'start'; you: string; world: SharedWorld }
-  | { t: 'world'; world: SharedWorld }
+  | { t: 'start'; you: string; world: SharedWorld; profile?: PlayerProfile }
+  | { t: 'world'; world: SharedWorld; newDay?: NewDayInfo }
+  | { t: 'sleep'; ready: boolean }
+  | { t: 'sleepers'; ids: string[] }
+  | { t: 'profile'; profile: PlayerProfile }
   | { t: 'pose'; pose: PlayerPose }
   | { t: 'left'; id: string }
   | { t: 'time'; time: TimeState }

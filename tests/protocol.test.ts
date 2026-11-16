@@ -26,3 +26,20 @@ describe('net protocol', () => {
     expect(state.farmPlots['1,1'].tilled).toBe(true);
   });
 });
+
+describe('co-op sleeping and profiles', () => {
+  it('ends the day only when every player is in bed', async () => {
+    const { everyoneAsleep } = await import('../src/net/protocol');
+    const players = [{ id: 'host' }, { id: 'a' }, { id: 'b' }];
+    expect(everyoneAsleep(players, new Set(['host', 'a']))).toBe(false);
+    expect(everyoneAsleep(players, new Set(['host', 'a', 'b']))).toBe(true);
+    expect(everyoneAsleep([{ id: 'host' }], new Set(['host']))).toBe(true);
+    expect(everyoneAsleep([], new Set())).toBe(false);
+  });
+
+  it('keeps only personal things in a profile', async () => {
+    const { pickProfile } = await import('../src/net/protocol');
+    const profile = pickProfile(createInitialState());
+    expect(Object.keys(profile).sort()).toEqual(['buffs', 'energy', 'equippedSlot', 'inventory', 'playerHealth', 'skills']);
+  });
+});

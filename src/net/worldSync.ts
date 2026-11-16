@@ -18,8 +18,8 @@ class WorldSync {
 
   constructor() {
     net.events.on(NetEvents.Patch, (p: { from: string; patch: WorldPatch }) => this.receive(p.from, p.patch));
-    net.events.on(NetEvents.World, (world: SharedWorld) => {
-      applySharedWorld(world);
+    net.events.on(NetEvents.World, (p: { world: SharedWorld }) => {
+      applySharedWorld(p.world);
       this.rebase();
     });
   }

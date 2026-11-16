@@ -19,6 +19,8 @@ export const GameEvents = {
   ZoomChanged: 'settings:zoomChanged',
   /** Another player changed the shared farm (payload: WorldPatch); maps redraw what's affected. */
   WorldPatched: 'world:patched',
+  /** Multiplayer: the player lay down in bed and waits for everyone else. */
+  SleepWaitRequested: 'sleep:waitRequested',
 } as const;
 
 export interface FishingStartedPayload {

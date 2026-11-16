@@ -352,5 +352,11 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
   đồng); chủ phòng áp dụng và chuyển tiếp cho khách còn lại. Tiền và thùng bán gửi dạng cộng/trừ nên hai người làm
   cùng lúc vẫn cộng đủ; các thứ khác "ai sửa sau thắng". Không lái chung một xe ("X đang lái xe này").
   Đã thử thật 3 trình duyệt: cuốc/gieo/tưới/chặt cây/bán/tiêu tiền khớp ở cả 3 máy.
-- [ ] **Bước 3:** cả nhóm cùng phải đi ngủ mới sang ngày; lưu túi đồ/năng lượng/kỹ năng của khách vào save chủ phòng
-  (theo tên); hai người không lái cùng một xe; thông báo khi có người vào/ra.
+- [x] **Bước 3:** ngủ chung — ai bấm giường sẽ nằm chờ (lớp phủ "Đã ngủ x/3", nút "Dậy" để huỷ); khi tất cả đều nằm
+  thì chủ phòng kết thúc ngày, khách nhận thế giới mới + bảng tổng kết, hồi đầy năng lượng và thức dậy trong nhà; ai
+  chưa ngủ lúc 2:00 thì chỉ hồi nửa năng lượng (`everyoneAsleep` có test). Túi đồ/năng lượng/máu/kỹ năng của khách
+  gửi về chủ phòng mỗi 5 giây, lưu trong save chủ phòng (`GameState.guestProfiles`, theo **tên** — tên trùng trong
+  phòng được tự thêm số) và trả lại khi khách vào lại. Thông báo "X đã vào nông trại" / "X đã rời phòng".
+  Đã thử thật 3 trình duyệt (ngủ 2/3 chưa sang ngày, 3/3 sang ngày; rời phòng rồi vào lại vẫn còn đồ).
+- **Còn có thể làm thêm:** khách ở trong hầm mỏ lúc sang ngày chưa được đưa về nhà; chưa có chat; chủ phòng thoát thì
+  khách về màn hình tiêu đề (không chuyển chủ phòng); máy chủ môi giới vẫn là dịch vụ miễn phí của PeerJS.

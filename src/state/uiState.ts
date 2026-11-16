@@ -11,6 +11,8 @@ export const uiState = {
   dialogueOpen: false,
   fishingOpen: false,
   settingsOpen: false,
+  /** Multiplayer: lying in bed waiting for the others. */
+  sleepWait: false,
 };
 
 /** True while any modal UI (menus, dialogue, fishing) should block world input. */
@@ -22,6 +24,7 @@ export function isWorldInputBlocked(): boolean {
     uiState.chestOpen ||
     uiState.dialogueOpen ||
     uiState.fishingOpen ||
-    uiState.settingsOpen
+    uiState.settingsOpen ||
+    uiState.sleepWait
   );
 }

@@ -7,6 +7,8 @@ import {
   PEER_PREFIX,
   type LobbyPlayer,
   type NetMessage,
+  type NewDayInfo,
+  type PlayerProfile,
   type PlayerPose,
   type SharedWorld,
 } from './protocol';
@@ -23,6 +25,10 @@ export const NetEvents = {
   /** A world patch from someone else: { from, patch }. */
   Patch: 'net:patch',
   Error: 'net:error',
+  /** Who is in bed changed: string[] of player ids. */
+  Sleepers: 'net:sleepers',
+  /** Host: a guest sent their personal profile: { name, profile }. */
+  Profile: 'net:profile',
   Disconnected: 'net:disconnected',
 } as const;
 
@@ -43,6 +49,12 @@ class NetSession {
   readonly poses = new Map<string, PlayerPose>();
   /** Set by the host once the game has started, so late joiners get the world straight away. */
   worldProvider?: () => SharedWorld;
+  /** Host: a returning guest's saved inventory/energy/skills, by name. */
+  profileProvider?: (name: string) => PlayerProfile | undefined;
+  /** Ids of players who are in bed waiting for the day to end. */
+  readonly sleepers = new Set<string>();
+  /** Guest: a profile the host handed back when we joined (consumed by the lobby). */
+  receivedProfile?: PlayerProfile;
 
   private peer?: Peer;
   private hostConn?: DataConnection;
@@ -109,14 +121,46 @@ class NetSession {
   }
 
   /** Host: start the game for everyone in the lobby. */
-  startGame(world: () => SharedWorld): void {
+  startGame(world: () => SharedWorld, profileOf: (name: string) => PlayerProfile | undefined): void {
     this.worldProvider = world;
-    for (const [id, conn] of this.guests) conn.send({ t: 'start', you: id, world: world() } satisfies NetMessage);
+    this.profileProvider = profileOf;
+    for (const [id, conn] of this.guests) conn.send(this.startMessage(id));
+  }
+
+  private startMessage(id: string): NetMessage {
+    const world = this.worldProvider?.() as SharedWorld;
+    return { t: 'start', you: id, world, profile: this.profileProvider?.(this.nameOf(id)) };
   }
 
   /** Host: push the whole shared world (e.g. after a new day starts). */
-  broadcastWorld(world: SharedWorld): void {
-    this.toGuests({ t: 'world', world });
+  broadcastWorld(world: SharedWorld, newDay?: NewDayInfo): void {
+    if (newDay) this.setSleepers([]);
+    this.toGuests({ t: 'world', world, newDay });
+  }
+
+  /** I went to bed (true) or got up again (false). */
+  setSleepReady(ready: boolean): void {
+    if (this.role === 'guest') this.hostConn?.send({ t: 'sleep', ready } satisfies NetMessage);
+    else if (this.role === 'host') this.markSleeper(this.myId, ready);
+  }
+
+  /** Guest: send my inventory/energy/skills so the host can save them for me. */
+  sendProfile(profile: PlayerProfile): void {
+    if (this.role === 'guest') this.hostConn?.send({ t: 'profile', profile } satisfies NetMessage);
+  }
+
+  private markSleeper(id: string, ready: boolean): void {
+    const next = new Set(this.sleepers);
+    if (ready) next.add(id);
+    else next.delete(id);
+    this.setSleepers([...next]);
+  }
+
+  private setSleepers(ids: string[]): void {
+    this.sleepers.clear();
+    ids.forEach((id) => this.sleepers.add(id));
+    if (this.role === 'host') this.toGuests({ t: 'sleepers', ids });
+    this.events.emit(NetEvents.Sleepers, ids);
   }
 
   broadcastTime(time: SharedWorld['time']): void {
@@ -154,11 +198,18 @@ class NetSession {
       if (!isNetMessage(data)) return;
       if (data.t === 'hello') {
         if (!this.guests.has(conn.peer)) return;
-        this.players = [...this.players.filter((p) => p.id !== conn.peer), { id: conn.peer, name: data.name.slice(0, 16), host: false }];
+        // Names identify saved guest profiles, so keep them unique in the room.
+        let name = data.name.slice(0, 16) || 'Khách';
+        while (this.players.some((p) => p.name === name && p.id !== conn.peer)) name = `${name.slice(0, 13)} ${this.players.length + 1}`;
+        this.players = [...this.players.filter((p) => p.id !== conn.peer), { id: conn.peer, name, host: false }];
         this.toGuests({ t: 'lobby', players: this.players });
         this.events.emit(NetEvents.Lobby, this.players);
         // Joining a game already in progress: hand over the world right away.
-        if (this.worldProvider) conn.send({ t: 'start', you: conn.peer, world: this.worldProvider() } satisfies NetMessage);
+        if (this.worldProvider) conn.send(this.startMessage(conn.peer));
+      } else if (data.t === 'sleep') {
+        this.markSleeper(conn.peer, data.ready);
+      } else if (data.t === 'profile') {
+        this.events.emit(NetEvents.Profile, { name: this.nameOf(conn.peer), profile: data.profile });
       } else if (data.t === 'patch') {
         this.events.emit(NetEvents.Patch, { from: conn.peer, patch: data.patch });
       } else if (data.t === 'pose' && data.pose.id === conn.peer) {
@@ -170,6 +221,7 @@ class NetSession {
       this.guests.delete(conn.peer);
       this.poses.delete(conn.peer);
       this.players = this.players.filter((p) => p.id !== conn.peer);
+      if (this.sleepers.has(conn.peer)) this.markSleeper(conn.peer, false);
       this.toGuests({ t: 'left', id: conn.peer });
       this.toGuests({ t: 'lobby', players: this.players });
       this.events.emit(NetEvents.Lobby, this.players);
@@ -194,10 +246,14 @@ class NetSession {
         break;
       case 'start':
         this.myId = data.you;
+        this.receivedProfile = data.profile;
         this.events.emit(NetEvents.Start, data.world);
         break;
       case 'world':
-        this.events.emit(NetEvents.World, data.world);
+        this.events.emit(NetEvents.World, { world: data.world, newDay: data.newDay });
+        break;
+      case 'sleepers':
+        this.setSleepers(data.ids);
         break;
       case 'time':
         this.events.emit(NetEvents.Time, data.time);
@@ -234,7 +290,10 @@ class NetSession {
     this.myId = 'local';
     this.players = [];
     this.poses.clear();
+    this.sleepers.clear();
     this.worldProvider = undefined;
+    this.profileProvider = undefined;
+    this.receivedProfile = undefined;
   }
 }
 
