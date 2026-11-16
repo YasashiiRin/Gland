@@ -22,7 +22,7 @@ export class ChestMenu {
   private onDeposit?: (slotIndex: number) => void;
   private onWithdraw?: (slotIndex: number) => void;
 
-  constructor(scene: Phaser.Scene, depth: number, slotCount: number) {
+  constructor(scene: Phaser.Scene, depth: number, slotCount: number, titleText = 'Rương') {
     const rows = Math.ceil(slotCount / COLS);
     const gridW = COLS * SLOT_SIZE + (COLS - 1) * GAP;
     const gridH = rows * SLOT_SIZE + (rows - 1) * GAP;
@@ -34,7 +34,7 @@ export class ChestMenu {
     this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
     const panel = scene.add.rectangle(cx, cy, panelW, panelH, 0x241d17, 0.95).setStrokeStyle(2, 0xc9a66b);
     const title = scene.add
-      .text(cx, cy - panelH / 2 + 22, 'Rương', { fontFamily: 'sans-serif', fontSize: '18px', color: '#fff6e0' })
+      .text(cx, cy - panelH / 2 + 22, titleText, { fontFamily: 'sans-serif', fontSize: '18px', color: '#fff6e0' })
       .setOrigin(0.5);
     this.nameText = scene.add
       .text(cx, cy + panelH / 2 - 22, 'Bấm ô trống để cất, ô có đồ để lấy ra', {

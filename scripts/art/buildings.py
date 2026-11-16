@@ -145,6 +145,44 @@ def building(st: Style) -> Image.Image:
     return shadowed
 
 
+def warehouse() -> Image.Image:
+    """Farm warehouse / vehicle shed: dark vertical boards, tiled roof and a
+    wide double barn door with cross bracing (2 tiles wide, in the middle)."""
+    st = Style(w=6, h=5, door=0, windows=(), wall=(110, 72, 46), roof=(150, 72, 50), wall_h=46)
+    W, H = st.w * T, st.h * T
+    im = new(W, H)
+    top = H - st.wall_h
+    for x in range(3, W - 3):                                   # vertical boards
+        c = st.wall if x % 5 else shade(st.wall, 0.7)
+        if x % 5 == 1:
+            c = shade(st.wall, 1.18)
+        rect(im, x, top, x, H - 6, c)
+    rect(im, 3, top, W - 4, top + 5, shade(st.wall, 0.5))       # shadow under the eave
+    rect(im, 1, H - 5, W - 2, H - 1, P["r1"]); rect(im, 1, H - 5, W - 2, H - 5, P["r2"])   # stone footing
+    x0, x1, y0 = W // 2 - 15, W // 2 + 14, H - 36                # barn door
+    rect(im, x0 - 2, y0 - 2, x1 + 2, H - 5, P["k0"])
+    for half in ((x0, W // 2 - 1), (W // 2 + 1, x1)):
+        a, b = half
+        rect(im, a, y0, b, H - 6, (138, 92, 56))
+        for x in range(a, b + 1, 4):
+            rect(im, x, y0, x, H - 6, (112, 74, 44))
+        rect(im, a, y0, b, y0 + 1, (164, 114, 72)); rect(im, a, H - 7, b, H - 6, (98, 62, 38))
+        for i in range(b - a + 1):                                # X bracing
+            yy = y0 + round(i * (H - 6 - y0) / (b - a))
+            put(im, a + i, yy, (164, 114, 72)); put(im, b - i, yy, (164, 114, 72))
+    rect(im, W // 2 - 1, y0, W // 2, H - 6, P["k0"])
+    for cx in (14, W - 15):                                       # small high windows
+        rect(im, cx - 4, top + 9, cx + 4, top + 15, P["k0"]); rect(im, cx - 3, top + 10, cx + 3, top + 14, (54, 42, 36))
+        for x in range(cx - 2, cx + 3, 2):
+            rect(im, x, top + 10, x, top + 14, P["k2"])
+    _roof(im, st, 9, top + 2)
+    outline(im, 0.4)
+    shadowed = new(W, H)
+    soft_shadow(shadowed, W / 2, H - 2, W / 2, 3, alpha=60)
+    shadowed.alpha_composite(im)
+    return shadowed
+
+
 BUILDINGS = {
     "farmhouse": Style(w=7, h=6, door=3, windows=(1, 5), wall_h=46),
     "shop": Style(w=6, h=5, door=2, windows=(4,), wall=(230, 204, 140), roof=(156, 74, 50), sign="seed"),
@@ -160,4 +198,6 @@ def make_buildings() -> list[dict]:
         rel = f"sprites/props/{name}.png"
         save(building(st), rel)
         files.append({"type": "image", "key": f"prop_{name}", "url": rel})
+    save(warehouse(), "sprites/props/warehouse.png")
+    files.append({"type": "image", "key": "prop_warehouse", "url": "sprites/props/warehouse.png"})
     return files

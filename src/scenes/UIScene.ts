@@ -26,7 +26,11 @@ import { DialogueBox } from '../ui/DialogueBox';
 import { FishingMinigame } from '../ui/FishingMinigame';
 import { SettingsMenu } from '../ui/SettingsMenu';
 import { playClick, playDayChime, playPickup } from '../systems/SfxSystem';
-import { gameState, ZOOM_LEVELS } from '../state/GameState';
+import { gameState, WAREHOUSE_SLOT_COUNT, ZOOM_LEVELS } from '../state/GameState';
+import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
+import { ITEMS } from '../data/items';
+import { addVehicle, ownsVehicle } from '../systems/VehicleSystem';
+import type { InventoryState } from '../systems/InventorySystem';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { craft } from '../systems/CraftingSystem';
@@ -52,6 +56,8 @@ export class UIScene extends Phaser.Scene {
   private shopMenu!: ShopMenu;
   private craftingMenu!: CraftingMenu;
   private chestMenu!: ChestMenu;
+  private warehouseMenu!: ChestMenu;
+  private activeChestMenu!: ChestMenu;
   private openChestKey: string | null = null;
   private dialogueBox!: DialogueBox;
   private fishingMinigame!: FishingMinigame;
@@ -107,6 +113,15 @@ export class UIScene extends Phaser.Scene {
     this.shopMenu.bind(
       () => gameState.money,
       (itemId) => {
+        if (ITEMS[itemId].category === 'vehicle') {
+          // Vehicles aren't carried: a bought one is delivered to the farm warehouse.
+          const price = ITEMS[itemId].sellPrice ?? 0;
+          if (ownsVehicle(gameState.vehicles, itemId) || gameState.money < price) return;
+          gameState.money -= price;
+          gameState.vehicles = addVehicle(gameState.vehicles, itemId, vehicleHome(itemId));
+          playClick(gameState.settings);
+          return;
+        }
         const result = buyItem(gameState.inventory, gameState.money, itemId, 1);
         gameState.inventory = result.inventory;
         gameState.money = result.money;
@@ -131,6 +146,12 @@ export class UIScene extends Phaser.Scene {
       (slotIndex) => this.depositIntoChest(slotIndex),
       (slotIndex) => this.withdrawFromChest(slotIndex),
     );
+    this.warehouseMenu = new ChestMenu(this, DEPTH_ABOVE + 1, WAREHOUSE_SLOT_COUNT, 'Nhà kho');
+    this.warehouseMenu.bind(
+      (slotIndex) => this.depositIntoChest(slotIndex),
+      (slotIndex) => this.withdrawFromChest(slotIndex),
+    );
+    this.activeChestMenu = this.chestMenu;
 
     this.dialogueBox = new DialogueBox(this, DEPTH_ABOVE + 1);
     const onNpcInteracted = (p: NpcInteractedPayload) => {
@@ -219,10 +240,11 @@ export class UIScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.ShopOpenRequested, onShopOpen));
 
     const onChestOpen = (p: ChestOpenRequestedPayload) => {
-      const placed = gameState.placedObjects[p.chestKey];
-      if (!placed || placed.kind !== 'chest' || !placed.chest) return;
+      const storage = this.storageFor(p.chestKey);
+      if (!storage) return;
       this.openChestKey = p.chestKey;
-      this.chestMenu.open(placed.chest);
+      this.activeChestMenu = p.chestKey === WAREHOUSE_KEY ? this.warehouseMenu : this.chestMenu;
+      this.activeChestMenu.open(storage);
       uiState.chestOpen = true;
     };
     EventBus.on(GameEvents.ChestOpenRequested, onChestOpen);
@@ -318,8 +340,23 @@ export class UIScene extends Phaser.Scene {
     uiState.craftingOpen = false;
   }
 
+  /** The storage behind a chest key: a placed chest, or the farm warehouse. */
+  private storageFor(key: string): InventoryState | null {
+    if (key === WAREHOUSE_KEY) return gameState.warehouse;
+    const placed = gameState.placedObjects[key];
+    return placed?.kind === 'chest' && placed.chest ? placed.chest : null;
+  }
+
+  private setStorage(key: string, storage: InventoryState): void {
+    if (key === WAREHOUSE_KEY) gameState.warehouse = storage;
+    else {
+      const placed = gameState.placedObjects[key];
+      if (placed) placed.chest = storage;
+    }
+  }
+
   private closeChest(): void {
-    this.chestMenu.close();
+    this.activeChestMenu.close();
     uiState.chestOpen = false;
     this.openChestKey = null;
   }
@@ -383,45 +420,45 @@ export class UIScene extends Phaser.Scene {
     });
   }
 
-  /** Moves the player's currently equipped stack into an empty chest slot. */
+  /** Moves the player's currently equipped stack into an empty chest/warehouse slot. */
   private depositIntoChest(slotIndex: number): void {
-    if (!this.openChestKey) return;
-    const placed = gameState.placedObjects[this.openChestKey];
-    if (!placed?.chest) return;
+    const key = this.openChestKey;
+    const storage = key ? this.storageFor(key) : null;
+    if (!key || !storage) return;
     const stack = itemAt(gameState.inventory, gameState.equippedSlot);
     if (!stack) return;
 
-    const chestSlots = placed.chest.slots.slice();
-    chestSlots[slotIndex] = stack;
-    placed.chest = { slots: chestSlots };
+    const slots = storage.slots.slice();
+    slots[slotIndex] = stack;
+    this.setStorage(key, { slots });
 
     const invSlots = gameState.inventory.slots.slice();
     invSlots[gameState.equippedSlot] = null;
     gameState.inventory = { slots: invSlots };
 
-    this.chestMenu.refresh(placed.chest);
+    this.activeChestMenu.refresh({ slots });
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
   }
 
-  /** Moves a chest slot's contents into the first empty player inventory slot. */
   private withdrawFromChest(slotIndex: number): void {
-    if (!this.openChestKey) return;
-    const placed = gameState.placedObjects[this.openChestKey];
-    if (!placed?.chest) return;
-    const stack = itemAt(placed.chest, slotIndex);
+    const key = this.openChestKey;
+    const storage = key ? this.storageFor(key) : null;
+    if (!key || !storage) return;
+    const stack = itemAt(storage, slotIndex);
     if (!stack) return;
 
     const { state, leftover } = addItem(gameState.inventory, stack.itemId, stack.quantity);
-    if (leftover > 0 && leftover === stack.quantity) return; // inventory totally full; leave it in the chest
+    if (leftover > 0 && leftover === stack.quantity) return; // inventory totally full; leave it in storage
 
     gameState.inventory = state;
-    const chestSlots = placed.chest.slots.slice();
-    chestSlots[slotIndex] = leftover > 0 ? { itemId: stack.itemId, quantity: leftover } : null;
-    placed.chest = { slots: chestSlots };
+    const slots = storage.slots.slice();
+    slots[slotIndex] = leftover > 0 ? { itemId: stack.itemId, quantity: leftover } : null;
+    this.setStorage(key, { slots });
 
-    this.chestMenu.refresh(placed.chest);
+    this.activeChestMenu.refresh({ slots });
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
   }
+
 
   private toggleInventory(): void {
     if (uiState.inventoryOpen) {

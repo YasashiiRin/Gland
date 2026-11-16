@@ -9,6 +9,10 @@ import { createInitialSkills, type SkillXp } from '../systems/SkillSystem';
 import { createQuestState, type QuestState } from '../systems/QuestSystem';
 import type { ResourceNodes } from '../systems/ResourceSystem';
 import type { ActiveBuff } from '../systems/StatsSystem';
+import { addVehicle, type OwnedVehicles } from '../systems/VehicleSystem';
+import { DEV_GIVE_ALL_VEHICLES } from '../config/dev';
+import { vehicleHome, VEHICLE_IDS } from '../data/garage';
+import { ITEMS } from '../data/items';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 
 /**
@@ -44,9 +48,17 @@ export interface GameState {
   settings: { muted: boolean; volume: number; zoom: number };
   /** Timed stat bonuses from food. */
   buffs: ActiveBuff[];
-  /** The vehicle item the player is riding right now, or null when on foot. */
+  /** The vehicle the player is riding right now, or null when on foot. */
   riding: ItemId | null;
+  /** Vehicles the player owns and where each is parked. */
+  vehicles: OwnedVehicles;
+  /** Tractor ploughing / harvester cutting is switched on (vs. just driving). */
+  vehicleWorking: boolean;
+  /** The big storage in the farm warehouse. */
+  warehouse: InventoryState;
 }
+
+export const WAREHOUSE_SLOT_COUNT = 36;
 
 export const STATE_VERSION = 11;
 
@@ -96,6 +108,9 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     settings: { muted: false, volume: 0.6, zoom: DEFAULT_ZOOM },
     buffs: [],
     riding: null,
+    vehicles: DEV_GIVE_ALL_VEHICLES ? grantAllVehicles({}) : {},
+    vehicleWorking: false,
+    warehouse: { slots: Array.from({ length: WAREHOUSE_SLOT_COUNT }, () => null) },
   };
 }
 
@@ -122,6 +137,20 @@ export const gameState: GameState = createInitialState();
 export function applyLoadedState(saved: GameState): void {
   const defaults = createInitialState(saved.playerName, saved.farmName);
   Object.assign(gameState, defaults, saved, { settings: { ...defaults.settings, ...saved.settings } });
+  // Vehicles used to be inventory items: turn any such item into an owned, parked vehicle.
+  let vehicles = gameState.vehicles;
+  const slots = gameState.inventory.slots.map((stack) => {
+    if (!stack || ITEMS[stack.itemId].category !== 'vehicle') return stack;
+    vehicles = addVehicle(vehicles, stack.itemId, vehicleHome(stack.itemId));
+    return null;
+  });
+  gameState.inventory = { slots };
+  gameState.vehicles = DEV_GIVE_ALL_VEHICLES ? grantAllVehicles(vehicles) : vehicles;
+  if (gameState.riding && !gameState.vehicles[gameState.riding]) gameState.riding = null;
+}
+
+function grantAllVehicles(owned: OwnedVehicles): OwnedVehicles {
+  return VEHICLE_IDS.reduce((acc, id) => addVehicle(acc, id, vehicleHome(id)), owned);
 }
 
 export function resetToNewGame(playerName?: string, farmName?: string): void {

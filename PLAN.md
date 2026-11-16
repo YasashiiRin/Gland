@@ -319,3 +319,17 @@ trạng thái ô highlight (vị trí, màu) qua trình duyệt thật, khớp c
   rơm, chum; nội thất: sàn gạch bát, giường mắc màn, tủ chè, chạn bát, bếp kiềng, chiếu cói, tranh thư pháp.
 - **Chưa làm:** người ngồi trên xe chỉ là cắt chân nhân vật (chưa có tư thế ngồi riêng); xe không có nhiên liệu;
   các menu túi đồ/cửa hàng/chế tạo chưa đổi sang khung gỗ; hầm mỏ vẫn hình cũ; `MapScene.ts` ~750 dòng (nên tách).
+
+
+## Cập nhật: nhà kho, xe đậu trên bản đồ, khói, chế độ cày 2x2
+- **Nhà kho** (nông trại, cạnh nhà chính): E/chuột phải ở cửa → mở kho chứa 36 ô (`GameState.warehouse`) và gọi mọi xe
+  đang để nơi khác về 4 chỗ đậu trước kho (`src/data/garage.ts`, khớp với `build_farm()` trong `scripts/art/maps.py`).
+- **Xe không còn là vật phẩm trong túi**: là xe thật đậu trên bản đồ (`GameState.vehicles`, `VehicleSystem` có test).
+  Đứng cạnh xe + E/chuột phải = lên xe; đang lái + E/chuột phải = xuống, xe đậu tại chỗ. Vào nhà/hầm mỏ/đi ngủ thì xe
+  tự đậu ngoài cửa; sang map ngoài trời khác thì xe đi cùng. Mua ở tiệm → xe được giao về nhà kho. Save cũ có xe
+  trong túi được tự chuyển thành xe đậu ở kho.
+- **`DEV_GIVE_ALL_VEHICLES = true`** trong `src/config/dev.ts`: có sẵn cả 4 xe để thử. **Đổi thành `false` trước khi
+  phát hành** để người chơi phải mua.
+- **Khi lái:** chuột trái/Space = bật/tắt chế độ làm việc (máy cày: cày; máy gặt: gặt) hoặc bấm còi (xe máy).
+  Máy cày/máy gặt to 2x2 ô (thân va chạm rộng hơn), làm việc trên cả 4 ô dưới máy (ô vàng hiển thị vùng làm việc).
+  Xe máy, máy cày, máy gặt nhả khói khi chạy (máy đang làm việc nhả khói dày hơn).

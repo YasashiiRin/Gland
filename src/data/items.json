@@ -275,7 +275,7 @@
     "category": "vehicle",
     "stackable": false,
     "sellPrice": 800,
-    "description": "Chậm mà chắc (+35% tốc độ). Khi ngồi xe, cầm nông sản và bấm chuột phải/E để chất lên xe bán luôn, khỏi ra thùng.",
+    "description": "Chậm mà chắc (+35% tốc độ). Đang ngồi xe, cầm nông sản và bấm chuột phải/E để chất lên xe bán luôn.",
     "stats": {
       "speed": 0.35
     },
@@ -288,7 +288,7 @@
     "category": "vehicle",
     "stackable": false,
     "sellPrice": 2500,
-    "description": "Phóng vèo vèo (+120% tốc độ) giữa nông trại và làng.",
+    "description": "Phóng vèo vèo (+120% tốc độ) giữa nông trại và làng. Chuột trái/Space để bấm còi.",
     "stats": {
       "speed": 1.2
     },
@@ -301,7 +301,7 @@
     "category": "vehicle",
     "stackable": false,
     "sellPrice": 4000,
-    "description": "Chạy qua bãi cỏ trong nông trại là tự cày đất (1 năng lượng/ô). +15% tốc độ.",
+    "description": "To 4 ô (2x2). Bấm chuột trái/Space để bật chế độ cày: mọi ô cỏ dưới máy đều được cuốc (1 năng lượng/ô). +15% tốc độ.",
     "stats": {
       "speed": 0.15
     },
@@ -314,7 +314,7 @@
     "category": "vehicle",
     "stackable": false,
     "sellPrice": 5000,
-    "description": "Chạy qua cây đã chín là tự gặt vào túi. +10% tốc độ.",
+    "description": "To 4 ô (2x2). Bấm chuột trái/Space để bật chế độ gặt: cây chín dưới máy được gặt vào túi. +10% tốc độ.",
     "stats": {
       "speed": 0.1
     },

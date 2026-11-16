@@ -12,6 +12,7 @@ export type PlayerInput = MoveInput;
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private facing: Direction = 'down';
   private exhausted = false;
+  private bigBody = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, facing: Direction = 'down') {
     super(scene, x, y, PLAYER_TEXTURE, 0);
@@ -51,6 +52,23 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       x: Math.floor(this.x / tileSize) + dx,
       y: Math.floor(this.y / tileSize) + dy,
     };
+  }
+
+  /**
+   * Driving a 2x2-tile vehicle widens the collision box so it can't squeeze
+   * through one-tile gaps; on foot (or on a small vehicle) it's the normal feet box.
+   */
+  setBigBody(big: boolean): void {
+    if (big === this.bigBody) return;
+    this.bigBody = big;
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    if (big) {
+      body.setSize(26, 12);
+      body.setOffset(-5, 19);
+    } else {
+      body.setSize(10, 6);
+      body.setOffset(3, 23);
+    }
   }
 
   /** Turns to look at a tile (used when aiming with the mouse). Keeps facing if it's our own tile. */

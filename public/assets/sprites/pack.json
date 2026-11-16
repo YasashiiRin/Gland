@@ -89,6 +89,11 @@
    },
    {
     "type": "image",
+    "key": "prop_warehouse",
+    "url": "sprites/props/warehouse.png"
+   },
+   {
+    "type": "image",
     "key": "prop_bed",
     "url": "sprites/furniture/bed.png"
    },

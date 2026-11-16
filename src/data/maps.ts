@@ -6,6 +6,8 @@ export interface MapInfo {
   /** File name in public/assets/maps without extension. */
   file: string;
   displayName: string;
+  /** Vehicles can be driven here (and ridden in/out through its doors). */
+  outdoor: boolean;
 }
 
 export const MAPS: Record<MapKey, MapInfo> = maps;

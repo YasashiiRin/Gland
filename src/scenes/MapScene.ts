@@ -110,9 +110,9 @@ export abstract class MapScene extends Phaser.Scene {
     super(mapKey);
   }
 
-  /** Outdoor maps show rain; indoor maps never do. Override in Farm/Town. */
+  /** Outdoor maps show rain and allow vehicles (see maps.json "outdoor"). */
   protected get isOutdoor(): boolean {
-    return false;
+    return MAPS[this.mapKey].outdoor;
   }
 
   create(data: MapSceneData): void {
@@ -160,7 +160,7 @@ export abstract class MapScene extends Phaser.Scene {
     createProps(this, this.map);
     this.trees = new TreeSprites(this, decor);
     if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
-    this.ride = new RideController(this, this.player, (tile, ability) => this.onRideTile(tile, ability));
+    this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.afterMapBuilt();
 
     const onPassOut = () => this.sleepSequence('passedOut');
@@ -184,7 +184,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.trees.updateOcclusion(this.player.x, this.player.y);
-    this.ride.update();
+    this.ride.update(this.time.now);
     worldView.playerTileX = Math.floor(this.player.x / TILE);
     worldView.playerTileY = Math.floor(this.player.y / TILE);
 
@@ -206,7 +206,12 @@ export abstract class MapScene extends Phaser.Scene {
 
   /** E key / right click: harvest, open, talk, sleep, sell... whichever applies first. */
   private interact(): void {
-    if (this.tryLoadOntoCart()) return;
+    if (gameState.riding) {
+      // Riding: load produce onto the ox cart, otherwise get off (the vehicle stays parked here).
+      if (!this.tryLoadOntoCart()) this.say(this.ride.dismount());
+      return;
+    }
+    if (this.say(this.ride.tryMount())) return;
     if (
       !this.tryHarvestFacingTile() &&
       !this.tryOpenChest() &&
@@ -313,7 +318,8 @@ export abstract class MapScene extends Phaser.Scene {
   }
 
   private updateTargetHighlight(): void {
-    const state = this.getTargetHighlightState();
+    // Riding: tools are put away; a working vehicle shows its own 2x2 area instead.
+    const state = gameState.riding ? 'none' : this.getTargetHighlightState();
     if (state === 'none') {
       this.targetHighlight.setVisible(false);
       return;
@@ -418,6 +424,8 @@ export abstract class MapScene extends Phaser.Scene {
 
   private goTo(target: MapKey, spawn: string): void {
     if (this.transitioning) return;
+    // Vehicles can follow you to other outdoor maps; at an indoor door they're parked outside.
+    if (gameState.riding && !MAPS[target].outdoor) this.ride.dismount();
     this.beginTransition();
     const facing = this.player.direction;
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
@@ -428,6 +436,7 @@ export abstract class MapScene extends Phaser.Scene {
   /** Falling asleep in bed, or passing out from staying up past 2 AM. Both end the day. */
   private sleepSequence(reason: 'manual' | 'passedOut'): void {
     if (this.transitioning) return;
+    if (gameState.riding) this.ride.dismount();
     this.beginTransition();
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       const wasRaining = gameState.time.weather === 'rainy';
@@ -533,8 +542,15 @@ export abstract class MapScene extends Phaser.Scene {
     }
   }
 
-  /** A vehicle's ability, applied whenever the rider reaches a new tile. Farm overrides this. */
-  protected onRideTile(_tile: { x: number; y: number }, _ability: VehicleAbility): void {}
+  /** A working tractor/harvester reached a new 2x2 area. Farm overrides this to plough/harvest. */
+  protected onVehicleWork(_tiles: { x: number; y: number }[], _ability: VehicleAbility): void {}
+
+  /** Shows a short message above the player; returns whether there was one. */
+  protected say(message: string | null): boolean {
+    if (!message) return false;
+    this.showFloatingText(this.player.x, this.player.y - 26, message);
+    return true;
+  }
 
   /** Ox cart: ship the held produce straight from the cart, wherever you are. */
   private tryLoadOntoCart(): boolean {
@@ -552,18 +568,13 @@ export abstract class MapScene extends Phaser.Scene {
 
   private useEquippedTool(): void {
     const stack = itemAt(gameState.inventory, gameState.equippedSlot);
+    // While riding, Space / left click is the vehicle's own action (work mode, horn);
+    // only eating still works from the seat.
+    if (gameState.riding && (!stack || ITEMS[stack.itemId].category !== 'food')) {
+      this.say(this.ride.action());
+      return;
+    }
     if (!stack) return;
-    const category = ITEMS[stack.itemId].category;
-
-    if (category === 'vehicle') {
-      const message = this.ride.toggle(stack.itemId, this.isOutdoor);
-      this.showFloatingText(this.player.x, this.player.y - 26, message);
-      return;
-    }
-    if (gameState.riding && category !== 'food') {
-      this.showFloatingText(this.player.x, this.player.y - 26, 'Xuống xe trước đã');
-      return;
-    }
 
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);

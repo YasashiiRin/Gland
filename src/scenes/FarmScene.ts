@@ -36,6 +36,8 @@ import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/
 import { iconTextureKey } from '../ui/itemIcons';
 import { CROP_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
+import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
+import { recallAll } from '../systems/VehicleSystem';
 
 /** Energy the tractor uses per tile it tills (the hand hoe costs 2). */
 const TRACTOR_ENERGY_PER_TILE = 1;
@@ -51,6 +53,7 @@ export class FarmScene extends MapScene {
   private cropSprites = new Map<string, Phaser.GameObjects.Image>();
   private binZones: Phaser.GameObjects.Zone[] = [];
   private mineZones: Phaser.GameObjects.Zone[] = [];
+  private warehouseZones: Phaser.GameObjects.Zone[] = [];
   private furnitureSprites = new Map<string, Phaser.GameObjects.Image>();
 
   constructor() {
@@ -68,6 +71,7 @@ export class FarmScene extends MapScene {
   protected override afterMapBuilt(): void {
     this.binZones = this.createZonesNamed('shipping_bin');
     this.mineZones = this.createZonesNamed('mine_entrance');
+    this.warehouseZones = this.createZonesNamed('warehouse', 6);
 
     this.dropPlacementsInvalidOnThisMap();
     this.cropSprites.forEach((sprite) => sprite.destroy());
@@ -165,19 +169,27 @@ export class FarmScene extends MapScene {
     return this.harvestAt(this.actionTile());
   }
 
-  /** Tractor tills grass it drives over; the harvester gathers ripe crops it drives over. */
-  protected override onRideTile(tile: { x: number; y: number }, ability: VehicleAbility): void {
-    if (ability === 'harvest') {
-      this.harvestAt(tile);
-      return;
+  /** A working tractor ploughs, a working harvester reaps, its whole 2x2 area. */
+  protected override onVehicleWork(tiles: { x: number; y: number }[], ability: VehicleAbility): void {
+    for (const tile of tiles) {
+      if (ability === 'harvest') {
+        this.harvestAt(tile);
+        continue;
+      }
+      if (ability !== 'till' || isExhausted(gameState.energy)) return;
+      const key = plotKey(tile.x, tile.y);
+      if (gameState.farmPlots[key] || isOccupied(gameState.placedObjects, placedObjectKey(this.mapKey, tile.x, tile.y))) continue;
+      this.applyToolEffect('hoe', tile);
+      if (!gameState.farmPlots[key]) continue;
+      gameState.energy = consume(gameState.energy, TRACTOR_ENERGY_PER_TILE);
+      this.playBurstEffect(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2, WATER_DROPLET_TEXTURE, {
+        count: 4,
+        speed: { min: 15, max: 40 },
+        angle: { min: 200, max: 340 },
+        lifespan: 300,
+        tint: 0x7a5636,
+      });
     }
-    if (ability !== 'till' || isExhausted(gameState.energy)) return;
-    const key = plotKey(tile.x, tile.y);
-    const before = gameState.farmPlots[key];
-    const objKey = placedObjectKey(this.mapKey, tile.x, tile.y);
-    if (before || isOccupied(gameState.placedObjects, objKey)) return;
-    this.applyToolEffect('hoe', tile);
-    if (gameState.farmPlots[key]) gameState.energy = consume(gameState.energy, TRACTOR_ENERGY_PER_TILE);
   }
 
   private harvestAt(tile: { x: number; y: number }): boolean {
@@ -224,6 +236,15 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryOpenChest(): boolean {
+    if (this.isNearAnyZone(this.warehouseZones)) {
+      // The warehouse: open its big storage and call every vehicle back to its bay.
+      const { owned, recalled } = recallAll(gameState.vehicles, vehicleHome, gameState.riding);
+      gameState.vehicles = owned;
+      if (recalled > 0) this.say(`Đã gọi ${recalled} xe về nhà kho`);
+      const payload: ChestOpenRequestedPayload = { chestKey: WAREHOUSE_KEY };
+      EventBus.emit(GameEvents.ChestOpenRequested, payload);
+      return true;
+    }
     const tile = this.actionTile();
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     const placed = gameState.placedObjects[key];
@@ -254,6 +275,7 @@ export class FarmScene extends MapScene {
 
   protected override tryEnterMine(): boolean {
     if (!this.isNearAnyZone(this.mineZones)) return false;
+    if (gameState.riding) this.ride.dismount();
     timeControl.paused = true;
     this.player.halt();
     this.cameras.main.fadeOut(FADE_MS, 0, 0, 0);

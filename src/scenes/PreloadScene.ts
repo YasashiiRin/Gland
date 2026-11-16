@@ -16,6 +16,7 @@ export const TILESET_TEXTURE = 'farm_tiles';
 export const RAIN_TEXTURE = 'rain_drop';
 export const WOOD_CHIP_TEXTURE = 'wood_chip';
 export const WATER_DROPLET_TEXTURE = 'water_droplet';
+export const SMOKE_TEXTURE = 'smoke_puff';
 export const CROP_TEXTURE = 'crop_plant';
 
 export function mapCacheKey(file: string): string {
@@ -54,6 +55,7 @@ export class PreloadScene extends Phaser.Scene {
     this.createRainTexture();
     this.createWoodChipTexture();
     this.createWaterDropletTexture();
+    this.createSmokeTexture();
     this.createCropTexture();
     createItemIconTextures(this);
     sessionFlags.gameStarted = true;
@@ -77,6 +79,17 @@ export class PreloadScene extends Phaser.Scene {
     g.fillStyle(0x8a6540, 1);
     g.fillTriangle(0, 4, 6, 5, 2, 6);
     g.generateTexture(WOOD_CHIP_TEXTURE, 6, 6);
+    g.destroy();
+  }
+
+  /** A soft grey puff for vehicle exhaust. */
+  private createSmokeTexture(): void {
+    const g = this.add.graphics();
+    g.fillStyle(0x9a9692, 0.7);
+    g.fillCircle(5, 5, 5);
+    g.fillStyle(0xc8c4bc, 0.8);
+    g.fillCircle(4, 4, 3);
+    g.generateTexture(SMOKE_TEXTURE, 10, 10);
     g.destroy();
   }
 

@@ -163,6 +163,12 @@ def build_farm() -> MapBuilder:
     m.prop("shipping_bin", 13, 10, 2, 1)
     m.obj("shipping_bin", 13 * T, 10 * T, 2 * T, T)
     m.put(16, 11, SIGN)
+    # warehouse / vehicle shed with a dirt yard of 4 parking bays in front
+    # (bay columns 17, 20, 23, 26 on row 10 — keep in sync with src/data/garage.ts)
+    m.fill(17, 8, 28, 11, PATH)
+    m.fill(15, 10, 16, 10, PATH)
+    m.prop("warehouse", 19, 3, 6, 5, solid_from=1, base=DIRT)
+    m.obj("warehouse", 21 * T, 7 * T, 2 * T, T)
     for x in range(4, 8):                           # little bamboo fence by the house
         m.put(x, 10, FENCE)
     m.prop("haystack", 4, 7, 2, 2, solid_from=1)    # haystacks and water jars by the house
