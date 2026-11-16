@@ -104,23 +104,23 @@
    },
    {
     "type": "image",
-    "key": "prop_counter",
-    "url": "sprites/furniture/counter.png"
+    "key": "prop_dish_cabinet",
+    "url": "sprites/furniture/dish_cabinet.png"
    },
    {
     "type": "image",
-    "key": "prop_stove",
-    "url": "sprites/furniture/stove.png"
+    "key": "prop_kitchen_stove",
+    "url": "sprites/furniture/kitchen_stove.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_tea_cabinet",
+    "url": "sprites/furniture/tea_cabinet.png"
    },
    {
     "type": "image",
     "key": "prop_bookshelf",
     "url": "sprites/furniture/bookshelf.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_fireplace",
-    "url": "sprites/furniture/fireplace.png"
    },
    {
     "type": "image",
@@ -231,6 +231,41 @@
      "frameWidth": 32,
      "frameHeight": 32
     }
+   },
+   {
+    "type": "image",
+    "key": "tree_bamboo",
+    "url": "sprites/trees/bamboo.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_banana",
+    "url": "sprites/trees/banana.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_areca",
+    "url": "sprites/trees/areca.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_banyan",
+    "url": "sprites/props/banyan.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_well",
+    "url": "sprites/props/well.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_haystack",
+    "url": "sprites/props/haystack.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_jar",
+    "url": "sprites/props/jar.png"
    }
   ]
  }

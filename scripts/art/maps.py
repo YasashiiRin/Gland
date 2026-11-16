@@ -163,8 +163,12 @@ def build_farm() -> MapBuilder:
     m.prop("shipping_bin", 13, 10, 2, 1)
     m.obj("shipping_bin", 13 * T, 10 * T, 2 * T, T)
     m.put(16, 11, SIGN)
-    for x in range(4, 8):                           # little garden fence by the house
+    for x in range(4, 8):                           # little bamboo fence by the house
         m.put(x, 10, FENCE)
+    m.prop("haystack", 4, 7, 2, 2, solid_from=1)    # haystacks and water jars by the house
+    m.prop("haystack", 2, 8, 2, 2, solid_from=1)
+    m.prop("jar", 15, 9, 1, 1)
+    m.prop("jar", 16, 9, 1, 1)
     # mine: cave in a rocky corner (north-east), path down to the road
     m.prop("cave", 50, 3, 3, 3, door=None)
     m.obj("mine_entrance", 51 * T, 5 * T, T, T)
@@ -194,7 +198,8 @@ def build_town() -> MapBuilder:
     m.forest_border({(0, y) for y in (11, 12, 13)}, depth=1)
     m.fill(0, 12, 39, 12, PATH)
     m.fill(14, 6, 26, 18, PATH)
-    m.fill(19, 11, 21, 13, WATER)                   # fountain pool
+    m.prop("well", 19, 11, 2, 2, solid_from=1)      # village well in the square
+    m.prop("banyan", 5, 15, 3, 2)                   # the old banyan tree
 
     def building(x0: int, y0: int, w: int, sprite: str, door_x: int) -> None:
         m.prop(sprite, x0, y0 - 1, w, 5, solid_from=1, door=(door_x, y0 + 3), base=DIRT)
@@ -205,6 +210,7 @@ def build_town() -> MapBuilder:
     m.obj("shop", 18 * T, 4 * T, T, T, {"shopId": "seed_shop"})
     building(5, 3, 5, "house_a", 7)
     m.obj("shop", 7 * T, 6 * T, T, T, {"shopId": "grocery"})
+    m.prop("jar", 9, 7, 1, 1)
     building(30, 3, 5, "house_b", 32)
     m.obj("shop", 32 * T, 6 * T, T, T, {"shopId": "vehicle_shop"})
     building(29, 16, 5, "house_c", 31)
@@ -237,9 +243,9 @@ def build_house() -> MapBuilder:
     m.obj("bed", 1 * T, 3 * T, 2 * T, 2 * T)
     m.prop("plant", 3, 3, 1, 1)
     m.prop("bookshelf", 5, 3, 2, 1)
-    m.prop("fireplace", 8, 3, 2, 1)
-    m.prop("counter", 12, 3, 2, 1)
-    m.prop("stove", 14, 3, 1, 1)
+    m.prop("tea_cabinet", 8, 3, 2, 1)
+    m.prop("dish_cabinet", 12, 3, 2, 1)
+    m.prop("kitchen_stove", 14, 3, 1, 1)
     m.prop("rug", 5, 6, 3, 2, solid_from=None, layer="floor")
     m.prop("table", 10, 7, 2, 1)
     m.prop("chair", 9, 7, 1, 1)

@@ -300,3 +300,22 @@ trạng thái ô highlight (vị trí, màu) qua trình duyệt thật, khớp c
   `MinimapSystem`). Các menu (túi đồ, cửa hàng...) chưa đổi sang khung gỗ mới.
 - **Chưa làm:** hầm mỏ vẫn dùng hình cũ (quái vật là hình tròn), icon vật phẩm vẫn vẽ bằng code cũ, đất cuốc chưa nối
   liền nhau giữa các ô kề, `MapScene.ts` đã vượt ~300 dòng (nên tách tiếp ở lần sau).
+
+
+## Cập nhật: chỉ số vật phẩm, phương tiện, cài đặt/zoom, giao diện gọn, phong cách Việt Nam
+- **Bỏ Shift chạy nhanh.** Tốc độ chỉ đến từ chỉ số (`StatsSystem`, có test): `stats.speed` của vũ khí đang cầm
+  (kiếm -5%), xe đang cưỡi, và hiệu ứng đồ ăn có thời hạn (`GameState.buffs`). Chỉnh trong `src/data/items.json`.
+- **Đồ ăn:** cầm đồ ăn + Space/chuột trái để ăn (hồi năng lượng, có món kèm buff). Quán tạp hoá Cô Hạnh ở làng bán
+  cơm nắm, bánh mì, cà phê sữa đá. Cửa hàng trong Tiled giờ là object `shop` có thuộc tính `shopId`.
+- **Phương tiện** (mua ở Tiệm xe trong làng; Space/chuột trái để lên/xuống; chỉ ngoài trời): xe bò (+35%, chất hàng
+  bán từ xa bằng chuột phải/E), xe máy (+120%), máy cày (+15%, tự cày ô cỏ chạy qua, 1 năng lượng/ô), máy gặt lúa
+  (+10%, tự gặt cây chín chạy qua). Logic ở `src/scenes/rideController.ts`; cây **lúa** mới (xuân/hạ).
+- **Cài đặt:** nút ⚙ trên màn hình (hoặc Tab): âm lượng, tắt tiếng, **thu phóng 1–4x** (đổi ngay), toàn màn hình,
+  danh sách phím. Save cũ thiếu trường mới được tự điền mặc định khi tải.
+- **Giao diện gọn:** đồng hồ là một vòng tròn trời (mặt trời/mặt trăng chạy theo giờ) + giờ + tiền; rê chuột vào để
+  xem ngày/mùa/thời tiết. Thanh năng lượng/máu mảnh ở góc dưới phải; minimap nhỏ hơn.
+- **Phong cách Việt Nam:** nhà mái ngói đỏ mũi hài, bờ nóc cong, tường vôi vàng, hiên cột gỗ, cửa bức bàn, cửa sổ
+  song gỗ, biển hiệu đỏ có hình minh hoạ; nón lá, áo bà ba, áo dài; lũy tre, chuối, cau, cây đa, giếng làng, đống
+  rơm, chum; nội thất: sàn gạch bát, giường mắc màn, tủ chè, chạn bát, bếp kiềng, chiếu cói, tranh thư pháp.
+- **Chưa làm:** người ngồi trên xe chỉ là cắt chân nhân vật (chưa có tư thế ngồi riêng); xe không có nhiên liệu;
+  các menu túi đồ/cửa hàng/chế tạo chưa đổi sang khung gỗ; hầm mỏ vẫn hình cũ; `MapScene.ts` ~750 dòng (nên tách).

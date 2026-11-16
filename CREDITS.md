@@ -4,7 +4,7 @@
 |------|-------|-----------|
 | public/assets/tilesets/*.png | Tự vẽ bằng code: scripts/art/tiles.py, scripts/art/mine.py | Thuộc dự án |
 | public/assets/sprites/player.png, sprites/npcs/*.png | Tự vẽ bằng code: scripts/art/characters.py | Thuộc dự án |
-| public/assets/sprites/trees, props, furniture, crops | Tự vẽ bằng code: scripts/art/{nature,buildings,furniture,crops}.py | Thuộc dự án |
+| public/assets/sprites/trees, props, furniture, crops, vehicles | Tự vẽ bằng code: scripts/art/{nature,vn_nature,buildings,furniture,crops,vehicles}.py | Thuộc dự án |
 | public/assets/sprites/pack.json, maps/*.tmj | Sinh bởi scripts/gen_placeholders.py | Thuộc dự án |
 
 Khi thay bằng asset thật (ví dụ từ itch.io), ghi tên tác giả, đường link và giấy phép vào bảng này.

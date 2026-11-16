@@ -2,8 +2,13 @@ import Phaser from 'phaser';
 import { TILE } from '../config/constants';
 import { TILE_GID } from '../config/tileGids';
 
-/** Tree sprite keys (generated into public/assets/sprites/trees, loaded via pack.json). */
-const TREE_TEXTURES = ['tree_oak_0', 'tree_oak_1', 'tree_pine'] as const;
+/**
+ * Tree sprite keys (generated into public/assets/sprites/trees, loaded via
+ * pack.json). The border forest is mostly bamboo hedges and areca palms, as
+ * around a Vietnamese village; choppable trees are broadleaf or banana.
+ */
+const FOREST_TEXTURES = ['tree_bamboo', 'tree_bamboo', 'tree_areca', 'tree_bamboo', 'tree_oak_1'] as const;
+const CHOPPABLE_TEXTURES = ['tree_oak_0', 'tree_oak_1', 'tree_banana'] as const;
 /** Where the trunk base sits inside the 48x64 tree sprite. */
 const TREE_BASE_Y = 60;
 const TREE_HEIGHT = 64;
@@ -58,7 +63,8 @@ export class TreeSprites {
       if (tile.index !== TILE_GID.TRUNK && tile.index !== TILE_GID.FOREST) return;
       const h = tileHash(tile.x, tile.y);
       const forest = tile.index === TILE_GID.FOREST;
-      const texture = TREE_TEXTURES[h % (forest ? 3 : 2)];
+      const pool: readonly string[] = forest ? FOREST_TEXTURES : CHOPPABLE_TEXTURES;
+      const texture = pool[h % pool.length];
       if (!scene.textures.exists(texture)) return;
       const jitterX = forest ? (h % 7) - 3 : 0;
       const baseY = tile.y * TILE + TILE - 2;

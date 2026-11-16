@@ -23,16 +23,36 @@ class Look:
     hair_style: str = "short"   # short | long | bun | grey
     skirt: bool = False
     apron: tuple[int, int, int] | None = None
+    hat: bool = False           # conical palm-leaf hat ("nón lá")
 
 
-PLAYER = Look(skin=(232, 184, 150), hair=(96, 60, 40), shirt=(80, 114, 138), legs=(102, 76, 54))
+# Indigo "áo bà ba" shirt, black trousers and a conical hat.
+PLAYER = Look(skin=(228, 180, 146), hair=(52, 38, 32), shirt=(82, 100, 140), legs=(50, 46, 52), hat=True)
 VILLAGERS = {
-    "chu_tu": Look(skin=(214, 164, 128), hair=(156, 150, 142), shirt=(128, 96, 62), legs=(72, 76, 84), hair_style="grey"),
-    "co_hanh": Look(skin=(228, 180, 146), hair=(72, 46, 34), shirt=(168, 88, 82), legs=(104, 92, 124),
-                    hair_style="bun", skirt=True, apron=(222, 210, 184)),
-    "linh": Look(skin=(236, 192, 160), hair=(42, 34, 38), shirt=(206, 166, 88), legs=(74, 92, 122), hair_style="long"),
-    "minh": Look(skin=(222, 172, 136), hair=(54, 40, 32), shirt=(88, 128, 94), legs=(62, 66, 82)),
+    # brown áo bà ba + nón lá, an old farmer
+    "chu_tu": Look(skin=(206, 156, 120), hair=(156, 150, 142), shirt=(122, 88, 58), legs=(56, 52, 50),
+                   hair_style="grey", hat=True),
+    # purple áo bà ba, hair in a bun, shopkeeper's apron
+    "co_hanh": Look(skin=(226, 178, 144), hair=(52, 36, 30), shirt=(126, 82, 128), legs=(44, 40, 46),
+                    hair_style="bun", apron=(222, 210, 184)),
+    # white áo dài and long black hair
+    "linh": Look(skin=(236, 194, 162), hair=(34, 28, 32), shirt=(238, 234, 224), legs=(232, 228, 216),
+                 hair_style="long", skirt=True),
+    "minh": Look(skin=(214, 166, 130), hair=(40, 32, 28), shirt=(70, 122, 150), legs=(70, 66, 60)),
 }
+STRAW, STRAW_D, STRAW_L = (216, 194, 136), (176, 152, 98), (238, 222, 172)
+
+
+def _non_la(im: Image.Image, y: int, cx: float = 7.5) -> None:
+    """Conical hat: apex at the top, wide brim over the forehead."""
+    for r in range(8):
+        half = 0.6 + r * 0.95
+        for x in range(int(cx - half), int(cx + half) + 1):
+            c = STRAW_L if x < cx - half * 0.3 else STRAW if x < cx + half * 0.4 else STRAW_D
+            if r in (3, 6):
+                c = shade(c, 0.88)
+            put(im, x, r + y, c)
+    put(im, int(cx), y, STRAW_L)
 
 
 def _body_front(im: Image.Image, lk: Look, step: int, back: bool) -> None:
@@ -71,6 +91,8 @@ def _body_front(im: Image.Image, lk: Look, step: int, back: bool) -> None:
         put(im, 7, 11 + y, shade(lk.skin, 0.86)); put(im, 8, 11 + y, shade(lk.skin, 0.86))
         if lk.hair_style == "grey":  # moustache
             rect(im, 6, 11 + y, 9, 11 + y, lk.hair)
+    if lk.hat:
+        _non_la(im, y + 0)
 
 
 def _hair_front(im: Image.Image, lk: Look, y: int, back: bool) -> None:
@@ -131,6 +153,8 @@ def _body_side(im: Image.Image, lk: Look, step: int) -> None:
         rect(im, 3, 3 + y, 5, 5 + y, h)
     if lk.hair_style == "grey":
         rect(im, 9, 11 + y, 11, 11 + y, h)
+    if lk.hat:
+        _non_la(im, y + 0, cx=8)
 
 
 def frame(lk: Look, direction: str, step: int) -> Image.Image:

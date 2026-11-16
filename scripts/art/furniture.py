@@ -31,11 +31,17 @@ def bed() -> Image.Image:
     rect(im, 5, 11, 26, 17, (248, 244, 234)); rect(im, 5, 17, 26, 17, (204, 196, 180))  # pillow
     for y in range(20, 36):                                       # quilt with a simple patch pattern
         for x in range(2, 30):
-            c = (112, 138, 168) if ((x // 4) + (y // 4)) % 2 else (150, 112, 104)
+            c = (178, 70, 60) if ((x // 4) + (y // 4)) % 2 else (196, 150, 70)   # flowered quilt
             put(im, x, y, c if y > 20 else shade(c, 1.15))
     rect(im, 29, 20, 29, 35, shade((112, 138, 168), 0.7))
     _box(im, 1, 35, 30, 39, WOOD, top_h=1)                        # footboard
     outline(im, 0.45)
+    # mosquito net ("màn") tied up over the head of the bed
+    for y in range(0, 22):
+        for x in range(2, 30):
+            if (x + y) % 3 == 0 and (y < 4 or x < 6 or x > 25):
+                put(im, x, y, (246, 244, 236))
+    rect(im, 2, 0, 29, 1, (246, 244, 236))
     return im
 
 
@@ -44,9 +50,10 @@ def table() -> Image.Image:
     soft_shadow(im, 16, 26, 15, 2)
     rect(im, 3, 12, 4, 26, WOOD_D); rect(im, 27, 12, 28, 26, WOOD_D)
     _box(im, 1, 4, 30, 14, WOOD, top_h=9)
-    disc(im, 10, 7, 3, (236, 230, 216)); disc(im, 10, 7, 1.5, (200, 120, 80))           # plate
-    rect(im, 20, 1, 23, 7, (120, 150, 170)); disc(im, 21, 0, 2, (222, 120, 120))        # vase + flower
-    put(im, 20, 1, P["f3"])
+    disc(im, 14, 6, 3, (236, 232, 222)); rect(im, 17, 5, 18, 5, (236, 232, 222))       # teapot
+    rect(im, 13, 2, 15, 3, (200, 196, 186))
+    for x in (6, 9, 21, 24):
+        rect(im, x, 7, x + 1, 8, (236, 232, 222))                                         # cups
     outline(im, 0.45)
     return im
 
@@ -62,24 +69,49 @@ def chair() -> Image.Image:
     return im
 
 
-def counter() -> Image.Image:
-    im = new(32, 32)
-    _box(im, 0, 8, 31, 31, (176, 150, 116), top_h=6)
-    rect(im, 0, 8, 31, 13, (196, 196, 190)); rect(im, 0, 8, 31, 8, (226, 224, 216))     # stone top
-    rect(im, 5, 9, 16, 12, (120, 140, 150)); rect(im, 10, 4, 11, 9, P["r2"])            # sink + tap
+def dish_cabinet() -> Image.Image:
+    """Wooden dish cabinet ("chạn bát") with lattice doors."""
+    im = new(32, 36)
+    _box(im, 0, 0, 31, 35, WOOD, top_h=2)
     for x0 in (2, 17):
-        rect(im, x0, 16, x0 + 12, 29, shade((176, 150, 116), 0.88)); put(im, x0 + 11, 22, (210, 180, 90))
-    rect(im, 22, 2, 28, 8, (200, 120, 70)); rect(im, 22, 2, 28, 3, (230, 160, 100))      # jar
+        rect(im, x0, 4, x0 + 12, 20, (60, 44, 34))
+        for x in range(x0 + 1, x0 + 12, 3):
+            rect(im, x, 4, x, 20, WOOD_L)
+        for y in range(6, 20, 4):
+            rect(im, x0, y, x0 + 12, y, WOOD_L)
+    rect(im, 2, 23, 29, 33, WOOD_D); rect(im, 15, 23, 16, 33, WOOD)
+    disc(im, 8, 13, 2, (236, 232, 222)); disc(im, 23, 12, 2, (110, 150, 180))       # bowls behind the lattice
     outline(im, 0.45)
     return im
 
 
-def stove() -> Image.Image:
-    im = new(16, 40)
-    rect(im, 6, 0, 9, 16, P["r0"]); rect(im, 6, 0, 6, 16, P["r1"])                      # pipe
-    _box(im, 0, 14, 15, 39, (62, 60, 64), top_h=5)
-    disc(im, 5, 16, 2, (40, 38, 42)); disc(im, 11, 16, 2, (40, 38, 42))
-    rect(im, 3, 25, 12, 33, (40, 36, 38)); rect(im, 4, 29, 11, 32, (230, 120, 50)); rect(im, 5, 30, 10, 31, (250, 200, 90))
+def kitchen_stove() -> Image.Image:
+    """Wood-fire kitchen: three-stone hearth ("kiềng") with a clay pot."""
+    im = new(16, 24)
+    soft_shadow(im, 8, 22, 7, 1.5)
+    rect(im, 2, 17, 13, 21, P["r1"]); rect(im, 2, 17, 13, 17, P["r2"])
+    rect(im, 5, 18, 10, 20, (240, 140, 50)); put(im, 7, 18, (252, 220, 120))
+    for x in (2, 7, 12):
+        rect(im, x, 13, x + 1, 17, P["r0"])
+    disc(im, 8, 10, 5, (124, 70, 44)); disc(im, 6, 8, 2, (160, 100, 70))             # clay pot
+    rect(im, 4, 4, 11, 5, (90, 52, 34))
+    rect(im, 0, 21, 5, 22, P["k2"]); rect(im, 11, 22, 15, 23, P["k2"])              # firewood
+    outline(im, 0.45)
+    return im
+
+
+def tea_cabinet() -> Image.Image:
+    """Low carved cabinet ("tủ chè") with a tea set and a vase of lotus."""
+    im = new(32, 32)
+    soft_shadow(im, 16, 30, 15, 2)
+    _box(im, 0, 12, 31, 30, (92, 50, 30), top_h=3)
+    for x0 in (3, 17):
+        rect(im, x0, 17, x0 + 11, 27, (110, 62, 38)); rect(im, x0 + 2, 19, x0 + 9, 25, (76, 40, 24))
+    rect(im, 4, 7, 9, 12, (236, 232, 222)); rect(im, 3, 6, 10, 7, (200, 196, 186))  # teapot tray
+    rect(im, 12, 9, 14, 12, (236, 232, 222))
+    rect(im, 22, 4, 26, 12, (70, 110, 150)); rect(im, 22, 4, 22, 12, (100, 140, 180))   # vase
+    disc(im, 23, 2, 2.5, (232, 150, 170)); disc(im, 26, 3, 2, (240, 180, 196))         # lotus
+    rect(im, 24, 0, 24, 4, P["f2"])
     outline(im, 0.45)
     return im
 
@@ -102,23 +134,6 @@ def bookshelf() -> Image.Image:
     return im
 
 
-def fireplace() -> Image.Image:
-    im = new(32, 40)
-    rect(im, 2, 0, 29, 39, P["r1"])
-    for y in range(1, 39, 4):
-        off = 0 if (y // 4) % 2 else 3
-        for x in range(2 + off, 29, 6):
-            rect(im, x, y, x + 4, y + 2, P["r2"]); put(im, x, y, P["r3"])
-    _box(im, 0, 12, 31, 16, WOOD, top_h=2)                         # mantel
-    rect(im, 8, 21, 23, 37, (24, 18, 18))
-    rect(im, 10, 34, 21, 36, P["k1"])                              # logs
-    for (x, h, c) in ((12, 8, (230, 110, 46)), (15, 11, (246, 170, 60)), (18, 7, (230, 110, 46)), (15, 6, (252, 226, 140))):
-        rect(im, x, 34 - h, x + 2, 33, c)
-    put(im, 6, 9, (206, 186, 90)); rect(im, 22, 7, 26, 11, (90, 120, 150))              # candle + small frame
-    outline(im, 0.45)
-    return im
-
-
 def plant() -> Image.Image:
     im = new(16, 24)
     soft_shadow(im, 8, 22, 5, 1.5)
@@ -130,15 +145,17 @@ def plant() -> Image.Image:
 
 
 def rug() -> Image.Image:
+    """Woven sedge mat ("chiếu cói") with red patterned stripes."""
     im = new(48, 32)
-    rect(im, 0, 0, 47, 31, (138, 72, 62))
-    rect(im, 3, 3, 44, 28, (176, 112, 80))
-    rect(im, 6, 6, 41, 25, (138, 72, 62))
-    rect(im, 9, 9, 38, 22, (206, 172, 118))
-    for x in range(12, 36, 6):
-        disc(im, x + 2, 15.5, 2, (112, 128, 150))
-    for x in range(0, 48, 2):
-        put(im, x, 0, (226, 210, 170)); put(im, x, 31, (226, 210, 170))
+    rect(im, 0, 0, 47, 31, (214, 190, 132))
+    for y in range(0, 32, 2):
+        rect(im, 0, y, 47, y, (200, 174, 116))
+    for y0 in (3, 25):
+        rect(im, 0, y0, 47, y0 + 3, (168, 52, 44))
+        for x in range(1, 47, 4):
+            put(im, x, y0 + 1, (230, 196, 90)); put(im, x + 1, y0 + 2, (230, 196, 90))
+    for x in range(0, 48, 3):
+        put(im, x, 0, (176, 150, 96)); put(im, x, 31, (176, 150, 96))
     return im
 
 
@@ -155,16 +172,19 @@ def window() -> Image.Image:
 
 
 def painting() -> Image.Image:
-    im = new(16, 14)
-    rect(im, 0, 0, 15, 13, (176, 140, 70))
-    rect(im, 2, 2, 13, 11, (140, 180, 200)); rect(im, 2, 8, 13, 11, P["f2"])
-    disc(im, 10, 5, 1.5, (240, 220, 140))
+    """Calligraphy scroll ("thư pháp") with a red seal."""
+    im = new(12, 22)
+    rect(im, 0, 0, 11, 1, P["k1"]); rect(im, 0, 20, 11, 21, P["k1"])
+    rect(im, 1, 2, 10, 19, (236, 226, 196))
+    for (x, y0, y1) in ((5, 4, 8), (4, 10, 11), (6, 10, 14), (5, 15, 16)):
+        rect(im, x, y0, x, y1, (40, 32, 30)); put(im, x + 1, y0, (40, 32, 30))
+    rect(im, 7, 17, 8, 18, (190, 40, 36))
     return im
 
 
-PIECES = {"bed": bed, "table": table, "chair": chair, "counter": counter, "stove": stove,
-          "bookshelf": bookshelf, "fireplace": fireplace, "plant": plant, "rug": rug,
-          "window": window, "painting": painting}
+PIECES = {"bed": bed, "table": table, "chair": chair, "dish_cabinet": dish_cabinet,
+          "kitchen_stove": kitchen_stove, "tea_cabinet": tea_cabinet, "bookshelf": bookshelf,
+          "plant": plant, "rug": rug, "window": window, "painting": painting}
 
 
 def make_furniture() -> list[dict]:

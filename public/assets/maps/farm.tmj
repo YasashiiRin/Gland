@@ -10,7 +10,7 @@
  "tileheight": 16,
  "infinite": false,
  "nextlayerid": 5,
- "nextobjectid": 12,
+ "nextobjectid": 16,
  "layers": [
   {
    "id": 1,
@@ -3624,8 +3624,8 @@
     57,
     0,
     0,
-    0,
-    0,
+    57,
+    57,
     0,
     0,
     57,
@@ -3686,8 +3686,8 @@
     61,
     61,
     61,
-    0,
-    0,
+    57,
+    57,
     0,
     0,
     0,
@@ -3699,8 +3699,8 @@
     57,
     57,
     57,
-    0,
-    0,
+    57,
+    57,
     0,
     0,
     0,
@@ -9361,6 +9361,98 @@
      "id": 5,
      "name": "prop",
      "type": "",
+     "x": 64,
+     "y": 112,
+     "width": 32,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "sprite",
+       "type": "string",
+       "value": "haystack"
+      },
+      {
+       "name": "layer",
+       "type": "string",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "prop",
+     "type": "",
+     "x": 32,
+     "y": 128,
+     "width": 32,
+     "height": 32,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "sprite",
+       "type": "string",
+       "value": "haystack"
+      },
+      {
+       "name": "layer",
+       "type": "string",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "prop",
+     "type": "",
+     "x": 240,
+     "y": 144,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "sprite",
+       "type": "string",
+       "value": "jar"
+      },
+      {
+       "name": "layer",
+       "type": "string",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "prop",
+     "type": "",
+     "x": 256,
+     "y": 144,
+     "width": 16,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "sprite",
+       "type": "string",
+       "value": "jar"
+      },
+      {
+       "name": "layer",
+       "type": "string",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "prop",
+     "type": "",
      "x": 800,
      "y": 48,
      "width": 48,
@@ -9381,7 +9473,7 @@
      ]
     },
     {
-     "id": 6,
+     "id": 10,
      "name": "mine_entrance",
      "type": "",
      "x": 816,
@@ -9392,7 +9484,7 @@
      "visible": true
     },
     {
-     "id": 7,
+     "id": 11,
      "name": "door",
      "type": "",
      "x": 1008,
@@ -9415,7 +9507,7 @@
      ]
     },
     {
-     "id": 8,
+     "id": 12,
      "name": "spawn_default",
      "type": "",
      "x": 184.0,
@@ -9427,7 +9519,7 @@
      "point": true
     },
     {
-     "id": 9,
+     "id": 13,
      "name": "spawn_fromHouse",
      "type": "",
      "x": 184.0,
@@ -9439,7 +9531,7 @@
      "point": true
     },
     {
-     "id": 10,
+     "id": 14,
      "name": "spawn_fromTown",
      "type": "",
      "x": 984.0,
@@ -9451,7 +9543,7 @@
      "point": true
     },
     {
-     "id": 11,
+     "id": 15,
      "name": "spawn_fromMine",
      "type": "",
      "x": 824.0,

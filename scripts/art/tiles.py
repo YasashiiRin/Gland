@@ -150,14 +150,18 @@ def weed(im: Image.Image, rnd: random.Random) -> None:
 
 
 def fence(im: Image.Image, rnd: random.Random) -> None:
+    """Woven bamboo fence: two rails and slanted split-bamboo slats."""
+    bam, bam_d, bam_l = (176, 168, 90), (128, 120, 60), (206, 198, 124)
     for y in range(13, 15):
         for x in range(T):
             put(im, x, y, (18, 24, 16, 60))
-    rect(im, 0, 5, T - 1, 6, P["k2"]); rect(im, 0, 5, T - 1, 5, P["k3"])
-    rect(im, 0, 9, T - 1, 10, P["k2"]); rect(im, 0, 9, T - 1, 9, P["k3"])
-    rect(im, 6, 2, 9, 13, P["k2"]); rect(im, 6, 2, 6, 13, P["k3"]); rect(im, 9, 2, 9, 13, P["k1"])
-    rect(im, 6, 1, 9, 1, P["k3"])
-    outline(im, 0.4)
+    for x in range(0, T, 3):
+        for y in range(3, 13):
+            put(im, x + (y - 3) // 5, y, bam if y > 4 else bam_l)
+            put(im, x + 1 + (y - 3) // 5, y, bam_d)
+    rect(im, 0, 5, T - 1, 5, bam_l); rect(im, 0, 6, T - 1, 6, bam_d)
+    rect(im, 0, 10, T - 1, 10, bam_l); rect(im, 0, 11, T - 1, 11, bam_d)
+    outline(im, 0.45)
 
 
 def sign(im: Image.Image, rnd: random.Random) -> None:
@@ -170,25 +174,25 @@ def sign(im: Image.Image, rnd: random.Random) -> None:
 
 
 # ------------------------------------------------------------------ interior
-def planks(im: Image.Image, rnd: random.Random, base=(150, 104, 68)) -> None:
-    rect(im, 0, 0, T - 1, T - 1, base)
-    for row in range(4):
-        y0 = row * 4
-        rect(im, 0, y0, T - 1, y0, shade(base, 1.12))
-        rect(im, 0, y0 + 3, T - 1, y0 + 3, shade(base, 0.7))
-        joint = (row * 7 + 3) % T
-        put(im, joint, y0 + 1, shade(base, 0.7)); put(im, joint, y0 + 2, shade(base, 0.7))
-        for _ in range(3):
-            put(im, rnd.randrange(T), y0 + rnd.choice((1, 2)), shade(base, 0.88))
-
-
 def wallpaper(im: Image.Image, rnd: random.Random) -> None:
-    base = (206, 186, 150)
+    """Yellow lime-washed plaster wall."""
+    base = (222, 186, 110)
     rect(im, 0, 0, T - 1, T - 1, base)
-    for x in (3, 11):
-        rect(im, x, 0, x, T - 1, shade(base, 0.92))
-    for x, y in ((7, 3), (15, 9), (7, 13)):
-        put(im, x, y, (176, 120, 106)); put(im, x - 1, y, (128, 150, 100))
+    sprinkle(im, rnd, 10, [shade(base, 0.93)])
+    sprinkle(im, rnd, 4, [shade(base, 1.06)])
+
+
+def terracotta(im: Image.Image, rnd: random.Random, base=(168, 84, 58)) -> None:
+    """Square fired-clay floor tiles ("gạch bát") with pale grout."""
+    rect(im, 0, 0, T - 1, T - 1, base)
+    for i in range(T):
+        put(im, i, 0, (196, 170, 140)); put(im, 0, i, (196, 170, 140))
+        put(im, i, 8, (196, 170, 140)); put(im, 8, i, (196, 170, 140))
+    for x0, y0 in ((1, 1), (9, 1), (1, 9), (9, 9)):
+        rect(im, x0, y0, x0 + 6, y0, shade(base, 1.12))
+        rect(im, x0 + 6, y0 + 1, x0 + 6, y0 + 6, shade(base, 0.86))
+        if rnd.random() < 0.5:
+            put(im, x0 + rnd.randint(1, 5), y0 + rnd.randint(2, 5), shade(base, 0.9))
 
 
 def wainscot(im: Image.Image, rnd: random.Random) -> None:
@@ -206,7 +210,7 @@ def iwall(im: Image.Image, rnd: random.Random) -> None:
 
 
 def doormat(im: Image.Image, rnd: random.Random) -> None:
-    planks(im, rnd)
+    terracotta(im, rnd)
     rect(im, 2, 3, 13, 13, (128, 70, 56)); rect(im, 3, 4, 12, 12, (156, 94, 70))
     for x in range(3, 13, 2):
         put(im, x, 13, (200, 170, 120))
@@ -245,7 +249,7 @@ def tile_img(idx: int, rnd: random.Random) -> Image.Image:
     elif idx == SIGN:
         sign(im, rnd)
     elif idx in (FLOOR, FLOOR2, TABLE, BED_TOP, BED_BOTTOM, RUG):
-        planks(im, rnd, (150, 104, 68) if idx != FLOOR2 else (142, 98, 64))
+        terracotta(im, rnd, (168, 84, 58) if idx != FLOOR2 else (158, 78, 54))
     elif idx == DOOR:
         doormat(im, rnd)
     elif idx == IWALL:

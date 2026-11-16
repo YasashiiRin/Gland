@@ -800,7 +800,7 @@
       {
        "name": "sprite",
        "type": "string",
-       "value": "fireplace"
+       "value": "tea_cabinet"
       },
       {
        "name": "layer",
@@ -823,7 +823,7 @@
       {
        "name": "sprite",
        "type": "string",
-       "value": "counter"
+       "value": "dish_cabinet"
       },
       {
        "name": "layer",
@@ -846,7 +846,7 @@
       {
        "name": "sprite",
        "type": "string",
-       "value": "stove"
+       "value": "kitchen_stove"
       },
       {
        "name": "layer",
