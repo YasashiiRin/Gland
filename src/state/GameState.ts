@@ -57,6 +57,8 @@ export interface GameState {
   vehicleWorking: boolean;
   /** The big storage in the farm warehouse. */
   warehouse: InventoryState;
+  /** Cargo of vehicles that carry things (the ox cart), by vehicle id. Shared by everyone. */
+  vehicleStorage: Record<string, InventoryState>;
   /** Host only: each guest's inventory/energy/skills, by name, so they keep them between sessions. */
   guestProfiles: Record<string, PlayerProfile>;
 }
@@ -115,6 +117,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     vehicleWorking: false,
     warehouse: { slots: Array.from({ length: WAREHOUSE_SLOT_COUNT }, () => null) },
     guestProfiles: {},
+    vehicleStorage: {},
   };
 }
 

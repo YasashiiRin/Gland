@@ -27,6 +27,7 @@ export const SHARED_KEYS = [
   'communityFund',
   'vehicles',
   'warehouse',
+  'vehicleStorage',
 ] as const satisfies readonly (keyof GameState)[];
 
 export type SharedKey = (typeof SHARED_KEYS)[number];
@@ -75,6 +76,8 @@ export interface PlayerPose {
   dir: Direction;
   moving: boolean;
   riding: string | null;
+  /** Riding as a passenger in this player's vehicle (null when not). */
+  seatOf: string | null;
 }
 
 export type NetMessage =

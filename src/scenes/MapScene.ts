@@ -49,6 +49,9 @@ import { net, NetEvents } from '../net/NetSession';
 import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
 import { worldSync } from '../net/worldSync';
+import { rideState } from '../state/rideState';
+
+const NO_INPUT = { up: false, down: false, left: false, right: false };
 
 /** How often (ms) this player's position is sent to the others in a room. */
 const POSE_SEND_MS = 100;
@@ -229,7 +232,8 @@ export abstract class MapScene extends Phaser.Scene {
     }
 
     this.trackMoveKeyPresses();
-    this.player.updateMovement(this.readInput(), currentSpeedMultiplier());
+    // A passenger doesn't steer: the driver's vehicle carries them (see RideController).
+    this.player.updateMovement(rideState.passengerOf ? NO_INPUT : this.readInput(), currentSpeedMultiplier());
     this.readHotbarSelection();
     this.mouseAimTile = this.lastPointerMoveAt > this.lastMoveKeyAt ? this.pointerAimTile() : null;
     this.updateTargetHighlight();
@@ -252,14 +256,15 @@ export abstract class MapScene extends Phaser.Scene {
       dir: this.player.direction,
       moving: body.velocity.x !== 0 || body.velocity.y !== 0,
       riding: gameState.riding,
+      seatOf: rideState.passengerOf,
     });
   }
 
   /** E key / right click: harvest, open, talk, sleep, sell... whichever applies first. */
   private interact(): void {
-    if (gameState.riding) {
-      // Riding: load produce onto the ox cart, otherwise get off (the vehicle stays parked here).
-      if (!this.tryLoadOntoCart()) this.say(this.ride.dismount());
+    if (gameState.riding || rideState.passengerOf) {
+      // Riding: get off (a driven vehicle stays parked here; a passenger just steps down).
+      this.say(this.ride.dismount());
       return;
     }
     if (this.say(this.ride.tryMount())) return;
@@ -481,6 +486,7 @@ export abstract class MapScene extends Phaser.Scene {
     if (this.transitioning) return;
     // Vehicles can follow you to other outdoor maps; at an indoor door they're parked outside.
     if (gameState.riding && !MAPS[target].outdoor) this.ride.dismount();
+    rideState.passengerOf = null;
     this.beginTransition();
     const facing = this.player.direction;
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
@@ -650,25 +656,11 @@ export abstract class MapScene extends Phaser.Scene {
     return true;
   }
 
-  /** Ox cart: ship the held produce straight from the cart, wherever you are. */
-  private tryLoadOntoCart(): boolean {
-    if (this.ride.ability !== 'carry') return false;
-    const stack = itemAt(gameState.inventory, gameState.equippedSlot);
-    if (!stack || !ITEMS[stack.itemId].sellPrice || ITEMS[stack.itemId].category === 'vehicle') return false;
-    gameState.shippingBin[stack.itemId] = (gameState.shippingBin[stack.itemId] ?? 0) + stack.quantity;
-    const slots = gameState.inventory.slots.slice();
-    slots[gameState.equippedSlot] = null;
-    gameState.inventory = { slots };
-    playPickup(gameState.settings);
-    this.showFloatingText(this.player.x, this.player.y - 26, `Chất ${stack.quantity} ${ITEMS[stack.itemId].name} lên xe để bán`);
-    return true;
-  }
-
   private useEquippedTool(): void {
     const stack = itemAt(gameState.inventory, gameState.equippedSlot);
-    // While riding, Space / left click is the vehicle's own action (work mode, horn);
-    // only eating still works from the seat.
-    if (gameState.riding && (!stack || ITEMS[stack.itemId].category !== 'food')) {
+    // While riding, Space / left click is the vehicle's own action (work mode, horn,
+    // open the cargo bed); only eating still works from the seat.
+    if ((gameState.riding || rideState.passengerOf) && (!stack || ITEMS[stack.itemId].category !== 'food')) {
       this.say(this.ride.action());
       return;
     }

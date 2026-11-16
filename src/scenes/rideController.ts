@@ -4,6 +4,13 @@ import { ITEMS, type ItemId, type VehicleAbility } from '../data/items';
 import type { Player } from '../entities/Player';
 import { gameState } from '../state/GameState';
 import { net } from '../net/NetSession';
+import { rideState } from '../state/rideState';
+import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/EventBus';
+
+/** Chest key of a vehicle's cargo bed (see UIScene.storageFor). */
+export function vehicleStorageKey(vehicleId: string): string {
+  return `vehicle:${vehicleId}`;
+}
 import { DIRECTIONS } from '../systems/movement';
 import { nearestParked, parkVehicle, workArea } from '../systems/VehicleSystem';
 import { SMOKE_TEXTURE } from './PreloadScene';
@@ -51,8 +58,10 @@ export class RideController {
     return gameState.riding ? (ITEMS[gameState.riding].vehicle?.ability ?? 'none') : null;
   }
 
-  /** E / right click on foot: get on a parked vehicle nearby. Returns a message, or null if none is near. */
+  /** E / right click on foot: get on a parked vehicle nearby (or a friend's, as passenger). */
   tryMount(): string | null {
+    const seat = this.tryTakeSeat();
+    if (seat) return seat;
     const id = nearestParked(gameState.vehicles, this.mapKey, this.player.x, this.player.y, MOUNT_RANGE);
     if (!id) return null;
     // Multiplayer: someone else is already driving it.
@@ -67,8 +76,32 @@ export class RideController {
     return `Lên ${ITEMS[id as ItemId].name.toLowerCase()}`;
   }
 
-  /** Gets off and leaves the vehicle parked right here. */
+  /**
+   * Multiplayer: hop onto a friend's vehicle that has a free seat (the ox
+   * cart seats two). Returns a message, or null if there's none nearby.
+   */
+  private tryTakeSeat(): string | null {
+    if (!net.online) return null;
+    const poses = [...net.poses.values()];
+    for (const driver of poses) {
+      if (driver.map !== this.mapKey || !driver.riding) continue;
+      const seats = ITEMS[driver.riding as ItemId]?.vehicle?.seats ?? 1;
+      const taken = 1 + poses.filter((p) => p.seatOf === driver.id).length;
+      if (Math.hypot(driver.x - this.player.x, driver.y - this.player.y) > MOUNT_RANGE + 8) continue;
+      if (taken >= seats) return `${ITEMS[driver.riding as ItemId].name} đã hết chỗ`;
+      rideState.passengerOf = driver.id;
+      return `Ngồi ké ${ITEMS[driver.riding as ItemId].name.toLowerCase()} của ${net.nameOf(driver.id)}`;
+    }
+    return null;
+  }
+
+  /** Gets off and leaves the vehicle parked right here (a passenger just steps down). */
   dismount(): string | null {
+    if (rideState.passengerOf) {
+      rideState.passengerOf = null;
+      this.player.setPosition(this.player.x, this.player.y + 10);
+      return 'Xuống xe';
+    }
     const id = gameState.riding;
     if (!id) return null;
     gameState.vehicles = parkVehicle(gameState.vehicles, id, {
@@ -83,8 +116,14 @@ export class RideController {
     return `Xuống ${ITEMS[id].name.toLowerCase()}`;
   }
 
-  /** Space / left click while riding: switch work mode (tractor, harvester) or honk (motorbike). */
+  /** Space / left click while riding: work mode (tractor, harvester), cargo bed (ox cart) or horn. */
   action(): string {
+    const vehicle = gameState.riding ?? (rideState.passengerOf ? net.poses.get(rideState.passengerOf)?.riding : null);
+    if (vehicle && ITEMS[vehicle as ItemId]?.vehicle?.ability === 'storage') {
+      const payload: ChestOpenRequestedPayload = { chestKey: vehicleStorageKey(vehicle) };
+      EventBus.emit(GameEvents.ChestOpenRequested, payload);
+      return '';
+    }
     const ability = this.ability;
     if (ability === 'till' || ability === 'harvest') {
       gameState.vehicleWorking = !gameState.vehicleWorking;
@@ -97,6 +136,7 @@ export class RideController {
 
   update(time: number): void {
     if (gameState.riding && !gameState.vehicles[gameState.riding]) gameState.riding = null;
+    this.followDriver();
     this.syncParked();
     this.syncRidden();
     this.player.setBigBody(!!gameState.riding && BIG_VEHICLES.has(gameState.riding));
@@ -116,6 +156,29 @@ export class RideController {
     if (key === this.lastArea) return;
     this.lastArea = key;
     this.onWork(tiles, ability);
+  }
+
+  /** Passenger: sit in the back of the friend's vehicle; get off if they park or leave. */
+  private followDriver(): void {
+    const id = rideState.passengerOf;
+    if (!id) return;
+    const driver = net.poses.get(id);
+    if (!driver || !driver.riding || driver.map !== this.mapKey) {
+      rideState.passengerOf = null;
+      if (this.player.isCropped) this.player.setCrop();
+      return;
+    }
+    // Sit just behind the driver on the cart bed.
+    const back: Record<string, [number, number]> = { down: [0, -5], up: [0, 5], left: [7, 0], right: [-7, 0] };
+    const [dx, dy] = back[driver.dir];
+    this.player.setPosition(driver.x + dx, driver.y + dy);
+    this.player.faceTile(
+      { x: Math.floor(this.player.x / TILE) + (driver.dir === 'left' ? -1 : driver.dir === 'right' ? 1 : 0),
+        y: Math.floor(this.player.y / TILE) + (driver.dir === 'up' ? -1 : driver.dir === 'down' ? 1 : 0) },
+      TILE,
+    );
+    this.player.setDepth(driver.y - (driver.dir === 'down' ? 1 : -1));
+    this.player.setCrop(0, 0, 16, RIDER_CROP_HEIGHT);
   }
 
   private syncParked(): void {
@@ -144,7 +207,7 @@ export class RideController {
     if (!riding || !this.scene.textures.exists(textureKey)) {
       this.image?.destroy();
       this.image = undefined;
-      if (this.player.isCropped) this.player.setCrop();
+      if (this.player.isCropped && !rideState.passengerOf) this.player.setCrop();
       return;
     }
     if (!this.image || this.image.texture.key !== textureKey) {

@@ -360,3 +360,11 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
   Đã thử thật 3 trình duyệt (ngủ 2/3 chưa sang ngày, 3/3 sang ngày; rời phòng rồi vào lại vẫn còn đồ).
 - **Còn có thể làm thêm:** khách ở trong hầm mỏ lúc sang ngày chưa được đưa về nhà; chưa có chat; chủ phòng thoát thì
   khách về màn hình tiêu đề (không chuyển chủ phòng); máy chủ môi giới vẫn là dịch vụ miễn phí của PeerJS.
+
+
+## Cập nhật: xe bò có thùng chứa 20 ô và 2 chỗ ngồi
+- Xe bò = túi đồ lớn: đang ngồi xe (lái hoặc ngồi ké) bấm chuột trái/Space để mở thùng 20 ô (`GameState.vehicleStorage`,
+  dùng chung cả nhóm, đồng bộ như nhà kho). Số ô và số ghế khai báo trong `items.json` (`vehicle.storageSlots`, `vehicle.seats`).
+- 2 chỗ ngồi (chơi nhiều người): đứng cạnh xe bò bạn đang lái, E/chuột phải = ngồi ké (đi theo xe, không tự lái);
+  E lần nữa = xuống; người lái đậu xe hoặc sang bản đồ khác thì người ngồi ké tự xuống. Xe hết chỗ thì báo.
+- Bỏ tính năng cũ "chất nông sản lên xe để bán từ xa" (trùng nút với xuống xe) — giờ chở hàng tới thùng bán.

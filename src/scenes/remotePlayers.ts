@@ -55,6 +55,7 @@ export class RemotePlayers {
       s.setDepth(s.y);
       r.label.setPosition(s.x, s.y - 30).setDepth(s.y + 1).setText(net.nameOf(pose.id));
       this.syncVehicle(r, pose.riding, pose.dir);
+      if (pose.seatOf) r.sprite.setCrop(0, 0, 16, 23); // sitting in a friend's vehicle
     }
     for (const [id, r] of this.remotes) {
       if (seen.has(id)) continue;

@@ -52,6 +52,7 @@ import { ShopMenu } from '../ui/ShopMenu';
 import { isShopId } from '../data/shops';
 
 const CHEST_SLOT_COUNT = 18;
+const VEHICLE_KEY_PREFIX = 'vehicle:';
 /** Guests send their bag/energy/skills to the host this often (ms). */
 const PROFILE_SEND_MS = 5000;
 
@@ -65,6 +66,7 @@ export class UIScene extends Phaser.Scene {
   private chestMenu!: ChestMenu;
   private warehouseMenu!: ChestMenu;
   private activeChestMenu!: ChestMenu;
+  private readonly vehicleMenus = new Map<ItemId, ChestMenu>();
   private openChestKey: string | null = null;
   private dialogueBox!: DialogueBox;
   private fishingMinigame!: FishingMinigame;
@@ -87,6 +89,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.vehicleMenus.clear(); // menus from a previous run were destroyed with the scene
     const { width, height } = this.scale;
     // fillAlpha is fixed at 1 (fully opaque fill color); the overlay's own
     // .alpha (set in updateNightOverlay) is what fades it in and out.
@@ -271,7 +274,7 @@ export class UIScene extends Phaser.Scene {
       const storage = this.storageFor(p.chestKey);
       if (!storage) return;
       this.openChestKey = p.chestKey;
-      this.activeChestMenu = p.chestKey === WAREHOUSE_KEY ? this.warehouseMenu : this.chestMenu;
+      this.activeChestMenu = this.menuForStorage(p.chestKey, storage.slots.length);
       this.activeChestMenu.open(storage);
       uiState.chestOpen = true;
     };
@@ -381,16 +384,41 @@ export class UIScene extends Phaser.Scene {
     uiState.craftingOpen = false;
   }
 
-  /** The storage behind a chest key: a placed chest, or the farm warehouse. */
+  /** One storage grid per kind of container (sizes differ), created on first use. */
+  private menuForStorage(key: string, slotCount: number): ChestMenu {
+    if (key === WAREHOUSE_KEY) return this.warehouseMenu;
+    if (!key.startsWith(VEHICLE_KEY_PREFIX)) return this.chestMenu;
+    const id = key.slice(VEHICLE_KEY_PREFIX.length) as ItemId;
+    let menu = this.vehicleMenus.get(id);
+    if (!menu) {
+      menu = new ChestMenu(this, DEPTH_ABOVE + 1, slotCount, ITEMS[id].name);
+      menu.bind(
+        (slotIndex) => this.depositIntoChest(slotIndex),
+        (slotIndex) => this.withdrawFromChest(slotIndex),
+      );
+      this.vehicleMenus.set(id, menu);
+    }
+    return menu;
+  }
+
+  /** The storage behind a chest key: a placed chest, the farm warehouse, or a vehicle's cargo bed. */
   private storageFor(key: string): InventoryState | null {
     if (key === WAREHOUSE_KEY) return gameState.warehouse;
+    if (key.startsWith(VEHICLE_KEY_PREFIX)) {
+      const id = key.slice(VEHICLE_KEY_PREFIX.length) as ItemId;
+      const size = ITEMS[id]?.vehicle?.storageSlots ?? 0;
+      if (!size) return null;
+      return gameState.vehicleStorage[id] ?? { slots: Array.from({ length: size }, () => null) };
+    }
     const placed = gameState.placedObjects[key];
     return placed?.kind === 'chest' && placed.chest ? placed.chest : null;
   }
 
   private setStorage(key: string, storage: InventoryState): void {
     if (key === WAREHOUSE_KEY) gameState.warehouse = storage;
-    else {
+    else if (key.startsWith(VEHICLE_KEY_PREFIX)) {
+      gameState.vehicleStorage = { ...gameState.vehicleStorage, [key.slice(VEHICLE_KEY_PREFIX.length)]: storage };
+    } else {
       const placed = gameState.placedObjects[key];
       if (placed) placed.chest = storage;
     }

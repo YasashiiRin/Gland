@@ -275,12 +275,14 @@
     "category": "vehicle",
     "stackable": false,
     "sellPrice": 800,
-    "description": "Chậm mà chắc (+35% tốc độ). Đang ngồi xe, cầm nông sản và bấm chuột phải/E để chất lên xe bán luôn.",
+    "description": "Chậm mà chắc (+35% tốc độ). Thùng xe chứa được 20 ô đồ (ngồi lên xe rồi bấm chuột trái/Space để mở). Có 2 chỗ ngồi: chơi cùng bạn thì một người lái, một người ngồi ké.",
     "stats": {
       "speed": 0.35
     },
     "vehicle": {
-      "ability": "carry"
+      "ability": "storage",
+      "storageSlots": 20,
+      "seats": 2
     }
   },
   "motorbike": {

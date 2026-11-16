@@ -26,13 +26,17 @@ export interface ItemDef {
 
 /**
  * What a vehicle does besides moving faster (its speed lives in `stats`):
- * till = tills grass it drives over, harvest = harvests ripe crops it drives
- * over, carry = ships held produce from anywhere, none = just a ride.
+ * till = ploughs its 2x2 area, harvest = reaps its 2x2 area (both toggled),
+ * storage = has a cargo bed you can open, none = just a ride.
  */
-export type VehicleAbility = 'none' | 'till' | 'harvest' | 'carry';
+export type VehicleAbility = 'none' | 'till' | 'harvest' | 'storage';
 
 export interface VehicleDef {
   ability: VehicleAbility;
+  /** Cargo slots (ability "storage"). */
+  storageSlots?: number;
+  /** How many people fit, driver included (default 1). Extra seats are for friends in a room. */
+  seats?: number;
 }
 
 export const ITEMS: Record<ItemId, ItemDef> = items as Record<ItemId, ItemDef>;
