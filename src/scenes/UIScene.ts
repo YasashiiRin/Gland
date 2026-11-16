@@ -84,6 +84,9 @@ export class UIScene extends Phaser.Scene {
     this.updateNightOverlay();
 
     this.hotbar = new Hotbar(this, DEPTH_ABOVE);
+    this.hotbar.onSelect = (slot) => {
+      gameState.equippedSlot = slot;
+    };
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
 
     this.inventoryMenu = new InventoryMenu(this, DEPTH_ABOVE + 1);
@@ -259,7 +262,7 @@ export class UIScene extends Phaser.Scene {
       this.fishingState = stepFishing(
         this.fishingState,
         dt,
-        this.fishingKey.isDown,
+        this.fishingKey.isDown || this.input.activePointer.leftButtonDown(),
         FISH[this.fishingFishId as keyof typeof FISH].difficulty,
       );
       this.fishingMinigame.refresh(this.fishingState);

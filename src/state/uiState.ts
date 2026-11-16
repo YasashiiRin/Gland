@@ -12,3 +12,16 @@ export const uiState = {
   fishingOpen: false,
   settingsOpen: false,
 };
+
+/** True while any modal UI (menus, dialogue, fishing) should block world input. */
+export function isWorldInputBlocked(): boolean {
+  return (
+    uiState.inventoryOpen ||
+    uiState.shopOpen ||
+    uiState.craftingOpen ||
+    uiState.chestOpen ||
+    uiState.dialogueOpen ||
+    uiState.fishingOpen ||
+    uiState.settingsOpen
+  );
+}

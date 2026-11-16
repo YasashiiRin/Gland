@@ -93,7 +93,7 @@ export class FarmScene extends MapScene {
   protected override getTargetHighlightState(): 'none' | 'valid' | 'invalid' {
     const stack = gameState.inventory.slots[gameState.equippedSlot];
     if (stack) {
-      const tile = this.player.getFacingTile(TILE);
+      const tile = this.actionTile();
       const key = plotKey(tile.x, tile.y);
       const def = ITEMS[stack.itemId];
 
@@ -149,7 +149,7 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryPlantFacingTile(seedItemId: ItemId): void {
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
     const key = plotKey(tile.x, tile.y);
     if (!canPlant(gameState.farmPlots, key)) return;
     const cropId = cropForSeed(seedItemId);
@@ -161,7 +161,7 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryHarvestFacingTile(): boolean {
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
     const key = plotKey(tile.x, tile.y);
     if (!isReadyToHarvest(gameState.farmPlots[key])) return false;
 
@@ -184,7 +184,7 @@ export class FarmScene extends MapScene {
 
   protected override tryPlaceFurniture(itemId: ItemId): void {
     if (itemId !== 'chest' && itemId !== 'scarecrow' && itemId !== 'sprinkler' && itemId !== 'chicken_coop') return;
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     if (isOccupied(gameState.placedObjects, key)) return;
     if (this.decorLayer.getTileAt(tile.x, tile.y)) return; // no tree/rock/bush in the way
@@ -205,7 +205,7 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryOpenChest(): boolean {
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     const placed = gameState.placedObjects[key];
     if (!placed || placed.kind !== 'chest') return false;
@@ -215,7 +215,7 @@ export class FarmScene extends MapScene {
   }
 
   protected override tryUseCoop(): boolean {
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     const placed = gameState.placedObjects[key];
     if (!placed || placed.kind !== 'chicken_coop' || !placed.animal) return false;

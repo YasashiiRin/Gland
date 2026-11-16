@@ -3,7 +3,7 @@ import { FADE_MS, TILE, WORLD_ZOOM } from '../config/constants';
 import { Player, type PlayerInput } from '../entities/Player';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
-import { uiState } from '../state/uiState';
+import { isWorldInputBlocked } from '../state/uiState';
 import {
   attackMonster,
   isAdjacent,
@@ -64,7 +64,7 @@ export class MineScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    if (this.transitioning || uiState.inventoryOpen || uiState.settingsOpen) return;
+    if (this.transitioning || isWorldInputBlocked()) return;
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.player.updateMovement(this.readInput());
@@ -141,6 +141,26 @@ export class MineScene extends Phaser.Scene {
       up: K.UP, down: K.DOWN, left: K.LEFT, right: K.RIGHT,
       w: K.W, a: K.A, s: K.S, d: K.D, shift: K.SHIFT, interact: K.E, attack: K.SPACE,
     }) as typeof this.keys;
+
+    // Mouse: left click attacks/mines toward the pointer, right click uses the ladder.
+    this.input.mouse?.disableContextMenu();
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (this.transitioning || isWorldInputBlocked()) return;
+      if (pointer.rightButtonDown()) {
+        this.tryUseLadder();
+        return;
+      }
+      if (!pointer.leftButtonDown()) return;
+      const world = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+      const dx = Math.floor(world.x / TILE) - Math.floor(this.player.x / TILE);
+      const dy = Math.floor(world.y / TILE) - Math.floor(this.player.y / TILE);
+      const step = Math.abs(dx) >= Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) };
+      this.player.faceTile(
+        { x: Math.floor(this.player.x / TILE) + step.x, y: Math.floor(this.player.y / TILE) + step.y },
+        TILE,
+      );
+      this.tryAttackOrMine();
+    });
   }
 
   private readInput(): PlayerInput {

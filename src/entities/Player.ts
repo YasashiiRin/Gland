@@ -55,6 +55,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     };
   }
 
+  /** Turns to look at a tile (used when aiming with the mouse). Keeps facing if it's our own tile. */
+  faceTile(tile: { x: number; y: number }, tileSize: number): void {
+    const dx = tile.x - Math.floor(this.x / tileSize);
+    const dy = tile.y - Math.floor(this.y / tileSize);
+    if (dx === 0 && dy === 0) return;
+    if (Math.abs(dx) >= Math.abs(dy)) this.facing = dx > 0 ? 'right' : 'left';
+    else this.facing = dy > 0 ? 'down' : 'up';
+    if (!this.body?.velocity || (this.body.velocity.x === 0 && this.body.velocity.y === 0)) {
+      this.anims.play(`idle-${this.facing}`, true);
+    }
+  }
+
   /** Brief squash-and-stretch feedback for using a tool; purely cosmetic. */
   playUseToolFeedback(): void {
     this.scene.tweens.add({

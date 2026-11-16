@@ -14,7 +14,7 @@ import {
 import { pickFish } from '../systems/FishingSystem';
 import { gameState } from '../state/GameState';
 import { timeControl } from '../state/timeControl';
-import { uiState } from '../state/uiState';
+import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/EnergySystem';
 import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
 import { addItem, HOTBAR_SIZE, itemAt } from '../systems/InventorySystem';
@@ -91,6 +91,11 @@ export abstract class MapScene extends Phaser.Scene {
   private targetHighlight!: Phaser.GameObjects.Rectangle;
   private bedZones: Phaser.GameObjects.Zone[] = [];
   private rain?: Phaser.GameObjects.Particles.ParticleEmitter;
+  /** Last time (scene clock, ms) the mouse moved / a movement key went down; decides who aims tools. */
+  private lastPointerMoveAt = Number.NEGATIVE_INFINITY;
+  private lastMoveKeyAt = Number.NEGATIVE_INFINITY;
+  /** Tile chosen by the mouse this frame, or null when aiming with the keyboard (facing tile). */
+  private mouseAimTile: { x: number; y: number } | null = null;
 
   constructor(readonly mapKey: MapKey) {
     super(mapKey);
@@ -160,39 +165,76 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.player.setExhausted(isExhausted(gameState.energy));
 
-    if (
-      uiState.inventoryOpen ||
-      uiState.shopOpen ||
-      uiState.craftingOpen ||
-      uiState.chestOpen ||
-      uiState.dialogueOpen ||
-      uiState.settingsOpen
-    ) {
+    if (isWorldInputBlocked()) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false, run: false });
       this.targetHighlight.setVisible(false);
       return;
     }
 
+    this.trackMoveKeyPresses();
     this.player.updateMovement(this.readInput());
     this.readHotbarSelection();
+    this.mouseAimTile = this.lastPointerMoveAt > this.lastMoveKeyAt ? this.pointerAimTile() : null;
     this.updateTargetHighlight();
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) {
-      if (
-        !this.tryHarvestFacingTile() &&
-        !this.tryOpenChest() &&
-        !this.tryTalkToNpc() &&
-        !this.tryEnterMine() &&
-        !this.tryUseCoop() &&
-        !this.tryUseQuestBoard()
-      ) {
-        if (this.isNearBed()) this.sleepSequence('manual');
-        else if (!this.tryOpenShop()) this.tryUseShippingBin();
-      }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.interact)) this.interact();
+    if (Phaser.Input.Keyboard.JustDown(this.keys.useTool)) this.useEquippedTool();
+  }
+
+  /** E key / right click: harvest, open, talk, sleep, sell... whichever applies first. */
+  private interact(): void {
+    if (
+      !this.tryHarvestFacingTile() &&
+      !this.tryOpenChest() &&
+      !this.tryTalkToNpc() &&
+      !this.tryEnterMine() &&
+      !this.tryUseCoop() &&
+      !this.tryUseQuestBoard()
+    ) {
+      if (this.isNearBed()) this.sleepSequence('manual');
+      else if (!this.tryOpenShop()) this.tryUseShippingBin();
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.useTool)) {
-      this.useEquippedTool();
-    }
+  }
+
+  /**
+   * The tile tools and interactions act on. With the mouse in charge it's the
+   * hovered tile when that's next to the player, otherwise the neighbouring
+   * tile in the pointer's direction; with the keyboard it's the facing tile.
+   */
+  protected actionTile(): { x: number; y: number } {
+    return this.mouseAimTile ?? this.player.getFacingTile(TILE);
+  }
+
+  private pointerAimTile(): { x: number; y: number } | null {
+    const pointer = this.input.activePointer;
+    const world = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const px = Math.floor(this.player.x / TILE);
+    const py = Math.floor(this.player.y / TILE);
+    const tx = Math.floor(world.x / TILE);
+    const ty = Math.floor(world.y / TILE);
+    const dx = tx - px;
+    const dy = ty - py;
+    if (dx === 0 && dy === 0) return null; // pointing at yourself: keep the facing tile
+    if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return { x: tx, y: ty };
+    // Too far: act on the neighbouring tile in the pointer's main direction.
+    return Math.abs(dx) >= Math.abs(dy) ? { x: px + Math.sign(dx), y: py } : { x: px, y: py + Math.sign(dy) };
+  }
+
+  private trackMoveKeyPresses(): void {
+    const k = this.keys;
+    const moveKeys = [k.up, k.down, k.left, k.right, k.w, k.a, k.s, k.d];
+    if (moveKeys.some((key) => Phaser.Input.Keyboard.JustDown(key))) this.lastMoveKeyAt = this.time.now;
+  }
+
+  /** Left click = use the held tool/seed, right click = interact, aimed at the pointer. */
+  private onWorldPointerDown(pointer: Phaser.Input.Pointer): void {
+    if (this.transitioning || isWorldInputBlocked()) return;
+    this.lastPointerMoveAt = this.time.now;
+    this.mouseAimTile = this.pointerAimTile();
+    const target = this.actionTile();
+    this.player.faceTile(target, TILE);
+    if (pointer.rightButtonDown()) this.interact();
+    else if (pointer.leftButtonDown()) this.useEquippedTool();
   }
 
   /** Which way the player looks after arriving. Override per map if needed. */
@@ -252,7 +294,7 @@ export abstract class MapScene extends Phaser.Scene {
       this.targetHighlight.setVisible(false);
       return;
     }
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
     this.targetHighlight
       .setVisible(true)
       .setPosition(tile.x * TILE, tile.y * TILE)
@@ -270,7 +312,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected getTargetHighlightState(): 'none' | 'valid' | 'invalid' {
     const stack = itemAt(gameState.inventory, gameState.equippedSlot);
     if (!stack) return 'none';
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
 
     if (stack.itemId === 'fishing_rod') {
       const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
@@ -457,6 +499,13 @@ export abstract class MapScene extends Phaser.Scene {
     }) as Keys;
     this.hotbarKeys = HOTBAR_KEY_CODES.map((code) => kb.addKey(code));
 
+    // Mouse: right click is an in-game action, so the browser menu must not pop up.
+    this.input.mouse?.disableContextMenu();
+    this.input.on('pointermove', () => {
+      this.lastPointerMoveAt = this.time.now;
+    });
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => this.onWorldPointerDown(pointer));
+
     this.input.on('wheel', (_p: unknown, _o: unknown, _dx: number, dy: number) => {
       if (uiState.inventoryOpen) return;
       const delta = dy > 0 ? 1 : -1;
@@ -492,7 +541,7 @@ export abstract class MapScene extends Phaser.Scene {
     gameState.energy = consume(gameState.energy, cost);
     this.player.playUseToolFeedback();
     playUseTool(gameState.settings);
-    const tile = this.player.getFacingTile(TILE);
+    const tile = this.actionTile();
     this.applyToolEffect(stack.itemId, tile);
   }
 

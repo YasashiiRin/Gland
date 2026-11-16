@@ -11,6 +11,8 @@ export class Hotbar {
   private readonly icons: Phaser.GameObjects.Image[] = [];
   private readonly counts: Phaser.GameObjects.Text[] = [];
   private readonly container: Phaser.GameObjects.Container;
+  /** Called with the slot index when a slot is clicked. */
+  onSelect?: (slot: number) => void;
 
   constructor(scene: Phaser.Scene, depth: number) {
     const totalWidth = HOTBAR_SIZE * SLOT_SIZE + (HOTBAR_SIZE - 1) * GAP;
@@ -23,7 +25,10 @@ export class Hotbar {
       const x = startX + i * (SLOT_SIZE + GAP) + SLOT_SIZE / 2;
       const box = scene.add
         .rectangle(x, y, SLOT_SIZE, SLOT_SIZE, 0x2a2420, 0.78)
-        .setStrokeStyle(2, 0x6b5a46);
+        .setStrokeStyle(2, 0x6b5a46)
+        .setInteractive({ useHandCursor: true });
+      // Interactive, so the click is captured here and never reaches the map scene below.
+      box.on('pointerdown', () => this.onSelect?.(i));
       const icon = scene.add.image(x, y, iconTextureKey('wood')).setVisible(false).setDisplaySize(26, 26);
       const count = scene.add
         .text(x + SLOT_SIZE / 2 - 4, y + SLOT_SIZE / 2 - 4, '', {
