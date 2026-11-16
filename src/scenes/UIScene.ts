@@ -1,3 +1,5 @@
+import { HorrorOverlay } from '../ui/HorrorOverlay';
+import type { HorrorMode } from '../systems/HorrorSystem';
 import { TouchControls } from '../ui/TouchControls';
 import { touchInput, wantsTouchControls, type TouchMode } from '../state/touchInput';
 import { pickProfile, type LobbyPlayer, type PlayerProfile } from '../net/protocol';
@@ -15,6 +17,7 @@ import {
   GameEvents,
   type ChestOpenRequestedPayload,
   type DayStartedPayload,
+  type HorrorScreenPayload,
   type FishingStartedPayload,
   type MapEnteredPayload,
   type NpcInteractedPayload,
@@ -81,6 +84,7 @@ export class UIScene extends Phaser.Scene {
   private dayBanner!: Phaser.GameObjects.Text;
   private sleepOverlay!: SleepWaitOverlay;
   private touchControls!: TouchControls;
+  private horrorOverlay!: HorrorOverlay;
   private rotateHint!: Phaser.GameObjects.Text;
   private toastText!: Phaser.GameObjects.Text;
   private lastProfileSent = 0;
@@ -215,6 +219,11 @@ export class UIScene extends Phaser.Scene {
         EventBus.emit(GameEvents.ZoomChanged);
       },
       onClose: () => this.closeSettings(),
+      onHorrorCycle: () => {
+        const order: HorrorMode[] = ['on', 'mild', 'off'];
+        gameState.settings.horror = order[(order.indexOf(gameState.settings.horror) + 1) % order.length];
+        this.settingsMenu.refresh(gameState.settings);
+      },
       onTouchCycle: () => {
         const order: TouchMode[] = ['auto', 'on', 'off'];
         gameState.settings.touch = order[(order.indexOf(gameState.settings.touch) + 1) % order.length];
@@ -293,6 +302,11 @@ export class UIScene extends Phaser.Scene {
       this.minimap.setMap(p.minimap, p.displayName);
     };
     this.setupMultiplayerUi();
+    this.horrorOverlay = new HorrorOverlay(this, DEPTH_ABOVE - 0.5);
+    this.horrorOverlay.onClockGlitch = () => this.hud.glitchClock();
+    const onHorror = (p: HorrorScreenPayload) => this.horrorOverlay.handle(p);
+    EventBus.on(GameEvents.HorrorScreen, onHorror);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.HorrorScreen, onHorror));
     this.touchControls = new TouchControls(this, DEPTH_ABOVE + 1, {
       onInventory: () => this.toggleInventory(),
       onCrafting: () => this.toggleCrafting(),
@@ -325,6 +339,7 @@ export class UIScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     worldSync.update(time); // multiplayer: exchange changes to the shared farm
     this.updateTouchControls();
+    this.horrorOverlay.update(time, !uiState.sleepWait);
     if (net.role === 'guest' && time - this.lastProfileSent > PROFILE_SEND_MS) {
       // Let the host keep my bag/energy/skills in its save.
       this.lastProfileSent = time;

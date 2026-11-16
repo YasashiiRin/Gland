@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
 
 const PANEL_W = 380;
-const PANEL_H = 370;
+const PANEL_H = 410;
 const BAR_W = 180;
 
 export interface SettingsHandlers {
@@ -14,6 +14,8 @@ export interface SettingsHandlers {
   onClose: () => void;
   /** Cycle the phone controls setting: auto → on → off. */
   onTouchCycle: () => void;
+  /** Cycle the horror setting: on → mild → off. */
+  onHorrorCycle: () => void;
 }
 
 const CONTROLS = [
@@ -31,6 +33,7 @@ export class SettingsMenu {
   private readonly muteText: Phaser.GameObjects.Text;
   private readonly zoomText: Phaser.GameObjects.Text;
   private readonly touchText: Phaser.GameObjects.Text;
+  private readonly horrorText: Phaser.GameObjects.Text;
   private handlers?: SettingsHandlers;
 
   constructor(scene: Phaser.Scene, depth: number) {
@@ -80,6 +83,12 @@ export class SettingsMenu {
     this.touchText = touch[1];
     this.root.add([inkText(scene, rowX, y, 'Nút cảm ứng', 14).setOrigin(0, 0.5), ...touch]);
 
+    // Night horror
+    y += 40;
+    const horror = this.button(scene, barX + 70, y, 140, '', () => this.handlers?.onHorrorCycle());
+    this.horrorText = horror[1];
+    this.root.add([inkText(scene, rowX, y, 'Kinh dị ban đêm', 14).setOrigin(0, 0.5), ...horror]);
+
     // Controls
     y += 36;
     const controls = scene.add.text(rowX, y, CONTROLS.join('\n'), {
@@ -111,7 +120,8 @@ export class SettingsMenu {
     this.handlers = handlers;
   }
 
-  refresh(settings: { volume: number; muted: boolean; zoom: number; touch: string }): void {
+  refresh(settings: { volume: number; muted: boolean; zoom: number; touch: string; horror: string }): void {
+    this.horrorText.setText(settings.horror === 'on' ? 'Bật' : settings.horror === 'mild' ? 'Nhẹ (không hù)' : 'Tắt');
     this.touchText.setText(settings.touch === 'auto' ? 'Tự động' : settings.touch === 'on' ? 'Luôn bật' : 'Tắt');
     this.volumeFill.width = (BAR_W - 4) * settings.volume;
     this.volumeLabel.setText(`${Math.round(settings.volume * 100)}%`);
@@ -119,7 +129,7 @@ export class SettingsMenu {
     this.zoomText.setText(`${settings.zoom}x`);
   }
 
-  open(settings: { volume: number; muted: boolean; zoom: number; touch: string }): void {
+  open(settings: { volume: number; muted: boolean; zoom: number; touch: string; horror: string }): void {
     this.refresh(settings);
     this.root.setVisible(true);
   }

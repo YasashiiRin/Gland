@@ -377,3 +377,17 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
   Trang chặn phóng to/kéo trang khi chạm. Code: `src/ui/TouchControls.ts`, `src/state/touchInput.ts`.
 - Đã thử bằng giả lập điện thoại của Chrome (844x390, chạm): đi bằng cần điều khiển, cuốc bằng nút Dùng, mở/đóng túi.
   Chưa thử trên điện thoại thật.
+
+
+## Cập nhật: yếu tố kinh dị ban đêm
+- Từ 20:00 tới 2:00, **mỗi giờ trong game tung xúc xắc một lần**: 40% lúc 20:00, +10% mỗi giờ (tối đa 90% lúc 1:00).
+  Trúng thì hiện tượng xảy ra vào thời điểm ngẫu nhiên trong giờ đó; không lặp lại hiện tượng vừa gặp. Tất cả con số
+  và danh sách hiện tượng nằm trong `src/data/horror.json` (logic `HorrorSystem`, có test).
+- Hiện tượng (theo nơi/giờ): bóng trắng tóc dài đứng xa (lại gần thì biến mất, đôi khi hiện ngay sau lưng), ma trơi,
+  bóng đen bám theo (quay lại nhìn thì biến mất) từ 22:00, ma da (bàn tay trồi lên ở ao gần đó), tiếng bước chân sau
+  lưng, tiếng thì thầm + chữ mờ, đèn chập chờn, tiếng trẻ con khóc, tiếng gõ cửa (trong nhà), đồng hồ nhảy 03:33,
+  và **jump scare** hiếm sau 0:00. Nền: viền tối khép dần, tiếng tim đập từ ~23:00 (nhanh dần), tiếng ù trầm sau nửa đêm.
+- Âm thanh tổng hợp bằng Web Audio (`src/systems/HorrorAudio.ts`), hình tự vẽ (`scripts/art/horror.py`).
+- Cài đặt **Kinh dị ban đêm: Bật / Nhẹ (không hù, tỷ lệ một nửa) / Tắt** — cho người yếu tim / nhạy cảm ánh sáng nhấp nháy.
+- Mỗi người chơi trong phòng gặp hiện tượng riêng của mình (không đồng bộ — mỗi người sợ theo cách riêng).
+- Chưa có trong hầm mỏ. Âm thanh chưa nghe thử bằng tai (chỉ kiểm tra chạy không lỗi).

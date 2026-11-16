@@ -1,0 +1,31 @@
+{
+  "startHour": 20,
+  "endHour": 26,
+  "baseChance": 0.4,
+  "chancePerHour": 0.1,
+  "maxChance": 0.9,
+  "mildChanceMultiplier": 0.5,
+  "jumpScareFromHour": 24,
+  "events": {
+    "ghost_far":       { "weight": 5, "where": "outdoor" },
+    "wisps":           { "weight": 4, "where": "outdoor" },
+    "shadow_follower": { "weight": 4, "where": "outdoor", "fromHour": 22 },
+    "water_ghost":     { "weight": 4, "where": "outdoor", "needsWater": true },
+    "footsteps":       { "weight": 4, "where": "any" },
+    "whisper":         { "weight": 4, "where": "any" },
+    "flicker":         { "weight": 3, "where": "any" },
+    "baby_cry":        { "weight": 3, "where": "any", "fromHour": 21 },
+    "knock":           { "weight": 5, "where": "indoor" },
+    "clock_glitch":    { "weight": 2, "where": "any", "fromHour": 23 },
+    "jumpscare":       { "weight": 2, "where": "any", "fromHour": 24, "intenseOnly": true }
+  },
+  "whispers": [
+    "…đừng quay lại…",
+    "…ở lại với tôi…",
+    "…sau lưng kìa…",
+    "…lạnh quá…",
+    "…trả lại cho tôi…",
+    "…sao không trả lời…",
+    "…tôi thấy bạn rồi…"
+  ]
+}

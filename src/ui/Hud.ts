@@ -135,6 +135,15 @@ export class Hud {
     g.lineStyle(2, UI_COLORS.edge, 1).strokeCircle(x, y, DIAL_R + 1);
   }
 
+  /** Horror: the clock shows 03:33 in red for a moment. */
+  glitchClock(): void {
+    this.timeText.setText('03:33').setColor('#c0201a');
+    this.timeText.scene.time.delayedCall(2200, () => {
+      this.timeText.setColor(UI_COLORS.ink);
+      if (this.time) this.timeText.setText(clockLabel(this.time));
+    });
+  }
+
   setEnergy(energy: EnergyState): void {
     this.energy = energy;
     const ratio = energy.max > 0 ? energy.current / energy.max : 0;

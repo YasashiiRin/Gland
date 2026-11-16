@@ -21,7 +21,14 @@ export const GameEvents = {
   WorldPatched: 'world:patched',
   /** Multiplayer: the player lay down in bed and waits for everyone else. */
   SleepWaitRequested: 'sleep:waitRequested',
+  /** A screen-wide horror effect for the UI (payload: HorrorScreenPayload). */
+  HorrorScreen: 'horror:screen',
 } as const;
+
+export interface HorrorScreenPayload {
+  kind: 'flicker' | 'caption' | 'jumpscare' | 'clockGlitch';
+  text?: string;
+}
 
 export interface FishingStartedPayload {
   fishId: string;

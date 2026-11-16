@@ -271,6 +271,26 @@
     "type": "image",
     "key": "prop_jar",
     "url": "sprites/props/jar.png"
+   },
+   {
+    "type": "image",
+    "key": "horror_ghost",
+    "url": "sprites/horror/ghost.png"
+   },
+   {
+    "type": "image",
+    "key": "horror_shadow",
+    "url": "sprites/horror/shadow.png"
+   },
+   {
+    "type": "image",
+    "key": "horror_hand",
+    "url": "sprites/horror/hand.png"
+   },
+   {
+    "type": "image",
+    "key": "horror_face",
+    "url": "sprites/horror/face.png"
    }
   ]
  }

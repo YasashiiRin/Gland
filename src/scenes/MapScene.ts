@@ -45,6 +45,7 @@ import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from '.
 import { createProps, readProp, TreeSprites } from './worldSprites';
 import { RideController } from './rideController';
 import { RemotePlayers } from './remotePlayers';
+import { HorrorDirector } from './horrorDirector';
 import { net, NetEvents } from '../net/NetSession';
 import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
@@ -107,6 +108,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected trees!: TreeSprites;
   protected ride!: RideController;
   private remotes!: RemotePlayers;
+  protected horror!: HorrorDirector;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -178,6 +180,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.afterMapBuilt();
 
     this.remotes = new RemotePlayers(this, this.mapKey);
+    this.horror = new HorrorDirector(this, this.player, !this.isOutdoor, ground);
     // Guest: the host started a new day (or resynced) — take its world and redraw the map.
     // (worldSync has already applied the new world by the time the restart runs.)
     const onWorld = (p: { newDay?: NewDayInfo }) => {
@@ -219,6 +222,7 @@ export abstract class MapScene extends Phaser.Scene {
   update(time: number): void {
     if (this.transitioning) return;
     this.syncNetwork(time);
+    this.horror.update(time);
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.trees.updateOcclusion(this.player.x, this.player.y);
