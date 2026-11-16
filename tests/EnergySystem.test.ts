@@ -40,3 +40,12 @@ describe('EnergySystem', () => {
     expect(restoreHalf(high).current).toBe(high.current);
   });
 });
+
+import { restoreBySleep } from '../src/systems/EnergySystem';
+describe('restoreBySleep', () => {
+  it('restores 12.5% per hour and caps at full', () => {
+    expect(restoreBySleep({ current: 0, max: 200 }, 1).current).toBe(25);
+    expect(restoreBySleep({ current: 0, max: 200 }, 4).current).toBe(100);
+    expect(restoreBySleep({ current: 50, max: 200 }, 12).current).toBe(200);
+  });
+});

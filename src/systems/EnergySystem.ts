@@ -29,6 +29,13 @@ export function restoreFull(state: EnergyState): EnergyState {
   return { ...state, current: state.max };
 }
 
+/** A full night is 8 hours: each hour in bed restores 1/8 (12.5%) of the bar. */
+export const SLEEP_HOURS_FOR_FULL = 8;
+
+export function restoreBySleep(state: EnergyState, hours: number): EnergyState {
+  return restore(state, (state.max * Math.max(0, hours)) / SLEEP_HOURS_FOR_FULL);
+}
+
 /** Passing out only restores half, per the design doc's "pass out" penalty. */
 export function restoreHalf(state: EnergyState): EnergyState {
   return { ...state, current: Math.max(state.current, Math.floor(state.max / 2)) };

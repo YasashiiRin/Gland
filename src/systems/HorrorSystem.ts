@@ -18,7 +18,7 @@ const EVENTS = horror.events as Record<HorrorEventId, EventDef>;
 export const HORROR_EVENT_IDS = Object.keys(EVENTS) as HorrorEventId[];
 export const WHISPERS: readonly string[] = horror.whispers;
 
-/** Clock hour on the game's 6:00–26:00 day (e.g. 25 = 1 AM). */
+/** Clock hour on the game's 6:00–30:00 day (e.g. 25 = 1 AM, 29 = 5 AM). */
 export function clockHour(time: TimeState): number {
   return 6 + Math.floor(time.elapsedMinutes / 60);
 }
@@ -28,14 +28,36 @@ export function isHorrorNight(time: TimeState): boolean {
   return h >= horror.startHour && h < horror.endHour;
 }
 
+/** Game minutes between two rolls for a haunting (so the night keeps coming at you). */
+export const HORROR_ROLL_MINUTES = horror.rollEveryMinutes;
+
+/** Which roll window of the night we're in; a new value means "roll again". */
+export function horrorRollSlot(time: TimeState): number {
+  return Math.floor(time.elapsedMinutes / HORROR_ROLL_MINUTES);
+}
+
 /**
- * Chance that something happens during this hour of the night: 40% at 8 PM,
- * +10% per hour after that (90% by 1 AM). Halved in mild mode, zero when off.
+ * Trees make it worse: open fields ×0.6, the thick of a bamboo grove or the
+ * forest edge up to ×1.6 (scaled by tree tiles within a few steps of you).
  */
-export function horrorChance(time: TimeState, mode: HorrorMode): number {
+export function treeChanceMultiplier(treesNearby: number): number {
+  const t = horror.trees;
+  const k = Math.min(1, Math.max(0, treesNearby) / t.fullAt);
+  return t.minMultiplier + (t.maxMultiplier - t.minMultiplier) * k;
+}
+
+export const TREE_SCAN_RADIUS = horror.trees.radius;
+
+/**
+ * Chance of a haunting in each half-hour roll: 15% at 8 PM, +6% per hour
+ * until 5 AM, times the tree factor, capped at 85%. Halved in mild mode,
+ * zero when off.
+ */
+export function horrorChance(time: TimeState, mode: HorrorMode, treesNearby = 0): number {
   if (mode === 'off' || !isHorrorNight(time)) return 0;
-  const hoursIn = clockHour(time) - horror.startHour;
-  const chance = Math.min(horror.maxChance, horror.baseChance + hoursIn * horror.chancePerHour);
+  const hoursIn = (time.elapsedMinutes - (horror.startHour - 6) * 60) / 60;
+  const base = horror.baseChance + hoursIn * horror.chancePerHour;
+  const chance = Math.min(horror.maxChance, base * treeChanceMultiplier(treesNearby));
   return mode === 'mild' ? chance * horror.mildChanceMultiplier : chance;
 }
 

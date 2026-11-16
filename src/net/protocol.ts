@@ -40,7 +40,7 @@ export function pickShared(state: GameState): SharedWorld {
 }
 
 /** A guest's personal things, kept in the host's save under the guest's name. */
-export const PROFILE_KEYS = ['inventory', 'energy', 'playerHealth', 'skills', 'buffs', 'equippedSlot'] as const satisfies readonly (keyof GameState)[];
+export const PROFILE_KEYS = ['inventory', 'energy', 'playerHealth', 'sanity', 'skills', 'buffs', 'equippedSlot'] as const satisfies readonly (keyof GameState)[];
 export type PlayerProfile = Pick<GameState, (typeof PROFILE_KEYS)[number]>;
 
 export function pickProfile(state: GameState): PlayerProfile {

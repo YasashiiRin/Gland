@@ -1,17 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { eligibleEvents, horrorChance, nightDread, pickHorrorEvent } from '../src/systems/HorrorSystem';
+import { eligibleEvents, horrorChance, horrorRollSlot, nightDread, pickHorrorEvent, treeChanceMultiplier } from '../src/systems/HorrorSystem';
 import { createInitialTime } from '../src/systems/TimeSystem';
 
 const at = (hour: number) => ({ ...createInitialTime(), elapsedMinutes: (hour - 6) * 60 });
 
 describe('HorrorSystem', () => {
-  it('starts at 40% at 8 PM and rises with the night', () => {
-    expect(horrorChance(at(19), 'on')).toBe(0);
-    expect(horrorChance(at(20), 'on')).toBeCloseTo(0.4);
-    expect(horrorChance(at(23), 'on')).toBeCloseTo(0.7);
-    expect(horrorChance(at(25), 'on')).toBeCloseTo(0.9);
-    expect(horrorChance(at(23), 'mild')).toBeCloseTo(0.35);
+  it('rises from 8 PM until 5 AM, and is higher among trees', () => {
+    const open = treeChanceMultiplier(0);
+    expect(horrorChance(at(19), 'on', 40)).toBe(0);
+    expect(horrorChance(at(20), 'on')).toBeCloseTo(0.15 * open);
+    expect(horrorChance(at(28), 'on')).toBeCloseTo((0.15 + 8 * 0.06) * open);
+    expect(horrorChance(at(29), 'on', 40)).toBe(0); // dawn
+    expect(horrorChance(at(23), 'on', 40)).toBeGreaterThan(horrorChance(at(23), 'on', 0));
+    expect(horrorChance(at(28), 'on', 999)).toBeCloseTo(0.85);
+    expect(horrorChance(at(23), 'mild')).toBeCloseTo(horrorChance(at(23), 'on') / 2);
     expect(horrorChance(at(23), 'off')).toBe(0);
+  });
+
+  it('rolls every half hour', () => {
+    expect(horrorRollSlot(at(20))).not.toBe(horrorRollSlot({ ...at(20), elapsedMinutes: at(20).elapsedMinutes + 30 }));
   });
 
   it('dread grows from dusk to the deepest night', () => {

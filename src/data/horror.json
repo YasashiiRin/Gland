@@ -1,23 +1,93 @@
 {
   "startHour": 20,
-  "endHour": 26,
-  "baseChance": 0.4,
-  "chancePerHour": 0.1,
-  "maxChance": 0.9,
+  "endHour": 29,
+  "baseChance": 0.15,
+  "chancePerHour": 0.06,
+  "maxChance": 0.85,
+  "rollEveryMinutes": 30,
   "mildChanceMultiplier": 0.5,
   "jumpScareFromHour": 24,
+  "trees": {
+    "radius": 6,
+    "fullAt": 40,
+    "minMultiplier": 0.6,
+    "maxMultiplier": 1.6
+  },
+  "sanity": {
+    "max": 100,
+    "scareLoss": 12,
+    "scareLossStep": 4,
+    "scareLossMax": 30,
+    "mildLossMultiplier": 0.5,
+    "speedPenaltyPer10Lost": 0.03,
+    "daylightRegenPerHour": 3,
+    "attackBelow": 0.15,
+    "attackEveryMs": [
+      7000,
+      12000
+    ],
+    "ghostSpeed": 44,
+    "hitDamageRatio": 0.05,
+    "hitDamageMaxRatio": 0.25,
+    "hitEnergyRatio": 0.05,
+    "panicChance": 0.35,
+    "panicMs": 2000,
+    "panicMultipliers": [
+      0.6,
+      0.8
+    ]
+  },
   "events": {
-    "ghost_far":       { "weight": 5, "where": "outdoor" },
-    "wisps":           { "weight": 4, "where": "outdoor" },
-    "shadow_follower": { "weight": 4, "where": "outdoor", "fromHour": 22 },
-    "water_ghost":     { "weight": 4, "where": "outdoor", "needsWater": true },
-    "footsteps":       { "weight": 4, "where": "any" },
-    "whisper":         { "weight": 4, "where": "any" },
-    "flicker":         { "weight": 3, "where": "any" },
-    "baby_cry":        { "weight": 3, "where": "any", "fromHour": 21 },
-    "knock":           { "weight": 5, "where": "indoor" },
-    "clock_glitch":    { "weight": 2, "where": "any", "fromHour": 23 },
-    "jumpscare":       { "weight": 2, "where": "any", "fromHour": 24, "intenseOnly": true }
+    "ghost_far": {
+      "weight": 5,
+      "where": "outdoor"
+    },
+    "wisps": {
+      "weight": 4,
+      "where": "outdoor"
+    },
+    "shadow_follower": {
+      "weight": 4,
+      "where": "outdoor",
+      "fromHour": 22
+    },
+    "water_ghost": {
+      "weight": 4,
+      "where": "outdoor",
+      "needsWater": true
+    },
+    "footsteps": {
+      "weight": 4,
+      "where": "any"
+    },
+    "whisper": {
+      "weight": 4,
+      "where": "any"
+    },
+    "flicker": {
+      "weight": 3,
+      "where": "any"
+    },
+    "baby_cry": {
+      "weight": 3,
+      "where": "any",
+      "fromHour": 21
+    },
+    "knock": {
+      "weight": 5,
+      "where": "indoor"
+    },
+    "clock_glitch": {
+      "weight": 2,
+      "where": "any",
+      "fromHour": 23
+    },
+    "jumpscare": {
+      "weight": 2,
+      "where": "any",
+      "fromHour": 24,
+      "intenseOnly": true
+    }
   },
   "whispers": [
     "…đừng quay lại…",

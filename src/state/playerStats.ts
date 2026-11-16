@@ -2,7 +2,16 @@ import { ITEMS } from '../data/items';
 import { restore } from '../systems/EnergySystem';
 import { itemAt, removeItem } from '../systems/InventorySystem';
 import { absoluteMinute, activeBuffs, addBuff, speedMultiplier, type ItemStats } from '../systems/StatsSystem';
+import { sanitySpeedPenalty } from '../systems/SanitySystem';
 import { gameState } from './GameState';
+
+/** Losing control after a scare: legs give way for a moment. Runtime only (never saved). */
+export const panicState = { until: 0, multiplier: 1 };
+
+export function startPanic(multiplier: number, ms: number, now: number = performance.now()): void {
+  panicState.until = now + ms;
+  panicState.multiplier = multiplier;
+}
 
 /**
  * Every stat source in effect right now: the held tool/weapon, the vehicle
@@ -15,11 +24,12 @@ export function currentStatSources(): (ItemStats | undefined)[] {
   const heldStats = heldDef && heldDef.category !== 'food' && heldDef.category !== 'vehicle' ? heldDef.stats : undefined;
   const ridingStats = gameState.riding ? ITEMS[gameState.riding].stats : undefined;
   const buffs = activeBuffs(gameState.buffs, absoluteMinute(gameState.time)).map((b) => b.stats);
-  return [heldStats, ridingStats, ...buffs];
+  return [heldStats, ridingStats, sanitySpeedPenalty(gameState.sanity), ...buffs];
 }
 
-export function currentSpeedMultiplier(): number {
-  return speedMultiplier(currentStatSources());
+export function currentSpeedMultiplier(now: number = performance.now()): number {
+  const panic = now < panicState.until ? panicState.multiplier : 1;
+  return speedMultiplier(currentStatSources()) * panic;
 }
 
 /**

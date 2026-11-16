@@ -1,4 +1,5 @@
 import { craftingState } from '../state/craftingState';
+import { sleepState } from '../state/dayCycle';
 import type { Station } from '../data/recipes';
 import { MarketMenu } from '../ui/MarketMenu';
 import { HorrorOverlay } from '../ui/HorrorOverlay';
@@ -50,7 +51,9 @@ import { craft } from '../systems/CraftingSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { addItem, itemAt } from '../systems/InventorySystem';
 import { buyFromStall, buyItem, marketBuyPrice, marketSellPrice, sellToStall } from '../systems/ShopSystem';
-import { advanceTime, darknessAlpha } from '../systems/TimeSystem';
+import { advanceTime, clockMinuteOfDay, darknessAlpha } from '../systems/TimeSystem';
+import { restore } from '../systems/EnergySystem';
+import { daylightRegen } from '../systems/SanitySystem';
 import { ChestMenu } from '../ui/ChestMenu';
 import { CraftingMenu } from '../ui/CraftingMenu';
 import { Hotbar } from '../ui/Hotbar';
@@ -246,6 +249,7 @@ export class UIScene extends Phaser.Scene {
     this.hud.onSettings = () => this.toggleSettings();
 
     const onHostTime = (time: typeof gameState.time) => {
+      this.regenSanity(time.elapsedMinutes - gameState.time.elapsedMinutes);
       gameState.time = time;
       this.hud.setTime(time);
       this.updateNightOverlay();
@@ -397,6 +401,7 @@ export class UIScene extends Phaser.Scene {
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
     this.hud.setEnergy(gameState.energy);
     this.hud.setHealth(gameState.playerHealth);
+    this.hud.setSanity(gameState.sanity);
     this.hud.setMoney(gameState.money);
     this.minimap.setPlayerTile(worldView.playerTileX, worldView.playerTileY);
 
@@ -434,10 +439,11 @@ export class UIScene extends Phaser.Scene {
       this.accumulatorMs -= MS_PER_TICK;
       const result = advanceTime(gameState.time, MINUTES_PER_TICK);
       gameState.time = result.state;
+      this.regenSanity(MINUTES_PER_TICK);
       ticked = true;
-      if (result.passedOut) {
+      if (result.dawn) {
         timeControl.paused = true;
-        EventBus.emit(GameEvents.PassOutRequested);
+        EventBus.emit(GameEvents.DawnReached);
         break;
       }
     }
@@ -649,6 +655,12 @@ export class UIScene extends Phaser.Scene {
     }
   }
 
+  /** Daylight (6:00–18:00) slowly steadies your nerves. */
+  private regenSanity(minutes: number): void {
+    if (minutes <= 0 || clockMinuteOfDay(gameState.time) >= 18 * 60 || clockMinuteOfDay(gameState.time) < 6 * 60) return;
+    gameState.sanity = restore(gameState.sanity, daylightRegen(minutes));
+  }
+
   private updateNightOverlay(): void {
     // The rectangle's own alpha (not fillAlpha) controls how dark the tint looks;
     // fillAlpha was only needed at creation time to pick a fill color.
@@ -669,6 +681,7 @@ export class UIScene extends Phaser.Scene {
 
     const onSleepWait = () => {
       uiState.sleepWait = true;
+      if (sleepState.bedElapsed === null) sleepState.bedElapsed = gameState.time.elapsedMinutes;
       net.setSleepReady(true);
       this.sleepOverlay.show(net.sleepers.size, net.players.length);
     };
@@ -701,7 +714,10 @@ export class UIScene extends Phaser.Scene {
     if (!uiState.sleepWait) return;
     uiState.sleepWait = false;
     this.sleepOverlay.hide();
-    if (tellOthers) net.setSleepReady(false);
+    if (tellOthers) {
+      net.setSleepReady(false);
+      sleepState.bedElapsed = null; // got up again
+    }
   }
 
   private toast(text: string): void {

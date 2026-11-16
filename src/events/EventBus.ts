@@ -9,7 +9,10 @@ export const GameEvents = {
   MapEntered: 'map:entered',
   TimeTick: 'time:tick',
   DayStarted: 'day:started',
-  PassOutRequested: 'time:passOutRequested',
+  /** The clock reached 6:00 with the day still running: start the new day. */
+  DawnReached: 'time:dawnReached',
+  /** A ghost knocked the player's health to 0. */
+  PlayerFainted: 'player:fainted',
   ShopOpenRequested: 'shop:openRequested',
   ShopClosedMessage: 'shop:closedMessage',
   ChestOpenRequested: 'chest:openRequested',

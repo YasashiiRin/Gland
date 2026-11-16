@@ -8,11 +8,18 @@ import { isWorldInputBlocked } from '../state/uiState';
 import {
   clockHour,
   horrorChance,
+  horrorRollSlot,
   isHorrorNight,
   pickHorrorEvent,
+  TREE_SCAN_RADIUS,
   WHISPERS,
   type HorrorEventId,
 } from '../systems/HorrorSystem';
+import { TILE_GID } from '../config/tileGids';
+import { startPanic } from '../state/playerStats';
+import { rollPanic, scareLoss } from '../systems/SanitySystem';
+import { consume } from '../systems/EnergySystem';
+import { GhostAttacker } from './ghostAttack';
 import {
   playBabyCry,
   playFootsteps,
@@ -23,8 +30,8 @@ import {
   playWispChime,
 } from '../systems/HorrorAudio';
 
-/** Shared across maps so walking through a door doesn't re-roll the same hour. */
-let lastRolledHour = -1;
+/** Shared across maps so walking through a door doesn't re-roll the same half hour. */
+let lastRolledSlot = -1;
 let lastEvent: HorrorEventId | undefined;
 
 interface Haunt {
@@ -39,34 +46,70 @@ interface Haunt {
 const DIR_VECTORS: Record<string, [number, number]> = { down: [0, 1], up: [0, -1], left: [-1, 0], right: [1, 0] };
 
 /**
- * Night-time horror for a map. Once per in-game hour of the night it rolls
- * against the rising chance (40% at 8 PM, more as it gets later) and, on a
- * hit, stages one event at a random moment in that hour. Screen-wide effects
- * (flicker, whispers on screen, the jump scare) are sent to the UI scene.
+ * Night-time horror for a map. Every half hour of the night (8 PM – 5 AM) it
+ * rolls against a chance that rises as the night goes on and is higher among
+ * trees, and on a hit stages one event at a random moment in that window.
+ * Each scare costs sanity (more each time that night) and may make the
+ * player panic (slowed to 60–80% for 2 s). Screen-wide effects are sent to
+ * the UI scene; ghost attacks at very low sanity live in GhostAttacker.
  */
 export class HorrorDirector {
   private readonly haunts: Haunt[] = [];
   private pending?: Phaser.Time.TimerEvent;
+  private readonly attacker: GhostAttacker;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly player: Player,
     private readonly indoor: boolean,
     private readonly ground: Phaser.Tilemaps.TilemapLayer,
+    private readonly decor: Phaser.Tilemaps.TilemapLayer,
   ) {
+    this.attacker = new GhostAttacker(scene, player);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.pending?.remove());
   }
 
   update(time: number): void {
     this.updateHaunts(time);
+    this.attacker.update(time, this.scene.game.loop.delta);
     const mode = gameState.settings.horror;
     if (mode === 'off' || !isHorrorNight(gameState.time)) return;
-    const hour = clockHour(gameState.time);
-    if (hour === lastRolledHour) return;
-    lastRolledHour = hour;
-    if (Math.random() >= horrorChance(gameState.time, mode)) return;
-    // Strike at an unpredictable moment within the hour (an in-game hour is ~42 s).
-    this.pending = this.scene.time.delayedCall(Phaser.Math.Between(1500, 26000), () => this.trigger());
+    const slot = horrorRollSlot(gameState.time);
+    if (slot === lastRolledSlot) return;
+    lastRolledSlot = slot;
+    if (Math.random() >= horrorChance(gameState.time, mode, this.treesNearby())) return;
+    // Strike at an unpredictable moment within the half hour (~21 s of real time).
+    this.pending = this.scene.time.delayedCall(Phaser.Math.Between(1000, 18000), () => this.trigger());
+  }
+
+  /** Tree tiles (choppable or forest) within a few steps — groves are where they wait. */
+  treesNearby(): number {
+    if (this.indoor) return 0;
+    const px = Math.floor(this.player.x / TILE);
+    const py = Math.floor(this.player.y / TILE);
+    const r = TREE_SCAN_RADIUS;
+    let n = 0;
+    for (let y = py - r; y <= py + r; y++) {
+      for (let x = px - r; x <= px + r; x++) {
+        const gid = this.decor.getTileAt(x, y)?.index;
+        if (gid === TILE_GID.TRUNK || gid === TILE_GID.FOREST) n++;
+      }
+    }
+    return n;
+  }
+
+  /** A scare lands: sanity drops (more each time tonight), and sometimes your legs give way. */
+  private shaken(): void {
+    const mode = gameState.settings.horror;
+    const loss = scareLoss(gameState.haunt.scares, mode);
+    gameState.haunt = { ...gameState.haunt, scares: gameState.haunt.scares + 1 };
+    gameState.sanity = consume(gameState.sanity, loss);
+    const panic = rollPanic();
+    if (panic) {
+      startPanic(panic.multiplier, panic.ms);
+      this.scene.cameras.main.shake(panic.ms * 0.4, 0.004);
+      this.scene.time.delayedCall(900, () => this.screen({ kind: 'caption', text: 'Chân bạn run lẩy bẩy, không bước nổi…' }));
+    }
   }
 
   private trigger(): void {
@@ -81,6 +124,7 @@ export class HorrorDirector {
     if (!id) return;
     lastEvent = id;
     this.run(id);
+    this.shaken();
   }
 
   /** Runs one event right away (also handy for testing from the console). */

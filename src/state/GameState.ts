@@ -1,5 +1,6 @@
 import type { ItemId } from '../data/items';
 import type { MapKey } from '../data/maps';
+import { createHauntState, createInitialSanity, type HauntState } from '../systems/SanitySystem';
 import { createInitialEnergy, createInitialHealth, type EnergyState } from '../systems/EnergySystem';
 import type { FarmPlots } from '../systems/FarmingSystem';
 import { createEmptyInventory, type InventoryState } from '../systems/InventorySystem';
@@ -62,6 +63,10 @@ export interface GameState {
   warehouse: InventoryState;
   /** Cargo of vehicles that carry things (the ox cart), by vehicle id. Shared by everyone. */
   vehicleStorage: Record<string, InventoryState>;
+  /** Sanity ("tinh thần"): lost to night scares, restored by sleep and daylight. */
+  sanity: EnergyState;
+  /** Scares and ghost hits so far tonight (each one hurts more). Reset each morning. */
+  haunt: HauntState;
   /** Host only: each guest's inventory/energy/skills, by name, so they keep them between sessions. */
   guestProfiles: Record<string, PlayerProfile>;
 }
@@ -121,6 +126,8 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     warehouse: { slots: Array.from({ length: WAREHOUSE_SLOT_COUNT }, () => null) },
     guestProfiles: {},
     vehicleStorage: {},
+    sanity: createInitialSanity(),
+    haunt: createHauntState(),
   };
 }
 

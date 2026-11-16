@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { DAY_LENGTH_MINUTES, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
+import { sanityRatio } from '../systems/SanitySystem';
 import type { EnergyState } from '../systems/EnergySystem';
 import type { TimeState } from '../systems/TimeSystem';
 import { clockLabel } from '../systems/TimeSystem';
@@ -10,6 +11,12 @@ const DIAL_R = 22;
 const BAR_W = 8;
 const BAR_H = 76;
 
+const SANITY_COLOR = 0x8a7ce0;
+
+/** Fractions of the 6:00→6:00 day: 18:00 sunset, 20:00 full night. */
+const SUNSET = 12 / 24;
+const NIGHTFALL = 14 / 24;
+
 const WEEKDAYS = ['T.2', 'T.3', 'T.4', 'T.5', 'T.6', 'T.7', 'CN'];
 
 /**
@@ -17,7 +24,7 @@ const WEEKDAYS = ['T.2', 'T.3', 'T.4', 'T.5', 'T.6', 'T.7', 'CN'];
  * - top-right: one round day/night dial (sun by day, moon at night) with the
  *   clock and money in small pills below; hover the dial for date/weather;
  *   a gear button beside it opens the settings;
- * - bottom-right: two slim vertical bars (energy, health), hover for numbers.
+ * - bottom-right: three slim vertical bars (energy, health, sanity), hover for numbers.
  */
 export class Hud {
   private readonly container: Phaser.GameObjects.Container;
@@ -28,6 +35,8 @@ export class Hud {
   private readonly tip: Phaser.GameObjects.Text;
   private readonly energyFill: Phaser.GameObjects.Rectangle;
   private readonly healthFill: Phaser.GameObjects.Rectangle;
+  private readonly sanityFill: Phaser.GameObjects.Rectangle;
+  private sanity: EnergyState = { current: 0, max: 0 };
   private time?: TimeState;
   private energy: EnergyState = { current: 0, max: 0 };
   private health: EnergyState = { current: 0, max: 0 };
@@ -67,6 +76,7 @@ export class Hud {
     const by = height - MARGIN - BAR_H;
     this.energyFill = this.slimBar(scene, bx, by, 0x7ccf5a, () => `Năng lượng ${Math.round(this.energy.current)}/${this.energy.max}`);
     this.healthFill = this.slimBar(scene, bx - BAR_W - 6, by, 0xe0604f, () => `Máu ${Math.round(this.health.current)}/${this.health.max}`);
+    this.sanityFill = this.slimBar(scene, bx - (BAR_W + 6) * 2, by, SANITY_COLOR, () => `Tinh thần ${Math.round(this.sanity.current)}/${this.sanity.max}`);
 
     this.tip = scene.add
       .text(0, 0, '', { fontFamily: UI_FONT, fontSize: '12px', color: '#fff6e0', backgroundColor: '#2b1a10dd' })
@@ -115,13 +125,13 @@ export class Hud {
   /** Sky color follows the day; the sun (then the moon) travels over an arc. */
   private drawDial(t: number, rainy: boolean): void {
     const { x, y } = this.dialCenter;
-    const sky = t < 0.55 ? 0x8cc4e0 : t < 0.7 ? 0xe8a060 : 0x2c3560;
+    const sky = t < SUNSET - 0.04 ? 0x8cc4e0 : t < NIGHTFALL ? 0xe8a060 : 0x2c3560;
     const g = this.dial.clear();
     g.fillStyle(UI_COLORS.edge, 1).fillCircle(x, y, DIAL_R + 2);
-    g.fillStyle(rainy && t < 0.7 ? 0x8a9aa8 : sky, 1).fillCircle(x, y, DIAL_R);
+    g.fillStyle(rainy && t < NIGHTFALL ? 0x8a9aa8 : sky, 1).fillCircle(x, y, DIAL_R);
     g.fillStyle(0x6a9a4c, 1).slice(x, y, DIAL_R, 0, Math.PI, false).fillPath(); // ground
-    const night = t >= 0.7;
-    const phase = night ? (t - 0.7) / 0.3 : t / 0.7;
+    const night = t >= SUNSET;
+    const phase = night ? (t - SUNSET) / (1 - SUNSET) : t / SUNSET;
     const angle = Math.PI + phase * Math.PI;
     const bx = x + Math.cos(angle) * (DIAL_R - 7);
     const by = y + Math.sin(angle) * (DIAL_R - 7) + 2;
@@ -155,6 +165,15 @@ export class Hud {
     this.health = health;
     const ratio = health.max > 0 ? health.current / health.max : 0;
     this.healthFill.height = Math.max(0, BAR_H * ratio);
+  }
+
+  /** Sanity bar; it pulses red once the ghosts can attack. */
+  setSanity(sanity: EnergyState): void {
+    this.sanity = sanity;
+    const ratio = sanityRatio(sanity);
+    this.sanityFill.height = Math.max(0, BAR_H * ratio);
+    const danger = ratio < 0.15 && Math.floor(performance.now() / 400) % 2 === 0;
+    this.sanityFill.setFillStyle(danger ? 0xd02a2a : ratio < 0.4 ? 0xb06ad0 : SANITY_COLOR);
   }
 
   setMoney(amount: number): void {

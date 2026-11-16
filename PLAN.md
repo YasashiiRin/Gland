@@ -414,3 +414,12 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - **Ba lô:** cầm ba lô và dùng (Space/chuột trái) để đeo → túi đồ 36 → 48 ô (ba lô vải) hoặc 60 ô (ba lô lớn).
   Chỉ đổi lên ba lô to hơn, không tháo ra (để không mất đồ). Ô chưa mở hiện ổ khoá trong túi đồ.
 - Save cũ: ô đất/đồ đặt trùng chỗ bàn chế tác ở sân được tự trả lại như các lần đổi bản đồ trước.
+
+### Cập nhật: ngủ tự do, thanh tinh thần, ma tấn công, toàn màn hình
+- Khung hình lấp đầy màn hình: chiều rộng canvas theo tỉ lệ màn hình (800–1280 × 540), xoay máy/đổi cửa sổ thì UI dựng lại.
+- Một ngày chạy 6:00 → 6:00 hôm sau. Không còn bị ngất lúc 2:00; thức tới 6:00 thì sang ngày mới ngay tại chỗ, không hồi gì.
+- Ngủ: mỗi giờ ngủ hồi 12,5% năng lượng / máu / tinh thần (8 tiếng = đầy). Ngủ lúc nào cũng thức dậy 6:00.
+- Đêm tối hơn (MAX_NIGHT_ALPHA 0.6 → 0.7).
+- Ma (horror.json): 20:00–5:00, cứ 30 phút gieo một lần; 15% lúc 20:00, +6%/giờ; ×0.6 ở chỗ trống → ×1.6 giữa rừng cây; tối đa 85%.
+- Tinh thần (SanitySystem): mỗi lần bị hù mất 12, 16, 20… (tối đa 30) trong đêm; mỗi 10% mất → −3% tốc chạy; 35% bị "mất kiểm soát" (60% hoặc 80% tốc độ trong 2 giây); ban ngày hồi 3%/giờ.
+- Tinh thần < 15% (chế độ kinh dị "Bật", ban đêm): ma đuổi theo tấn công, mỗi đòn mất 5%, 10%, 15%… (tối đa 25%) máu và 5% năng lượng. Hết máu → ngất, tỉnh ở nhà với 30% máu/tinh thần, mất 10% tiền (tối đa 1000 ₫).

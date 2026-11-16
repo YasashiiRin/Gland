@@ -19,20 +19,17 @@ import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { worldView } from '../state/worldView';
 import { buildMinimap } from '../systems/MinimapSystem';
-import { consume, isExhausted, restoreFull, restoreHalf } from '../systems/EnergySystem';
-import { advanceDay as advanceFarmDay } from '../systems/FarmingSystem';
+import { consume, isExhausted } from '../systems/EnergySystem';
+import { DAY_LENGTH_MINUTES } from '../config/time';
+import { endWorldDay, hoursSlept, sleepState, wakeUp } from '../state/dayCycle';
 import { addItem, expandInventory, HOTBAR_SIZE, INVENTORY_SIZE, itemAt, removeItem } from '../systems/InventorySystem';
 import { craftingState } from '../state/craftingState';
 import type { Station } from '../data/recipes';
 import type { Direction } from '../systems/movement';
-import { waterPlot } from '../systems/FarmingSystem';
-import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { playPickup, playUseTool } from '../systems/SfxSystem';
 
-import { advanceAnimalDay } from '../systems/AnimalSystem';
 import {
-  advanceResourceDay,
   hitResource,
   isCleared,
   resourceKey,
@@ -42,7 +39,7 @@ import {
   type ResourceKind,
 } from '../systems/ResourceSystem';
 import * as SaveService from '../systems/SaveService';
-import { absoluteDayNumber, clockMinuteOfDay, startNewDay } from '../systems/TimeSystem';
+import { absoluteDayNumber, clockMinuteOfDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
 import { RideController } from './rideController';
@@ -61,13 +58,18 @@ const NO_INPUT = { up: false, down: false, left: false, right: false };
 const POSE_SEND_MS = 100;
 import type { VehicleAbility } from '../data/items';
 
-/** Money lost when passing out, capped so a bad night never wipes someone out. */
+/** Fainting (ghost attack): you wake with this share of health and sanity back. */
+const FAINT_RESTORE_RATIO = 0.3;
+/** Money lost when fainting, capped so a bad night never wipes someone out. */
 const PASS_OUT_MONEY_PENALTY_RATE = 0.1;
 const PASS_OUT_MONEY_PENALTY_MAX = 1000;
 
 export interface MapSceneData {
   spawn?: string;
   facing?: Direction;
+  /** Restart right here (the new day dawning while you're out and about). */
+  x?: number;
+  y?: number;
 }
 
 interface Door {
@@ -160,7 +162,7 @@ export abstract class MapScene extends Phaser.Scene {
     const { widthInPixels: w, heightInPixels: h } = this.map;
     this.physics.world.setBounds(0, 0, w, h);
 
-    const spawn = this.findSpawn(data.spawn ?? 'default');
+    const spawn = data.x !== undefined && data.y !== undefined ? { x: data.x, y: data.y } : this.findSpawn(data.spawn ?? 'default');
     this.player = new Player(this, spawn.x, spawn.y, data.facing ?? this.defaultFacing(data.spawn));
     this.physics.add.collider(this.player, ground);
     this.physics.add.collider(this.player, decor);
@@ -184,7 +186,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.afterMapBuilt();
 
     this.remotes = new RemotePlayers(this, this.mapKey);
-    this.horror = new HorrorDirector(this, this.player, !this.isOutdoor, ground);
+    this.horror = new HorrorDirector(this, this.player, !this.isOutdoor, ground, decor);
     // Guest: the host started a new day (or resynced) — take its world and redraw the map.
     // (worldSync has already applied the new world by the time the restart runs.)
     const onWorld = (p: { newDay?: NewDayInfo }) => {
@@ -194,7 +196,7 @@ export abstract class MapScene extends Phaser.Scene {
     // Host: once everyone in the room is in bed, the day ends for all.
     const onSleepers = () => {
       if (net.role === 'host' && net.sleepers.has(net.myId) && everyoneAsleep(net.players, net.sleepers)) {
-        this.sleepSequence('manual');
+        this.sleepSequence();
       }
     };
     net.events.on(NetEvents.Sleepers, onSleepers);
@@ -207,9 +209,14 @@ export abstract class MapScene extends Phaser.Scene {
       EventBus.off(GameEvents.WorldPatched, onPatched);
     });
 
-    const onPassOut = () => this.sleepSequence('passedOut');
-    EventBus.on(GameEvents.PassOutRequested, onPassOut);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.PassOutRequested, onPassOut));
+    const onDawn = () => this.dawnArrives();
+    const onFaint = () => this.faint();
+    EventBus.on(GameEvents.DawnReached, onDawn);
+    EventBus.on(GameEvents.PlayerFainted, onFaint);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EventBus.off(GameEvents.DawnReached, onDawn);
+      EventBus.off(GameEvents.PlayerFainted, onFaint);
+    });
 
     gameState.currentMap = this.mapKey;
     gameState.spawnId = data.spawn ?? 'default';
@@ -297,7 +304,7 @@ export abstract class MapScene extends Phaser.Scene {
       if (this.isNearBed()) {
         // In a room you lie down and wait; the day ends when everyone is in bed.
         if (net.online) EventBus.emit(GameEvents.SleepWaitRequested);
-        else this.sleepSequence('manual');
+        else this.sleepSequence();
       }
       else if (!this.tryOpenShop()) this.tryUseShippingBin();
     }
@@ -514,91 +521,93 @@ export abstract class MapScene extends Phaser.Scene {
 
   /**
    * Guest: the host ended the day. The new world is already applied (by
-   * worldSync); restore my energy (half if I wasn't in bed) and wake up at home.
+   * worldSync). If I was in bed I wake up at home, rested by the hours I
+   * slept; if I stayed up, the morning just arrives where I'm standing.
    */
   private wakeUpAsGuest(newDay: NewDayInfo): void {
     if (this.transitioning) return;
     const slept = newDay.sleepers.includes(net.myId);
-    gameState.energy = slept ? restoreFull(gameState.energy) : restoreHalf(gameState.energy);
-    gameState.riding = null;
-    gameState.currentMap = 'House';
-    gameState.spawnId = 'default';
+    wakeUp(slept ? hoursSlept(DAY_LENGTH_MINUTES) : 0);
     const t = gameState.time;
     const payload: DayStartedPayload = { time: t, day: t.day, season: t.season, year: t.year, weather: t.weather, earnings: newDay.earnings };
-    this.beginTransition();
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
-      EventBus.emit(GameEvents.DayStarted, payload);
-    });
+    if (slept) this.goHomeForNewDay(payload);
+    else this.newDayInPlace(payload);
   }
 
-  /** Falling asleep in bed, or passing out from staying up past 2 AM. Both end the day. */
-  private sleepSequence(reason: 'manual' | 'passedOut'): void {
+  /** Lying down in bed: sleep until 6:00. Each hour slept restores 12.5% (see wakeUp). */
+  private sleepSequence(): void {
     if (this.transitioning) return;
+    if (sleepState.bedElapsed === null) sleepState.bedElapsed = gameState.time.elapsedMinutes;
+    const hours = hoursSlept(DAY_LENGTH_MINUTES);
+    const payload = this.startNextDay();
+    wakeUp(hours);
+    this.goHomeForNewDay(payload);
+  }
+
+  /** 6:00 came while I was still up (host/solo): the day turns over where I stand, nothing restored. */
+  private dawnArrives(): void {
+    if (this.transitioning || net.role === 'guest') return;
+    if (uiState.sleepWait || (net.online && net.sleepers.has(net.myId))) {
+      this.sleepSequence(); // I was lying in bed waiting for the others
+      return;
+    }
+    const payload = this.startNextDay();
+    wakeUp(0);
+    this.newDayInPlace(payload);
+  }
+
+  /** Host/solo: run the farm's day change, save, and send the new world to the room. */
+  private startNextDay(): DayStartedPayload {
+    const { time, earnings } = endWorldDay();
+    SaveService.save(gameState);
+    if (net.role === 'host') {
+      net.broadcastWorld(pickShared(gameState), { earnings, sleepers: [...net.sleepers] });
+      worldSync.rebase();
+    }
+    return { time, day: time.day, season: time.season, year: time.year, weather: time.weather, earnings };
+  }
+
+  private goHomeForNewDay(payload: DayStartedPayload): void {
     if (gameState.riding) this.ride.dismount();
+    gameState.currentMap = 'House';
+    gameState.spawnId = 'default';
     this.beginTransition();
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      const wasRaining = gameState.time.weather === 'rainy';
-      const yesterdayAbsolute = absoluteDayNumber(gameState.time);
-      const nextTime = startNewDay(gameState.time);
-      gameState.time = nextTime;
-      gameState.farmPlots = advanceFarmDay(gameState.farmPlots, nextTime.season, wasRaining);
-      gameState.resourceNodes = advanceResourceDay(gameState.resourceNodes, absoluteDayNumber(nextTime));
-      // Sprinklers water their tile for the day that's just starting.
-      for (const key of sprinklerTileKeysOnMap(gameState.placedObjects, 'Farm')) {
-        gameState.farmPlots = waterPlot(gameState.farmPlots, key);
-      }
-
-      // Chicken coops: yesterday's feeding decides today's happiness and
-      // whether an egg turns up this morning.
-      for (const tileKey of coopTileKeysOnMap(gameState.placedObjects, 'Farm')) {
-        const [cx, cy] = tileKey.split(',').map(Number);
-        const fullKey = placedObjectKey('Farm', cx, cy);
-        const placed = gameState.placedObjects[fullKey];
-        if (!placed?.animal) continue;
-        const result = advanceAnimalDay(placed.animal, yesterdayAbsolute);
-        placed.animal = result.animal;
-        if (result.producedEgg) {
-          gameState.inventory = addItem(gameState.inventory, 'egg', 1).state;
-        }
-      }
-
-      let earnings = 0;
-      for (const [itemId, qty] of Object.entries(gameState.shippingBin)) {
-        earnings += (ITEMS[itemId as keyof typeof ITEMS].sellPrice ?? 0) * (qty ?? 0);
-      }
-      gameState.money += earnings;
-      gameState.shippingBin = {};
-
-      // In a room, the host may have been waiting in bed when the clock hit 2 AM.
-      if (reason === 'passedOut' && !net.sleepers.has(net.myId)) {
-        const penalty = Math.min(PASS_OUT_MONEY_PENALTY_MAX, Math.round(gameState.money * PASS_OUT_MONEY_PENALTY_RATE));
-        gameState.money = Math.max(0, gameState.money - penalty);
-        gameState.energy = restoreHalf(gameState.energy);
-      } else {
-        gameState.energy = restoreFull(gameState.energy);
-      }
-
-      const payload: DayStartedPayload = {
-        time: nextTime,
-        day: nextTime.day,
-        season: nextTime.season,
-        year: nextTime.year,
-        weather: nextTime.weather,
-        earnings,
-      };
-      gameState.currentMap = 'House';
-      gameState.spawnId = 'default';
       SaveService.save(gameState);
-      if (net.role === 'host') {
-        net.broadcastWorld(pickShared(gameState), { earnings, sleepers: [...net.sleepers] });
-        worldSync.rebase();
-      }
-
       this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
       // Emitted after scene.start queues the new scene's create(); UI is a separate
       // active scene so it still receives this straight away.
       EventBus.emit(GameEvents.DayStarted, payload);
+    });
+  }
+
+  /** Redraw this map for the new morning (crops grew…) without moving the player. */
+  private newDayInPlace(payload: DayStartedPayload): void {
+    const at = { x: Math.round(this.player.x), y: Math.round(this.player.y), facing: this.player.direction };
+    this.beginTransition();
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.restart({ spawn: gameState.spawnId, ...at } satisfies MapSceneData);
+      EventBus.emit(GameEvents.DayStarted, payload);
+    });
+  }
+
+  /**
+   * Knocked out by a ghost: you come to in your bed at home, a little poorer,
+   * with some health and nerve back (no time passes).
+   */
+  private faint(): void {
+    if (this.transitioning) return;
+    const penalty = Math.min(PASS_OUT_MONEY_PENALTY_MAX, Math.round(gameState.money * PASS_OUT_MONEY_PENALTY_RATE));
+    gameState.money = Math.max(0, gameState.money - penalty);
+    gameState.playerHealth = { ...gameState.playerHealth, current: Math.round(gameState.playerHealth.max * FAINT_RESTORE_RATIO) };
+    gameState.sanity = { ...gameState.sanity, current: Math.max(gameState.sanity.current, gameState.sanity.max * FAINT_RESTORE_RATIO) };
+    if (gameState.riding) this.ride.dismount();
+    gameState.currentMap = 'House';
+    gameState.spawnId = 'default';
+    this.beginTransition();
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
+      EventBus.emit(GameEvents.HorrorScreen, { kind: 'caption', text: `Bạn ngất đi… tỉnh dậy ở nhà (mất ${penalty.toLocaleString('vi-VN')} ₫)` });
     });
   }
 

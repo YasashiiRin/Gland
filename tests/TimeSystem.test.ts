@@ -17,17 +17,17 @@ describe('advanceTime', () => {
   it('advances the clock and wraps past midnight', () => {
     const r = advanceTime(createInitialTime(), 12 * 60 + 30); // 6:00 + 12:30 -> 18:30
     expect(clockLabel(r.state)).toBe('18:30');
-    expect(r.passedOut).toBe(false);
+    expect(r.dawn).toBe(false);
   });
 
-  it('caps at day length and reports passing out exactly once', () => {
+  it('stops at the next dawn and reports it exactly once', () => {
     const r1 = advanceTime({ ...createInitialTime(), elapsedMinutes: DAY_LENGTH_MINUTES - 5 }, 10);
     expect(r1.state.elapsedMinutes).toBe(DAY_LENGTH_MINUTES);
-    expect(r1.passedOut).toBe(true);
+    expect(r1.dawn).toBe(true);
 
     const r2 = advanceTime(r1.state, 10);
     expect(r2.state.elapsedMinutes).toBe(DAY_LENGTH_MINUTES);
-    expect(r2.passedOut).toBe(false);
+    expect(r2.dawn).toBe(false);
   });
 });
 

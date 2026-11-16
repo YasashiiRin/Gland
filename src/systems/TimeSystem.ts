@@ -29,11 +29,19 @@ export function createInitialTime(): TimeState {
   return { elapsedMinutes: 0, day: 1, season: 'spring', year: 1, weather: 'sunny' };
 }
 
-/** Advances the clock. Time stops at the end of the day (2:00) until the caller starts a new day. */
-export function advanceTime(state: TimeState, deltaMinutes: number): { state: TimeState; passedOut: boolean } {
+/**
+ * Advances the clock. It stops at the next dawn (6:00) and reports `dawn`
+ * exactly once, so the caller can start the new day.
+ */
+export function advanceTime(state: TimeState, deltaMinutes: number): { state: TimeState; dawn: boolean } {
   const elapsedMinutes = Math.min(DAY_LENGTH_MINUTES, state.elapsedMinutes + deltaMinutes);
-  const passedOut = elapsedMinutes >= DAY_LENGTH_MINUTES && state.elapsedMinutes < DAY_LENGTH_MINUTES;
-  return { state: { ...state, elapsedMinutes }, passedOut };
+  const dawn = elapsedMinutes >= DAY_LENGTH_MINUTES && state.elapsedMinutes < DAY_LENGTH_MINUTES;
+  return { state: { ...state, elapsedMinutes }, dawn };
+}
+
+/** Hours of sleep you'd get going to bed now and waking at the next 6:00. */
+export function hoursUntilDawn(state: TimeState): number {
+  return Math.max(0, (DAY_LENGTH_MINUTES - state.elapsedMinutes) / 60);
 }
 
 /** Picks the next day's weather. `random` is injectable so this stays deterministic in tests. */

@@ -1,6 +1,9 @@
-/** A day runs from 6:00 to 26:00 (= 2:00 the next calendar day), i.e. 20 in-game hours. */
+/**
+ * A day runs from 6:00 to 6:00 the next morning (24 in-game hours). Nobody
+ * is forced to bed: if you stay up, the new day simply begins at dawn.
+ */
 export const DAY_START_CLOCK_MINUTES = 6 * 60;
-export const DAY_LENGTH_MINUTES = 20 * 60;
+export const DAY_LENGTH_MINUTES = 24 * 60;
 
 /** How fast the clock ticks: every MINUTES_PER_TICK of game time take MS_PER_TICK of real time. */
 export const MINUTES_PER_TICK = 10;
@@ -38,4 +41,4 @@ export const DUSK_START = 18 * 60;
 export const NIGHT_START = 20 * 60;
 export const DAWN_START = 5 * 60;
 export const DAWN_END = 6 * 60;
-export const MAX_NIGHT_ALPHA = 0.6;
+export const MAX_NIGHT_ALPHA = 0.7;
