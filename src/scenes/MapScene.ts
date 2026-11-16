@@ -23,6 +23,7 @@ import { waterPlot } from '../systems/FarmingSystem';
 import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { playPickup, playUseTool } from '../systems/SfxSystem';
+
 import { advanceAnimalDay } from '../systems/AnimalSystem';
 import {
   advanceResourceDay,
@@ -36,7 +37,7 @@ import {
 } from '../systems/ResourceSystem';
 import * as SaveService from '../systems/SaveService';
 import { absoluteDayNumber, clockMinuteOfDay, startNewDay } from '../systems/TimeSystem';
-import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE } from './PreloadScene';
+import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 
 /** Money lost when passing out, capped so a bad night never wipes someone out. */
 const PASS_OUT_MONEY_PENALTY_RATE = 0.1;
@@ -536,6 +537,15 @@ export abstract class MapScene extends Phaser.Scene {
 
     const { nodes, broke } = hitResource(gameState.resourceNodes, key, kind, absoluteDayNumber(gameState.time));
     gameState.resourceNodes = nodes;
+
+    if (kind === 'tree') {
+      this.playBurstEffect(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2, WOOD_CHIP_TEXTURE, {
+        count: broke ? 10 : 5,
+        speed: { min: 50, max: 130 },
+        lifespan: 380,
+      });
+    }
+
     if (!broke) return;
 
     this.decorLayer.removeTileAt(tile.x, tile.y);
@@ -560,6 +570,36 @@ export abstract class MapScene extends Phaser.Scene {
       gameState.skills = addXp(gameState.skills, 'foraging', XP_REWARDS.cutWeed).skills;
       this.showFloatingText(worldX, worldY, `+${qty} Sợi`);
     }
+  }
+
+  /** A short one-shot particle burst at a world position — chop splinters, water droplets, etc. */
+  protected playBurstEffect(
+    x: number,
+    y: number,
+    textureKey: string,
+    config: {
+      count?: number;
+      speed?: { min: number; max: number };
+      angle?: { min: number; max: number };
+      lifespan?: number;
+      scale?: { start: number; end: number };
+      gravityY?: number;
+      tint?: number;
+    } = {},
+  ): void {
+    const emitter = this.add.particles(x, y, textureKey, {
+      speed: config.speed ?? { min: 40, max: 110 },
+      angle: config.angle ?? { min: 0, max: 360 },
+      lifespan: config.lifespan ?? 420,
+      scale: config.scale ?? { start: 1, end: 0.4 },
+      gravityY: config.gravityY ?? 220,
+      tint: config.tint,
+      quantity: config.count ?? 6,
+      emitting: false,
+    });
+    emitter.setDepth(DEPTH_ABOVE - 2);
+    emitter.explode(config.count ?? 6);
+    this.time.delayedCall((config.lifespan ?? 420) + 50, () => emitter.destroy());
   }
 
   /** A short rising, fading label — used for resource/harvest gains. */

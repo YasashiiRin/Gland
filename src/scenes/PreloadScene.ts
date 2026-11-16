@@ -14,6 +14,8 @@ import { createItemIconTextures } from '../ui/itemIcons';
 
 export const TILESET_TEXTURE = 'farm_tiles';
 export const RAIN_TEXTURE = 'rain_drop';
+export const WOOD_CHIP_TEXTURE = 'wood_chip';
+export const WATER_DROPLET_TEXTURE = 'water_droplet';
 export const CROP_TEXTURE = 'crop_plant';
 export const SHIPPING_BIN_TEXTURE = 'shipping_bin';
 
@@ -48,6 +50,8 @@ export class PreloadScene extends Phaser.Scene {
   create(): void {
     this.createPlayerAnimations();
     this.createRainTexture();
+    this.createWoodChipTexture();
+    this.createWaterDropletTexture();
     this.createCropTexture();
     this.createShippingBinTexture();
     createItemIconTextures(this);
@@ -61,6 +65,28 @@ export class PreloadScene extends Phaser.Scene {
     g.fillStyle(0xcfe3f5, 1);
     g.fillRect(0, 0, 2, 10);
     g.generateTexture(RAIN_TEXTURE, 2, 10);
+    g.destroy();
+  }
+
+  /** A small irregular wood-chip, for the burst of splinters when chopping a tree. */
+  private createWoodChipTexture(): void {
+    const g = this.add.graphics();
+    g.fillStyle(0xb98f5a, 1);
+    g.fillTriangle(0, 4, 3, 0, 6, 5);
+    g.fillStyle(0x8a6540, 1);
+    g.fillTriangle(0, 4, 6, 5, 2, 6);
+    g.generateTexture(WOOD_CHIP_TEXTURE, 6, 6);
+    g.destroy();
+  }
+
+  /** A small round water droplet, for the splash when using the watering can. */
+  private createWaterDropletTexture(): void {
+    const g = this.add.graphics();
+    g.fillStyle(0x6ea8c9, 1);
+    g.fillCircle(3, 3, 3);
+    g.fillStyle(0xbfe0f0, 0.9);
+    g.fillCircle(2, 2, 1);
+    g.generateTexture(WATER_DROPLET_TEXTURE, 6, 6);
     g.destroy();
   }
 

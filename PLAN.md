@@ -272,3 +272,10 @@ thể loại game nông trại (không sao chép hình ảnh cụ thể từ gam
 Áp dụng cho: cuốc, bình tưới, hạt giống, vật thể đặt (rương/bù nhìn/vòi tưới/chuồng gà) ở `FarmScene`;
 rìu/cuốc chim/liềm/cần câu dùng chung logic ở `MapScene` (áp dụng mọi bản đồ). Đã test bằng cách đọc trực tiếp
 trạng thái ô highlight (vị trí, màu) qua trình duyệt thật, khớp chính xác với luật hợp lệ của từng công cụ.
+
+
+## Ghi chú: hiệu ứng chặt cây và tưới nước (theo yêu cầu người dùng)
+- Chặt cây: bắn mảnh gỗ nhỏ (`wood_chip`) tại ô cây mỗi lần vung rìu trúng — kể cả những nhát chưa làm cây gãy,
+  nhiều mảnh hơn ở nhát cuối cùng khi cây đổ. Dùng `MapScene.playBurstEffect` (particle emitter dùng 1 lần rồi tự huỷ).
+- Tưới nước: giọt nước nhỏ (`water_droplet`) rơi xuống ô đất mỗi khi tưới thành công.
+- Texture `wood_chip`/`water_droplet` tự vẽ bằng code (Phaser Graphics), không dùng ảnh có sẵn nào.

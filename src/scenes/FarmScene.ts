@@ -33,7 +33,7 @@ import {
 } from '../systems/PlacedObjectSystem';
 import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/EventBus';
 import { iconTextureKey } from '../ui/itemIcons';
-import { CROP_TEXTURE, SHIPPING_BIN_TEXTURE } from './PreloadScene';
+import { CROP_TEXTURE, SHIPPING_BIN_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
 
 const CROP_GROWING_TINT = 0x8fd98f;
@@ -135,6 +135,14 @@ export class FarmScene extends MapScene {
       if (!canWater(gameState.farmPlots, key)) return;
       gameState.farmPlots = waterPlot(gameState.farmPlots, key);
       this.setSoilTint(tile.x, tile.y, true);
+      this.playBurstEffect(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2 - 6, WATER_DROPLET_TEXTURE, {
+        count: 6,
+        speed: { min: 20, max: 50 },
+        angle: { min: 250, max: 290 },
+        lifespan: 350,
+        gravityY: 260,
+        scale: { start: 1, end: 0.6 },
+      });
     } else {
       super.applyToolEffect(itemId, tile);
     }
