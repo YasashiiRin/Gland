@@ -51,11 +51,34 @@ export const TILE_GID = {
   SALT: 79,
   /** Lý Sơn garlic rows (decor). */
   GARLIC: 80,
+  // Biome trees: each always drawn with one species (scripts/art/province_tiles.py).
+  PINE_TREE: 81,
+  BAMBOO_TREE: 82,
+  PALM_TREE: 83,
+  MANGROVE_TREE: 84,
+  MARSH: 85,
+  ROCKY: 86,
+  DRY_GRASS: 87,
+  /** Reeds (decor, walk-through). */
+  REEDS: 88,
 } as const;
+
+/** The sprite drawn for each biome-tree tile. */
+export const BIOME_TREE_TEXTURES: Readonly<Record<number, string>> = {
+  [TILE_GID.PINE_TREE]: 'tree_pine',
+  [TILE_GID.BAMBOO_TREE]: 'tree_bamboo',
+  [TILE_GID.PALM_TREE]: 'tree_coconut',
+  [TILE_GID.MANGROVE_TREE]: 'tree_mangrove',
+};
 
 /** Decor tiles that stand for a tree sprite (and count as "trees" for the ghosts). */
 export function isTreeGid(gid: number | undefined): boolean {
-  return gid === TILE_GID.TRUNK || gid === TILE_GID.FOREST || gid === TILE_GID.ORCHARD;
+  return (
+    gid === TILE_GID.TRUNK ||
+    gid === TILE_GID.FOREST ||
+    gid === TILE_GID.ORCHARD ||
+    (gid !== undefined && BIOME_TREE_TEXTURES[gid] !== undefined)
+  );
 }
 
 export const TILLABLE_GIDS: readonly number[] = [TILE_GID.GRASS, TILE_GID.GRASS2, TILE_GID.FLOWERS, TILE_GID.GRASS3];

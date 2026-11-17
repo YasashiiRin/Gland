@@ -36,6 +36,13 @@ class Province(MapBuilder):
     def area_free(self, x0: int, y0: int, w: int, h: int, pad: int = 0) -> bool:
         return all(self.free(x, y) for y in range(y0 - pad, y0 + h + pad) for x in range(x0 - pad, x0 + w + pad))
 
+    def to_tmj(self) -> dict:
+        """Like MapBuilder's, without the "above" layer (always empty here; it would cost
+        the game one tile object per cell)."""
+        tmj = super().to_tmj()
+        tmj["layers"] = [layer for layer in tmj["layers"] if layer["name"] != "above"]
+        return tmj
+
     def claim(self, x0: int, y0: int, w: int, h: int) -> None:
         self.taken.update((x, y) for y in range(y0, y0 + h) for x in range(x0, x0 + w))
 

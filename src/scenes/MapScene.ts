@@ -3,7 +3,7 @@ import { DEPTH_ABOVE, FADE_MS, TILE } from '../config/constants';
 import { setupWorldCamera } from './cameraFit';
 import { ITEMS, TOOL_ENERGY_COST, type ItemId } from '../data/items';
 import { isWaterGid, TILE_GID } from '../config/tileGids';
-import { isMapKey, MAPS, type MapKey } from '../data/maps';
+import { isMapKey, MAPS, PROVINCE_MAP_KEYS, type MapKey } from '../data/maps';
 import { Player, type PlayerInput } from '../entities/Player';
 import {
   EventBus,
@@ -42,6 +42,7 @@ import * as SaveService from '../systems/SaveService';
 import { absoluteDayNumber, clockMinuteOfDay } from '../systems/TimeSystem';
 import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
+import type { ChunkedImages } from './chunkedImages';
 import { RideController } from './rideController';
 import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
@@ -109,8 +110,10 @@ export abstract class MapScene extends Phaser.Scene {
   protected map!: Phaser.Tilemaps.Tilemap;
   protected groundLayer!: Phaser.Tilemaps.TilemapLayer;
   protected decorLayer!: Phaser.Tilemaps.TilemapLayer;
-  protected aboveLayer!: Phaser.Tilemaps.TilemapLayer;
+  /** Tiles drawn over the player; the big province maps don't have this layer. */
+  protected aboveLayer: Phaser.Tilemaps.TilemapLayer | null = null;
   protected trees!: TreeSprites;
+  private props!: ChunkedImages;
   protected ride!: RideController;
   private remotes!: RemotePlayers;
   protected horror!: HorrorDirector;
@@ -138,6 +141,16 @@ export abstract class MapScene extends Phaser.Scene {
     return MAPS[this.mapKey].outdoor;
   }
 
+  /** Big province maps are fetched on first visit; other provinces are dropped to save memory. */
+  preload(): void {
+    const file = MAPS[this.mapKey].file;
+    this.load.setPath('assets');
+    if (!this.cache.tilemap.exists(mapCacheKey(file))) this.load.tilemapTiledJSON(mapCacheKey(file), `maps/${file}.tmj`);
+    for (const key of PROVINCE_MAP_KEYS) {
+      if (key !== this.mapKey) this.cache.tilemap.remove(mapCacheKey(MAPS[key].file));
+    }
+  }
+
   create(data: MapSceneData): void {
     this.transitioning = false;
     timeControl.paused = false;
@@ -149,12 +162,12 @@ export abstract class MapScene extends Phaser.Scene {
 
     const ground = this.map.createLayer('ground', tileset, 0, 0);
     const decor = this.map.createLayer('decor', tileset, 0, 0);
-    const above = this.map.createLayer('above', tileset, 0, 0);
-    if (!ground || !decor || !above) throw new Error(`Map ${this.mapKey} is missing a layer`);
+    const above = this.map.getLayerIndex('above') !== null ? this.map.createLayer('above', tileset, 0, 0) : null;
+    if (!ground || !decor) throw new Error(`Map ${this.mapKey} is missing a layer`);
 
     ground.setDepth(-2);
     decor.setDepth(-1);
-    above.setDepth(DEPTH_ABOVE);
+    above?.setDepth(DEPTH_ABOVE);
     ground.setCollisionByProperty({ collides: true });
     decor.setCollisionByProperty({ collides: true });
     this.groundLayer = ground;
@@ -181,7 +194,7 @@ export abstract class MapScene extends Phaser.Scene {
       .setDepth(1)
       .setVisible(false);
     this.applyResourceNodeVisuals();
-    createProps(this, this.map);
+    this.props = createProps(this, this.map);
     this.trees = new TreeSprites(this, decor, info);
     this.wildRice = new WildRice(this.mapKey, decor);
     this.wildRice.refresh();
@@ -241,7 +254,9 @@ export abstract class MapScene extends Phaser.Scene {
     craftingState.nearStation = this.nearestStation();
 
     this.player.setExhausted(isExhausted(gameState.energy));
-    this.trees.updateOcclusion(this.player.x, this.player.y);
+    const view = this.cameras.main.worldView;
+    this.props.update(view);
+    this.trees.update(view, this.player.x, this.player.y);
     this.ride.update(this.time.now);
     worldView.playerTileX = Math.floor(this.player.x / TILE);
     worldView.playerTileY = Math.floor(this.player.y / TILE);
@@ -804,7 +819,7 @@ export abstract class MapScene extends Phaser.Scene {
     if (!broke) return;
 
     this.decorLayer.removeTileAt(tile.x, tile.y);
-    if (kind === 'tree') this.aboveLayer.removeTileAt(tile.x, tile.y - 1);
+    if (kind === 'tree') this.aboveLayer?.removeTileAt(tile.x, tile.y - 1);
 
     const worldX = tile.x * TILE + TILE / 2;
     const worldY = tile.y * TILE + TILE / 2;

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { TILE } from '../config/constants';
-import { isTreeGid, TILE_GID } from '../config/tileGids';
+import { BIOME_TREE_TEXTURES, isTreeGid, TILE_GID } from '../config/tileGids';
+import { ChunkedImages } from './chunkedImages';
 
 /**
  * Tree sprite keys (generated into public/assets/sprites/trees, loaded via
@@ -28,12 +29,13 @@ function tileHash(x: number, y: number): number {
 }
 
 /**
- * Draws every "prop" object of a map (buildings, furniture, the shipping bin):
- * the sprite `prop_<sprite>` is bottom-aligned and centred on the object's
- * footprint and depth-sorted by that bottom edge, like the player.
+ * Every "prop" object of a map (buildings, furniture, the shipping bin): the
+ * sprite `prop_<sprite>` is bottom-aligned and centred on the object's
+ * footprint and depth-sorted by that bottom edge, like the player. Drawn
+ * near the camera only (call update() each frame).
  */
-export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap): Phaser.GameObjects.Image[] {
-  const images: Phaser.GameObjects.Image[] = [];
+export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap): ChunkedImages {
+  const images = new ChunkedImages(scene);
   for (const o of map.getObjectLayer('objects')?.objects ?? []) {
     if (o.name !== 'prop') continue;
     const key = `prop_${readProp(o, 'sprite') ?? ''}`;
@@ -45,18 +47,19 @@ export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap): 
     const bottom = (o.y ?? 0) + (o.height ?? 0);
     const layer = readProp(o, 'layer');
     const depth = layer === 'floor' ? DEPTH_FLOOR_PROP : layer === 'wall' ? DEPTH_WALL_PROP : bottom - 2;
-    images.push(scene.add.image(x, bottom, key).setOrigin(0.5, 1).setDepth(depth));
+    images.add({ x, y: bottom, key, originX: 0.5, originY: 1, depth });
   }
   return images;
 }
 
 /**
- * Big tree sprites standing on every TRUNK (choppable) and FOREST (border)
- * tile of the decor layer. The tile itself is invisible and only provides
- * collision; the sprite fades out while the player walks behind its canopy.
+ * Big tree sprites standing on every TRUNK (choppable), FOREST (border) and
+ * ORCHARD tile of the decor layer. The tile itself is invisible and only
+ * provides collision; the sprite fades out while the player walks behind its
+ * canopy. Only trees near the camera exist at any time (see ChunkedImages).
  */
 export class TreeSprites {
-  private readonly sprites = new Map<string, Phaser.GameObjects.Image>();
+  private readonly images: ChunkedImages;
 
   /** `looks` picks the map's own border-forest and orchard sprites (see maps.json). */
   constructor(
@@ -64,12 +67,15 @@ export class TreeSprites {
     decor: Phaser.Tilemaps.TilemapLayer,
     looks: { forestTrees?: readonly string[]; orchardTree?: string } = {},
   ) {
+    this.images = new ChunkedImages(scene);
     decor.forEachTile((tile) => {
       if (!isTreeGid(tile.index)) return;
       const h = tileHash(tile.x, tile.y);
       const forest = tile.index === TILE_GID.FOREST;
       const pool: readonly string[] =
-        tile.index === TILE_GID.ORCHARD
+        BIOME_TREE_TEXTURES[tile.index] !== undefined
+          ? [BIOME_TREE_TEXTURES[tile.index]]
+          : tile.index === TILE_GID.ORCHARD
           ? [looks.orchardTree ?? 'tree_oak_0']
           : forest
             ? (looks.forestTrees ?? FOREST_TEXTURES)
@@ -78,17 +84,21 @@ export class TreeSprites {
       if (!scene.textures.exists(texture)) return;
       const jitterX = forest ? (h % 7) - 3 : 0;
       const baseY = tile.y * TILE + TILE - 2;
-      const sprite = scene.add
-        .image(tile.x * TILE + TILE / 2 + jitterX, baseY, texture)
-        .setOrigin(0.5, TREE_BASE_Y / TREE_HEIGHT)
-        .setDepth(baseY);
-      this.sprites.set(`${tile.x},${tile.y}`, sprite);
+      this.images.add({
+        x: tile.x * TILE + TILE / 2 + jitterX,
+        y: baseY,
+        key: texture,
+        originX: 0.5,
+        originY: TREE_BASE_Y / TREE_HEIGHT,
+        depth: baseY,
+        id: `${tile.x},${tile.y}`,
+      });
     });
   }
 
   /** A quick sideways shake when an axe hits but the tree doesn't fall yet. */
   shake(x: number, y: number): void {
-    const sprite = this.sprites.get(`${x},${y}`);
+    const sprite = this.images.get(`${x},${y}`);
     if (!sprite) return;
     const baseX = x * TILE + TILE / 2;
     this.scene.tweens.add({ targets: sprite, x: baseX + 1.5, duration: 45, yoyo: true, repeat: 2, onComplete: () => sprite.setX(baseX) });
@@ -96,9 +106,8 @@ export class TreeSprites {
 
   /** The tree topples (tilts and fades) and its sprite is removed. */
   fell(x: number, y: number, towardRight: boolean): void {
-    const sprite = this.sprites.get(`${x},${y}`);
+    const sprite = this.images.remove(`${x},${y}`);
     if (!sprite) return;
-    this.sprites.delete(`${x},${y}`);
     this.scene.tweens.add({
       targets: sprite,
       angle: towardRight ? 80 : -80,
@@ -109,9 +118,13 @@ export class TreeSprites {
     });
   }
 
-  /** Makes trees see-through while the player (at feet position px,py) is behind their canopy. */
-  updateOcclusion(px: number, py: number): void {
-    for (const sprite of this.sprites.values()) {
+  /**
+   * Each frame: keeps the trees around the camera alive, and makes them
+   * see-through while the player (feet at px,py) is behind their canopy.
+   */
+  update(view: Phaser.Geom.Rectangle, px: number, py: number): void {
+    this.images.update(view);
+    for (const sprite of this.images.images()) {
       const behind = Math.abs(sprite.x - px) < 20 && py < sprite.y - 4 && py > sprite.y - 56;
       const alpha = behind ? 0.45 : 1;
       if (sprite.alpha !== alpha) sprite.setAlpha(alpha);

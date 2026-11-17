@@ -5,7 +5,7 @@ import { TILE_GID } from '../src/config/tileGids';
 describe('world map', () => {
   it('lists the outdoor maps north to south, without the house', () => {
     const keys = worldMapKeys();
-    expect(keys[0]).toBe('ThanhHoa');
+    expect(keys[0]).toBe('QuangBinh');
     expect(keys).toContain('Farm');
     expect(keys).not.toContain('House');
   });
@@ -13,19 +13,19 @@ describe('world map', () => {
   it('labels areas with their province', () => {
     const placed = worldPlacements(() => ({ width: 10, height: 10 }));
     expect(placed.find((p) => p.key === 'Farm')?.label).toBe('Nông trại · Quảng Bình');
-    expect(placed.find((p) => p.key === 'HaTinh')?.label).toBe('Hà Tĩnh');
+    expect(placed.find((p) => p.key === 'Hue')?.label).toBe('Huế');
   });
 
   it('measures the bounds around every map', () => {
     const b = worldBounds([
       { key: 'Farm', x: 0, y: 0, width: 64, height: 48, label: '' },
-      { key: 'HaTinh', x: 0, y: -40, width: 64, height: 40, label: '' },
+      { key: 'QuangBinh', x: 0, y: -40, width: 64, height: 40, label: '' },
     ]);
     expect(b).toEqual({ x: 0, y: -40, width: 64, height: 88 });
   });
 
   it('puts the player on the world map, indoors at the door', () => {
-    expect(playerWorldTile('HaTinh', 31, 137)).toEqual({ x: 31, y: -3 });
+    expect(playerWorldTile('QuangBinh', 31, 422)).toEqual({ x: 31, y: -3 });
     expect(playerWorldTile('House', 3, 5)).toEqual({ x: 11, y: 9 });
     expect(playerWorldTile('Nowhere', 1, 1)).toBeNull();
   });

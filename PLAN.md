@@ -435,13 +435,13 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - [x] Đợt 3 + làm giàu map cũ (bản 224×140, sẽ được thay bằng bản 425×425 bên dưới): đủ 10 tỉnh — thêm **Phong Nha – Kẻ Bàng** (Quảng Bình, đi từ mép tây nông trại), **Thanh Hóa** (ruộng bậc thang Pù Luông, nhà sàn, Thành nhà Hồ, sông Mã, Sầm Sơn – Hòn Trống Mái), **Nghệ An** (rừng Pù Mát, sông Lam, làng Sen – Kim Liên, Cửa Lò), **Quảng Ngãi** (núi Thiên Ấn, sông Trà Khúc với guồng nước, ruộng muối Sa Huỳnh, đảo Lý Sơn với tỏi, miệng núi lửa, vòm đá), **Bình Định** (võ đường Tây Sơn, tháp Bánh Ít, Tháp Đôi, Ghềnh Ráng, dừa Tam Quan). Quảng Trị có Thành cổ + đài tưởng niệm, Huế có lăng vua, Đà Nẵng có Cầu Vàng Bà Nà.
 - [x] **Đồng lúa làng** gặt được (phím E hoặc liềm): mỗi ô cho lúa theo tỉ lệ trong `src/data/wildFields.json`, gặt xong còn gốc rạ, **đầu mùa sau chín lại**; chơi chung thì mọi người thấy như nhau.
 
-### Việc chờ làm: thế giới lớn 425×425 kiểu Don't Starve (đã chốt với người chơi)
-- Giữ **10 map tỉnh**, mỗi map **425×425 ô** (≈ 6 lần bản 224×140).
+### Thế giới lớn 425×425 kiểu Don't Starve (đang làm — xong giai đoạn 1/4)
+- Người chơi đổi ý: **chỉ 2 map tỉnh — Quảng Bình và Huế**, mỗi map **425×425 ô** (các tỉnh khác bỏ khỏi game; hình vẽ vẫn giữ trong `scripts/art`).
 - Mỗi map có nhiều **vùng địa hình hình dạng tự nhiên** (không vuông vức), thảm thực vật khác nhau: đồng cỏ, rừng rậm, rừng thông, núi đá, đầm lầy/đồng sen, đồng lúa, bãi biển, sông ngòi… theo đặc trưng tỉnh; đường mòn nối các vùng; địa danh đặt trong vùng hợp với nó.
 - Mỗi map có **một khu làng NPC** tập trung nhiều nhà.
 - **Bỏ nông trại + nhà riêng ban đầu**: lúc bắt đầu, người chơi **chọn vị trí** trên bản đồ; được phát **một chiếc chiếu** để ngủ đêm (thay cho giường).
 - Chia giai đoạn (mỗi giai đoạn một cuộc trò chuyện mới):
-  1. Bộ sinh địa hình theo vùng (biome) + hiệu năng map lớn (chỉ vẽ cây/vật thể gần nhân vật, tải map theo nhu cầu); dựng lại 10 map 425×425.
+  1. [x] Bộ sinh địa hình theo vùng `scripts/art/biome.py` (khoảng 64 vùng bờ cong tự nhiên, mỗi vùng một kiểu: núi đá vôi, núi, rừng, rừng thông, tre, đầm sen, rừng ngập mặn, đồi cát, cỏ khô, đồng cỏ hoa, vườn, đồng lúa, làng NPC, xóm nhỏ; đường mòn nối các vùng). Map trong `scripts/art/world_maps.py`: **Quảng Bình** (Phong Nha – Kẻ Bàng, Đèo Ngang, sông Son–Gianh, sông Nhật Lệ, đồi cát Quang Phú, làng NPC Đồng Hới, làng chài Bảo Ninh) — đi từ mép bắc nông trại; **Huế** (kinh thành có hào, Ngọ Môn, điện Thái Hòa, sông Hương, cầu Trường Tiền, thuyền rồng, Thiên Mụ, lăng vua trong đồi thông, Bạch Mã, phá Tam Giang, rừng đước Rú Chá, cửa Thuận An, làng NPC Gia Hội) — đi từ mép nam làng. Hiệu năng: cây/nhà chỉ tạo quanh camera (`src/scenes/chunkedImages.ts`), map tỉnh chỉ tải khi bước vào và bỏ map kia khỏi bộ nhớ, bỏ lớp "above" ở map tỉnh. Đo trên trình duyệt: ~60 khung hình/giây, bộ nhớ ~98 MB.
   2. Bỏ Farm/House/Town: khu làng NPC trong map Quảng Bình nhận cửa hàng, chợ, bảng nhiệm vụ, lịch NPC; trồng trọt được ở mọi map (cuốc đất bất kỳ đâu); thùng bán hàng, bàn chế tác, nhà kho xe, chuồng gà, lối vào hầm mỏ chuyển vào thế giới mới.
   3. Màn chọn vị trí bắt đầu + vật phẩm **chiếu** (trải ra để ngủ, cất lại được); đổi phiên bản lưu (bản lưu cũ sẽ bắt đầu lại).
   4. Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại.

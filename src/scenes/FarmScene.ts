@@ -63,7 +63,6 @@ export class FarmScene extends MapScene {
   }
 
   protected override defaultFacing(spawn?: string): Direction {
-    if (spawn === 'fromPhongNha') return 'right';
     return spawn === 'fromTown' ? 'left' : 'down'; // from Hà Tĩnh you walk in from the north
   }
 

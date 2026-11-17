@@ -31,6 +31,9 @@ const COLORS = {
   rice: 0xd6b850,
   stubble: 0xb8a070,
   salt: 0xe6eaec,
+  marsh: 0x55603e,
+  rocky: 0x8c8676,
+  dry: 0xa89c5c,
 } as const;
 
 const GROUND_COLORS: Record<number, number> = {
@@ -53,6 +56,9 @@ const GROUND_COLORS: Record<number, number> = {
   [TILE_GID.PAVING]: COLORS.paving,
   [TILE_GID.PADDY]: COLORS.paddy,
   [TILE_GID.SALT]: COLORS.salt,
+  [TILE_GID.MARSH]: COLORS.marsh,
+  [TILE_GID.ROCKY]: COLORS.rocky,
+  [TILE_GID.DRY_GRASS]: COLORS.dry,
 };
 
 const DECOR_COLORS: Record<number, number> = {
@@ -62,6 +68,10 @@ const DECOR_COLORS: Record<number, number> = {
   [TILE_GID.RICE]: COLORS.rice,
   [TILE_GID.STUBBLE]: COLORS.stubble,
   [TILE_GID.GARLIC]: COLORS.weed,
+  [TILE_GID.PINE_TREE]: COLORS.forest,
+  [TILE_GID.BAMBOO_TREE]: COLORS.tree,
+  [TILE_GID.PALM_TREE]: COLORS.tree,
+  [TILE_GID.MANGROVE_TREE]: COLORS.forest,
   [TILE_GID.ROCK]: COLORS.rock,
   [TILE_GID.BUSH]: COLORS.weed,
   [TILE_GID.BLOCK]: COLORS.building,

@@ -19,8 +19,12 @@ CITADEL, LOTUS, PAVING = range(72, 75)
 # 75.. : flooded paddy mud, ripe rice (decor, reapable), stubble after reaping,
 # Sa Huỳnh salt pans, Lý Sơn garlic rows (decor).
 PADDY, RICE, STUBBLE, SALT, GARLIC = range(75, 80)
-LAST_PROVINCE_TILE = GARLIC
-PROVINCE_COLLIDES = [SEA, SURF, TEA, CLIFF, ORCHARD, CITADEL, LOTUS]
+# 80.. : biome trees (each always drawn with one species' sprite: pine, bamboo, coconut,
+# mangrove), marsh mud, rocky ground, dry grass, reeds (decor, walkable).
+PINE_TREE, BAMBOO_TREE, PALM_TREE, MANGROVE_TREE, MARSH, ROCKY, DRY_GRASS, REEDS = range(80, 88)
+BIOME_TREES = [PINE_TREE, BAMBOO_TREE, PALM_TREE, MANGROVE_TREE]
+LAST_PROVINCE_TILE = REEDS
+PROVINCE_COLLIDES = [SEA, SURF, TEA, CLIFF, ORCHARD, CITADEL, LOTUS, *BIOME_TREES]
 
 SAND_C = [(206, 186, 140), (222, 204, 160), (236, 222, 184), (184, 162, 118)]
 SEA_C = [(36, 96, 128), (46, 116, 150), (66, 140, 170), (170, 214, 220)]
@@ -176,6 +180,43 @@ def garlic(im: Image.Image, rnd: random.Random) -> None:
         put(im, x, 14, (230, 226, 210))
 
 
+def marsh(im: Image.Image, rnd: random.Random) -> None:
+    """Soggy dark mud with puddles."""
+    rect(im, 0, 0, T - 1, T - 1, (82, 92, 60))
+    sprinkle(im, rnd, 14, [(66, 76, 50)])
+    for _ in range(2):
+        x, y = rnd.randint(2, 11), rnd.randint(2, 12)
+        rect(im, x, y, x + 3, y + 1, (88, 116, 118)); put(im, x + 1, y, (140, 170, 168))
+
+
+def rocky(im: Image.Image, rnd: random.Random) -> None:
+    """Bare stony ground of the mountains."""
+    rect(im, 0, 0, T - 1, T - 1, (134, 126, 112))
+    sprinkle(im, rnd, 20, [(112, 106, 96), (156, 148, 132)])
+    for _ in range(3):
+        x, y = rnd.randint(1, 13), rnd.randint(1, 13)
+        put(im, x, y, (176, 168, 152)); put(im, x + 1, y, (150, 142, 128)); put(im, x, y + 1, (96, 90, 82))
+
+
+def dry_grass(im: Image.Image, rnd: random.Random) -> None:
+    """Sun-bleached grass of the dry hills and dunes."""
+    rect(im, 0, 0, T - 1, T - 1, (168, 156, 92))
+    sprinkle(im, rnd, 16, [(144, 132, 76)])
+    for _ in range(14):
+        x, y = rnd.randrange(T), rnd.randrange(T)
+        put(im, x, y, (196, 182, 112)); put(im, x, (y + 1) % T, (130, 120, 70))
+
+
+def reeds(im: Image.Image, rnd: random.Random) -> None:
+    """A clump of reeds with brown seed heads (decor)."""
+    for _ in range(9):
+        x = rnd.randint(2, 13)
+        top = rnd.randint(1, 6)
+        for y in range(top, T - 1):
+            put(im, x, y, (96, 132, 70) if y > top + 2 else (120, 150, 80))
+        put(im, x, top, (130, 96, 60)); put(im, x, top + 1, (130, 96, 60))
+
+
 def province_tile(idx: int, rnd: random.Random) -> Image.Image | None:
     """Draws one of the province tiles, or returns None if idx isn't one."""
     if not SAND <= idx <= LAST_PROVINCE_TILE:
@@ -209,5 +250,13 @@ def province_tile(idx: int, rnd: random.Random) -> Image.Image | None:
         salt(im, rnd)
     elif idx == GARLIC:
         garlic(im, rnd)
-    # ORCHARD stays transparent: the tree is a sprite (chosen per map).
+    elif idx == MARSH:
+        marsh(im, rnd)
+    elif idx == ROCKY:
+        rocky(im, rnd)
+    elif idx == DRY_GRASS:
+        dry_grass(im, rnd)
+    elif idx == REEDS:
+        reeds(im, rnd)
+    # ORCHARD and the biome trees stay transparent: the tree is a sprite (chosen per map).
     return im

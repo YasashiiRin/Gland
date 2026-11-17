@@ -37,6 +37,7 @@ export class WorldMap {
   private readonly labels: Phaser.GameObjects.Text[] = [];
   private readonly marker: Phaser.GameObjects.Arc;
   private readonly hereText: Phaser.GameObjects.Text;
+  private readonly loading: Phaser.GameObjects.Text;
   private readonly view: WorldRect;
   private placements: WorldPlacement[] = [];
   private bounds: WorldRect = { x: 0, y: 0, width: 1, height: 1 };
@@ -76,7 +77,8 @@ export class WorldMap {
         color: UI_COLORS.inkSoft,
       })
       .setOrigin(0.5);
-    this.root.add([shade, frame, sea, this.image, this.marker, this.hereText, title, hint]);
+    this.loading = inkText(scene, w / 2, h / 2, 'Đang vẽ bản đồ…', 18, '#fff2d0').setOrigin(0.5).setVisible(false);
+    this.root.add([shade, frame, sea, this.image, this.marker, this.hereText, title, hint, this.loading]);
 
     const buttons: [string, () => void][] = [
       ['✕', () => this.close()],
@@ -109,6 +111,24 @@ export class WorldMap {
 
   /** Opens the map centred on the player (mapKey/tile = where they stand now). */
   open(mapKey: string, tileX: number, tileY: number): void {
+    // The first time, fetch the province maps that aren't loaded (only the current one is),
+    // draw the overview once, then let the big map files go again.
+    const missing = worldPlacements(() => ({ width: 1, height: 1 }))
+      .map((p) => p.key)
+      .filter((key) => !this.scene.textures.exists(TEXTURE_KEY) && !this.tmj(key));
+    if (missing.length > 0) {
+      this.loading.setVisible(true);
+      this.root.setVisible(true);
+      this.scene.load.setPath('assets');
+      for (const key of missing) this.scene.load.tilemapTiledJSON(mapCacheKey(MAPS[key].file), `maps/${MAPS[key].file}.tmj`);
+      this.scene.load.once('complete', () => {
+        this.loading.setVisible(false);
+        this.open(mapKey, tileX, tileY);
+        for (const key of missing) if (key !== mapKey) this.scene.cache.tilemap.remove(mapCacheKey(MAPS[key].file));
+      });
+      this.scene.load.start();
+      return;
+    }
     this.buildTexture();
     this.player = playerWorldTile(mapKey, tileX, tileY);
     const v = this.view;

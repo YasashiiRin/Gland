@@ -41,7 +41,7 @@ export class TownScene extends MapScene {
   }
 
   protected override defaultFacing(spawn?: string): Direction {
-    return spawn === 'fromQuangTri' ? 'up' : 'right';
+    return spawn === 'fromHue' ? 'up' : 'right';
   }
 
   protected override get isOutdoor(): boolean {

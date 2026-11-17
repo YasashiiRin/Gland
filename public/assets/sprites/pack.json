@@ -561,6 +561,11 @@
     "type": "image",
     "key": "prop_martial_yard",
     "url": "sprites/props/martial_yard.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_mangrove",
+    "url": "sprites/trees/mangrove.png"
    }
   ]
  }

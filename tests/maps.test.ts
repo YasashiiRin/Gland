@@ -45,10 +45,10 @@ describe('world maps', () => {
     }
   });
 
-  it('Hà Tĩnh and Quảng Trị are province maps next to Quảng Bình', () => {
-    expect(PROVINCE_MAP_KEYS).toEqual(['PhongNha', 'ThanhHoa', 'NgheAn', 'HaTinh', 'QuangTri', 'Hue', 'DaNang', 'QuangNam', 'QuangNgai', 'BinhDinh']);
+  it('has the two big province maps, Quảng Bình and Huế', () => {
+    expect(PROVINCE_MAP_KEYS).toEqual(['QuangBinh', 'Hue']);
     expect(MAPS.Farm.province).toBe('Quảng Bình');
-    expect(MAPS.HaTinh.orchardTree).toBe('tree_pomelo');
+    expect(MAPS.Hue.orchardTree).toBe('tree_pomelo');
   });
 
   it('treats the sea as fishing water and orchard rows as trees', () => {

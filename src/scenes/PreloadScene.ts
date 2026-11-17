@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { MAP_KEYS, MAPS } from '../data/maps';
+import { MAP_KEYS, MAPS, PROVINCE_MAP_KEYS } from '../data/maps';
 import { NPC_IDS, NPCS } from '../data/npcs';
 
 export function portraitKey(npcId: string): string {
@@ -40,7 +40,9 @@ export class PreloadScene extends Phaser.Scene {
       frameWidth: PLAYER_FRAME.width,
       frameHeight: PLAYER_FRAME.height,
     });
+    // The big province maps are loaded when you walk into them (MapScene.preload).
     for (const key of MAP_KEYS) {
+      if (PROVINCE_MAP_KEYS.includes(key)) continue;
       const file = MAPS[key].file;
       this.load.tilemapTiledJSON(mapCacheKey(file), `maps/${file}.tmj`);
     }
