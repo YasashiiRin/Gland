@@ -104,25 +104,34 @@ def cham_tower(variant: int) -> Image.Image:
 
 
 def coconut() -> Image.Image:
-    """A leaning coconut palm with drooping fronds and a cluster of nuts."""
+    """A tall, gently curving coconut palm: ringed trunk, a crown of arching
+    feathery fronds (leaflets along each midrib) and a cluster of green nuts."""
     im = new(48, 64)
-    soft_shadow(im, 26, 60, 9, 2.5, alpha=75)
-    for y in range(16, 61):
-        x = 26 - round(6 * ((60 - y) / 44) ** 1.6)
-        put(im, x, y, (156, 128, 92)); put(im, x + 1, y, (122, 98, 70)); put(im, x - 1, y, (176, 150, 110))
+    soft_shadow(im, 27, 60, 10, 2.5, alpha=80)
+    top_x, top_y = 21, 17
+    for y in range(top_y, 61):
+        t = (60 - y) / (60 - top_y)
+        x = 27 - round(6 * t ** 1.7)
+        put(im, x - 1, y, (184, 156, 112)); put(im, x, y, (152, 124, 88)); put(im, x + 1, y, (114, 90, 64))
+        if y > 56:
+            put(im, x + 2, y, (114, 90, 64))
         if y % 3 == 0:
-            put(im, x, y, (120, 96, 68))
-    cx, cy = 20, 15
-    for ang in range(-180, 181, 36):
+            put(im, x - 1, y, (130, 104, 74)); put(im, x, y, (120, 96, 68))
+    fronds = [(-175, 17), (-145, 15), (-115, 12), (-65, 12), (-35, 15), (-5, 17), (25, 13), (155, 13), (70, 9), (110, 9)]
+    for ang, length in sorted(fronds, key=lambda f: -math.sin(math.radians(f[0]))):
         a = math.radians(ang)
-        for t in range(17):
-            x = cx + math.cos(a) * t
-            y = cy + math.sin(a) * t * 0.55 + t * t / 26
-            put(im, round(x), round(y), (86, 140, 62))
-            if t > 2 and t % 2 == 0:
-                put(im, round(x), round(y) + 1, (60, 108, 50))
-    for dx, dy in ((-2, 2), (1, 3), (3, 1)):
-        disc(im, cx + dx, cy + dy, 1.8, (120, 110, 50))
+        pts = []
+        for i in range(length + 1):
+            pts.append((top_x + math.cos(a) * i, top_y + math.sin(a) * i * 0.75 + i * i / 15))
+        for i, (x, y) in enumerate(pts):
+            if 1 < i < length:  # leaflets hanging from the midrib
+                drop = 2 + (i % 3 == 0)
+                for d in range(1, drop + 1):
+                    put(im, round(x), round(y) + d, (58, 122, 52) if d > 1 else (82, 150, 60))
+            put(im, round(x), round(y), (128, 186, 80) if i < length * 0.6 else (96, 164, 66))
+    for dx, dy in ((-2, 3), (1, 4), (3, 2), (-1, 1)):
+        disc(im, top_x + dx, top_y + dy, 1.7, (118, 142, 58))
+        put(im, top_x + dx - 1, top_y + dy - 1, (170, 190, 96))
     outline(im, 0.5)
     return im
 

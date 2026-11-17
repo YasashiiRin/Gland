@@ -11,6 +11,7 @@ import json
 import random
 
 from .common import ASSETS, T
+from .water_tiles import DEEP, QUAY_EDGE
 from .tiles import (BLOCK, BUSH, COLLIDES, COLS, DIRT, DOOR, FENCE, FLOOR, FLOOR2, FLOWERS, FOREST, GRASS,
                     GRASS2, GRASS3, IWALL, PATH, PATH_EDGE, ROCK, ROWS, SIGN, TRUNK, WAINSCOT, WALLPAPER,
                     WATER, WATER_EDGE)
@@ -113,20 +114,25 @@ class MapBuilder:
 
     # -------------------------------------------------------------- output
     def autotile(self) -> None:
+        """Bank/edge variants for water, stone-embanked (quay) water and paths, then
+        deep water wherever a water tile has water all around it two tiles deep."""
         g = self.ground
         def same(x: int, y: int, group: set[int]) -> bool:
             return not (0 <= x < self.w and 0 <= y < self.h) or g[y][x] in group
-        water = {WATER} | set(range(WATER_EDGE, WATER_EDGE + 16))
+        water = {WATER, DEEP} | set(range(WATER_EDGE, WATER_EDGE + 16)) | set(range(QUAY_EDGE, QUAY_EDGE + 16))
         path = PATHLIKE | set(range(PATH_EDGE, PATH_EDGE + 16))
         out = [row[:] for row in g]
         for y in range(self.h):
             for x in range(self.w):
-                for group, base, edge in ((water, WATER, WATER_EDGE), (path, PATH, PATH_EDGE)):
+                for group, base, edge in ((water, WATER, WATER_EDGE), (water, QUAY_EDGE, QUAY_EDGE),
+                                          (path, PATH, PATH_EDGE)):
                     if g[y][x] != base:
                         continue
                     mask = ((not same(x, y - 1, group)) * 1 | (not same(x + 1, y, group)) * 2
                             | (not same(x, y + 1, group)) * 4 | (not same(x - 1, y, group)) * 8)
                     out[y][x] = base if mask == 0 else edge + mask
+                if g[y][x] == WATER and all(same(x + dx, y + dy, water) for dy in range(-2, 3) for dx in range(-2, 3)):
+                    out[y][x] = DEEP
         self.ground = out
 
     def to_tmj(self) -> dict:

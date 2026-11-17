@@ -10,13 +10,14 @@ from __future__ import annotations
 import math
 
 from .maps import MapBuilder
+from .water_tiles import SEA_DEEP
 from .province_tiles import BRIDGE, CITADEL, ORCHARD, PADDY, RICE, SALT, SAND, SAND2, SEA, SURF, TEA
 from .tiles import (BLOCK, DIRT, FENCE, FLOWERS, FOREST, GRASS, GRASS2, GRASS3, PATH, ROCK, TRUNK, WATER,
                     WATER_EDGE)
 
 W, H = 224, 140
 GRASSY = {GRASS, GRASS2, GRASS3, FLOWERS}
-WATERY = {WATER, SEA, SURF}
+WATERY = {WATER, SEA, SURF, SEA_DEEP}
 EXIT_W = 4
 
 
@@ -63,7 +64,8 @@ def coast(m: Province, base_x: int, amp: float = 4, sand: int = 7) -> list[int]:
         shore.append(sx)
         for x in range(sx, m.w):
             d = x - sx
-            m.ground[y][x] = (SAND2 if m.rnd.random() < 0.07 else SAND) if d < sand else SURF if d == sand else SEA
+            m.ground[y][x] = ((SAND2 if m.rnd.random() < 0.07 else SAND) if d < sand else SURF if d == sand
+                              else SEA if d < sand + 9 + (y // 5) % 3 else SEA_DEEP)
     return shore
 
 
@@ -78,7 +80,7 @@ def river(m: Province, points: list[tuple[float, float]], width: float, tile: in
             for y in range(int(cy - r - 1), int(cy + r + 2)):
                 for x in range(int(cx - r - 1), int(cx + r + 2)):
                     if 0 <= x < m.w and 0 <= y < m.h and (x - cx) ** 2 + (y - cy) ** 2 <= r * r:
-                        if m.ground[y][x] not in (SEA, SURF):
+                        if m.ground[y][x] not in (SEA, SURF, SEA_DEEP):
                             m.ground[y][x] = tile
 
 

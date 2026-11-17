@@ -1,80 +1,87 @@
 import { describe, expect, it } from 'vitest';
 import {
+  barHeightFor,
   createFishingState,
   fishingOutcome,
-  pickFish,
+  fishSpeedFor,
+  nextFishTarget,
   stepFishing,
-  validFish,
-  zoneHeightFor,
-  zoneSpeedFor,
 } from '../src/systems/FishingSystem';
+import { attachBait, biteDelay, MAX_BAIT, pickFish, strikeWindow, validFish } from '../src/systems/FishSpawnSystem';
+import { addItem, countItem, createEmptyInventory } from '../src/systems/InventorySystem';
 
-describe('zone difficulty scaling', () => {
-  it('harder fish get a smaller, faster zone', () => {
-    expect(zoneHeightFor(70)).toBeLessThan(zoneHeightFor(15));
-    expect(zoneSpeedFor(70)).toBeGreaterThan(zoneSpeedFor(15));
+const still = () => 0.99;
+
+describe('fishing minigame', () => {
+  it('a better fisher gets a bigger bar; harder fish swim faster', () => {
+    expect(barHeightFor(10)).toBeGreaterThan(barHeightFor(0));
+    expect(fishSpeedFor(80)).toBeGreaterThan(fishSpeedFor(10));
+  });
+
+  it('holding moves the bar up, releasing lets it fall', () => {
+    const s = { ...createFishingState(0, () => 0.5), barY: 0.4 };
+    expect(stepFishing(s, 0.3, true, 20, 'smooth', still).barY).toBeLessThan(0.4);
+    expect(stepFishing(s, 0.3, false, 20, 'smooth', still).barY).toBeGreaterThan(0.4);
+  });
+
+  it('keeps the bar on the track and bounces it off the bottom', () => {
+    let s = createFishingState(0, () => 0.5);
+    for (let i = 0; i < 100; i++) s = stepFishing(s, 0.05, true, 20, 'smooth', still);
+    expect(s.barY).toBeGreaterThanOrEqual(0);
+    s = { ...s, barY: 1 - s.barHeight - 0.01, barVelocity: 1.2 };
+    s = stepFishing(s, 0.05, false, 20, 'smooth', still);
+    expect(s.barVelocity).toBeLessThan(0);
+  });
+
+  it('progress rises while the bar covers the fish, falls (and loses "perfect") when not', () => {
+    const base = createFishingState(0, () => 0.5);
+    const on = stepFishing({ ...base, barY: 0.4, fishY: 0.45, fishTarget: 0.45 }, 0.2, false, 0, 'smooth', still);
+    expect(on.progress).toBeGreaterThan(base.progress);
+    expect(on.perfect).toBe(true);
+    const off = stepFishing({ ...base, barY: 0.0, fishY: 0.9, fishTarget: 0.9 }, 0.2, true, 0, 'smooth', still);
+    expect(off.progress).toBeLessThan(base.progress);
+    expect(off.perfect).toBe(false);
+  });
+
+  it('sinkers head for the bottom, floaters for the top', () => {
+    expect(nextFishTarget(0.5, 'sinker', 50, () => 0.1)).toBeGreaterThan(0.6);
+    expect(nextFishTarget(0.5, 'floater', 50, () => 0.1)).toBeLessThan(0.4);
+  });
+
+  it('reports the outcome', () => {
+    expect(fishingOutcome({ progress: 1 })).toBe('caught');
+    expect(fishingOutcome({ progress: 0 })).toBe('escaped');
+    expect(fishingOutcome({ progress: 0.5 })).toBe('ongoing');
   });
 });
 
-describe('stepFishing', () => {
-  it('holding moves the bar up over time, not holding lets it fall', () => {
-    let state = createFishingState(20, () => 0.5);
-    const afterHold = stepFishing(state, 0.5, true, 20, () => 0.9);
-    expect(afterHold.barY).toBeLessThan(state.barY); // "up" = smaller Y
-
-    state = createFishingState(20, () => 0.5);
-    const afterRelease = stepFishing(state, 0.5, false, 20, () => 0.9);
-    expect(afterRelease.barY).toBeGreaterThan(state.barY);
-  });
-
-  it('keeps the bar within [0, 1-BAR_HEIGHT]', () => {
-    let state = createFishingState(20, () => 0.5);
-    for (let i = 0; i < 200; i++) state = stepFishing(state, 0.1, true, 20, () => 0.99);
-    expect(state.barY).toBeGreaterThanOrEqual(0);
-    expect(state.barY).toBeLessThanOrEqual(1 - 0.22 + 1e-9);
-  });
-
-  it('progress rises while overlapping and falls while not', () => {
-    // Force bar and zone to the same spot: overlap, progress should climb.
-    let state = createFishingState(10, () => 0.5);
-    state = { ...state, barY: 0.4, zoneY: 0.5 };
-    const stepped = stepFishing(state, 0.2, true, 0, () => 0.99); // difficulty 0 keeps zone still-ish
-    expect(stepped.progress).toBeGreaterThan(state.progress);
-  });
-
-  it('reaches "caught" when progress hits 1 and "escaped" at 0', () => {
-    expect(fishingOutcome({ barY: 0, barVelocity: 0, zoneY: 0, zoneVelocity: 0, progress: 1 })).toBe('caught');
-    expect(fishingOutcome({ barY: 0, barVelocity: 0, zoneY: 0, zoneVelocity: 0, progress: 0 })).toBe('escaped');
-    expect(fishingOutcome({ barY: 0, barVelocity: 0, zoneY: 0, zoneVelocity: 0, progress: 0.5 })).toBe('ongoing');
-  });
-});
-
-describe('validFish / pickFish', () => {
-  it('filters by location, season, hour and weather', () => {
-    const springNoon = { mapKey: 'Farm' as const, season: 'spring' as const, hour: 12, weather: 'sunny' as const };
-    const options = validFish(springNoon);
-    expect(options).toContain('carp');
-    expect(options).toContain('perch');
-    expect(options).not.toContain('golden_loach'); // Town-only
-    expect(options).not.toContain('grass_carp'); // needs rain
-  });
-
-  it('rain unlocks the grass carp on the farm', () => {
-    const rainyFarm = { mapKey: 'Farm' as const, season: 'summer' as const, hour: 10, weather: 'rainy' as const };
-    expect(validFish(rainyFarm)).toContain('grass_carp');
-  });
-
-  it('pickFish returns null when nothing matches', () => {
-    const midnightWinterFarm = { mapKey: 'Farm' as const, season: 'winter' as const, hour: 2, weather: 'sunny' as const };
-    // carp is the only all-season/any-hour fish; at hour 2 (before minHour 6 and the
-    // wrap isn't modeled) nothing should be valid except... carp's maxHour is 26 so 2 < 6 fails minHour.
-    expect(pickFish(midnightWinterFarm, () => 0)).toBeNull();
-  });
-
-  it('pickFish deterministically picks among the valid options via the injected random', () => {
+describe('which fish bites', () => {
+  it('filters by location, season, hour, weather and water', () => {
     const ctx = { mapKey: 'Farm' as const, season: 'spring' as const, hour: 12, weather: 'sunny' as const };
-    const options = validFish(ctx);
-    const picked = pickFish(ctx, () => 0);
-    expect(picked).toBe(options[0]);
+    expect(validFish(ctx)).toContain('carp');
+    expect(validFish(ctx)).not.toContain('golden_loach');
+    expect(validFish({ ...ctx, weather: 'rainy' })).toContain('grass_carp');
+    const sea = validFish({ ...ctx, mapKey: 'QuangBinh', water: 'sea' });
+    expect(sea).toContain('anchovy');
+    expect(sea).not.toContain('carp');
+  });
+
+  it('returns null when nothing matches', () => {
+    expect(pickFish({ mapKey: 'Farm', season: 'winter', hour: 3, weather: 'sunny' }, () => 0)).toBeNull();
+  });
+});
+
+describe('bait and timing', () => {
+  it('moves worms onto the rod, up to the limit', () => {
+    const inv = addItem(createEmptyInventory(), 'worm', 25).state;
+    const r = attachBait(inv, 0);
+    expect(r.onRod).toBe(MAX_BAIT);
+    expect(countItem(r.inventory, 'worm')).toBe(5);
+    expect(attachBait(r.inventory, r.onRod).moved).toBe(0);
+  });
+
+  it('bites come sooner for a skilled fisher; hard fish give less time to strike', () => {
+    expect(biteDelay(10, () => 1)).toBeLessThan(biteDelay(0, () => 1));
+    expect(strikeWindow(90)).toBeLessThan(strikeWindow(10));
   });
 });

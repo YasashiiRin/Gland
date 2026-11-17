@@ -12,7 +12,11 @@ import {
   type FishingStartedPayload,
   type MapEnteredPayload,
 } from '../events/EventBus';
-import { pickFish } from '../systems/FishingSystem';
+import { attachBait, pickFish } from '../systems/FishSpawnSystem';
+import { ROW_SPEED } from '../systems/BoatSystem';
+import { Boats } from './boats';
+import { LivestockHerd } from './livestockHerd';
+import { Tigers, type TileRect } from './tigers';
 import { gameState } from '../state/GameState';
 import { currentSpeedMultiplier, eatHeldFood } from '../state/playerStats';
 import { timeControl } from '../state/timeControl';
@@ -22,7 +26,7 @@ import { buildMinimap } from '../systems/MinimapSystem';
 import { consume, isExhausted } from '../systems/EnergySystem';
 import { DAY_LENGTH_MINUTES } from '../config/time';
 import { endWorldDay, hoursSlept, sleepState, wakeUp } from '../state/dayCycle';
-import { addItem, expandInventory, HOTBAR_SIZE, INVENTORY_SIZE, itemAt, removeItem } from '../systems/InventorySystem';
+import { addItem, countItem, expandInventory, HOTBAR_SIZE, INVENTORY_SIZE, itemAt, removeItem } from '../systems/InventorySystem';
 import { craftingState } from '../state/craftingState';
 import type { Station } from '../data/recipes';
 import type { Direction } from '../systems/movement';
@@ -115,6 +119,9 @@ export abstract class MapScene extends Phaser.Scene {
   protected trees!: TreeSprites;
   private props!: ChunkedImages;
   protected ride!: RideController;
+  private boats!: Boats;
+  private herd!: LivestockHerd;
+  private tigers: Tigers | null = null;
   private remotes!: RemotePlayers;
   protected horror!: HorrorDirector;
   private wildRice!: WildRice;
@@ -179,7 +186,8 @@ export abstract class MapScene extends Phaser.Scene {
 
     const spawn = data.x !== undefined && data.y !== undefined ? { x: data.x, y: data.y } : this.findSpawn(data.spawn ?? 'default');
     this.player = new Player(this, spawn.x, spawn.y, data.facing ?? this.defaultFacing(data.spawn));
-    this.physics.add.collider(this.player, ground);
+    // While rowing a boat, water stops blocking (Boats keeps the boat off dry land).
+    this.physics.add.collider(this.player, ground, undefined, (_p, t) => !this.boats?.passesWater(t as Phaser.Tilemaps.Tile));
     this.physics.add.collider(this.player, decor);
 
     this.createDoors();
@@ -200,6 +208,11 @@ export abstract class MapScene extends Phaser.Scene {
     this.wildRice.refresh();
     if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
+    this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
+    this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
+    this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
+      ? new Tigers(this, this.player, decor, this.zoneRects(), (text) => this.say(text))
+      : null;
     this.afterMapBuilt();
 
     this.remotes = new RemotePlayers(this, this.mapKey);
@@ -258,6 +271,9 @@ export abstract class MapScene extends Phaser.Scene {
     this.props.update(view);
     this.trees.update(view, this.player.x, this.player.y);
     this.ride.update(this.time.now);
+    this.boats.update();
+    this.herd.update(time);
+    this.tigers?.update(time, this.game.loop.delta);
     worldView.playerTileX = Math.floor(this.player.x / TILE);
     worldView.playerTileY = Math.floor(this.player.y / TILE);
 
@@ -271,7 +287,10 @@ export abstract class MapScene extends Phaser.Scene {
 
     this.trackMoveKeyPresses();
     // A passenger doesn't steer: the driver's vehicle carries them (see RideController).
-    this.player.updateMovement(rideState.passengerOf ? NO_INPUT : this.readInput(), currentSpeedMultiplier());
+    this.player.updateMovement(
+      rideState.passengerOf ? NO_INPUT : this.readInput(),
+      currentSpeedMultiplier() * (gameState.boating ? ROW_SPEED : 1),
+    );
     this.readHotbarSelection();
     // With touch controls, a finger on the joystick isn't "aiming": tools use the facing tile
     // (tapping the world still aims at the tapped tile, see onWorldPointerDown).
@@ -302,6 +321,8 @@ export abstract class MapScene extends Phaser.Scene {
 
   /** E key / right click: harvest, open, talk, sleep, sell... whichever applies first. */
   private interact(): void {
+    if (this.say(this.boats.interact())) return;
+    if (gameState.boating) return;
     if (gameState.riding || rideState.passengerOf) {
       // Riding: get off (a driven vehicle stays parked here; a passenger just steps down).
       this.say(this.ride.dismount());
@@ -376,11 +397,28 @@ export abstract class MapScene extends Phaser.Scene {
     return 'down';
   }
 
+  /** The map's safe landmark zones ("zone" objects), in tiles. */
+  private zoneRects(): TileRect[] {
+    return (this.map.getObjectLayer('objects')?.objects ?? [])
+      .filter((o) => o.name === 'zone')
+      .map((o) => ({
+        x0: Math.floor((o.x ?? 0) / TILE),
+        y0: Math.floor((o.y ?? 0) / TILE),
+        x1: Math.floor(((o.x ?? 0) + (o.width ?? 0)) / TILE) - 1,
+        y1: Math.floor(((o.y ?? 0) + (o.height ?? 0)) / TILE) - 1,
+      }));
+  }
+
   /** Extension points for farmable maps (overridden by FarmScene). Harmless no-ops elsewhere. */
   protected afterMapBuilt(): void {}
   protected applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
     if (itemId === 'fishing_rod') {
       this.tryStartFishing(tile);
+      return;
+    }
+    if (itemId === 'whip') {
+      const n = this.herd.crack(this.player.x, this.player.y);
+      this.say(n > 0 ? 'Chát! Gia súc chạy tán loạn' : 'Chát!');
       return;
     }
     if (itemId === 'scythe' && this.say(this.wildRice.tryReap(tile))) return;
@@ -391,16 +429,38 @@ export abstract class MapScene extends Phaser.Scene {
     if (uiState.fishingOpen) return;
     const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
     if (!isWaterGid(gid)) return;
-
+    if (gameState.rodBait <= 0) {
+      this.say('Cần câu chưa gắn mồi — cầm giun và bấm dùng để gắn');
+      return;
+    }
+    const sea = gid === TILE_GID.SEA || gid === TILE_GID.SEA_DEEP || gid === TILE_GID.SURF;
     const hour = Math.floor(clockMinuteOfDay(gameState.time) / 60);
-    const fishId = pickFish({ mapKey: this.mapKey, season: gameState.time.season, hour, weather: gameState.time.weather });
+    const fishId = pickFish({
+      mapKey: this.mapKey,
+      season: gameState.time.season,
+      hour,
+      weather: gameState.time.weather,
+      water: sea ? 'sea' : 'fresh',
+    });
     if (!fishId) {
-      console.info('Không có cá nào cắn câu lúc này.');
+      this.say('Chỗ này giờ này không có cá cắn câu');
       return;
     }
     const payload: FishingStartedPayload = { fishId };
     EventBus.emit(GameEvents.FishingStarted, payload);
   }
+
+  /** Holding worms and pressing "use": put them on the rod. */
+  private attachBaitToRod(): string {
+    if (countItem(gameState.inventory, 'fishing_rod') === 0) return 'Bạn chưa có cần câu (mua ở quán tạp hoá)';
+    const r = attachBait(gameState.inventory, gameState.rodBait);
+    if (r.moved === 0) return `Cần câu đã đầy mồi (${gameState.rodBait})`;
+    gameState.inventory = r.inventory;
+    gameState.rodBait = r.onRod;
+    playPickup(gameState.settings);
+    return `Đã gắn ${r.moved} mồi giun vào cần câu (còn ${r.onRod} mồi)`;
+  }
+
   protected tryPlantFacingTile(_seedItemId: ItemId): void {}
   protected tryHarvestFacingTile(): boolean {
     return false;
@@ -732,6 +792,10 @@ export abstract class MapScene extends Phaser.Scene {
 
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);
+      return;
+    }
+    if (ITEMS[stack.itemId].category === 'bait') {
+      this.say(this.attachBaitToRod());
       return;
     }
     if (ITEMS[stack.itemId].category === 'equipment') {

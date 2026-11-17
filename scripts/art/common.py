@@ -97,11 +97,39 @@ def soft_shadow(im: Image.Image, cx: float, cy: float, rx: float, ry: float, alp
                 blend(im, x, y, (18, 24, 16, alpha))
 
 
-def outline(im: Image.Image, darken: float = 0.42, skip_below: int | None = None) -> None:
-    """Adds a 1px outline around opaque pixels, colored as a dark version of
-    the neighbouring fill (selective outlining) instead of flat black."""
+INK = (46, 30, 26)
+
+
+def _lum(c) -> float:
+    return 0.3 * c[0] + 0.59 * c[1] + 0.11 * c[2]
+
+
+def _toward_ink(c, t: float) -> tuple[int, int, int, int]:
+    return (int(c[0] + (INK[0] - c[0]) * t), int(c[1] + (INK[1] - c[1]) * t), int(c[2] + (INK[2] - c[2]) * t), 255)
+
+
+def outline(im: Image.Image, darken: float = 0.42, skip_below: int | None = None, inner: bool = True) -> None:
+    """The house line style: a crisp 1px outline in a very dark warm brown
+    (barely tinted by the fill next to it) around every opaque shape, plus thin
+    inner lines wherever two strongly different colours meet, so each part
+    (window frame, column, roof edge) reads on its own. `darken` is kept for
+    old callers; the outline is always near-ink now."""
     src = im.copy()
     w, h = im.size
+    if inner:
+        for y in range(h - 1):
+            for x in range(w - 1):
+                a = src.getpixel((x, y))
+                if a[3] < 200:
+                    continue
+                for nx, ny in ((x + 1, y), (x, y + 1)):
+                    b = src.getpixel((nx, ny))
+                    if b[3] < 200 or abs(_lum(a) - _lum(b)) < 62:
+                        continue
+                    if _lum(a) < _lum(b):
+                        im.putpixel((x, y), _toward_ink(a, 0.55))
+                    else:
+                        im.putpixel((nx, ny), _toward_ink(b, 0.55))
     for y in range(h):
         if skip_below is not None and y >= skip_below:
             continue
@@ -113,7 +141,7 @@ def outline(im: Image.Image, darken: float = 0.42, skip_below: int | None = None
                 if 0 <= nx < w and 0 <= ny < h:
                     n = src.getpixel((nx, ny))
                     if n[3] > 200:
-                        im.putpixel((x, y), shade(n, darken))
+                        im.putpixel((x, y), _toward_ink(n, 0.82))
                         break
 
 

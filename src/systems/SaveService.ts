@@ -46,6 +46,10 @@ export function load(): GameState | null {
       return null;
     }
     parsed.wildFields ??= {}; // added after save version 11 shipped; older saves just lack it
+    parsed.rodBait ??= 0; // fishing bait, farm animals and boats came later still
+    parsed.livestock ??= [];
+    parsed.boats ??= {};
+    parsed.boating = null;
     return parsed;
   } catch (e) {
     console.warn('Could not read the save file:', e);

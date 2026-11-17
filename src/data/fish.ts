@@ -4,6 +4,11 @@ import type { Season, Weather } from '../systems/TimeSystem';
 
 export type FishId = keyof typeof fishData;
 
+/** How a fish swims in the reel-in minigame. */
+export type FishBehavior = 'smooth' | 'dart' | 'sinker' | 'floater' | 'mixed';
+/** Fresh water (rivers, lakes, ponds) or the sea. */
+export type FishWater = 'fresh' | 'sea';
+
 export interface FishDef {
   name: string;
   locations: MapKey[];
@@ -13,6 +18,8 @@ export interface FishDef {
   weather: Weather | 'any';
   difficulty: number;
   sellPrice: number;
+  behavior: FishBehavior;
+  water: FishWater;
 }
 
 export const FISH: Record<FishId, FishDef> = fishData as Record<FishId, FishDef>;

@@ -16,6 +16,7 @@ import numpy as np
 from .province_tiles import (BAMBOO_TREE, DRY_GRASS, LOTUS, MANGROVE_TREE, MARSH, ORCHARD, PADDY, PINE_TREE, REEDS,
                              RICE, ROCKY, SAND, SAND2, SEA, SURF)
 from .region import Province, _pave, place
+from .water_tiles import SEA_DEEP
 from .tiles import BUSH, DIRT, FLOWERS, FOREST, GRASS, GRASS2, GRASS3, PATH, ROCK, TRUNK, WATER
 
 GRASSY = {GRASS, GRASS2, GRASS3, FLOWERS}
@@ -39,7 +40,7 @@ class Regions:
     def __init__(self, m: Province, count: int, warp: float = 26):
         self.m = m
         rng = np.random.default_rng(m.rnd.randint(0, 2 ** 31))
-        land = np.array([[g not in (SEA, SURF) for g in row] for row in m.ground])
+        land = np.array([[g not in (SEA, SURF, SEA_DEEP) for g in row] for row in m.ground])
         side = int(math.sqrt(count))
         seeds = []
         for gy in range(side):

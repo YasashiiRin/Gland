@@ -117,5 +117,22 @@
     "resultItemId": "chicken_coop",
     "resultQty": 1,
     "category": "craft"
+  },
+  "whip": {
+    "name": "Cây roi",
+    "station": "rough",
+    "ingredients": [
+      {
+        "itemId": "wood",
+        "qty": 5
+      },
+      {
+        "itemId": "fiber",
+        "qty": 15
+      }
+    ],
+    "resultItemId": "whip",
+    "resultQty": 1,
+    "category": "craft"
   }
 }

@@ -1,6 +1,7 @@
 import { pruneWildFields, seasonStamp } from '../systems/WildFieldSystem';
 import { ITEMS } from '../data/items';
 import { advanceAnimalDay } from '../systems/AnimalSystem';
+import { advanceLivestockDay } from '../systems/LivestockSystem';
 import { restoreBySleep, type EnergyState } from '../systems/EnergySystem';
 import { advanceDay as advanceFarmDay, waterPlot } from '../systems/FarmingSystem';
 import { addItem } from '../systems/InventorySystem';
@@ -41,6 +42,7 @@ export function endWorldDay(): { time: TimeState; earnings: number } {
     placed.animal = result.animal;
     if (result.producedEgg) gameState.inventory = addItem(gameState.inventory, 'egg', 1).state;
   }
+  gameState.livestock = gameState.livestock.map(advanceLivestockDay);
   let earnings = 0;
   for (const [itemId, qty] of Object.entries(gameState.shippingBin)) {
     earnings += (ITEMS[itemId as keyof typeof ITEMS].sellPrice ?? 0) * (qty ?? 0);

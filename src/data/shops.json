@@ -10,7 +10,11 @@
       "cauliflower_seeds",
       "strawberry_seeds",
       "green_bean_seeds",
-      "rice_seeds"
+      "rice_seeds",
+      "animal_chicken",
+      "animal_pig",
+      "animal_cow",
+      "animal_buffalo"
     ]
   },
   "grocery": {
@@ -21,7 +25,10 @@
     "stock": [
       "com_nam",
       "banh_mi",
-      "ca_phe_sua_da"
+      "ca_phe_sua_da",
+      "fishing_rod",
+      "worm",
+      "whip"
     ]
   },
   "vehicle_shop": {
@@ -47,7 +54,9 @@
     "stock": [
       "carp",
       "perch",
-      "grass_carp"
+      "grass_carp",
+      "snakehead",
+      "goby"
     ],
     "buysCategories": [
       "fish"

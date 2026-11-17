@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { ITEM_IDS, type ItemId } from '../data/items';
+import { EXTRA_ICONS } from './itemIconsExtra';
 
 export function iconTextureKey(itemId: ItemId): string {
   return `item_icon_${itemId}`;
@@ -55,7 +56,7 @@ function oreIcon(speckColor: number): Draw {
   };
 }
 
-const ICONS: Record<ItemId, Draw> = {
+const ICONS: Partial<Record<ItemId, Draw>> = {
   hoe: tool(0x9a9aa2, (g) => {
     g.fillStyle(0x9a9aa2, 1);
     g.fillRect(8, 2, 6, 3);
@@ -491,7 +492,7 @@ export function createItemIconTextures(scene: Phaser.Scene): void {
   const g = scene.add.graphics();
   for (const id of ITEM_IDS) {
     g.clear();
-    ICONS[id](g);
+    (ICONS[id] ?? EXTRA_ICONS[id] ?? ICONS.stone)?.(g);
     g.generateTexture(iconTextureKey(id), 16, 16);
   }
   g.destroy();

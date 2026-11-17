@@ -43,9 +43,13 @@ def sand(im: Image.Image, rnd: random.Random, shells: bool) -> None:
 def sea(im: Image.Image, rnd: random.Random) -> None:
     rect(im, 0, 0, T - 1, T - 1, SEA_C[1])
     sprinkle(im, rnd, 10, [SEA_C[0]])
-    for _ in range(4):  # little wave crests
-        x, y = rnd.randrange(T - 3), rnd.randrange(1, T)
-        put(im, x, y, SEA_C[2]); put(im, x + 1, y - 1, SEA_C[3]); put(im, x + 2, y, SEA_C[2])
+    sprinkle(im, rnd, 5, [SEA_C[2]])
+    for _ in range(3):  # curling wave crests with a white tip
+        x, y = rnd.randrange(T - 5), rnd.randrange(2, T - 1)
+        for i, dy in enumerate((0, -1, -1, -1, 0)):
+            put(im, x + i, y + dy, SEA_C[2])
+        put(im, x + 1, y - 2, SEA_C[3]); put(im, x + 2, y - 2, SEA_C[3]); put(im, x + 3, y - 1, (240, 248, 246))
+        put(im, x + 1, y + 1, SEA_C[0]); put(im, x + 2, y + 1, SEA_C[0])
 
 
 def surf(im: Image.Image, rnd: random.Random) -> None:

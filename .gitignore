@@ -4,3 +4,4 @@ dist
 
 # Tauri (Rust build artifacts)
 src-tauri/target/
+__pycache__/

@@ -3,7 +3,7 @@ import type { ItemStats } from '../systems/StatsSystem';
 
 export type ItemId = keyof typeof items;
 
-export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment';
+export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment' | 'bait' | 'animal';
 
 export interface FoodDef {
   /** Energy restored when eaten. */
@@ -58,5 +58,6 @@ export const TOOL_ENERGY_COST: Partial<Record<ItemId, number>> = {
   pickaxe: 3,
   scythe: 1,
   fishing_rod: 3,
+  whip: 1,
   sword: 1,
 };

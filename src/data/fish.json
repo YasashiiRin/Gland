@@ -1,42 +1,213 @@
 {
   "carp": {
     "name": "Cá chép nhỏ",
-    "locations": ["Farm", "Town", "QuangBinh", "Hue"],
-    "season": ["spring", "summer", "fall", "winter"],
+    "locations": [
+      "Farm",
+      "Town",
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
     "minHour": 6,
     "maxHour": 26,
     "weather": "any",
     "difficulty": 15,
-    "sellPrice": 30
+    "sellPrice": 30,
+    "behavior": "smooth",
+    "water": "fresh"
   },
   "perch": {
     "name": "Cá rô",
-    "locations": ["Farm", "Town", "QuangBinh", "Hue"],
-    "season": ["spring", "fall"],
+    "locations": [
+      "Farm",
+      "Town",
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "fall"
+    ],
     "minHour": 6,
     "maxHour": 18,
     "weather": "any",
     "difficulty": 35,
-    "sellPrice": 55
+    "sellPrice": 55,
+    "behavior": "mixed",
+    "water": "fresh"
   },
   "grass_carp": {
     "name": "Cá trắm",
-    "locations": ["Farm"],
-    "season": ["spring", "summer"],
+    "locations": [
+      "Farm"
+    ],
+    "season": [
+      "spring",
+      "summer"
+    ],
     "minHour": 6,
     "maxHour": 26,
     "weather": "rainy",
     "difficulty": 45,
-    "sellPrice": 80
+    "sellPrice": 80,
+    "behavior": "smooth",
+    "water": "fresh"
   },
   "golden_loach": {
     "name": "Cá chạch vàng",
-    "locations": ["Town"],
-    "season": ["spring"],
+    "locations": [
+      "Town"
+    ],
+    "season": [
+      "spring"
+    ],
     "minHour": 20,
     "maxHour": 26,
     "weather": "any",
     "difficulty": 70,
-    "sellPrice": 150
+    "sellPrice": 150,
+    "behavior": "dart",
+    "water": "fresh"
+  },
+  "crucian": {
+    "name": "Cá diếc",
+    "locations": [
+      "Farm",
+      "Town",
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "minHour": 6,
+    "maxHour": 26,
+    "weather": "any",
+    "difficulty": 20,
+    "sellPrice": 40,
+    "behavior": "floater",
+    "water": "fresh"
+  },
+  "snakehead": {
+    "name": "Cá lóc",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "summer",
+      "fall"
+    ],
+    "minHour": 6,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 65,
+    "sellPrice": 90,
+    "behavior": "dart",
+    "water": "fresh"
+  },
+  "catfish": {
+    "name": "Cá trê",
+    "locations": [
+      "QuangBinh",
+      "Hue",
+      "Farm"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "minHour": 18,
+    "maxHour": 26,
+    "weather": "rainy",
+    "difficulty": 72,
+    "sellPrice": 110,
+    "behavior": "sinker",
+    "water": "fresh"
+  },
+  "goby": {
+    "name": "Cá bống",
+    "locations": [
+      "QuangBinh"
+    ],
+    "season": [
+      "spring",
+      "fall",
+      "winter"
+    ],
+    "minHour": 6,
+    "maxHour": 18,
+    "weather": "any",
+    "difficulty": 50,
+    "sellPrice": 60,
+    "behavior": "sinker",
+    "water": "fresh"
+  },
+  "anchovy": {
+    "name": "Cá cơm",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "minHour": 5,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 25,
+    "sellPrice": 25,
+    "behavior": "smooth",
+    "water": "sea"
+  },
+  "mackerel": {
+    "name": "Cá thu",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer"
+    ],
+    "minHour": 6,
+    "maxHour": 18,
+    "weather": "any",
+    "difficulty": 78,
+    "sellPrice": 160,
+    "behavior": "dart",
+    "water": "sea"
+  },
+  "grouper": {
+    "name": "Cá mú",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "minHour": 6,
+    "maxHour": 26,
+    "weather": "any",
+    "difficulty": 88,
+    "sellPrice": 240,
+    "behavior": "mixed",
+    "water": "sea"
   }
 }

@@ -19,6 +19,8 @@ import type { PlayerProfile } from '../net/protocol';
 import type { TouchMode } from './touchInput';
 import type { HorrorMode } from '../systems/HorrorSystem';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
+import type { Livestock } from '../systems/LivestockSystem';
+import type { BoatSpot } from '../systems/BoatSystem';
 
 /**
  * Single source of truth for everything that will be saved.
@@ -72,6 +74,14 @@ export interface GameState {
   haunt: HauntState;
   /** Host only: each guest's inventory/energy/skills, by name, so they keep them between sessions. */
   guestProfiles: Record<string, PlayerProfile>;
+  /** Worms attached to the fishing rod (one is used per bite). */
+  rodBait: number;
+  /** Farm animals the player has bought (they roam where they were left). */
+  livestock: Livestock[];
+  /** Rowing boats moved from their moorings: boat id -> where it was left (pixels). */
+  boats: Record<string, BoatSpot>;
+  /** The boat the player is rowing right now, or null. */
+  boating: string | null;
 }
 
 export const WAREHOUSE_SLOT_COUNT = 36;
@@ -132,6 +142,10 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     vehicleStorage: {},
     sanity: createInitialSanity(),
     haunt: createHauntState(),
+    rodBait: 0,
+    livestock: [],
+    boats: {},
+    boating: null,
   };
 }
 

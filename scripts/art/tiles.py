@@ -13,9 +13,10 @@ from PIL import Image
 
 from .common import P, T, disc, new, outline, put, rect, save, shade, soft_shadow, sprinkle
 from .province_tiles import PROVINCE_COLLIDES, province_tile
+from .water_tiles import WATER_COLLIDES, wave, water_tile_v2
 
 COLS = 8
-ROWS = 11
+ROWS = 14
 
 (GRASS, GRASS2, FLOWERS, PATH, WATER, FENCE, TRUNK, CANOPY,
  ROCK, WALL, ROOF, DOOR, FLOOR, IWALL, BED_TOP, BED_BOTTOM,
@@ -26,7 +27,7 @@ BLOCK, DIRT, WALLPAPER, WAINSCOT, FOREST, FLOOR2, GRASS3, STONE_FLOOR = range(56
 
 COLLIDES = ([WATER, FENCE, TRUNK, ROCK, WALL, ROOF, IWALL, BED_TOP, BED_BOTTOM, TABLE, WINDOW,
              BUSH, SIGN, SHOPWALL, BLOCK, WALLPAPER, WAINSCOT, FOREST]
-            + list(range(WATER_EDGE, WATER_EDGE + 16)) + PROVINCE_COLLIDES)
+            + list(range(WATER_EDGE, WATER_EDGE + 16)) + PROVINCE_COLLIDES + WATER_COLLIDES)
 
 N, E, S, W = 1, 2, 4, 8
 
@@ -78,12 +79,17 @@ def path_tile(mask: int, rnd: random.Random) -> Image.Image:
 def water_tile(mask: int, rnd: random.Random) -> Image.Image:
     im = new(T, T)
     rect(im, 0, 0, T - 1, T - 1, P["w1"])
-    for _ in range(5):  # soft ripple lines
-        x, y = rnd.randrange(T), rnd.randrange(T)
-        for d in range(rnd.randint(2, 4)):
-            put(im, (x + d) % T, y, P["w2"])
-    sprinkle(im, rnd, 3, [P["w3"]])
-    sprinkle(im, rnd, 6, [P["w0"]])
+    sprinkle(im, rnd, 7, [P["w0"]])
+    for _ in range(2):  # little wave crests
+        wave(im, rnd.randrange(T - 4), rnd.randrange(3, T - 3), P["w2"], P["w3"])
+    # Shallows: a lighter band of water along every bank.
+    for side in (N, E, S, W):
+        if mask & side:
+            for i in range(T):
+                for d in range(4, 8):
+                    x, y = {N: (i, d + 3), S: (i, T - 1 - d), W: (d + 1, i), E: (T - 2 - d, i)}[side]
+                    if d < 6 or rnd.random() < 0.5:
+                        put(im, x, y, P["w2"])
     # Banks: grass lip, earthy bank face, then a dark wet line and a foam glint.
     if mask & N:
         rect(im, 0, 0, T - 1, 4, P["d1"])
@@ -137,16 +143,17 @@ def rock(im: Image.Image, rnd: random.Random) -> None:
 
 
 def weed(im: Image.Image, rnd: random.Random) -> None:
-    soft_shadow(im, 8, 13, 6, 2)
-    blades = [(-5, -6), (-3, -9), (0, -10), (3, -9), (5, -6), (-1, -7), (2, -6)]
-    for bx, by in blades:
-        steps = max(abs(bx), abs(by))
-        for s in range(steps + 1):
-            x = 8 + round(bx * s / steps)
-            y = 13 + round(by * s / steps)
-            put(im, x, y, P["f2"] if s < steps * 0.6 else P["f3"])
-        put(im, 8 + bx, 13 + by, P["f4"])
-    put(im, 8, 12, P["f1"]); put(im, 7, 12, P["f1"]); put(im, 9, 12, P["f1"])
+    """A round leafy shrub with a few tiny blossoms, lit from the top-left."""
+    soft_shadow(im, 8, 13, 7, 2)
+    for cx, cy, r in ((5, 9, 4), (11, 9, 4), (8, 6, 4.5), (8, 10, 4)):
+        disc(im, cx, cy, r, P["f1"])
+    for cx, cy, r in ((5, 8, 2.5), (10, 8, 2.5), (7, 5, 3)):
+        disc(im, cx, cy, r, P["f2"])
+    for x, y in ((6, 3), (5, 4), (3, 7), (9, 6)):
+        put(im, x, y, P["f3"])
+    put(im, 6, 2, P["f4"])
+    for x, y in rnd.sample([(4, 10), (11, 7), (8, 9), (12, 11), (6, 7)], 2):
+        put(im, x, y, (246, 240, 226)); put(im, x, y + 1, (236, 150, 170))
     outline(im, 0.4)
 
 
@@ -218,7 +225,7 @@ def doormat(im: Image.Image, rnd: random.Random) -> None:
 
 
 def tile_img(idx: int, rnd: random.Random) -> Image.Image:
-    extra = province_tile(idx, rnd)
+    extra = province_tile(idx, rnd) or water_tile_v2(idx, rnd)
     if extra is not None:
         return extra
     im = new(T, T)

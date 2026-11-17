@@ -61,6 +61,16 @@ export const TILE_GID = {
   DRY_GRASS: 87,
   /** Reeds (decor, walk-through). */
   REEDS: 88,
+  // Graphics step 2 (scripts/art/water_tiles.py)
+  /** The middle of a wide river or lake (still fishable water). */
+  DEEP: 89,
+  /** The open sea, further out than SEA. */
+  SEA_DEEP: 90,
+  /** A bed of flowers (decor, walk-through). */
+  FLOWERBED: 91,
+  /** First/last of the 16 stone-embanked (quay) water variants (index 96..111). */
+  QUAY_FIRST: 97,
+  QUAY_LAST: 112,
 } as const;
 
 /** The sprite drawn for each biome-tree tile. */
@@ -85,6 +95,11 @@ export const TILLABLE_GIDS: readonly number[] = [TILE_GID.GRASS, TILE_GID.GRASS2
 
 /** Water (with any bank variant) or the sea — anything you can fish in. */
 export function isWaterGid(gid: number | undefined): boolean {
-  if (gid === TILE_GID.SEA || gid === TILE_GID.SURF || gid === TILE_GID.LOTUS) return true;
-  return gid === TILE_GID.WATER || (gid !== undefined && gid >= TILE_GID.WATER_EDGE_FIRST && gid <= TILE_GID.WATER_EDGE_LAST);
+  if (gid === undefined) return false;
+  if (gid === TILE_GID.SEA || gid === TILE_GID.SEA_DEEP || gid === TILE_GID.SURF || gid === TILE_GID.LOTUS) return true;
+  if (gid === TILE_GID.WATER || gid === TILE_GID.DEEP) return true;
+  return (
+    (gid >= TILE_GID.WATER_EDGE_FIRST && gid <= TILE_GID.WATER_EDGE_LAST) ||
+    (gid >= TILE_GID.QUAY_FIRST && gid <= TILE_GID.QUAY_LAST)
+  );
 }

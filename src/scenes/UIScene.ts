@@ -29,16 +29,11 @@ import {
   type ShopOpenRequestedPayload,
 } from '../events/EventBus';
 import { NPCS, isNpcId } from '../data/npcs';
-import { FISH, isFishId } from '../data/fish';
+import { isFishId } from '../data/fish';
+import { ANIMAL_ITEMS, createLivestock } from '../systems/LivestockSystem';
 import type { ItemId } from '../data/items';
-import {
-  createFishingState,
-  fishingOutcome,
-  stepFishing,
-  type FishingState,
-} from '../systems/FishingSystem';
 import { DialogueBox } from '../ui/DialogueBox';
-import { FishingMinigame } from '../ui/FishingMinigame';
+import { FishingSession } from '../ui/FishingSession';
 import { SettingsMenu } from '../ui/SettingsMenu';
 import { playClick, playDayChime, playPickup } from '../systems/SfxSystem';
 import { gameState, WAREHOUSE_SLOT_COUNT, ZOOM_LEVELS } from '../state/GameState';
@@ -49,7 +44,6 @@ import type { InventoryState } from '../systems/InventorySystem';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { craft } from '../systems/CraftingSystem';
-import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { addItem, itemAt } from '../systems/InventorySystem';
 import { buyFromStall, buyItem, marketBuyPrice, marketSellPrice, sellToStall } from '../systems/ShopSystem';
 import { advanceTime, clockMinuteOfDay, darknessAlpha } from '../systems/TimeSystem';
@@ -65,6 +59,8 @@ import { isShopId, SHOPS, type ShopId } from '../data/shops';
 
 const CHEST_SLOT_COUNT = 18;
 const VEHICLE_KEY_PREFIX = 'vehicle:';
+/** Where bought animals are let loose on the farm (pixels, open grass south of the barn). */
+const PASTURE = { x: 35 * 16 + 8, y: 31 * 16 };
 /** Guests send their bag/energy/skills to the host this often (ms). */
 const PROFILE_SEND_MS = 5000;
 /** The map on screen, so a rebuilt UI (after a resize) can redraw the minimap. */
@@ -83,10 +79,9 @@ export class UIScene extends Phaser.Scene {
   private readonly vehicleMenus = new Map<ItemId, ChestMenu>();
   private openChestKey: string | null = null;
   private dialogueBox!: DialogueBox;
-  private fishingMinigame!: FishingMinigame;
-  private fishingFishId: string | null = null;
-  private fishingState: FishingState | null = null;
+  private fishing!: FishingSession;
   private fishingKey!: Phaser.Input.Keyboard.Key;
+  private fishingPointerWasDown = true;
   private settingsMenu!: SettingsMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private minimap!: Minimap;
@@ -159,6 +154,20 @@ export class UIScene extends Phaser.Scene {
           playClick(gameState.settings);
           return;
         }
+        const kind = ANIMAL_ITEMS[itemId];
+        if (kind) {
+          // Animals aren't carried: a bought one is let loose in the farm's pasture.
+          const price = ITEMS[itemId].sellPrice ?? 0;
+          if (gameState.money < price) return;
+          gameState.money -= price;
+          const id = `${kind}-${Date.now().toString(36)}`;
+          const x = PASTURE.x + Math.round((Math.random() - 0.5) * 48);
+          const y = PASTURE.y + Math.round((Math.random() - 0.5) * 32);
+          gameState.livestock = [...gameState.livestock, createLivestock(id, kind, 'Farm', x, y)];
+          playClick(gameState.settings);
+          this.showBanner(`${ITEMS[itemId].name} đã được thả ở bãi cỏ nông trại`, 0x3a5f3a);
+          return;
+        }
         const result = buyItem(gameState.inventory, gameState.money, itemId, 1);
         gameState.inventory = result.inventory;
         gameState.money = result.money;
@@ -205,14 +214,9 @@ export class UIScene extends Phaser.Scene {
     EventBus.on(GameEvents.NpcInteracted, onNpcInteracted);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.NpcInteracted, onNpcInteracted));
 
-    this.fishingMinigame = new FishingMinigame(this, DEPTH_ABOVE + 1);
+    this.fishing = new FishingSession(this, DEPTH_ABOVE + 1, (text, color) => this.showBanner(text, color));
     const onFishingStarted = (p: FishingStartedPayload) => {
-      if (!isFishId(p.fishId)) return;
-      this.fishingFishId = p.fishId;
-      this.fishingState = createFishingState(FISH[p.fishId].difficulty);
-      this.fishingMinigame.open();
-      this.fishingMinigame.refresh(this.fishingState);
-      uiState.fishingOpen = true;
+      if (isFishId(p.fishId)) this.fishing.start(p.fishId);
     };
     EventBus.on(GameEvents.FishingStarted, onFishingStarted);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.FishingStarted, onFishingStarted));
@@ -411,17 +415,11 @@ export class UIScene extends Phaser.Scene {
     this.hud.setMoney(gameState.money);
     this.minimap.setPlayerTile(worldView.playerTileX, worldView.playerTileY);
 
-    if (uiState.fishingOpen && this.fishingState && this.fishingFishId) {
-      const dt = delta / 1000;
-      this.fishingState = stepFishing(
-        this.fishingState,
-        dt,
-        this.fishingKey.isDown || this.input.manager.pointers.some((p) => p.isDown),
-        FISH[this.fishingFishId as keyof typeof FISH].difficulty,
-      );
-      this.fishingMinigame.refresh(this.fishingState);
-      const outcome = fishingOutcome(this.fishingState);
-      if (outcome !== 'ongoing') this.resolveFishing(outcome);
+    if (this.fishing.active) {
+      const pointer = this.input.manager.pointers.some((p) => p.isDown);
+      const pressed = Phaser.Input.Keyboard.JustDown(this.fishingKey) || (pointer && !this.fishingPointerWasDown);
+      this.fishingPointerWasDown = pointer;
+      this.fishing.update(time, delta / 1000, this.fishingKey.isDown || pointer, pressed);
     }
 
     if (
@@ -544,25 +542,6 @@ export class UIScene extends Phaser.Scene {
   private closeSettings(): void {
     this.settingsMenu.close();
     uiState.settingsOpen = false;
-  }
-
-  private resolveFishing(outcome: 'caught' | 'escaped'): void {
-    const fishId = this.fishingFishId;
-    this.fishingMinigame.close();
-    uiState.fishingOpen = false;
-    this.fishingState = null;
-    this.fishingFishId = null;
-    if (!fishId) return;
-
-    if (outcome === 'caught') {
-      gameState.inventory = addItem(gameState.inventory, fishId as ItemId, 1).state;
-      gameState.skills = addXp(gameState.skills, 'fishing', XP_REWARDS.catchFish).skills;
-      playPickup(gameState.settings);
-      this.showBanner(`Câu được: ${FISH[fishId as keyof typeof FISH].name}!`, 0x3a5f3a);
-    } else {
-      this.showBanner('Cá đã chạy mất!', 0x5f3a3a);
-    }
-    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
   }
 
   private showBanner(text: string, color: number): void {

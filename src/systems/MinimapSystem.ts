@@ -48,6 +48,7 @@ const GROUND_COLORS: Record<number, number> = {
   [TILE_GID.SAND2]: COLORS.sand,
   [TILE_GID.SEA]: COLORS.sea,
   [TILE_GID.SURF]: COLORS.sea,
+  [TILE_GID.SEA_DEEP]: COLORS.sea,
   [TILE_GID.TEA]: COLORS.tea,
   [TILE_GID.BRIDGE]: COLORS.wood,
   [TILE_GID.CLIFF]: COLORS.cliff,
@@ -74,6 +75,7 @@ const DECOR_COLORS: Record<number, number> = {
   [TILE_GID.MANGROVE_TREE]: COLORS.forest,
   [TILE_GID.ROCK]: COLORS.rock,
   [TILE_GID.BUSH]: COLORS.weed,
+  [TILE_GID.FLOWERBED]: COLORS.weed,
   [TILE_GID.BLOCK]: COLORS.building,
   [TILE_GID.FENCE]: COLORS.wood,
   22: COLORS.wood, // sign

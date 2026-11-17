@@ -33,7 +33,8 @@
     "name": "Cần câu",
     "category": "tool",
     "stackable": false,
-    "description": "Dùng để câu cá."
+    "description": "Dùng để câu cá. Phải gắn mồi (giun) mới câu được: cầm mồi rồi bấm dùng để gắn vào cần.",
+    "sellPrice": 250
   },
   "sword": {
     "name": "Kiếm",
@@ -290,9 +291,9 @@
     "category": "vehicle",
     "stackable": false,
     "sellPrice": 2500,
-    "description": "Phóng vèo vèo (+120% tốc độ) giữa nông trại và làng. Chuột trái/Space để bấm còi.",
+    "description": "Phóng vèo vèo (+98% tốc độ) giữa nông trại và làng. Chuột trái/Space để bấm còi.",
     "stats": {
-      "speed": 1.2
+      "speed": 0.98
     },
     "vehicle": {
       "ability": "none"
@@ -352,5 +353,96 @@
     "category": "furniture",
     "stackable": false,
     "description": "Đặt xuống đất để chế tạo được đồ cao cấp hơn (ba lô lớn, vòi tưới, chuồng gà)."
+  },
+  "worm": {
+    "name": "Giun (mồi câu)",
+    "category": "bait",
+    "stackable": true,
+    "sellPrice": 5,
+    "description": "Mồi câu cá. Cuốc đất đôi khi đào được. Cầm giun và bấm dùng để gắn vào cần câu."
+  },
+  "whip": {
+    "name": "Cây roi",
+    "category": "tool",
+    "stackable": false,
+    "sellPrice": 120,
+    "description": "Gia súc sợ roi: cầm roi đi tới gần là chúng tránh ra, quất roi để lùa chúng đi."
+  },
+  "animal_chicken": {
+    "name": "Gà con",
+    "category": "animal",
+    "stackable": false,
+    "sellPrice": 300,
+    "description": "Mua về sẽ thả ngay cạnh bạn. Tự đi kiếm ăn, lớn dần."
+  },
+  "animal_pig": {
+    "name": "Heo con",
+    "category": "animal",
+    "stackable": false,
+    "sellPrice": 900,
+    "description": "Mua về sẽ thả ngay cạnh bạn. Ủi đất tìm ăn, lớn dần."
+  },
+  "animal_buffalo": {
+    "name": "Nghé (trâu con)",
+    "category": "animal",
+    "stackable": false,
+    "sellPrice": 2600,
+    "description": "Thả ra ngoài trâu tự gặm cỏ. Sợ cây roi."
+  },
+  "animal_cow": {
+    "name": "Bê (bò con)",
+    "category": "animal",
+    "stackable": false,
+    "sellPrice": 2200,
+    "description": "Thả ra ngoài bò tự gặm cỏ. Sợ cây roi."
+  },
+  "snakehead": {
+    "name": "Cá lóc",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 90,
+    "description": "Cá sông dữ, giật mạnh và lao rất nhanh."
+  },
+  "crucian": {
+    "name": "Cá diếc",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 40,
+    "description": "Cá nước ngọt nhỏ, bơi lững lờ."
+  },
+  "catfish": {
+    "name": "Cá trê",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 110,
+    "description": "Hay lặn sát đáy, kéo rất nặng tay. Cắn câu nhiều khi trời mưa."
+  },
+  "goby": {
+    "name": "Cá bống",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 60,
+    "description": "Cá bống sông Gianh, đặc sản Quảng Bình."
+  },
+  "mackerel": {
+    "name": "Cá thu",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 160,
+    "description": "Cá biển bơi nhanh, đổi hướng liên tục."
+  },
+  "grouper": {
+    "name": "Cá mú",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 240,
+    "description": "Cá biển quý, khỏe và rất khó kéo."
+  },
+  "anchovy": {
+    "name": "Cá cơm",
+    "category": "fish",
+    "stackable": true,
+    "sellPrice": 25,
+    "description": "Cá biển nhỏ, dễ câu."
   }
 }

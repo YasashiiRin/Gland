@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { digsWorm } from '../systems/FishSpawnSystem';
 import { FADE_MS, TILE } from '../config/constants';
 import type { MineSceneData } from './MineScene';
 import { timeControl } from '../state/timeControl';
@@ -168,6 +169,10 @@ export class FarmScene extends MapScene {
       gameState.farmPlots = tillPlot(gameState.farmPlots, key);
       this.groundLayer.putTileAt(TILE_GID.SOIL, tile.x, tile.y);
       this.setSoilTint(tile.x, tile.y, false);
+      if (digsWorm()) {
+        gameState.inventory = addItem(gameState.inventory, 'worm', 1).state;
+        this.say('Đào được 1 con giun! (mồi câu cá)');
+      }
     } else if (itemId === 'watering_can') {
       if (!canWater(gameState.farmPlots, key)) return;
       gameState.farmPlots = waterPlot(gameState.farmPlots, key);

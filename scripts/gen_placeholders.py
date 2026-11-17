@@ -35,12 +35,16 @@ from art.landmarks_north import make_north_landmarks  # noqa: E402
 from art.landmarks_south import make_south_landmarks  # noqa: E402
 from art.extra_trees import make_extra_trees  # noqa: E402
 from art.landmarks_qb import make_qb_landmarks  # noqa: E402
+from art.landmarks_qb2 import make_qb2_landmarks  # noqa: E402
+from art.town_buildings import make_town_buildings  # noqa: E402
+from art.town_props import make_town_props  # noqa: E402
+from art.animals import make_animals  # noqa: E402
 
 
 def main() -> None:
     make_tileset()
     make_mine_tileset()
-    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles() + make_vn_nature() + make_horror() + make_market() + make_province_art() + make_hue_danang_art() + make_hoi_an_art() + make_north_landmarks() + make_south_landmarks() + make_extra_trees() + make_qb_landmarks()
+    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles() + make_vn_nature() + make_horror() + make_market() + make_province_art() + make_hue_danang_art() + make_hoi_an_art() + make_north_landmarks() + make_south_landmarks() + make_extra_trees() + make_qb_landmarks() + make_qb2_landmarks() + make_town_buildings() + make_town_props() + make_animals()
     pack = {"generated": {"files": files}}
     (ASSETS / "sprites" / "pack.json").write_text(json.dumps(pack, indent=1))
     make_maps()

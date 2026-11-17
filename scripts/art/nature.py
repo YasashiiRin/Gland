@@ -34,20 +34,30 @@ def _clump(im: Image.Image, cx: float, cy: float, r: float, pal: list) -> None:
 
 
 def oak(variant: int) -> Image.Image:
+    """A round, bushy shade tree: one big crown of overlapping leaf clumps, dark
+    underneath, sunlit on the top-left, with a few bright leaf tips."""
     rnd = random.Random(100 + variant)
     im = new(TREE_W, TREE_H)
-    soft_shadow(im, 24, 60, 15, 4, alpha=75)
-    _trunk(im, 24, 34, 60)
+    soft_shadow(im, 24, 60, 16, 4, alpha=80)
+    _trunk(im, 24, 36, 60)
+    for dx in (-5, 5):  # root flare
+        put(im, 24 + dx, 60, P["k1"]); put(im, 24 + dx + (1 if dx > 0 else -1), 60, P["k0"])
+    cy = 23 if variant == 0 else 25
+    disc(im, 24, cy, 20 if variant == 0 else 19, P["f0"], squash=0.9)           # the dark crown mass
     pal = [P["f1"], P["f2"], P["f3"], P["f4"]]
-    clumps = [(24, 12, 9), (14, 18, 9), (34, 17, 9), (8, 29, 7), (40, 29, 7),
-              (20, 26, 10), (31, 27, 10), (24, 36, 8), (13, 35, 7), (36, 36, 7)]
-    for (cx, cy, r) in sorted(clumps, key=lambda c: c[1]):
-        _clump(im, cx + rnd.randint(-1, 1), cy + rnd.randint(-1, 1), r + rnd.choice((0, 0, 1)), pal)
-    for _ in range(26):  # darker leaf gaps for texture
-        x, y = rnd.randrange(6, 42), rnd.randrange(6, 42)
-        if im.getpixel((x, y))[3] and im.getpixel((x, y))[:3] == P["f2"]:
-            put(im, x, y, P["f1"])
-    outline(im, 0.55)
+    ring = [(24, cy - 11, 9), (13, cy - 5, 8), (35, cy - 5, 8), (8, cy + 6, 6), (40, cy + 6, 6),
+            (18, cy + 3, 9), (31, cy + 3, 9), (24, cy - 2, 9), (15, cy + 11, 6), (33, cy + 11, 6)]
+    for (cx, y, r) in sorted(ring, key=lambda c: c[1]):
+        _clump(im, cx + rnd.randint(-1, 1), y + rnd.randint(-1, 1), r, pal)
+    for _ in range(40):  # leaf texture: little dark notches and bright tips
+        x, y = rnd.randrange(5, 43), rnd.randrange(3, cy + 16)
+        px = im.getpixel((x, y))
+        if px[3] and px[:3] == P["f2"]:
+            put(im, x, y, P["f1"]); put(im, x - 1, y - 1, P["f3"])
+    if variant == 1:  # a few fruits
+        for x, y in ((14, cy + 4), (30, cy + 8), (22, cy + 12), (36, cy)):
+            put(im, x, y, (236, 196, 72)); put(im, x + 1, y + 1, (196, 140, 40))
+    outline(im, 0.5)
     return im
 
 

@@ -601,6 +601,166 @@
     "type": "image",
     "key": "prop_hat_stall",
     "url": "sprites/props/hat_stall.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_station",
+    "url": "sprites/props/station.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_paradise_cave",
+    "url": "sprites/props/paradise_cave.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_signpost",
+    "url": "sprites/props/signpost.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_beach_parasol",
+    "url": "sprites/props/beach_parasol.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_lookout",
+    "url": "sprites/props/lookout.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_waterfall",
+    "url": "sprites/props/waterfall.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_0",
+    "url": "sprites/props/shophouse_0.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_1",
+    "url": "sprites/props/shophouse_1.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_2",
+    "url": "sprites/props/shophouse_2.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_3",
+    "url": "sprites/props/shophouse_3.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_4",
+    "url": "sprites/props/shophouse_4.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_5",
+    "url": "sprites/props/shophouse_5.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_ubnd",
+    "url": "sprites/props/ubnd.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_post_office",
+    "url": "sprites/props/post_office.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_school",
+    "url": "sprites/props/school.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_fruit",
+    "url": "sprites/props/umbrella_fruit.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_veg",
+    "url": "sprites/props/umbrella_veg.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_fish",
+    "url": "sprites/props/umbrella_fish.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_flower",
+    "url": "sprites/props/umbrella_flower.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_pagoda_gate",
+    "url": "sprites/props/pagoda_gate.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_ferry_shelter",
+    "url": "sprites/props/ferry_shelter.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_bench",
+    "url": "sprites/props/bench.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_street_lamp",
+    "url": "sprites/props/street_lamp.png"
+   },
+   {
+    "type": "spritesheet",
+    "key": "animal_chicken",
+    "url": "sprites/animals/chicken.png",
+    "frameConfig": {
+     "frameWidth": 16,
+     "frameHeight": 16
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "animal_pig",
+    "url": "sprites/animals/pig.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 24
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "animal_cow",
+    "url": "sprites/animals/cow.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 24
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "animal_buffalo",
+    "url": "sprites/animals/buffalo.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 24
+    }
+   },
+   {
+    "type": "spritesheet",
+    "key": "animal_tiger",
+    "url": "sprites/animals/tiger.png",
+    "frameConfig": {
+     "frameWidth": 40,
+     "frameHeight": 24
+    }
    }
   ]
  }
