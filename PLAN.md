@@ -439,3 +439,8 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - Linh khí khởi đầu 5, mỗi ngày +1. Kỹ năng bị động mở ở mốc 10, 20 … 100 linh khí.
 - Thầy pháp nhìn thấy ma nên dễ mất tinh thần hơn; ban đêm ma xuất hiện là tấn công ngay, không cần chờ tinh thần thấp.
 - Kỹ năng chủ động đầu tiên **Khai nhãn**: hiện khói bụi ở các vùng ma hay xuất hiện (càng dày tỉ lệ càng cao), tốn 0,4 linh lực mỗi lần.
+Đã chốt với người chơi:
+1. Có hai loại tài nguyên: **linh khí** là tổng tích luỹ (khởi đầu 5, mỗi ngày +1, không bao giờ giảm, dùng để mở kỹ năng bị động); **linh lực** là thanh cam để thi triển kỹ năng (Khai nhãn tốn 0,4).
+2. 10 ô kỹ năng bị động ở các mốc 10…100: tạm thời **khoá hết** (hiện ổ khoá), nội dung sẽ nghĩ sau.
+3. Sách cổ: chia bản đồ thành từng khu vực bán kính 20 ô; mỗi cây trong khu vực cộng +0,5% khả năng xuất hiện (giả định mỗi ngày gieo một lần); sách xuất hiện ở ô bất kỳ trong khu vực đó.
+4. Thứ tự làm: **bản đồ miền Trung trước**, nghề Thầy pháp sau.
