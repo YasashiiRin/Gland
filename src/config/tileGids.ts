@@ -35,6 +35,12 @@ export const TILE_GID = {
   CLIFF: 71,
   /** Planted tree drawn with the map's orchardTree sprite (not choppable). */
   ORCHARD: 72,
+  /** Huế citadel brick wall. */
+  CITADEL: 73,
+  /** Pond covered with lotus (still water: you can fish in it). */
+  LOTUS: 74,
+  /** Stone paving: old-town streets, city streets, the citadel courtyard. */
+  PAVING: 75,
 } as const;
 
 /** Decor tiles that stand for a tree sprite (and count as "trees" for the ghosts). */
@@ -46,6 +52,6 @@ export const TILLABLE_GIDS: readonly number[] = [TILE_GID.GRASS, TILE_GID.GRASS2
 
 /** Water (with any bank variant) or the sea — anything you can fish in. */
 export function isWaterGid(gid: number | undefined): boolean {
-  if (gid === TILE_GID.SEA || gid === TILE_GID.SURF) return true;
+  if (gid === TILE_GID.SEA || gid === TILE_GID.SURF || gid === TILE_GID.LOTUS) return true;
   return gid === TILE_GID.WATER || (gid !== undefined && gid >= TILE_GID.WATER_EDGE_FIRST && gid <= TILE_GID.WATER_EDGE_LAST);
 }

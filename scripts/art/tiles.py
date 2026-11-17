@@ -15,7 +15,7 @@ from .common import P, T, disc, new, outline, put, rect, save, shade, soft_shado
 from .province_tiles import PROVINCE_COLLIDES, province_tile
 
 COLS = 8
-ROWS = 9
+ROWS = 10
 
 (GRASS, GRASS2, FLOWERS, PATH, WATER, FENCE, TRUNK, CANOPY,
  ROCK, WALL, ROOF, DOOR, FLOOR, IWALL, BED_TOP, BED_BOTTOM,

@@ -1,7 +1,7 @@
 {
   "carp": {
     "name": "Cá chép nhỏ",
-    "locations": ["Farm", "Town", "HaTinh", "QuangTri"],
+    "locations": ["Farm", "Town", "HaTinh", "QuangTri", "Hue", "DaNang", "QuangNam"],
     "season": ["spring", "summer", "fall", "winter"],
     "minHour": 6,
     "maxHour": 26,
@@ -11,7 +11,7 @@
   },
   "perch": {
     "name": "Cá rô",
-    "locations": ["Farm", "Town", "HaTinh", "QuangTri"],
+    "locations": ["Farm", "Town", "HaTinh", "QuangTri", "Hue", "DaNang", "QuangNam"],
     "season": ["spring", "fall"],
     "minHour": 6,
     "maxHour": 18,

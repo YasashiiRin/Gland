@@ -1,12 +1,44 @@
 {
   "positions": {
-    "HaTinh": { "x": 0, "y": -40 },
-    "Farm": { "x": 0, "y": 0 },
-    "Town": { "x": 64, "y": 12 },
-    "QuangTri": { "x": 68, "y": 36 }
+    "HaTinh": {
+      "x": 0,
+      "y": -40
+    },
+    "Farm": {
+      "x": 0,
+      "y": 0
+    },
+    "Town": {
+      "x": 64,
+      "y": 12
+    },
+    "QuangTri": {
+      "x": 68,
+      "y": 36
+    },
+    "Hue": {
+      "x": 68,
+      "y": 76
+    },
+    "DaNang": {
+      "x": 68,
+      "y": 116
+    },
+    "QuangNam": {
+      "x": 68,
+      "y": 156
+    }
   },
   "anchors": {
-    "House": { "map": "Farm", "x": 11, "y": 9 },
-    "Mine": { "map": "Farm", "x": 51, "y": 5 }
+    "House": {
+      "map": "Farm",
+      "x": 11,
+      "y": 9
+    },
+    "Mine": {
+      "map": "Farm",
+      "x": 51,
+      "y": 5
+    }
   }
 }

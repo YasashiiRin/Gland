@@ -381,6 +381,96 @@
     "type": "image",
     "key": "prop_casuarina",
     "url": "sprites/trees/casuarina.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_ngo_mon",
+    "url": "sprites/props/ngo_mon.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_royal_hall",
+    "url": "sprites/props/royal_hall.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_thien_mu",
+    "url": "sprites/props/thien_mu.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_truong_tien",
+    "url": "sprites/props/truong_tien.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_dragon_boat",
+    "url": "sprites/props/dragon_boat.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_dragon_bridge",
+    "url": "sprites/props/dragon_bridge.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_lady_buddha",
+    "url": "sprites/props/lady_buddha.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_marble_mountain",
+    "url": "sprites/props/marble_mountain.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_city_tower",
+    "url": "sprites/props/city_tower.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_hoian_house_a",
+    "url": "sprites/props/hoian_house_a.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_hoian_house_b",
+    "url": "sprites/props/hoian_house_b.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_japanese_bridge",
+    "url": "sprites/props/japanese_bridge.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_lantern_boat",
+    "url": "sprites/props/lantern_boat.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_cham_tower_a",
+    "url": "sprites/props/cham_tower_a.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_cham_tower_b",
+    "url": "sprites/props/cham_tower_b.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_coconut",
+    "url": "sprites/trees/coconut.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_flame",
+    "url": "sprites/trees/flame.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_coconut",
+    "url": "sprites/trees/coconut.png"
    }
   ]
  }

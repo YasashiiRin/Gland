@@ -37,10 +37,10 @@ def coast(m: MapBuilder) -> None:
             m.ground[y][x] = tile
 
 
-def casuarinas(m: MapBuilder, x: int, rows: list[int]) -> None:
-    """A windbreak of phi lao trees along the back of the beach."""
+def casuarinas(m: MapBuilder, x: int, rows: list[int], sprite: str = "casuarina") -> None:
+    """A windbreak of phi lao trees (or palms) along the back of the beach."""
     for y in rows:
-        m.prop("casuarina", x + (y % 2), y, 1, 1)
+        m.prop(sprite, x + (y % 2), y, 1, 1)
 
 
 def edge_road(y: int) -> set[tuple[int, int]]:
@@ -102,7 +102,7 @@ def build_quang_tri() -> MapBuilder:
         for y in (16, 22):
             m.ground[y][x] = SAND
     m.fill(30, 16, 32, 22, BRIDGE)                      # Hiền Lương bridge deck
-    border(m, edge_road(0))
+    border(m, edge_road(0) | edge_road(H - 1))
     m.prop("river_bridge", 30, 16, 3, 7, solid_from=None, layer="floor")
     m.prop("flag_tower", 34, 13, 2, 1)
     m.prop("red_cliff", SHORE_X + 3, 3, 6, 7, solid_from=2)   # Cửa Tùng basalt headland
@@ -111,7 +111,7 @@ def build_quang_tri() -> MapBuilder:
         for x in range(4, 26, 3):
             m.put(x, y, ORCHARD)
     road(m, 31, 0, 32, 15)
-    road(m, 31, 23, 32, 31)
+    road(m, 31, 23, 32, H - 1)
     road(m, 28, 30, SHORE_X - 1, 31)
     m.fill(SHORE_X, 30, SHORE_X + 1, 31, SAND)
     casuarinas(m, SHORE_X - 2, [y for y in range(2, H - 2, 2) if not 14 <= y <= 23 and y not in (30, 31)])
@@ -120,11 +120,14 @@ def build_quang_tri() -> MapBuilder:
     m.scatter(TRUNK, 12, (4, 3, 48, 14))
     m.scatter(ROCK, 8, (36, 24, 48, 38))
     m.scatter(BUSH, 30, (4, 3, 48, 38), avoid=(3, 25, 27, 37))
-    m.put(34, H - 2, SIGN)                              # the road south to Huế (not open yet)
     m.door(30, 0, 4, 1, "Town", "fromQuangTri")
+    m.door(30, H - 1, 4, 1, "Hue", "fromQuangTri")
+    m.spawn("fromHue", 31, H - 3)
     m.spawn("fromQuangBinh", 31, 2)
     m.spawn("default", 31, 2)
     return m
 
 
-PROVINCE_MAPS = (("ha_tinh", build_ha_tinh), ("quang_tri", build_quang_tri))
+def province_maps() -> tuple:
+    from .province_maps_2 import ROUND_2_MAPS
+    return (("ha_tinh", build_ha_tinh), ("quang_tri", build_quang_tri), *ROUND_2_MAPS)

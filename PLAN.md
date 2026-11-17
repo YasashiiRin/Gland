@@ -424,14 +424,14 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - Tinh thần (SanitySystem): mỗi lần bị hù mất 12, 16, 20… (tối đa 30) trong đêm; mỗi 10% mất → −3% tốc chạy; 35% bị "mất kiểm soát" (60% hoặc 80% tốc độ trong 2 giây); ban ngày hồi 3%/giờ.
 - Tinh thần < 15% (chế độ kinh dị "Bật", ban đêm): ma đuổi theo tấn công, mỗi đòn mất 5%, 10%, 15%… (tối đa 25%) máu và 5% năng lượng. Hết máu → ngất, tỉnh ở nhà với 30% máu/tinh thần, mất 10% tiền (tối đa 1000 ₫).
 
-### 10 bản đồ miền Trung (đang làm — xong đợt 1/3)
+### 10 bản đồ miền Trung (đang làm — xong đợt 2/3)
 - 10 tỉnh theo tên cũ (trước sáp nhập 2025), nối từ Bắc vào Nam: Thanh Hóa → Nghệ An → Hà Tĩnh → Quảng Bình → Quảng Trị → Huế → Đà Nẵng → Quảng Nam (Hội An) → Quảng Ngãi → Bình Định.
 - Nông trại và thị trấn hiện tại nằm ở **Quảng Bình**.
 - Bước đầu chỉ làm phong cảnh đặc trưng từng vùng, chưa có cửa hàng hay đặc sản.
 - Cách thêm một tỉnh: thêm mục vào `src/data/maps.json` (`province`, `forestTrees`, `orchardTree`), viết hàm dựng map trong `scripts/art/province_maps.py`, vẽ sprite riêng trong `scripts/art/provinces.py`, chạy `python3 scripts/gen_placeholders.py`. Mỗi map không có scene riêng sẽ tự chạy bằng `ProvinceScene`.
 - [x] Đợt 1: khung chung + **Hà Tĩnh** (núi Hồng Lĩnh, chùa trên sườn núi, đồi chè Hương Sơn, hồ Kẻ Gỗ, vườn bưởi Phúc Trạch, biển Thiên Cầm) — đi lên từ mép bắc nông trại; **Quảng Trị** (sông Bến Hải, cầu Hiền Lương sơn hai màu, cột cờ, mỏm đá đỏ Cửa Tùng, rừng cao su) — đi xuống từ mép nam làng. Có ô cát, biển (câu cá được), hàng chè, ván cầu, cây phi lao, thuyền thúng.
 - [x] Bản đồ thế giới: nhấn vào minimap để mở; ghép các vùng đúng chỗ đường nối (vị trí trong `src/data/world.json`), chấm đỏ "Bạn ở đây" (trong nhà/hầm mỏ thì hiện ở cửa vào); phóng to/thu nhỏ bằng lăn chuột, nút +/−, chụm hai ngón; kéo để di chuyển; ⌖ về chỗ mình; Esc/✕ để đóng (đồng hồ tạm dừng). Thêm tỉnh mới nhớ thêm vị trí vào `world.json` (có test kiểm tra đường nối khớp).
-- [ ] Đợt 2: Huế, Đà Nẵng, Quảng Nam (Hội An) — nối tiếp từ mép nam Quảng Trị (đang có biển chỉ đường).
+- [x] Đợt 2 (nối tiếp từ mép nam Quảng Trị): **Huế** (kinh thành tường gạch, Ngọ Môn, điện Thái Hòa, sông Hương, cầu Trường Tiền, thuyền rồng, tháp Phước Duyên chùa Thiên Mụ, hồ sen, đồi thông, biển Thuận An); **Đà Nẵng** (đèo Hải Vân, sông Hàn, cầu Rồng, phố nhà cao tầng với hàng phượng, tượng Phật Bà Sơn Trà, Ngũ Hành Sơn, biển Mỹ Khê); **Quảng Nam / Hội An** (phố cổ nhà vàng treo đèn lồng, Chùa Cầu, sông Thu Bồn với thuyền đèn, tháp Chăm Mỹ Sơn, rừng dừa Bảy Mẫu, đảo Cù Lao Chàm). Mép nam Hội An có biển chỉ đường đi Quảng Ngãi (chưa mở).
 - [ ] Đợt 3: Thanh Hóa, Nghệ An (nối từ mép bắc Hà Tĩnh), Quảng Ngãi, Bình Định.
 
 ### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)

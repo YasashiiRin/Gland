@@ -29,12 +29,14 @@ from art.vn_nature import make_vn_nature  # noqa: E402
 from art.horror import make_horror  # noqa: E402
 from art.market import make_market  # noqa: E402
 from art.provinces import make_province_art  # noqa: E402
+from art.landmarks_hue_danang import make_hue_danang_art  # noqa: E402
+from art.landmarks_hoi_an import make_hoi_an_art  # noqa: E402
 
 
 def main() -> None:
     make_tileset()
     make_mine_tileset()
-    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles() + make_vn_nature() + make_horror() + make_market() + make_province_art()
+    files = make_characters() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles() + make_vn_nature() + make_horror() + make_market() + make_province_art() + make_hue_danang_art() + make_hoi_an_art()
     pack = {"generated": {"files": files}}
     (ASSETS / "sprites" / "pack.json").write_text(json.dumps(pack, indent=1))
     make_maps()

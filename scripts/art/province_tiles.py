@@ -14,7 +14,10 @@ from .common import P, T, new, put, rect, sprinkle
 # 64.. : beach sand, sand with shells, open sea, surf (sea meeting sand on its west side),
 # a tea-bush row, bridge planks, red basalt cliff, an orchard tree (sprite per map).
 SAND, SAND2, SEA, SURF, TEA, BRIDGE, CLIFF, ORCHARD = range(64, 72)
-PROVINCE_COLLIDES = [SEA, SURF, TEA, CLIFF, ORCHARD]
+# 72.. : Huế citadel brick wall, a lotus pond, stone paving (old-town streets, courtyards).
+CITADEL, LOTUS, PAVING = range(72, 75)
+LAST_PROVINCE_TILE = PAVING
+PROVINCE_COLLIDES = [SEA, SURF, TEA, CLIFF, ORCHARD, CITADEL, LOTUS]
 
 SAND_C = [(206, 186, 140), (222, 204, 160), (236, 222, 184), (184, 162, 118)]
 SEA_C = [(36, 96, 128), (46, 116, 150), (66, 140, 170), (170, 214, 220)]
@@ -85,9 +88,47 @@ def cliff(im: Image.Image, rnd: random.Random) -> None:
     rect(im, 0, T - 1, T - 1, T - 1, (80, 36, 30))
 
 
+def citadel(im: Image.Image, rnd: random.Random) -> None:
+    """Weathered dark brick of the Huế citadel wall, with moss in the joints."""
+    rect(im, 0, 0, T - 1, T - 1, (92, 84, 78))
+    for row in range(4):
+        y = row * 4
+        rect(im, 0, y, T - 1, y, (58, 54, 52))
+        off = 0 if row % 2 else 4
+        for x in range(off, T, 8):
+            rect(im, x, y, x, y + 3, (58, 54, 52))
+    sprinkle(im, rnd, 14, [(112, 102, 92)])
+    sprinkle(im, rnd, 8, [(70, 96, 58), (84, 112, 66)])
+    rect(im, 0, 0, T - 1, 1, (130, 120, 108))
+
+
+def lotus(im: Image.Image, rnd: random.Random) -> None:
+    """Still pond water covered with round lotus pads and a pink flower."""
+    rect(im, 0, 0, T - 1, T - 1, (52, 96, 110))
+    sprinkle(im, rnd, 8, [(40, 80, 96)])
+    for cx, cy, r in ((4, 4, 3), (11, 6, 3.4), (6, 12, 2.6), (13, 13, 2.2)):
+        for y in range(T):
+            for x in range(T):
+                if (x - cx) ** 2 + (y - cy) ** 2 <= r * r:
+                    put(im, x, y, P["f2"] if x < cx else P["f1"])
+        put(im, int(cx), int(cy), P["f0"])
+    for x, y, c in ((11, 5, (236, 150, 176)), (12, 5, (250, 196, 210)), (11, 4, (250, 196, 210)), (12, 6, (214, 110, 140))):
+        put(im, x, y, c)
+
+
+def paving(im: Image.Image, rnd: random.Random) -> None:
+    """Worn grey-ochre paving stones."""
+    rect(im, 0, 0, T - 1, T - 1, (176, 164, 140))
+    for y0, x0s in ((0, (0, 9)), (8, (4, 12))):
+        rect(im, 0, y0, T - 1, y0, (130, 120, 104))
+        for x0 in x0s:
+            rect(im, x0, y0, x0, y0 + 7, (130, 120, 104))
+    sprinkle(im, rnd, 14, [(196, 184, 160), (158, 146, 124)])
+
+
 def province_tile(idx: int, rnd: random.Random) -> Image.Image | None:
     """Draws one of the province tiles, or returns None if idx isn't one."""
-    if not SAND <= idx <= ORCHARD:
+    if not SAND <= idx <= LAST_PROVINCE_TILE:
         return None
     im = new(T, T)
     if idx in (SAND, SAND2):
@@ -102,5 +143,11 @@ def province_tile(idx: int, rnd: random.Random) -> Image.Image | None:
         bridge(im)
     elif idx == CLIFF:
         cliff(im, rnd)
+    elif idx == CITADEL:
+        citadel(im, rnd)
+    elif idx == LOTUS:
+        lotus(im, rnd)
+    elif idx == PAVING:
+        paving(im, rnd)
     # ORCHARD stays transparent: the tree is a sprite (chosen per map).
     return im

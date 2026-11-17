@@ -44,5 +44,47 @@
       "tree_areca"
     ],
     "orchardTree": "tree_rubber"
+  },
+  "Hue": {
+    "file": "hue",
+    "displayName": "Huế",
+    "province": "Huế",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_pine",
+      "tree_bamboo",
+      "tree_flame",
+      "tree_pine",
+      "tree_oak_1"
+    ],
+    "orchardTree": "tree_pine"
+  },
+  "DaNang": {
+    "file": "da_nang",
+    "displayName": "Đà Nẵng",
+    "province": "Đà Nẵng",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_oak_1",
+      "tree_flame",
+      "tree_bamboo",
+      "tree_casuarina",
+      "tree_oak_0"
+    ],
+    "orchardTree": "tree_flame"
+  },
+  "QuangNam": {
+    "file": "quang_nam",
+    "displayName": "Hội An",
+    "province": "Quảng Nam",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_bamboo",
+      "tree_coconut",
+      "tree_areca",
+      "tree_bamboo",
+      "tree_oak_1"
+    ],
+    "orchardTree": "tree_coconut"
   }
 }

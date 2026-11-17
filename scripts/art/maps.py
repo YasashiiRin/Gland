@@ -286,6 +286,6 @@ def build_house() -> MapBuilder:
 def make_maps() -> None:
     out = ASSETS / "maps"
     out.mkdir(parents=True, exist_ok=True)
-    from .province_maps import PROVINCE_MAPS
-    for name, builder in (("farm", build_farm), ("town", build_town), ("house", build_house), *PROVINCE_MAPS):
+    from .province_maps import province_maps
+    for name, builder in (("farm", build_farm), ("town", build_town), ("house", build_house), *province_maps()):
         (out / f"{name}.tmj").write_text(json.dumps(builder().to_tmj(), indent=1))

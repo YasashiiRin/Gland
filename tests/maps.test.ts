@@ -46,7 +46,7 @@ describe('world maps', () => {
   });
 
   it('Hà Tĩnh and Quảng Trị are province maps next to Quảng Bình', () => {
-    expect(PROVINCE_MAP_KEYS).toEqual(['HaTinh', 'QuangTri']);
+    expect(PROVINCE_MAP_KEYS).toEqual(['HaTinh', 'QuangTri', 'Hue', 'DaNang', 'QuangNam']);
     expect(MAPS.Farm.province).toBe('Quảng Bình');
     expect(MAPS.HaTinh.orchardTree).toBe('tree_pomelo');
   });

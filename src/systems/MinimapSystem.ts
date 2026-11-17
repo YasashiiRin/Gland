@@ -24,6 +24,9 @@ const COLORS = {
   sea: 0x2f6e92,
   tea: 0x5e8a3e,
   cliff: 0x9a4a36,
+  citadel: 0x5a524c,
+  lotus: 0x4f8a6a,
+  paving: 0xb8aa8c,
 } as const;
 
 const GROUND_COLORS: Record<number, number> = {
@@ -41,6 +44,9 @@ const GROUND_COLORS: Record<number, number> = {
   [TILE_GID.TEA]: COLORS.tea,
   [TILE_GID.BRIDGE]: COLORS.wood,
   [TILE_GID.CLIFF]: COLORS.cliff,
+  [TILE_GID.CITADEL]: COLORS.citadel,
+  [TILE_GID.LOTUS]: COLORS.lotus,
+  [TILE_GID.PAVING]: COLORS.paving,
 };
 
 const DECOR_COLORS: Record<number, number> = {

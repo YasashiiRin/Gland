@@ -3381,11 +3381,11 @@
    "name": "farm_tiles",
    "image": "../tilesets/farm_tiles.png",
    "imagewidth": 128,
-   "imageheight": 144,
+   "imageheight": 160,
    "tilewidth": 16,
    "tileheight": 16,
    "columns": 8,
-   "tilecount": 72,
+   "tilecount": 80,
    "margin": 0,
    "spacing": 0,
    "tiles": [
@@ -3771,6 +3771,26 @@
     },
     {
      "id": 71,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 72,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 73,
      "properties": [
       {
        "name": "collides",
