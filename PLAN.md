@@ -430,6 +430,7 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - Bước đầu chỉ làm phong cảnh đặc trưng từng vùng, chưa có cửa hàng hay đặc sản.
 - Cách thêm một tỉnh: thêm mục vào `src/data/maps.json` (`province`, `forestTrees`, `orchardTree`), viết hàm dựng map trong `scripts/art/province_maps.py`, vẽ sprite riêng trong `scripts/art/provinces.py`, chạy `python3 scripts/gen_placeholders.py`. Mỗi map không có scene riêng sẽ tự chạy bằng `ProvinceScene`.
 - [x] Đợt 1: khung chung + **Hà Tĩnh** (núi Hồng Lĩnh, chùa trên sườn núi, đồi chè Hương Sơn, hồ Kẻ Gỗ, vườn bưởi Phúc Trạch, biển Thiên Cầm) — đi lên từ mép bắc nông trại; **Quảng Trị** (sông Bến Hải, cầu Hiền Lương sơn hai màu, cột cờ, mỏm đá đỏ Cửa Tùng, rừng cao su) — đi xuống từ mép nam làng. Có ô cát, biển (câu cá được), hàng chè, ván cầu, cây phi lao, thuyền thúng.
+- [x] Bản đồ thế giới: nhấn vào minimap để mở; ghép các vùng đúng chỗ đường nối (vị trí trong `src/data/world.json`), chấm đỏ "Bạn ở đây" (trong nhà/hầm mỏ thì hiện ở cửa vào); phóng to/thu nhỏ bằng lăn chuột, nút +/−, chụm hai ngón; kéo để di chuyển; ⌖ về chỗ mình; Esc/✕ để đóng (đồng hồ tạm dừng). Thêm tỉnh mới nhớ thêm vị trí vào `world.json` (có test kiểm tra đường nối khớp).
 - [ ] Đợt 2: Huế, Đà Nẵng, Quảng Nam (Hội An) — nối tiếp từ mép nam Quảng Trị (đang có biển chỉ đường).
 - [ ] Đợt 3: Thanh Hóa, Nghệ An (nối từ mép bắc Hà Tĩnh), Quảng Ngãi, Bình Định.
 

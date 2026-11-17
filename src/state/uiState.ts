@@ -11,6 +11,8 @@ export const uiState = {
   dialogueOpen: false,
   fishingOpen: false,
   settingsOpen: false,
+  /** The full world map (opened from the minimap). */
+  worldMapOpen: false,
   /** Multiplayer: lying in bed waiting for the others. */
   sleepWait: false,
 };
@@ -25,6 +27,7 @@ export function isWorldInputBlocked(): boolean {
     uiState.dialogueOpen ||
     uiState.fishingOpen ||
     uiState.settingsOpen ||
+    uiState.worldMapOpen ||
     uiState.sleepWait
   );
 }
@@ -38,4 +41,5 @@ export function closeAllMenus(): void {
   uiState.dialogueOpen = false;
   uiState.fishingOpen = false;
   uiState.settingsOpen = false;
+  uiState.worldMapOpen = false;
 }

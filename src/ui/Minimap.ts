@@ -10,7 +10,8 @@ const TEXTURE_KEY = 'minimap';
 
 /**
  * Small overview of the current map in the top-left corner, with a blinking
- * dot for the player and the area name underneath. Toggled with M.
+ * dot for the player and the area name underneath. Toggled with M; a click
+ * opens the world map.
  */
 export class Minimap {
   private readonly container: Phaser.GameObjects.Container;
@@ -21,6 +22,8 @@ export class Minimap {
   private scale = 1;
   private hasMap = false;
   private hidden = false;
+  /** Clicking the minimap (or its name plate) opens the world map. */
+  onClick?: () => void;
 
   constructor(private readonly scene: Phaser.Scene, depth: number) {
     this.container = scene.add.container(MARGIN, MARGIN).setDepth(depth);
@@ -30,6 +33,9 @@ export class Minimap {
     this.label = inkText(scene, 0, 0, '', 11).setOrigin(0.5, 0.5);
     this.container.add([this.frame, this.image, this.dot, this.label]);
     scene.tweens.add({ targets: this.dot, alpha: 0.35, duration: 450, yoyo: true, repeat: -1 });
+    for (const target of [this.image, this.label]) {
+      target.setInteractive({ useHandCursor: true }).on('pointerdown', () => this.onClick?.());
+    }
   }
 
   /** Redraws the overview for a newly entered map, or hides it (no data, e.g. in the mine). */
@@ -49,6 +55,9 @@ export class Minimap {
         });
         canvas.refresh();
         this.image.setTexture(TEXTURE_KEY);
+        // The click area was sized for the old texture: make it match the new picture.
+        const hit: unknown = this.image.input?.hitArea;
+        if (hit instanceof Phaser.Geom.Rectangle) hit.setSize(w, h);
       }
       this.frame.clear();
       this.frame.fillStyle(UI_COLORS.edge, 0.9).fillRoundedRect(0, 0, w + PAD * 2, h + PAD * 2 + 15, 4);

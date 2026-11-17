@@ -12,6 +12,7 @@ import { UI_FONT } from '../ui/uiStyle';
 import { worldSync } from '../net/worldSync';
 import { net, NetEvents } from '../net/NetSession';
 import { Minimap } from '../ui/Minimap';
+import { WorldMap } from '../ui/WorldMap';
 import { worldView } from '../state/worldView';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
@@ -89,6 +90,7 @@ export class UIScene extends Phaser.Scene {
   private settingsMenu!: SettingsMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private minimap!: Minimap;
+  private worldMap!: WorldMap;
   private dayBanner!: Phaser.GameObjects.Text;
   private sleepOverlay!: SleepWaitOverlay;
   private touchControls!: TouchControls;
@@ -119,6 +121,9 @@ export class UIScene extends Phaser.Scene {
 
     this.hud = new Hud(this, DEPTH_ABOVE);
     this.minimap = new Minimap(this, DEPTH_ABOVE);
+    this.worldMap = new WorldMap(this, DEPTH_ABOVE + 2);
+    this.minimap.onClick = () => this.openWorldMap();
+    this.worldMap.onClosed = () => (uiState.worldMapOpen = false);
     this.hud.setTime(gameState.time);
     this.hud.setEnergy(gameState.energy);
     this.hud.setHealth(gameState.playerHealth);
@@ -390,6 +395,7 @@ export class UIScene extends Phaser.Scene {
   update(time: number, delta: number): void {
     worldSync.update(time); // multiplayer: exchange changes to the shared farm
     this.updateTouchControls();
+    this.worldMap.update();
     this.horrorOverlay.update(time, !uiState.sleepWait);
     if (net.role === 'guest' && time - this.lastProfileSent > PROFILE_SEND_MS) {
       // Let the host keep my bag/energy/skills in its save.
@@ -426,7 +432,8 @@ export class UIScene extends Phaser.Scene {
       uiState.chestOpen ||
       uiState.dialogueOpen ||
       uiState.fishingOpen ||
-      uiState.settingsOpen
+      uiState.settingsOpen ||
+      uiState.worldMapOpen
     ) {
       return;
     }
@@ -527,6 +534,13 @@ export class UIScene extends Phaser.Scene {
     uiState.settingsOpen = true;
   }
 
+  /** Click on the minimap: the whole world, centred on where you stand. */
+  private openWorldMap(): void {
+    if (isWorldInputBlocked()) return;
+    uiState.worldMapOpen = true;
+    this.worldMap.open(currentMap?.mapKey ?? gameState.currentMap, worldView.playerTileX, worldView.playerTileY);
+  }
+
   private closeSettings(): void {
     this.settingsMenu.close();
     uiState.settingsOpen = false;
@@ -616,7 +630,13 @@ export class UIScene extends Phaser.Scene {
     const on = wantsTouchControls(gameState.settings.touch);
     touchInput.enabled = on;
     const menuOpen =
-      uiState.inventoryOpen || uiState.shopOpen || uiState.craftingOpen || uiState.chestOpen || uiState.dialogueOpen || uiState.settingsOpen;
+      uiState.inventoryOpen ||
+      uiState.shopOpen ||
+      uiState.craftingOpen ||
+      uiState.chestOpen ||
+      uiState.dialogueOpen ||
+      uiState.settingsOpen ||
+      uiState.worldMapOpen;
     this.touchControls.update(on, menuOpen);
     this.rotateHint.setVisible(on && window.innerHeight > window.innerWidth);
   }
@@ -637,7 +657,8 @@ export class UIScene extends Phaser.Scene {
 
   /** Esc (or the on-screen close button): closes whichever menu is on top. */
   private closeTopMenu(): void {
-    if (uiState.settingsOpen) this.closeSettings();
+    if (uiState.worldMapOpen) this.worldMap.close();
+    else if (uiState.settingsOpen) this.closeSettings();
     else if (uiState.dialogueOpen) this.closeDialogue();
     else if (uiState.shopOpen) this.closeShop();
     else if (uiState.craftingOpen) this.closeCrafting();

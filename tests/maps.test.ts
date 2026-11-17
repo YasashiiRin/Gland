@@ -3,9 +3,14 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { isMapKey, MAP_KEYS, MAPS, PROVINCE_MAP_KEYS } from '../src/data/maps';
 import { isTreeGid, isWaterGid, TILE_GID } from '../src/config/tileGids';
+import { playerWorldTile, worldMapKeys } from '../src/systems/WorldMapSystem';
 
 interface TmjObject {
   name: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
   properties?: { name: string; value: string }[];
 }
 interface Tmj {
@@ -50,5 +55,19 @@ describe('world maps', () => {
     expect(isWaterGid(TILE_GID.SEA)).toBe(true);
     expect(isWaterGid(TILE_GID.SAND)).toBe(false);
     expect(isTreeGid(TILE_GID.ORCHARD)).toBe(true);
+  });
+
+  it('lays out the world map so each road meets the next map where you arrive', () => {
+    const placed = new Set<string>(worldMapKeys());
+    for (const key of worldMapKeys()) {
+      for (const door of objectsOf(loadMap(MAPS[key].file)).filter((o) => o.name === 'door')) {
+        const to = prop(door, 'to') ?? '';
+        if (!placed.has(to) || !isMapKey(to)) continue;
+        const spawn = objectsOf(loadMap(MAPS[to].file)).find((o) => o.name === `spawn_${prop(door, 'spawn')}`);
+        const from = playerWorldTile(key, ((door.x ?? 0) + (door.width ?? 0) / 2) / 16, ((door.y ?? 0) + (door.height ?? 0) / 2) / 16);
+        const arrive = playerWorldTile(to, (spawn?.x ?? 0) / 16, (spawn?.y ?? 0) / 16);
+        expect(from && arrive && Math.hypot(from.x - arrive.x, from.y - arrive.y), `${key} -> ${to}`).toBeLessThan(5);
+      }
+    }
   });
 });

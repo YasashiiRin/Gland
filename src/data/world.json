@@ -1,0 +1,12 @@
+{
+  "positions": {
+    "HaTinh": { "x": 0, "y": -40 },
+    "Farm": { "x": 0, "y": 0 },
+    "Town": { "x": 64, "y": 12 },
+    "QuangTri": { "x": 68, "y": 36 }
+  },
+  "anchors": {
+    "House": { "map": "Farm", "x": 11, "y": 9 },
+    "Mine": { "map": "Farm", "x": 51, "y": 5 }
+  }
+}
