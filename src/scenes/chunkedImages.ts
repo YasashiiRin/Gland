@@ -1,5 +1,6 @@
 import type Phaser from 'phaser';
 import { TILE } from '../config/constants';
+import { hdScale } from './hd';
 
 /** Chunk size in tiles: sprites are created and destroyed a chunk at a time. */
 const CHUNK_TILES = 16;
@@ -98,7 +99,11 @@ export class ChunkedImages {
   }
 
   private create(s: ImageSpec): Phaser.GameObjects.Image {
-    const img = this.scene.add.image(s.x, s.y, s.key).setOrigin(s.originX, s.originY).setDepth(s.depth);
+    const img = this.scene.add
+      .image(s.x, s.y, s.key)
+      .setOrigin(s.originX, s.originY)
+      .setDepth(s.depth)
+      .setScale(hdScale(this.scene, s.key));
     if (s.id) this.byId.set(s.id, img);
     return img;
   }

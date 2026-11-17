@@ -182,8 +182,8 @@ export class HorrorDirector {
   private spawnGhostFar(): void {
     const angle = Math.random() * Math.PI * 2;
     const dist = 7 * TILE;
-    const x = Phaser.Math.Clamp(this.player.x + Math.cos(angle) * dist, TILE, this.ground.tilemap.widthInPixels - TILE);
-    const y = Phaser.Math.Clamp(this.player.y + Math.sin(angle) * dist, TILE * 2, this.ground.tilemap.heightInPixels - TILE);
+    const x = Phaser.Math.Clamp(this.player.x + Math.cos(angle) * dist, TILE, this.ground.tilemap.width * TILE - TILE);
+    const y = Phaser.Math.Clamp(this.player.y + Math.sin(angle) * dist, TILE * 2, this.ground.tilemap.height * TILE - TILE);
     const sprite = this.scene.add.image(x, y, 'horror_ghost').setOrigin(0.5, 28 / 32).setAlpha(0).setDepth(y);
     this.scene.tweens.add({ targets: sprite, alpha: 0.9, duration: 1600 });
     this.haunts.push({ kind: 'ghost', sprite, born: this.scene.time.now, reappear: Math.random() < 0.4 });

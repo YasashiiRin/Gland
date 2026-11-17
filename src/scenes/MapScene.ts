@@ -15,6 +15,7 @@ import {
 import { attachBait, pickFish } from '../systems/FishSpawnSystem';
 import { ROW_SPEED } from '../systems/BoatSystem';
 import { Boats } from './boats';
+import { TILESET_HD_TEXTURE, useHdTileset } from './hd';
 import { LivestockHerd } from './livestockHerd';
 import { Tigers, type TileRect } from './tigers';
 import { gameState } from '../state/GameState';
@@ -44,7 +45,7 @@ import {
 } from '../systems/ResourceSystem';
 import * as SaveService from '../systems/SaveService';
 import { absoluteDayNumber, clockMinuteOfDay } from '../systems/TimeSystem';
-import { mapCacheKey, RAIN_TEXTURE, TILESET_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
+import { mapCacheKey, RAIN_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
 import type { ChunkedImages } from './chunkedImages';
 import { RideController } from './rideController';
@@ -163,8 +164,9 @@ export abstract class MapScene extends Phaser.Scene {
     timeControl.paused = false;
     const info = MAPS[this.mapKey];
 
+    useHdTileset(this.cache.tilemap.get(mapCacheKey(info.file)).data);
     this.map = this.make.tilemap({ key: mapCacheKey(info.file) });
-    const tileset = this.map.addTilesetImage('farm_tiles', TILESET_TEXTURE);
+    const tileset = this.map.addTilesetImage('farm_tiles', TILESET_HD_TEXTURE);
     if (!tileset) throw new Error(`Tileset missing for map ${this.mapKey}`);
 
     const ground = this.map.createLayer('ground', tileset, 0, 0);
@@ -172,6 +174,7 @@ export abstract class MapScene extends Phaser.Scene {
     const above = this.map.getLayerIndex('above') !== null ? this.map.createLayer('above', tileset, 0, 0) : null;
     if (!ground || !decor) throw new Error(`Map ${this.mapKey} is missing a layer`);
 
+    for (const layer of [ground, decor, above]) layer?.setScale(0.5); // HD tiles: 32 px art on a 16 px grid
     ground.setDepth(-2);
     decor.setDepth(-1);
     above?.setDepth(DEPTH_ABOVE);
@@ -181,7 +184,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.decorLayer = decor;
     this.aboveLayer = above;
 
-    const { widthInPixels: w, heightInPixels: h } = this.map;
+    const { w, h } = this.worldSize;
     this.physics.world.setBounds(0, 0, w, h);
 
     const spawn = data.x !== undefined && data.y !== undefined ? { x: data.x, y: data.y } : this.findSpawn(data.spawn ?? 'default');
@@ -397,6 +400,11 @@ export abstract class MapScene extends Phaser.Scene {
     return 'down';
   }
 
+  /** The map's size in world pixels (16 per tile, whatever the tileset's resolution). */
+  protected get worldSize(): { w: number; h: number } {
+    return { w: this.map.width * TILE, h: this.map.height * TILE };
+  }
+
   /** The map's safe landmark zones ("zone" objects), in tiles. */
   private zoneRects(): TileRect[] {
     return (this.map.getObjectLayer('objects')?.objects ?? [])
@@ -532,7 +540,7 @@ export abstract class MapScene extends Phaser.Scene {
     const match =
       objects.find((o) => o.name === `spawn_${id}`) ?? objects.find((o) => o.name === 'spawn_default');
     if (!match || match.x === undefined || match.y === undefined) {
-      return { x: this.map.widthInPixels / 2, y: this.map.heightInPixels / 2 };
+      return { x: this.worldSize.w / 2, y: this.worldSize.h / 2 };
     }
     return { x: match.x, y: match.y };
   }
@@ -959,7 +967,7 @@ export abstract class MapScene extends Phaser.Scene {
 
   private setupRain(): void {
     if (!this.isOutdoor || gameState.time.weather !== 'rainy') return;
-    const { widthInPixels: w, heightInPixels: h } = this.map;
+    const { w, h } = this.worldSize;
     // Spawn drops across the full map width just above the top edge; falling
     // at this speed they cross the whole map height before their lifespan ends.
     this.rain = this.add.particles(0, 0, RAIN_TEXTURE, {

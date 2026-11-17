@@ -293,3 +293,5 @@ def make_tileset() -> None:
     for i in range(COLS * ROWS):
         sheet.paste(tile_img(i, rnd), ((i % COLS) * T, (i // COLS) * T))
     save(sheet, "tilesets/farm_tiles.png")
+    from .tiles_hd import make_tileset_hd  # imported here: tiles_hd builds on this module
+    make_tileset_hd(sheet)

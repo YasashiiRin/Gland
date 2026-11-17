@@ -40,17 +40,20 @@
    {
     "type": "image",
     "key": "tree_oak_0",
-    "url": "sprites/trees/oak_0.png"
+    "url": "sprites/trees/oak_0.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "tree_oak_1",
-    "url": "sprites/trees/oak_1.png"
+    "url": "sprites/trees/oak_1.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "tree_pine",
-    "url": "sprites/trees/pine.png"
+    "url": "sprites/trees/pine.png",
+    "hd": true
    },
    {
     "type": "image",
@@ -250,7 +253,8 @@
    {
     "type": "image",
     "key": "tree_bamboo",
-    "url": "sprites/trees/bamboo.png"
+    "url": "sprites/trees/bamboo.png",
+    "hd": true
    },
    {
     "type": "image",
@@ -260,7 +264,8 @@
    {
     "type": "image",
     "key": "tree_areca",
-    "url": "sprites/trees/areca.png"
+    "url": "sprites/trees/areca.png",
+    "hd": true
    },
    {
     "type": "image",
@@ -460,7 +465,8 @@
    {
     "type": "image",
     "key": "tree_coconut",
-    "url": "sprites/trees/coconut.png"
+    "url": "sprites/trees/coconut.png",
+    "hd": true
    },
    {
     "type": "image",
@@ -470,7 +476,8 @@
    {
     "type": "image",
     "key": "prop_coconut",
-    "url": "sprites/trees/coconut.png"
+    "url": "sprites/trees/coconut.png",
+    "hd": true
    },
    {
     "type": "image",

@@ -483,3 +483,16 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - **Gia súc** (`LivestockSystem`, `scenes/livestockHerd.ts`): mua gà, heo, bê, nghé ở Cửa hàng Mùa Vụ; con mua về được thả ở bãi cỏ nông trại. Chúng tự đi lang thang, đứng trên cỏ là tự gặm (trâu bò gặm giỏi nhất), mỗi ngày lớn thêm nếu không đói. **Bấm vào con vật** để xem chỉ số đói và lớn. **Cây roi** (mua ở quán tạp hoá hoặc chế tạo: 5 gỗ + 15 sợi): cầm roi thì gia súc tránh xa, quất roi thì chúng chạy tán loạn — dùng để lùa.
 - Xe máy giảm tốc 10% (+120% → +98%).
 - Chưa làm: gia súc chưa đi qua cửa sang map khác, chưa có sản phẩm (trứng, sữa…), chưa đồng bộ khi chơi nhiều người (thuyền, hổ, gia súc chỉ ở máy mình).
+
+
+## Đồ họa x2 (HD) — người chơi chọn hướng 1: giữ pixel art, tăng gấp đôi độ phân giải
+Cách làm (`src/scenes/hd.ts`): hình HD vẽ gấp đôi (ô nền 32×32, cây 96×128…) rồi hiển thị ở ½ kích thước, nên ở mức
+phóng to mặc định ×2 mỗi điểm ảnh của hình = 1 điểm trên màn hình (nét gấp đôi). Toạ độ thế giới vẫn 16 px/ô nên
+vị trí, va chạm, logic không đổi. Bản đồ dùng bộ ô `tilesets/farm_tiles_hd.png` (lớp bản đồ thu nhỏ ½); hình nào có
+`"hd": true` trong `pack.json` thì tự thu nhỏ ½. Ô/hình chưa vẽ lại thì tạm phóng to từ bản 16 px (trông như cũ) —
+nâng cấp dần từng đợt. Lưu ý: ở mức phóng to ×1 hình HD bị thu nhỏ (mất nét), ×3 không chia hết; nên chơi ở ×2 hoặc ×4.
+- [x] Đợt 1: engine HD; ô nền HD: cỏ (4 kiểu), đường đất + mép cỏ, nước + bờ (16 kiểu), nước sâu, cát, biển, biển sâu,
+      sóng vỗ bờ, đường đá cuội, đất, bụi cây; cây HD: cây tán tròn (2), dừa, tre, cau, thông. Ảnh: `docs/previews/hd_*.png`, `cay_hd.png`.
+- [ ] Đợt 2: nhân vật (người chơi, NPC) + con vật + xe ở HD.
+- [ ] Đợt 3: nhà cửa, công trình phố, chợ, địa danh ở HD.
+- [ ] Đợt 4: các ô còn lại (ruộng lúa, đầm lầy, đá, tường thành, bờ kè…), cây còn lại (chuối, bưởi, phi lao, phượng, đước…), đồ nội thất, cây trồng.

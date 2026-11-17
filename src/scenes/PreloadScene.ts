@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { markHdTextures, TILESET_HD_TEXTURE } from './hd';
 import { MAP_KEYS, MAPS, PROVINCE_MAP_KEYS } from '../data/maps';
 import { NPC_IDS, NPCS } from '../data/npcs';
 
@@ -32,6 +33,8 @@ export class PreloadScene extends Phaser.Scene {
 
     this.load.setPath('assets');
     this.load.image(TILESET_TEXTURE, 'tilesets/farm_tiles.png');
+    this.load.image(TILESET_HD_TEXTURE, 'tilesets/farm_tiles_hd.png');
+    this.load.json('pack_meta', 'sprites/pack.json');
     this.load.image('mine_tiles', 'tilesets/mine_tiles.png');
     // Every generated sprite (trees, buildings, furniture, crops, villagers) is
     // listed in this pack, so swapping in real art only means replacing PNGs.
@@ -52,6 +55,7 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create(): void {
+    markHdTextures(this, this.cache.json.get('pack_meta'));
     this.createPlayerAnimations();
     this.createRainTexture();
     this.createWoodChipTexture();
