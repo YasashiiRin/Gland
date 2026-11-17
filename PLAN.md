@@ -433,14 +433,14 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 Ý tưởng của người chơi (tóm tắt):
 - Hệ thống chức nghiệp; vật phẩm mở khóa nghề có thể xuất hiện ở bất kỳ đâu trên bản đồ (theo tỉ lệ).
 - Nhấn vào minimap → mở bản đồ cả thế giới, phóng to / thu nhỏ được.
-- Mở nghề → avatar nhỏ phía trên các thanh trạng thái + thanh **linh khí** màu cam.
-- Nhấn avatar → bảng thông tin: chỉ số 3 thanh, tổng linh khí, cây kỹ năng bị động, danh sách kỹ năng chủ động đã học, hàng ô ngang để xếp thứ tự; ra ngoài hiện thành cột dọc bên phải màn hình; kéo thả để đổi chỗ.
+- Mở nghề → avatar nhỏ phía trên các thanh trạng thái + thanh **linh lực** màu cam.
+- Nhấn avatar → bảng thông tin: chỉ số 3 thanh, tổng linh lực, cây kỹ năng bị động, danh sách kỹ năng chủ động đã học, hàng ô ngang để xếp thứ tự; ra ngoài hiện thành cột dọc bên phải màn hình; kéo thả để đổi chỗ.
 - Học kỹ năng chủ động chỉ qua 3 đường: (1) sách cổ ở rừng sâu (0,5% mỗi cây trong phạm vi 20 ô); (2) người cùng nghề truyền lại (multiplayer); (3) ma rơi ra, tỉ lệ = sát thương đòn đầu / 10 (đòn 5% máu → 0,5%).
-- Linh khí khởi đầu 5, mỗi ngày +1. Kỹ năng bị động mở ở mốc 10, 20 … 100 linh khí.
+- Linh lực khởi đầu 5, mỗi ngày +1. Kỹ năng bị động mở ở mốc 10, 20 … 100 linh lực.
 - Thầy pháp nhìn thấy ma nên dễ mất tinh thần hơn; ban đêm ma xuất hiện là tấn công ngay, không cần chờ tinh thần thấp.
 - Kỹ năng chủ động đầu tiên **Khai nhãn**: hiện khói bụi ở các vùng ma hay xuất hiện (càng dày tỉ lệ càng cao), tốn 0,4 linh lực mỗi lần.
 Đã chốt với người chơi:
-1. Có hai loại tài nguyên: **linh khí** là tổng tích luỹ (khởi đầu 5, mỗi ngày +1, không bao giờ giảm, dùng để mở kỹ năng bị động); **linh lực** là thanh cam để thi triển kỹ năng (Khai nhãn tốn 0,4).
+1. Chỉ có **một** tài nguyên, gọi chung là **linh lực** (thanh màu cam): khởi đầu 5, mỗi ngày +1, dùng kỹ năng thì trừ (Khai nhãn tốn 0,4). Kỹ năng bị động chỉ có hiệu lực khi linh lực **hiện tại** đang ở mốc đó trở lên; từng đạt mốc nhưng sau bị tụt xuống dưới thì bị khoá lại.
 2. 10 ô kỹ năng bị động ở các mốc 10…100: tạm thời **khoá hết** (hiện ổ khoá), nội dung sẽ nghĩ sau.
 3. Sách cổ: chia bản đồ thành từng khu vực bán kính 20 ô; mỗi cây trong khu vực cộng +0,5% khả năng xuất hiện (giả định mỗi ngày gieo một lần); sách xuất hiện ở ô bất kỳ trong khu vực đó.
 4. Thứ tự làm: **bản đồ miền Trung trước**, nghề Thầy pháp sau.
