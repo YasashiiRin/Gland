@@ -93,7 +93,7 @@ export class LobbyScene extends Phaser.Scene {
     applySharedWorld(world);
     // Coming back to a farm we've played on: the host kept our bag, energy and skills.
     if (net.receivedProfile) Object.assign(gameState, structuredClone(net.receivedProfile));
-    gameState.currentMap = 'Farm';
+    gameState.currentMap = 'QuangBinh';
     gameState.spawnId = 'fromHouse';
     gameState.riding = null;
     this.scene.start('Preload');

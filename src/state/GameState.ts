@@ -113,7 +113,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
   }
   return {
     version: STATE_VERSION,
-    currentMap: 'House',
+    currentMap: 'QuangBinh',
     spawnId: 'default',
     time: createInitialTime(),
     money: 500,

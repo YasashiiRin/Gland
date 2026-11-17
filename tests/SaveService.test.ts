@@ -47,7 +47,7 @@ describe('SaveService', () => {
   it('round-trips a state with farm plots and inventory intact', () => {
     const state = createInitialState('Linh', 'Trại Xanh');
     state.money = 1234;
-    state.farmPlots['5,5'] = { tilled: true, cropId: 'parsnip', growthDay: 2, wateredToday: true };
+    state.farmPlots['QuangBinh:5,5'] = { tilled: true, cropId: 'parsnip', growthDay: 2, wateredToday: true };
     save(state);
 
     const loaded = load();
@@ -55,7 +55,7 @@ describe('SaveService', () => {
     expect(loaded?.money).toBe(1234);
     expect(loaded?.playerName).toBe('Linh');
     expect(loaded?.farmName).toBe('Trại Xanh');
-    expect(loaded?.farmPlots['5,5']).toEqual({ tilled: true, cropId: 'parsnip', growthDay: 2, wateredToday: true });
+    expect(loaded?.farmPlots['QuangBinh:5,5']).toEqual({ tilled: true, cropId: 'parsnip', growthDay: 2, wateredToday: true });
   });
 
   it('returns null and does not throw when there is no save', () => {

@@ -18,8 +18,7 @@ import {
 import { isShopOpen } from '../systems/ShopSystem';
 import { absoluteDayNumber, clockMinuteOfDay } from '../systems/TimeSystem';
 import { donateItem, remainingItems } from '../systems/QuestSystem';
-import type { Direction } from '../systems/movement';
-import { MapScene } from './MapScene';
+import { FieldScene } from './FieldScene';
 
 const REACTION_LINES: Record<GiftReaction, string> = {
   loved: 'Ồ, đây đúng là thứ mình thích nhất! Cảm ơn nhiều nhé!',
@@ -31,25 +30,20 @@ const REACTION_LINES: Record<GiftReaction, string> = {
 
 const GIFTABLE_CATEGORIES = new Set(['crop', 'material', 'food', 'fish']);
 
-export class TownScene extends MapScene {
+/**
+ * Village life on any world map (big world, phase 2): shop doors and market
+ * stalls ("shop" objects), the quest board, and villagers standing where
+ * their schedule puts them on this map. Builds on FieldScene, so a map can
+ * have both.
+ */
+export abstract class VillageScene extends FieldScene {
   private shopZones: { zone: Phaser.GameObjects.Zone; shopId: ShopId }[] = [];
   private questZones: Phaser.GameObjects.Zone[] = [];
   private npcZones = new Map<NpcId, Phaser.GameObjects.Zone>();
   private npcSprites: Phaser.GameObjects.Image[] = [];
 
-  constructor() {
-    super('Town');
-  }
-
-  protected override defaultFacing(spawn?: string): Direction {
-    return spawn === 'fromHue' ? 'up' : 'right';
-  }
-
-  protected override get isOutdoor(): boolean {
-    return true;
-  }
-
   protected override afterMapBuilt(): void {
+    super.afterMapBuilt();
     // Each shop door is an object named "shop" with a shopId property.
     const pad = 4;
     this.shopZones = (this.map.getObjectLayer('objects')?.objects ?? []).flatMap((o) => {
@@ -69,7 +63,7 @@ export class TownScene extends MapScene {
     for (const npcId of NPC_IDS) {
       const def = NPCS[npcId];
       const entry = scheduleEntryAt(def, hour);
-      if (entry.mapKey !== 'Town') continue;
+      if (entry.mapKey !== this.mapKey) continue;
       // Walking-style villager sprite (frame 0 = standing, facing down); the
       // portrait is only a fallback if the sprite sheet is missing.
       const npcKey = `npc_${npcId}`;

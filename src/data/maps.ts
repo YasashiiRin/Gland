@@ -6,7 +6,7 @@ export interface MapInfo {
   /** File name in public/assets/maps without extension. */
   file: string;
   displayName: string;
-  /** The central-Vietnam province this map belongs to (the farm and village are in Quảng Bình). */
+  /** The central-Vietnam province this map belongs to. */
   province: string;
   /** Vehicles can be driven here (and ridden in/out through its doors). */
   outdoor: boolean;
@@ -23,8 +23,5 @@ export function isMapKey(value: string): value is MapKey {
   return value in maps;
 }
 
-/** Maps that have their own scene class; every other map is a scenery-only province map. */
-const DEDICATED_SCENE_MAPS: readonly MapKey[] = ['Farm', 'House', 'Town'];
-
-/** Keys of the province maps (Hà Tĩnh, Quảng Trị, ...), each run by a ProvinceScene. */
-export const PROVINCE_MAP_KEYS: readonly MapKey[] = MAP_KEYS.filter((key) => !DEDICATED_SCENE_MAPS.includes(key));
+/** Keys of the big world maps (Quảng Bình, Huế), each run by a ProvinceScene. */
+export const PROVINCE_MAP_KEYS: readonly MapKey[] = MAP_KEYS;

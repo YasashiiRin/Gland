@@ -3,30 +3,27 @@ import { clampZoom, minimapFromTmj, playerWorldTile, worldBounds, worldMapKeys, 
 import { TILE_GID } from '../src/config/tileGids';
 
 describe('world map', () => {
-  it('lists the outdoor maps north to south, without the house', () => {
-    const keys = worldMapKeys();
-    expect(keys[0]).toBe('QuangBinh');
-    expect(keys).toContain('Farm');
-    expect(keys).not.toContain('House');
+  it('lists the outdoor maps north to south', () => {
+    expect(worldMapKeys()).toEqual(['QuangBinh', 'Hue']);
   });
 
   it('labels areas with their province', () => {
     const placed = worldPlacements(() => ({ width: 10, height: 10 }));
-    expect(placed.find((p) => p.key === 'Farm')?.label).toBe('Nông trại · Quảng Bình');
+    expect(placed.find((p) => p.key === 'QuangBinh')?.label).toBe('Quảng Bình');
     expect(placed.find((p) => p.key === 'Hue')?.label).toBe('Huế');
   });
 
   it('measures the bounds around every map', () => {
     const b = worldBounds([
-      { key: 'Farm', x: 0, y: 0, width: 64, height: 48, label: '' },
+      { key: 'Hue', x: 0, y: 0, width: 64, height: 48, label: '' },
       { key: 'QuangBinh', x: 0, y: -40, width: 64, height: 40, label: '' },
     ]);
     expect(b).toEqual({ x: 0, y: -40, width: 64, height: 88 });
   });
 
-  it('puts the player on the world map, indoors at the door', () => {
-    expect(playerWorldTile('QuangBinh', 31, 422)).toEqual({ x: 31, y: -3 });
-    expect(playerWorldTile('House', 3, 5)).toEqual({ x: 11, y: 9 });
+  it('puts the player on the world map, in the mine at its entrance', () => {
+    expect(playerWorldTile('Hue', 10, 2)).toEqual({ x: 30, y: 427 });
+    expect(playerWorldTile('Mine', 3, 5)).toEqual({ x: 149, y: 182 });
     expect(playerWorldTile('Nowhere', 1, 1)).toBeNull();
   });
 

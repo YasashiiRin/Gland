@@ -1,5 +1,6 @@
 import { pruneWildFields, seasonStamp } from '../systems/WildFieldSystem';
 import { ITEMS } from '../data/items';
+import { MAP_KEYS } from '../data/maps';
 import { advanceAnimalDay } from '../systems/AnimalSystem';
 import { advanceLivestockDay } from '../systems/LivestockSystem';
 import { restoreBySleep, type EnergyState } from '../systems/EnergySystem';
@@ -30,17 +31,20 @@ export function endWorldDay(): { time: TimeState; earnings: number } {
   gameState.farmPlots = advanceFarmDay(gameState.farmPlots, time.season, wasRaining);
   gameState.resourceNodes = advanceResourceDay(gameState.resourceNodes, absoluteDayNumber(time));
   gameState.wildFields = pruneWildFields(gameState.wildFields, seasonStamp(time));
-  for (const key of sprinklerTileKeysOnMap(gameState.placedObjects, 'Farm')) {
-    gameState.farmPlots = waterPlot(gameState.farmPlots, key);
-  }
-  // Chicken coops: yesterday's feeding decides today's happiness and egg.
-  for (const tileKey of coopTileKeysOnMap(gameState.placedObjects, 'Farm')) {
-    const [cx, cy] = tileKey.split(',').map(Number);
-    const placed = gameState.placedObjects[placedObjectKey('Farm', cx, cy)];
-    if (!placed?.animal) continue;
-    const result = advanceAnimalDay(placed.animal, yesterdayAbsolute);
-    placed.animal = result.animal;
-    if (result.producedEgg) gameState.inventory = addItem(gameState.inventory, 'egg', 1).state;
+  for (const mapKey of MAP_KEYS) {
+    // Plots and placed objects share the "Map:x,y" key, so a sprinkler waters the plot under it.
+    for (const tileKey of sprinklerTileKeysOnMap(gameState.placedObjects, mapKey)) {
+      gameState.farmPlots = waterPlot(gameState.farmPlots, `${mapKey}:${tileKey}`);
+    }
+    // Chicken coops: yesterday's feeding decides today's happiness and egg.
+    for (const tileKey of coopTileKeysOnMap(gameState.placedObjects, mapKey)) {
+      const [cx, cy] = tileKey.split(',').map(Number);
+      const placed = gameState.placedObjects[placedObjectKey(mapKey, cx, cy)];
+      if (!placed?.animal) continue;
+      const result = advanceAnimalDay(placed.animal, yesterdayAbsolute);
+      placed.animal = result.animal;
+      if (result.producedEgg) gameState.inventory = addItem(gameState.inventory, 'egg', 1).state;
+    }
   }
   gameState.livestock = gameState.livestock.map(advanceLivestockDay);
   let earnings = 0;

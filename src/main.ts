@@ -3,8 +3,6 @@ import { fitGameWidth, GAME_HEIGHT, GAME_WIDTH } from './config/constants';
 import { EventBus, GameEvents } from './events/EventBus';
 import { closeAllMenus } from './state/uiState';
 import { BootScene } from './scenes/BootScene';
-import { FarmScene } from './scenes/FarmScene';
-import { HouseScene } from './scenes/HouseScene';
 import { LobbyScene } from './scenes/LobbyScene';
 import { net } from './net/NetSession';
 import { MineScene } from './scenes/MineScene';
@@ -12,7 +10,6 @@ import { PreloadScene } from './scenes/PreloadScene';
 import { ProvinceScene } from './scenes/ProvinceScene';
 import { PROVINCE_MAP_KEYS } from './data/maps';
 import { TitleScene } from './scenes/TitleScene';
-import { TownScene } from './scenes/TownScene';
 import { UIScene } from './scenes/UIScene';
 import { gameState } from './state/GameState';
 import { sessionFlags } from './state/sessionFlags';
@@ -40,9 +37,6 @@ const game = new Phaser.Game({
     TitleScene,
     LobbyScene,
     PreloadScene,
-    FarmScene,
-    HouseScene,
-    TownScene,
     MineScene,
     ...PROVINCE_MAP_KEYS.map((key) => new ProvinceScene(key)),
     UIScene,

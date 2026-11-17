@@ -47,7 +47,7 @@ describe('world maps', () => {
 
   it('has the two big province maps, Quảng Bình and Huế', () => {
     expect(PROVINCE_MAP_KEYS).toEqual(['QuangBinh', 'Hue']);
-    expect(MAPS.Farm.province).toBe('Quảng Bình');
+    expect(MAPS.QuangBinh.province).toBe('Quảng Bình');
     expect(MAPS.Hue.orchardTree).toBe('tree_pomelo');
   });
 

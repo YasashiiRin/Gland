@@ -2,8 +2,6 @@
   "carp": {
     "name": "Cá chép nhỏ",
     "locations": [
-      "Farm",
-      "Town",
       "QuangBinh",
       "Hue"
     ],
@@ -24,8 +22,6 @@
   "perch": {
     "name": "Cá rô",
     "locations": [
-      "Farm",
-      "Town",
       "QuangBinh",
       "Hue"
     ],
@@ -44,7 +40,7 @@
   "grass_carp": {
     "name": "Cá trắm",
     "locations": [
-      "Farm"
+      "QuangBinh"
     ],
     "season": [
       "spring",
@@ -61,7 +57,7 @@
   "golden_loach": {
     "name": "Cá chạch vàng",
     "locations": [
-      "Town"
+      "QuangBinh"
     ],
     "season": [
       "spring"
@@ -77,8 +73,6 @@
   "crucian": {
     "name": "Cá diếc",
     "locations": [
-      "Farm",
-      "Town",
       "QuangBinh",
       "Hue"
     ],
@@ -118,8 +112,7 @@
     "name": "Cá trê",
     "locations": [
       "QuangBinh",
-      "Hue",
-      "Farm"
+      "Hue"
     ],
     "season": [
       "spring",

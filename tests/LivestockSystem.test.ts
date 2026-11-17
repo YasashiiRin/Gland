@@ -19,7 +19,7 @@ describe('livestock', () => {
   });
 
   it('grows each day when fed, not when starving', () => {
-    const fed = { ...createLivestock('a', 'pig', 'Farm', 0, 0), hunger: 10 };
+    const fed = { ...createLivestock('a', 'pig', 'QuangBinh', 0, 0), hunger: 10 };
     expect(advanceLivestockDay(fed).growth).toBeGreaterThan(0);
     expect(advanceLivestockDay({ ...fed, hunger: 90 }).growth).toBe(0);
     expect(sizeScale(100)).toBeGreaterThan(sizeScale(0));

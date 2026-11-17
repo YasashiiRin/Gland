@@ -1,22 +1,4 @@
 {
-  "Farm": {
-    "file": "farm",
-    "displayName": "Nông trại",
-    "outdoor": true,
-    "province": "Quảng Bình"
-  },
-  "House": {
-    "file": "house",
-    "displayName": "Nhà của bạn",
-    "outdoor": false,
-    "province": "Quảng Bình"
-  },
-  "Town": {
-    "file": "town",
-    "displayName": "Làng",
-    "outdoor": true,
-    "province": "Quảng Bình"
-  },
   "QuangBinh": {
     "file": "quang_binh",
     "displayName": "Quảng Bình",

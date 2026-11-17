@@ -18,7 +18,7 @@ import {
 } from '../systems/LivestockSystem';
 
 /** Ground an animal can graze on. */
-const GRAZING: ReadonlySet<number> = new Set([...TILLABLE_GIDS, TILE_GID.DRY_GRASS, TILE_GID.MARSH, TILE_GID.ROCKY]);
+const GRAZING: ReadonlySet<number> = new Set([...TILLABLE_GIDS.filter((g) => g !== TILE_GID.DIRT), TILE_GID.MARSH, TILE_GID.ROCKY]);
 
 interface Walker {
   sprite: Phaser.Physics.Arcade.Sprite;

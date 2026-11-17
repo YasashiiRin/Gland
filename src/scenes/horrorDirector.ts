@@ -64,6 +64,8 @@ export class HorrorDirector {
     private readonly indoor: boolean,
     private readonly ground: Phaser.Tilemaps.TilemapLayer,
     private readonly decor: Phaser.Tilemaps.TilemapLayer,
+    /** True while the player stands in a safe zone (town, landmark): nothing haunts there. */
+    private readonly isSafe: () => boolean = () => false,
   ) {
     this.attacker = new GhostAttacker(scene, player);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.pending?.remove());
@@ -73,7 +75,7 @@ export class HorrorDirector {
     this.updateHaunts(time);
     this.attacker.update(time, this.scene.game.loop.delta);
     const mode = gameState.settings.horror;
-    if (mode === 'off' || !isHorrorNight(gameState.time)) return;
+    if (mode === 'off' || !isHorrorNight(gameState.time) || this.isSafe()) return;
     const slot = horrorRollSlot(gameState.time);
     if (slot === lastRolledSlot) return;
     lastRolledSlot = slot;
@@ -113,7 +115,7 @@ export class HorrorDirector {
   }
 
   private trigger(): void {
-    if (isWorldInputBlocked() || gameState.settings.horror === 'off') return;
+    if (isWorldInputBlocked() || gameState.settings.horror === 'off' || this.isSafe()) return;
     const id = pickHorrorEvent({
       indoor: this.indoor,
       nearWater: !!this.nearestWater(8),

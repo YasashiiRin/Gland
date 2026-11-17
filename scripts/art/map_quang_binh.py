@@ -28,6 +28,7 @@ run north-south along the east, so places keep their real order and sides:
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
+from .map_services import services
 from .map_helpers import (HOUSES, KARST, SIZE, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
                           walk_under, water_spots, zone)
 from .province_tiles import BRIDGE, CITADEL, PAVING
@@ -216,7 +217,7 @@ def build_quang_binh() -> Province:
     shore = coast(m, 396, amp=4)
     _rivers(m, shore)
     regions = _regions(m)
-    exit_south(m, 30, "Farm", "fromQuangBinh", "fromFarm")
+    exit_south(m, 30, "Hue", "fromQuangBinh", "fromHue")
     _roads(m)
     _phong_nha(m)
     _dong_hoi(m, shore)
@@ -235,5 +236,6 @@ def build_quang_binh() -> Province:
     beach_trees(m, shore, "coconut", every=3, skip=set(range(SIZE)) - town_beach | set(range(222, 230)))
     for i, (x, y) in enumerate([(210, 100), (348, 196), (356, 52), (244, 282), (324, 360), (330, 290)]):
         mooring(m, f"qb_boat_{i}", x, y)                                                 # rowing boats
+    services(m)
     _zones(m)
-    return finish(m, "fromFarm")
+    return finish(m, "start")

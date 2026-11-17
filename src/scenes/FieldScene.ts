@@ -17,7 +17,6 @@ import {
   harvestPlot,
   isReadyToHarvest,
   plantSeed,
-  plotKey,
   tillPlot,
   waterPlot,
   type FarmPlot,
@@ -27,7 +26,6 @@ import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { playPickup } from '../systems/SfxSystem';
 import { addItem } from '../systems/InventorySystem';
 import { absoluteDayNumber } from '../systems/TimeSystem';
-import type { Direction } from '../systems/movement';
 import {
   isOccupied,
   placedObjectKey,
@@ -52,21 +50,21 @@ const WATERED_SOIL_TINT = 0xb4a69c;
 /** Frames in a crop spritesheet: seeded, sprout, young, grown, ready. */
 const CROP_FRAMES = 5;
 const DRY_SOIL_TINT = 0xffffff;
+const SAFE_ZONE_NOTE = 'Đây là khu an toàn (phố, địa danh): không được cuốc đất hay xây dựng';
 
-export class FarmScene extends MapScene {
+/**
+ * Farming on any world map (big world, phase 2): till, plant, water, harvest,
+ * place chests/sprinklers/coops/benches, and use the co-operative's shipping
+ * bin, warehouse and the mine entrance wherever the map has them. Plots and
+ * placed objects are keyed by map ("QuangBinh:x,y"). Nothing may be tilled or
+ * built inside the safe zones (landmarks and towns).
+ */
+export abstract class FieldScene extends MapScene {
   private cropSprites = new Map<string, Phaser.GameObjects.Image>();
   private binZones: Phaser.GameObjects.Zone[] = [];
   private mineZones: Phaser.GameObjects.Zone[] = [];
   private warehouseZones: Phaser.GameObjects.Zone[] = [];
   private furnitureSprites = new Map<string, Phaser.GameObjects.Image>();
-
-  constructor() {
-    super('Farm');
-  }
-
-  protected override defaultFacing(spawn?: string): Direction {
-    return spawn === 'fromTown' ? 'left' : 'down'; // from Hà Tĩnh you walk in from the north
-  }
 
   protected override get isOutdoor(): boolean {
     return true;
@@ -81,7 +79,9 @@ export class FarmScene extends MapScene {
     this.cropSprites.forEach((sprite) => sprite.destroy());
     this.cropSprites.clear();
     for (const [key, plot] of Object.entries(gameState.farmPlots)) {
-      const [x, y] = key.split(',').map(Number);
+      const at = this.tileOfKey(key);
+      if (!at) continue;
+      const { x, y } = at;
       this.groundLayer.putTileAt(TILE_GID.SOIL, x, y);
       this.setSoilTint(x, y, plot.wateredToday);
       if (plot.cropId) this.spawnOrUpdateCrop(key, x, y, plot);
@@ -111,7 +111,9 @@ export class FarmScene extends MapScene {
   protected override onWorldPatched(patch: WorldPatch): void {
     super.onWorldPatched(patch);
     for (const key of touchedKeys(patch, 'farmPlots')) {
-      const [x, y] = key.split(',').map(Number);
+      const at = this.tileOfKey(key);
+      if (!at) continue;
+      const { x, y } = at;
       const plot = gameState.farmPlots[key];
       if (plot) {
         this.groundLayer.putTileAt(TILE_GID.SOIL, x, y);
@@ -133,13 +135,13 @@ export class FarmScene extends MapScene {
     const stack = gameState.inventory.slots[gameState.equippedSlot];
     if (stack) {
       const tile = this.actionTile();
-      const key = plotKey(tile.x, tile.y);
+      const key = this.plotKey(tile.x, tile.y);
       const def = ITEMS[stack.itemId];
 
       if (stack.itemId === 'hoe') {
         const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
         const blocked = !!this.decorLayer.getTileAt(tile.x, tile.y);
-        const tillable = gid !== undefined && TILLABLE_GIDS.includes(gid) && !blocked && canTill(gameState.farmPlots, key);
+        const tillable = gid !== undefined && TILLABLE_GIDS.includes(gid) && !blocked && !this.inSafeZone(tile.x, tile.y) && canTill(gameState.farmPlots, key);
         return tillable ? 'valid' : 'invalid';
       }
       if (stack.itemId === 'watering_can') {
@@ -150,7 +152,7 @@ export class FarmScene extends MapScene {
       }
       if (def.category === 'furniture') {
         const objKey = placedObjectKey(this.mapKey, tile.x, tile.y);
-        if (isOccupied(gameState.placedObjects, objKey) || this.decorLayer.getTileAt(tile.x, tile.y)) return 'invalid';
+        if (isOccupied(gameState.placedObjects, objKey) || this.decorLayer.getTileAt(tile.x, tile.y) || this.inSafeZone(tile.x, tile.y)) return 'invalid';
         const groundGid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
         const allowedGids: readonly number[] =
           stack.itemId === 'sprinkler' ? [...TILLABLE_GIDS, TILE_GID.SOIL] : TILLABLE_GIDS;
@@ -161,9 +163,13 @@ export class FarmScene extends MapScene {
   }
 
   protected override applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
-    const key = plotKey(tile.x, tile.y);
+    const key = this.plotKey(tile.x, tile.y);
     if (itemId === 'hoe') {
       if (!canTill(gameState.farmPlots, key)) return;
+      if (this.inSafeZone(tile.x, tile.y)) {
+        this.say(SAFE_ZONE_NOTE);
+        return;
+      }
       const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
       if (gid === undefined || !TILLABLE_GIDS.includes(gid)) return;
       if (this.decorLayer.getTileAt(tile.x, tile.y)) return; // something (tree/rock/bush) is in the way
@@ -193,7 +199,7 @@ export class FarmScene extends MapScene {
 
   protected override tryPlantFacingTile(seedItemId: ItemId): void {
     const tile = this.actionTile();
-    const key = plotKey(tile.x, tile.y);
+    const key = this.plotKey(tile.x, tile.y);
     if (!canPlant(gameState.farmPlots, key)) return;
     const cropId = cropForSeed(seedItemId);
     if (!cropId) return;
@@ -215,7 +221,7 @@ export class FarmScene extends MapScene {
         continue;
       }
       if (ability !== 'till' || isExhausted(gameState.energy)) return;
-      const key = plotKey(tile.x, tile.y);
+      const key = this.plotKey(tile.x, tile.y);
       if (gameState.farmPlots[key] || isOccupied(gameState.placedObjects, placedObjectKey(this.mapKey, tile.x, tile.y))) continue;
       this.applyToolEffect('hoe', tile);
       if (!gameState.farmPlots[key]) continue;
@@ -231,7 +237,7 @@ export class FarmScene extends MapScene {
   }
 
   private harvestAt(tile: { x: number; y: number }): boolean {
-    const key = plotKey(tile.x, tile.y);
+    const key = this.plotKey(tile.x, tile.y);
     if (!isReadyToHarvest(gameState.farmPlots[key])) return false;
 
     const result = harvestPlot(gameState.farmPlots, key);
@@ -257,6 +263,10 @@ export class FarmScene extends MapScene {
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     if (isOccupied(gameState.placedObjects, key)) return;
     if (this.decorLayer.getTileAt(tile.x, tile.y)) return; // no tree/rock/bush in the way
+    if (this.inSafeZone(tile.x, tile.y)) {
+      this.say(SAFE_ZONE_NOTE);
+      return;
+    }
 
     // A sprinkler is meant to sit on a tilled plot (so it can water it); the
     // others are just scenery and belong on plain grass.
@@ -360,8 +370,9 @@ export class FarmScene extends MapScene {
     const plots = { ...gameState.farmPlots };
     let changed = false;
     for (const key of Object.keys(plots)) {
-      const [x, y] = key.split(',').map(Number);
-      if (!groundOk(x, y, false)) {
+      const at = this.tileOfKey(key);
+      if (!at) continue;
+      if (!groundOk(at.x, at.y, false)) {
         delete plots[key];
         changed = true;
       }
@@ -372,7 +383,7 @@ export class FarmScene extends MapScene {
     for (const [key, obj] of Object.entries(gameState.placedObjects)) {
       if (!key.startsWith(prefix)) continue;
       const [x, y] = key.slice(prefix.length).split(',').map(Number);
-      if (groundOk(x, y, true) || gameState.farmPlots[`${x},${y}`]) continue;
+      if (groundOk(x, y, true) || gameState.farmPlots[this.plotKey(x, y)]) continue;
       let inventory = addItem(gameState.inventory, obj.kind as ItemId, 1).state;
       for (const stack of obj.chest?.slots ?? []) {
         if (stack) inventory = addItem(inventory, stack.itemId, stack.quantity).state;
@@ -382,6 +393,19 @@ export class FarmScene extends MapScene {
       delete rest[key];
       gameState.placedObjects = rest;
     }
+  }
+
+  /** A farm plot's key on this map. */
+  private plotKey(x: number, y: number): string {
+    return placedObjectKey(this.mapKey, x, y);
+  }
+
+  /** The tile of a plot/object key if it belongs to this map. */
+  private tileOfKey(key: string): { x: number; y: number } | null {
+    const prefix = `${this.mapKey}:`;
+    if (!key.startsWith(prefix)) return null;
+    const [x, y] = key.slice(prefix.length).split(',').map(Number);
+    return { x, y };
   }
 
   private setSoilTint(x: number, y: number, watered: boolean): void {

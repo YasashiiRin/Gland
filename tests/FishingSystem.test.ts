@@ -57,7 +57,7 @@ describe('fishing minigame', () => {
 
 describe('which fish bites', () => {
   it('filters by location, season, hour, weather and water', () => {
-    const ctx = { mapKey: 'Farm' as const, season: 'spring' as const, hour: 12, weather: 'sunny' as const };
+    const ctx = { mapKey: 'QuangBinh' as const, season: 'spring' as const, hour: 12, weather: 'sunny' as const };
     expect(validFish(ctx)).toContain('carp');
     expect(validFish(ctx)).not.toContain('golden_loach');
     expect(validFish({ ...ctx, weather: 'rainy' })).toContain('grass_carp');
@@ -67,7 +67,7 @@ describe('which fish bites', () => {
   });
 
   it('returns null when nothing matches', () => {
-    expect(pickFish({ mapKey: 'Farm', season: 'winter', hour: 3, weather: 'sunny' }, () => 0)).toBeNull();
+    expect(pickFish({ mapKey: 'QuangBinh', season: 'winter', hour: 3, weather: 'sunny' }, () => 0)).toBeNull();
   });
 });
 

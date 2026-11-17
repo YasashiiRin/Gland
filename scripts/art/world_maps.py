@@ -46,7 +46,7 @@ def build_hue() -> Province:
     ])
     paint_ground(m, regions)
     walls(m, 150, 112, 240, 190, inside=PAVING, moat=True)                               # Đại Nội
-    exit_north(m, 10, "Town", "fromHue", "fromQuangBinh")
+    exit_north(m, 10, "QuangBinh", "fromHue", "fromQuangBinh")
     road(m, [(10, 8), (10, 40), (195, 40), (195, 300)], tile=PAVING)                     # through the citadel, over the river
     road(m, [(195, 250), (300, 250), (300, 200)], tile=PAVING)
     street_row(m, 198, 298, 250)                                                          # Phú Xuân shophouses

@@ -91,7 +91,15 @@ export function isTreeGid(gid: number | undefined): boolean {
   );
 }
 
-export const TILLABLE_GIDS: readonly number[] = [TILE_GID.GRASS, TILE_GID.GRASS2, TILE_GID.FLOWERS, TILE_GID.GRASS3];
+/** Ground the hoe can turn into a plot (any grass or bare earth of the world maps). */
+export const TILLABLE_GIDS: readonly number[] = [
+  TILE_GID.GRASS,
+  TILE_GID.GRASS2,
+  TILE_GID.FLOWERS,
+  TILE_GID.GRASS3,
+  TILE_GID.DRY_GRASS,
+  TILE_GID.DIRT,
+];
 
 /** Water (with any bank variant) or the sea — anything you can fish in. */
 export function isWaterGid(gid: number | undefined): boolean {

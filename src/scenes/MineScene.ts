@@ -208,7 +208,7 @@ export class MineScene extends Phaser.Scene {
     this.cameras.main.fadeOut(FADE_MS, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       timeControl.paused = false;
-      this.scene.start('Farm', { spawn: 'fromMine', facing: 'down' });
+      this.scene.start('QuangBinh', { spawn: 'fromMine', facing: 'down' });
     });
   }
 

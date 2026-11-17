@@ -37,7 +37,7 @@ import { FishingSession } from '../ui/FishingSession';
 import { SettingsMenu } from '../ui/SettingsMenu';
 import { playClick, playDayChime, playPickup } from '../systems/SfxSystem';
 import { gameState, WAREHOUSE_SLOT_COUNT, ZOOM_LEVELS } from '../state/GameState';
-import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
+import { PASTURE, vehicleHome, WAREHOUSE_KEY } from '../data/garage';
 import { ITEMS } from '../data/items';
 import { addVehicle, ownsVehicle } from '../systems/VehicleSystem';
 import type { InventoryState } from '../systems/InventorySystem';
@@ -60,7 +60,6 @@ import { isShopId, SHOPS, type ShopId } from '../data/shops';
 const CHEST_SLOT_COUNT = 18;
 const VEHICLE_KEY_PREFIX = 'vehicle:';
 /** Where bought animals are let loose on the farm (pixels, open grass south of the barn). */
-const PASTURE = { x: 35 * 16 + 8, y: 31 * 16 };
 /** Guests send their bag/energy/skills to the host this often (ms). */
 const PROFILE_SEND_MS = 5000;
 /** The map on screen, so a rebuilt UI (after a resize) can redraw the minimap. */
@@ -163,9 +162,9 @@ export class UIScene extends Phaser.Scene {
           const id = `${kind}-${Date.now().toString(36)}`;
           const x = PASTURE.x + Math.round((Math.random() - 0.5) * 48);
           const y = PASTURE.y + Math.round((Math.random() - 0.5) * 32);
-          gameState.livestock = [...gameState.livestock, createLivestock(id, kind, 'Farm', x, y)];
+          gameState.livestock = [...gameState.livestock, createLivestock(id, kind, PASTURE.mapKey, x, y)];
           playClick(gameState.settings);
-          this.showBanner(`${ITEMS[itemId].name} đã được thả ở bãi cỏ nông trại`, 0x3a5f3a);
+          this.showBanner(`${ITEMS[itemId].name} đã được thả ở bãi cỏ hợp tác xã (Đồng Hới)`, 0x3a5f3a);
           return;
         }
         const result = buyItem(gameState.inventory, gameState.money, itemId, 1);

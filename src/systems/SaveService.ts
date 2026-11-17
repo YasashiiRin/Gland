@@ -1,4 +1,5 @@
 import { STATE_VERSION, type GameState } from '../state/GameState';
+import { moveToBigWorld } from '../state/worldMigration';
 
 const SAVE_KEY = 'farm-game-save';
 
@@ -50,7 +51,7 @@ export function load(): GameState | null {
     parsed.livestock ??= [];
     parsed.boats ??= {};
     parsed.boating = null;
-    return parsed;
+    return moveToBigWorld(parsed);
   } catch (e) {
     console.warn('Could not read the save file:', e);
     return null;

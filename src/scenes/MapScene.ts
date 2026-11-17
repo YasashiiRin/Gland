@@ -132,6 +132,8 @@ export abstract class MapScene extends Phaser.Scene {
   private transitioning = false;
   private targetHighlight!: Phaser.GameObjects.Rectangle;
   private bedZones: Phaser.GameObjects.Zone[] = [];
+  /** Safe zones of this map, in tiles (read from its "zone" objects). */
+  protected safeZones: TileRect[] = [];
   private benchZones: Phaser.GameObjects.Zone[] = [];
   private rain?: Phaser.GameObjects.Particles.ParticleEmitter;
   /** Last time (scene clock, ms) the mouse moved / a movement key went down; decides who aims tools. */
@@ -212,14 +214,15 @@ export abstract class MapScene extends Phaser.Scene {
     if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
+    this.safeZones = this.zoneRects();
     this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
     this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
-      ? new Tigers(this, this.player, decor, this.zoneRects(), (text) => this.say(text))
+      ? new Tigers(this, this.player, decor, this.safeZones, (text) => this.say(text))
       : null;
     this.afterMapBuilt();
 
     this.remotes = new RemotePlayers(this, this.mapKey);
-    this.horror = new HorrorDirector(this, this.player, !this.isOutdoor, ground, decor);
+    this.horror = new HorrorDirector(this, this.player, !this.isOutdoor, ground, decor, () => this.playerInSafeZone());
     // Guest: the host started a new day (or resynced) — take its world and redraw the map.
     // (worldSync has already applied the new world by the time the restart runs.)
     const onWorld = (p: { newDay?: NewDayInfo }) => {
@@ -405,6 +408,15 @@ export abstract class MapScene extends Phaser.Scene {
     return { w: this.map.width * TILE, h: this.map.height * TILE };
   }
 
+  /** Is this tile inside a safe zone (landmark or town: no ghosts, no tigers, no tilling or building)? */
+  protected inSafeZone(tx: number, ty: number): boolean {
+    return this.safeZones.some((r) => tx >= r.x0 && tx <= r.x1 && ty >= r.y0 && ty <= r.y1);
+  }
+
+  protected playerInSafeZone(): boolean {
+    return this.inSafeZone(Math.floor(this.player.x / TILE), Math.floor((this.player.y - 1) / TILE));
+  }
+
   /** The map's safe landmark zones ("zone" objects), in tiles. */
   private zoneRects(): TileRect[] {
     return (this.map.getObjectLayer('objects')?.objects ?? [])
@@ -417,7 +429,7 @@ export abstract class MapScene extends Phaser.Scene {
       }));
   }
 
-  /** Extension points for farmable maps (overridden by FarmScene). Harmless no-ops elsewhere. */
+  /** Extension points for farmable maps (overridden by FieldScene). Harmless no-ops elsewhere. */
   protected afterMapBuilt(): void {}
   protected applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
     if (itemId === 'fishing_rod') {
@@ -510,7 +522,7 @@ export abstract class MapScene extends Phaser.Scene {
    * currently equipped item — shown as a green/red highlight, in the spirit
    * of the cursor-highlight convention common to farming/crafting games.
    * Base implementation covers the gathering tools (valid everywhere, since
-   * it's the same check for any map); FarmScene extends this for
+   * it's the same check for any map); FieldScene extends this for
    * hoe/watering-can/seeds/furniture.
    */
   protected getTargetHighlightState(): 'none' | 'valid' | 'invalid' {
@@ -657,18 +669,11 @@ export abstract class MapScene extends Phaser.Scene {
     return { time, day: time.day, season: time.season, year: time.year, weather: time.weather, earnings };
   }
 
+  /** Slept through the night: there is no home to go back to any more, you wake where you lay down. */
   private goHomeForNewDay(payload: DayStartedPayload): void {
     if (gameState.riding) this.ride.dismount();
-    gameState.currentMap = 'House';
-    gameState.spawnId = 'default';
-    this.beginTransition();
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      SaveService.save(gameState);
-      this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
-      // Emitted after scene.start queues the new scene's create(); UI is a separate
-      // active scene so it still receives this straight away.
-      EventBus.emit(GameEvents.DayStarted, payload);
-    });
+    SaveService.save(gameState);
+    this.newDayInPlace(payload);
   }
 
   /** Redraw this map for the new morning (crops grew…) without moving the player. */
@@ -692,12 +697,13 @@ export abstract class MapScene extends Phaser.Scene {
     gameState.playerHealth = { ...gameState.playerHealth, current: Math.round(gameState.playerHealth.max * FAINT_RESTORE_RATIO) };
     gameState.sanity = { ...gameState.sanity, current: Math.max(gameState.sanity.current, gameState.sanity.max * FAINT_RESTORE_RATIO) };
     if (gameState.riding) this.ride.dismount();
-    gameState.currentMap = 'House';
+    gameState.boating = null;
     gameState.spawnId = 'default';
     this.beginTransition();
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start('House', { spawn: 'default', facing: 'down' } satisfies MapSceneData);
-      EventBus.emit(GameEvents.HorrorScreen, { kind: 'caption', text: `Bạn ngất đi… tỉnh dậy ở nhà (mất ${penalty.toLocaleString('vi-VN')} ₫)` });
+      // Found and carried to the safety of town (the map's default spawn).
+      this.scene.restart({ spawn: 'default', facing: 'down' } satisfies MapSceneData);
+      EventBus.emit(GameEvents.HorrorScreen, { kind: 'caption', text: `Bạn ngất đi… tỉnh dậy giữa phố (mất ${penalty.toLocaleString('vi-VN')} ₫)` });
     });
   }
 

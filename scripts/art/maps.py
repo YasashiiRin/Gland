@@ -12,9 +12,7 @@ import random
 
 from .common import ASSETS, T
 from .water_tiles import DEEP, QUAY_EDGE
-from .tiles import (BLOCK, BUSH, COLLIDES, COLS, DIRT, DOOR, FENCE, FLOOR, FLOOR2, FLOWERS, FOREST, GRASS,
-                    GRASS2, GRASS3, IWALL, PATH, PATH_EDGE, ROCK, ROWS, SIGN, TRUNK, WAINSCOT, WALLPAPER,
-                    WATER, WATER_EDGE)
+from .tiles import (BLOCK, COLLIDES, COLS, DIRT, DOOR, FLOWERS, FOREST, GRASS, GRASS2, GRASS3, PATH, PATH_EDGE, ROWS, TRUNK, WATER, WATER_EDGE)
 
 PATHLIKE = {PATH, DIRT, DOOR}
 
@@ -156,143 +154,10 @@ class MapBuilder:
         }
 
 
-def build_farm() -> MapBuilder:
-    m = MapBuilder(64, 48, seed=11)
-    m.grass_variation()
-    m.forest_border({(x, y) for x in (62, 63) for y in range(23, 27)} | {(x, y) for x in range(30, 34) for y in (0, 1)})
-    # farmhouse (7x6 sprite at 8,4), door at (11,9)
-    m.prop("farmhouse", 8, 4, 7, 6, solid_from=1, door=(11, 9), base=DIRT)
-    m.door(11, 9, 1, 1, "House", "fromFarm")
-    m.fill(9, 10, 14, 11, PATH)                     # front yard
-    m.fill(11, 12, 11, 25, PATH)
-    m.fill(11, 24, 63, 25, PATH)                    # road to the village
-    m.prop("shipping_bin", 13, 10, 2, 1)
-    m.obj("shipping_bin", 13 * T, 10 * T, 2 * T, T)
-    m.put(16, 11, SIGN)
-    # the rough crafting bench you start with, in the yard by the path
-    m.prop("rough_bench", 12, 12, 2, 1)
-    m.obj("craft_bench", 12 * T, 12 * T, 2 * T, T)
-    # warehouse / vehicle shed with a dirt yard of 4 parking bays in front
-    # (bay columns 17, 20, 23, 26 on row 10 — keep in sync with src/data/garage.ts)
-    m.fill(17, 8, 28, 11, PATH)
-    m.fill(15, 10, 16, 10, PATH)
-    m.prop("warehouse", 19, 3, 6, 5, solid_from=1, base=DIRT)
-    m.obj("warehouse", 21 * T, 7 * T, 2 * T, T)
-    for x in range(4, 8):                           # little bamboo fence by the house
-        m.put(x, 10, FENCE)
-    m.prop("haystack", 4, 7, 2, 2, solid_from=1)    # haystacks and water jars by the house
-    m.prop("haystack", 2, 8, 2, 2, solid_from=1)
-    m.prop("jar", 15, 9, 1, 1)
-    m.prop("jar", 16, 9, 1, 1)
-    # mine: cave in a rocky corner (north-east), path down to the road
-    m.prop("cave", 50, 3, 3, 3, door=None)
-    m.obj("mine_entrance", 51 * T, 5 * T, T, T)
-    m.fill(51, 6, 51, 23, PATH)
-    m.scatter(ROCK, 14, (44, 2, 59, 10))
-    # water: big pond (south-east) and a small one (south-west)
-    m.blob(50, 37, 7, 4.5, WATER)
-    m.blob(8, 40, 3.5, 2.5, WATER)
-    # woods on the west side, then debris to clear across the open field
-    m.scatter(TRUNK, 16, (2, 13, 8, 44))
-    starter = (8, 12, 24, 22)                       # keep a cleared patch near the house
-    m.scatter(TRUNK, 10, (16, 12, 60, 44), avoid=starter)
-    m.scatter(ROCK, 26, (12, 12, 60, 44), avoid=starter)
-    m.scatter(BUSH, 70, (10, 12, 60, 44), avoid=starter)
-    m.scatter(BUSH, 4, starter)
-    # road north to the rest of Quảng Bình, laid after the scatter so the field layout stays the same
-    m.fill(31, 0, 32, 23, PATH)
-    for y in range(0, 24):
-        m.put(31, y, None); m.put(32, y, None)
-    m.door(30, 0, 4, 1, "QuangBinh", "fromFarm")
-    m.spawn("fromQuangBinh", 31, 2)
-    m.door(63, 23, 1, 4, "Town", "fromFarm")
-    m.spawn("default", 11, 11)
-    m.spawn("fromHouse", 11, 10)
-    m.spawn("fromTown", 61, 24)
-    m.spawn("fromMine", 51, 6)
-    return m
-
-
-def build_town() -> MapBuilder:
-    m = MapBuilder(40, 24, seed=23)
-    m.grass_variation()
-    m.forest_border({(0, y) for y in (11, 12, 13)} | {(x, 23) for x in range(34, 37)}, depth=1)
-    m.fill(0, 12, 39, 12, PATH)
-    m.fill(14, 6, 26, 18, PATH)
-    m.prop("well", 19, 11, 2, 2, solid_from=1)      # village well in the square
-    m.prop("banyan", 5, 15, 3, 2)                   # the old banyan tree
-    # morning market: three stalls in the square, customers stand in front of each
-    for x, kind, shop in ((14, "fish", "market_fish"), (18, "veg", "market_veg"), (22, "rice", "market_rice")):
-        m.prop(f"stall_{kind}", x, 14, 3, 3, solid_from=1)
-        m.obj("shop", (x + 1) * T, 17 * T, T, T, {"shopId": shop})
-
-    def building(x0: int, y0: int, w: int, sprite: str, door_x: int) -> None:
-        m.prop(sprite, x0, y0 - 1, w, 5, solid_from=1, door=(door_x, y0 + 3), base=DIRT)
-        m.fill(door_x, y0 + 4, door_x, y0 + 4, PATH)
-        for x in range(x0, x0 + w):  # no border trees poking through the roof
-            m.put(x, y0 - 1, None)
-    building(16, 1, 6, "shop", 18)
-    m.obj("shop", 18 * T, 4 * T, T, T, {"shopId": "seed_shop"})
-    building(5, 3, 5, "house_a", 7)
-    m.obj("shop", 7 * T, 6 * T, T, T, {"shopId": "grocery"})
-    m.prop("jar", 9, 7, 1, 1)
-    building(30, 3, 5, "house_b", 32)
-    m.obj("shop", 32 * T, 6 * T, T, T, {"shopId": "vehicle_shop"})
-    building(29, 16, 5, "house_c", 31)
-    m.put(13, 11, SIGN)
-    m.obj("quest_board", 13 * T, 11 * T, T, T)
-    for x in range(14, 27, 3):
-        m.put(x, 19, BUSH)
-    m.scatter(TRUNK, 10, (2, 2, 37, 21))
-    m.scatter(BUSH, 6, (2, 2, 37, 21))
-    # road south to Huế, laid after the scatter so the village layout stays the same
-    m.fill(35, 13, 35, 23, PATH)
-    for y in range(13, 24):
-        m.put(35, y, None)
-    m.door(34, 23, 3, 1, "Hue", "fromQuangBinh")
-    m.spawn("fromHue", 35, 21)
-    m.door(0, 11, 1, 3, "Farm", "fromTown")
-    m.spawn("fromFarm", 2, 12)
-    m.spawn("default", 2, 12)
-    return m
-
-
-def build_house() -> MapBuilder:
-    m = MapBuilder(16, 12, seed=5)
-    for y in range(12):
-        for x in range(16):
-            m.ground[y][x] = FLOOR if (x + y // 2) % 5 else FLOOR2
-    for x in range(16):
-        m.put(x, 0, IWALL); m.put(x, 1, WALLPAPER); m.put(x, 2, WAINSCOT); m.put(x, 11, IWALL)
-    for y in range(12):
-        m.put(0, y, IWALL); m.put(15, y, IWALL)
-    m.put(8, 11, None); m.ground[11][8] = DOOR
-    m.prop("window", 2, 1, 2, 1, solid_from=None, layer="wall")
-    m.prop("painting", 11, 1, 1, 1, solid_from=None, layer="wall")
-    m.prop("window", 12, 1, 2, 1, solid_from=None, layer="wall")
-    m.prop("bed", 1, 3, 2, 2)
-    m.obj("bed", 1 * T, 3 * T, 2 * T, 2 * T)
-    m.prop("plant", 3, 3, 1, 1)
-    m.prop("bookshelf", 5, 3, 2, 1)
-    m.prop("tea_cabinet", 8, 3, 2, 1)
-    m.prop("dish_cabinet", 12, 3, 2, 1)
-    m.prop("kitchen_stove", 14, 3, 1, 1)
-    m.prop("rug", 5, 6, 3, 2, solid_from=None, layer="floor")
-    m.prop("table", 10, 7, 2, 1)
-    m.prop("chair", 9, 7, 1, 1)
-    m.prop("chair", 12, 7, 1, 1)
-    m.prop("plant", 14, 10, 1, 1)
-    m.prop("plant", 1, 10, 1, 1)
-    m.door(8, 11, 1, 1, "Farm", "fromHouse")
-    m.spawn("fromFarm", 8, 10)
-    m.spawn("default", 3, 5)
-    return m
-
-
 def make_maps() -> None:
     out = ASSETS / "maps"
     out.mkdir(parents=True, exist_ok=True)
     from .world_maps import WORLD_MAPS
-    for name, builder in (("farm", build_farm), ("town", build_town), ("house", build_house), *WORLD_MAPS):
-        # compact JSON: the province maps are 224x140 tiles
+    for name, builder in WORLD_MAPS:
+        # compact JSON: the world maps are 425x425 tiles
         (out / f"{name}.tmj").write_text(json.dumps(builder().to_tmj(), separators=(",", ":")))

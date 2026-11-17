@@ -2,31 +2,18 @@
   "positions": {
     "QuangBinh": {
       "x": 0,
-      "y": -425
-    },
-    "Farm": {
-      "x": 0,
       "y": 0
     },
-    "Town": {
-      "x": 64,
-      "y": 12
-    },
     "Hue": {
-      "x": 88,
-      "y": 36
+      "x": 20,
+      "y": 425
     }
   },
   "anchors": {
-    "House": {
-      "map": "Farm",
-      "x": 11,
-      "y": 9
-    },
     "Mine": {
-      "map": "Farm",
-      "x": 51,
-      "y": 5
+      "map": "QuangBinh",
+      "x": 149,
+      "y": 182
     }
   }
 }
