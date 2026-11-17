@@ -566,6 +566,41 @@
     "type": "image",
     "key": "tree_mangrove",
     "url": "sprites/trees/mangrove.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_quang_binh_quan",
+    "url": "sprites/props/quang_binh_quan.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_cable_bridge",
+    "url": "sprites/props/cable_bridge.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_buffalo",
+    "url": "sprites/props/buffalo.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_hot_spring",
+    "url": "sprites/props/hot_spring.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_memorial_house",
+    "url": "sprites/props/memorial_house.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_race_boat",
+    "url": "sprites/props/race_boat.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_hat_stall",
+    "url": "sprites/props/hat_stall.png"
    }
   ]
  }

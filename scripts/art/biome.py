@@ -75,6 +75,13 @@ class Regions:
             self.biome[r] = biome
         return r
 
+    def force_area(self, area: tuple[int, int, int, int], biome: str) -> None:
+        """Every region whose centre lies in the rectangle (and isn't set yet) gets this biome."""
+        x0, y0, x1, y1 = area
+        for r, (cx, cy) in enumerate(self.centers):
+            if r not in self.biome and x0 <= cx <= x1 and y0 <= cy <= y1:
+                self.biome[r] = biome
+
     def assign(self, recipe: list[tuple[str, int, Score]], default: str = "grass") -> None:
         """Gives each biome its count of the free regions that score best for it."""
         for biome, n, score in recipe:
