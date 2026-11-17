@@ -124,13 +124,18 @@ def lotus(im: Image.Image, rnd: random.Random) -> None:
 
 
 def paving(im: Image.Image, rnd: random.Random) -> None:
-    """Worn grey-ochre paving stones."""
-    rect(im, 0, 0, T - 1, T - 1, (176, 164, 140))
-    for y0, x0s in ((0, (0, 9)), (8, (4, 12))):
-        rect(im, 0, y0, T - 1, y0, (130, 120, 104))
-        for x0 in x0s:
-            rect(im, x0, y0, x0, y0 + 7, (130, 120, 104))
-    sprinkle(im, rnd, 14, [(196, 184, 160), (158, 146, 124)])
+    """Cobblestones: rounded stones of slightly different greys, lit from the top-left, with dark joints."""
+    rect(im, 0, 0, T - 1, T - 1, (138, 130, 120))
+    stones = [(2, 2, 4, 3), (8, 1, 6, 4), (0, 7, 5, 4), (6, 6, 5, 4), (12, 6, 4, 4), (2, 12, 6, 4), (9, 11, 6, 4)]
+    for x, y, w, h in stones:
+        base = rnd.choice([(196, 188, 174), (186, 180, 170), (204, 194, 178), (180, 176, 172)])
+        for yy in range(y, y + h - 1):
+            for xx in range(x, x + w - 1):
+                corner = (xx in (x, x + w - 2)) and (yy in (y, y + h - 2))
+                if not corner:
+                    put(im, xx % T, yy % T, base)
+        put(im, (x + 1) % T, y % T, tuple(min(255, c + 30) for c in base))      # highlight
+        rect(im, x + 1, y + h - 2, x + w - 3, y + h - 2, tuple(int(c * 0.88) for c in base))
 
 
 def paddy(im: Image.Image, rnd: random.Random) -> None:
