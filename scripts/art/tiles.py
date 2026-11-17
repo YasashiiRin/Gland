@@ -12,9 +12,10 @@ import random
 from PIL import Image
 
 from .common import P, T, disc, new, outline, put, rect, save, shade, soft_shadow, sprinkle
+from .province_tiles import PROVINCE_COLLIDES, province_tile
 
 COLS = 8
-ROWS = 8
+ROWS = 9
 
 (GRASS, GRASS2, FLOWERS, PATH, WATER, FENCE, TRUNK, CANOPY,
  ROCK, WALL, ROOF, DOOR, FLOOR, IWALL, BED_TOP, BED_BOTTOM,
@@ -25,7 +26,7 @@ BLOCK, DIRT, WALLPAPER, WAINSCOT, FOREST, FLOOR2, GRASS3, STONE_FLOOR = range(56
 
 COLLIDES = ([WATER, FENCE, TRUNK, ROCK, WALL, ROOF, IWALL, BED_TOP, BED_BOTTOM, TABLE, WINDOW,
              BUSH, SIGN, SHOPWALL, BLOCK, WALLPAPER, WAINSCOT, FOREST]
-            + list(range(WATER_EDGE, WATER_EDGE + 16)))
+            + list(range(WATER_EDGE, WATER_EDGE + 16)) + PROVINCE_COLLIDES)
 
 N, E, S, W = 1, 2, 4, 8
 
@@ -217,6 +218,9 @@ def doormat(im: Image.Image, rnd: random.Random) -> None:
 
 
 def tile_img(idx: int, rnd: random.Random) -> Image.Image:
+    extra = province_tile(idx, rnd)
+    if extra is not None:
+        return extra
     im = new(T, T)
     if idx in (GRASS, GRASS2, FLOWERS, GRASS3):
         grass(im, rnd)

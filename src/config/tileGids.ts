@@ -24,11 +24,28 @@ export const TILE_GID = {
   /** Border-forest tree: drawn as a tree sprite like TRUNK, but not choppable. */
   FOREST: 61,
   GRASS3: 63,
+  // Province scenery (scripts/art/province_tiles.py)
+  SAND: 65,
+  SAND2: 66,
+  SEA: 67,
+  /** Sea meeting the beach: foam over wet sand. */
+  SURF: 68,
+  TEA: 69,
+  BRIDGE: 70,
+  CLIFF: 71,
+  /** Planted tree drawn with the map's orchardTree sprite (not choppable). */
+  ORCHARD: 72,
 } as const;
+
+/** Decor tiles that stand for a tree sprite (and count as "trees" for the ghosts). */
+export function isTreeGid(gid: number | undefined): boolean {
+  return gid === TILE_GID.TRUNK || gid === TILE_GID.FOREST || gid === TILE_GID.ORCHARD;
+}
 
 export const TILLABLE_GIDS: readonly number[] = [TILE_GID.GRASS, TILE_GID.GRASS2, TILE_GID.FLOWERS, TILE_GID.GRASS3];
 
-/** Plain water or any of its bank variants — anything you can fish in. */
+/** Water (with any bank variant) or the sea — anything you can fish in. */
 export function isWaterGid(gid: number | undefined): boolean {
+  if (gid === TILE_GID.SEA || gid === TILE_GID.SURF) return true;
   return gid === TILE_GID.WATER || (gid !== undefined && gid >= TILE_GID.WATER_EDGE_FIRST && gid <= TILE_GID.WATER_EDGE_LAST);
 }

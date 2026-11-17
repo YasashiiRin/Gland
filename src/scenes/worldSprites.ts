@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
 import { TILE } from '../config/constants';
-import { TILE_GID } from '../config/tileGids';
+import { isTreeGid, TILE_GID } from '../config/tileGids';
 
 /**
  * Tree sprite keys (generated into public/assets/sprites/trees, loaded via
  * pack.json). The border forest is mostly bamboo hedges and areca palms, as
  * around a Vietnamese village; choppable trees are broadleaf or banana.
  */
-const FOREST_TEXTURES = ['tree_bamboo', 'tree_bamboo', 'tree_areca', 'tree_bamboo', 'tree_oak_1'] as const;
+const FOREST_TEXTURES: readonly string[] = ['tree_bamboo', 'tree_bamboo', 'tree_areca', 'tree_bamboo', 'tree_oak_1'];
 const CHOPPABLE_TEXTURES = ['tree_oak_0', 'tree_oak_1', 'tree_banana'] as const;
 /** Where the trunk base sits inside the 48x64 tree sprite. */
 const TREE_BASE_Y = 60;
@@ -58,12 +58,22 @@ export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap): 
 export class TreeSprites {
   private readonly sprites = new Map<string, Phaser.GameObjects.Image>();
 
-  constructor(private readonly scene: Phaser.Scene, decor: Phaser.Tilemaps.TilemapLayer) {
+  /** `looks` picks the map's own border-forest and orchard sprites (see maps.json). */
+  constructor(
+    private readonly scene: Phaser.Scene,
+    decor: Phaser.Tilemaps.TilemapLayer,
+    looks: { forestTrees?: readonly string[]; orchardTree?: string } = {},
+  ) {
     decor.forEachTile((tile) => {
-      if (tile.index !== TILE_GID.TRUNK && tile.index !== TILE_GID.FOREST) return;
+      if (!isTreeGid(tile.index)) return;
       const h = tileHash(tile.x, tile.y);
       const forest = tile.index === TILE_GID.FOREST;
-      const pool: readonly string[] = forest ? FOREST_TEXTURES : CHOPPABLE_TEXTURES;
+      const pool: readonly string[] =
+        tile.index === TILE_GID.ORCHARD
+          ? [looks.orchardTree ?? 'tree_oak_0']
+          : forest
+            ? (looks.forestTrees ?? FOREST_TEXTURES)
+            : CHOPPABLE_TEXTURES;
       const texture = pool[h % pool.length];
       if (!scene.textures.exists(texture)) return;
       const jitterX = forest ? (h % 7) - 3 : 0;

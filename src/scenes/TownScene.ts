@@ -40,8 +40,8 @@ export class TownScene extends MapScene {
     super('Town');
   }
 
-  protected override defaultFacing(): Direction {
-    return 'right';
+  protected override defaultFacing(spawn?: string): Direction {
+    return spawn === 'fromQuangTri' ? 'up' : 'right';
   }
 
   protected override get isOutdoor(): boolean {

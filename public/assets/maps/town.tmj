@@ -10,7 +10,7 @@
  "tileheight": 16,
  "infinite": false,
  "nextlayerid": 5,
- "nextobjectid": 21,
+ "nextobjectid": 23,
  "layers": [
   {
    "id": 1,
@@ -538,7 +538,7 @@
     46,
     46,
     46,
-    46,
+    42,
     46,
     46,
     46,
@@ -578,7 +578,7 @@
     1,
     1,
     1,
-    2,
+    51,
     63,
     1,
     1,
@@ -618,7 +618,7 @@
     1,
     1,
     2,
-    1,
+    51,
     1,
     1,
     2,
@@ -658,7 +658,7 @@
     1,
     2,
     1,
-    1,
+    51,
     2,
     1,
     1,
@@ -698,7 +698,7 @@
     58,
     58,
     1,
-    2,
+    51,
     1,
     1,
     1,
@@ -738,7 +738,7 @@
     58,
     58,
     1,
-    1,
+    51,
     1,
     1,
     1,
@@ -778,7 +778,7 @@
     58,
     58,
     3,
-    1,
+    51,
     63,
     1,
     2,
@@ -818,7 +818,7 @@
     58,
     58,
     1,
-    1,
+    51,
     1,
     1,
     1,
@@ -858,7 +858,7 @@
     2,
     2,
     1,
-    1,
+    51,
     1,
     1,
     1,
@@ -898,7 +898,7 @@
     1,
     2,
     1,
-    1,
+    51,
     2,
     1,
     1,
@@ -938,7 +938,7 @@
     63,
     2,
     3,
-    2,
+    51,
     1,
     1,
     1,
@@ -978,7 +978,7 @@
     2,
     1,
     1,
-    1,
+    51,
     1,
     1,
     63,
@@ -1950,9 +1950,9 @@
     61,
     61,
     61,
-    61,
-    61,
-    61,
+    0,
+    0,
+    0,
     61,
     61,
     61
@@ -3294,6 +3294,41 @@
      "id": 18,
      "name": "door",
      "type": "",
+     "x": 544,
+     "y": 368,
+     "width": 48,
+     "height": 16,
+     "rotation": 0,
+     "visible": true,
+     "properties": [
+      {
+       "name": "to",
+       "type": "string",
+       "value": "QuangTri"
+      },
+      {
+       "name": "spawn",
+       "type": "string",
+       "value": "fromQuangBinh"
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "name": "spawn_fromQuangTri",
+     "type": "",
+     "x": 568.0,
+     "y": 344.0,
+     "width": 0,
+     "height": 0,
+     "rotation": 0,
+     "visible": true,
+     "point": true
+    },
+    {
+     "id": 20,
+     "name": "door",
+     "type": "",
      "x": 0,
      "y": 176,
      "width": 16,
@@ -3314,7 +3349,7 @@
      ]
     },
     {
-     "id": 19,
+     "id": 21,
      "name": "spawn_fromFarm",
      "type": "",
      "x": 40.0,
@@ -3326,7 +3361,7 @@
      "point": true
     },
     {
-     "id": 20,
+     "id": 22,
      "name": "spawn_default",
      "type": "",
      "x": 40.0,
@@ -3346,11 +3381,11 @@
    "name": "farm_tiles",
    "image": "../tilesets/farm_tiles.png",
    "imagewidth": 128,
-   "imageheight": 128,
+   "imageheight": 144,
    "tilewidth": 16,
    "tileheight": 16,
    "columns": 8,
-   "tilecount": 64,
+   "tilecount": 72,
    "margin": 0,
    "spacing": 0,
    "tiles": [
@@ -3686,6 +3721,56 @@
     },
     {
      "id": 39,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 66,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 67,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 68,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 70,
+     "properties": [
+      {
+       "name": "collides",
+       "type": "bool",
+       "value": true
+      }
+     ]
+    },
+    {
+     "id": 71,
      "properties": [
       {
        "name": "collides",

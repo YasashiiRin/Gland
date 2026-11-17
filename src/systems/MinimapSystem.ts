@@ -20,6 +20,10 @@ const COLORS = {
   wood: 0x8a6a48,
   floor: 0xa0724a,
   wall: 0x4a3428,
+  sand: 0xd8c08a,
+  sea: 0x2f6e92,
+  tea: 0x5e8a3e,
+  cliff: 0x9a4a36,
 } as const;
 
 const GROUND_COLORS: Record<number, number> = {
@@ -30,11 +34,19 @@ const GROUND_COLORS: Record<number, number> = {
   13: COLORS.floor,
   62: COLORS.floor,
   64: COLORS.path,
+  [TILE_GID.SAND]: COLORS.sand,
+  [TILE_GID.SAND2]: COLORS.sand,
+  [TILE_GID.SEA]: COLORS.sea,
+  [TILE_GID.SURF]: COLORS.sea,
+  [TILE_GID.TEA]: COLORS.tea,
+  [TILE_GID.BRIDGE]: COLORS.wood,
+  [TILE_GID.CLIFF]: COLORS.cliff,
 };
 
 const DECOR_COLORS: Record<number, number> = {
   [TILE_GID.TRUNK]: COLORS.tree,
   [TILE_GID.FOREST]: COLORS.forest,
+  [TILE_GID.ORCHARD]: COLORS.tree,
   [TILE_GID.ROCK]: COLORS.rock,
   [TILE_GID.BUSH]: COLORS.weed,
   [TILE_GID.BLOCK]: COLORS.building,
@@ -52,10 +64,10 @@ const PATH_EDGE_LAST = 56;
 /** Picks the minimap color of one tile from its ground and decor tile ids (0/undefined = none). */
 export function minimapColor(groundGid: number | undefined, decorGid: number | undefined): number {
   if (decorGid && DECOR_COLORS[decorGid] !== undefined) return DECOR_COLORS[decorGid];
-  if (isWaterGid(groundGid)) return COLORS.water;
   if (groundGid !== undefined) {
-    if (groundGid >= PATH_EDGE_FIRST && groundGid <= PATH_EDGE_LAST) return COLORS.path;
     if (GROUND_COLORS[groundGid] !== undefined) return GROUND_COLORS[groundGid];
+    if (isWaterGid(groundGid)) return COLORS.water;
+    if (groundGid >= PATH_EDGE_FIRST && groundGid <= PATH_EDGE_LAST) return COLORS.path;
   }
   return COLORS.grass;
 }

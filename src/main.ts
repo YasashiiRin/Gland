@@ -9,6 +9,8 @@ import { LobbyScene } from './scenes/LobbyScene';
 import { net } from './net/NetSession';
 import { MineScene } from './scenes/MineScene';
 import { PreloadScene } from './scenes/PreloadScene';
+import { ProvinceScene } from './scenes/ProvinceScene';
+import { PROVINCE_MAP_KEYS } from './data/maps';
 import { TitleScene } from './scenes/TitleScene';
 import { TownScene } from './scenes/TownScene';
 import { UIScene } from './scenes/UIScene';
@@ -33,7 +35,18 @@ const game = new Phaser.Game({
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   // UI must come last so it draws on top of the map scenes.
-  scene: [BootScene, TitleScene, LobbyScene, PreloadScene, FarmScene, HouseScene, TownScene, MineScene, UIScene],
+  scene: [
+    BootScene,
+    TitleScene,
+    LobbyScene,
+    PreloadScene,
+    FarmScene,
+    HouseScene,
+    TownScene,
+    MineScene,
+    ...PROVINCE_MAP_KEYS.map((key) => new ProvinceScene(key)),
+    UIScene,
+  ],
 });
 
 // Fill the screen: when the window (or phone orientation, or fullscreen)

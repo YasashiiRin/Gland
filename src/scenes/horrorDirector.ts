@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { TILE } from '../config/constants';
-import { isWaterGid } from '../config/tileGids';
+import { isTreeGid, isWaterGid } from '../config/tileGids';
 import type { Player } from '../entities/Player';
 import { EventBus, GameEvents, type HorrorScreenPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
@@ -15,7 +15,6 @@ import {
   WHISPERS,
   type HorrorEventId,
 } from '../systems/HorrorSystem';
-import { TILE_GID } from '../config/tileGids';
 import { startPanic } from '../state/playerStats';
 import { rollPanic, scareLoss } from '../systems/SanitySystem';
 import { consume } from '../systems/EnergySystem';
@@ -92,7 +91,7 @@ export class HorrorDirector {
     for (let y = py - r; y <= py + r; y++) {
       for (let x = px - r; x <= px + r; x++) {
         const gid = this.decor.getTileAt(x, y)?.index;
-        if (gid === TILE_GID.TRUNK || gid === TILE_GID.FOREST) n++;
+        if (isTreeGid(gid)) n++;
       }
     }
     return n;

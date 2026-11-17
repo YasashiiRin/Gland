@@ -424,10 +424,14 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - Tinh thần (SanitySystem): mỗi lần bị hù mất 12, 16, 20… (tối đa 30) trong đêm; mỗi 10% mất → −3% tốc chạy; 35% bị "mất kiểm soát" (60% hoặc 80% tốc độ trong 2 giây); ban ngày hồi 3%/giờ.
 - Tinh thần < 15% (chế độ kinh dị "Bật", ban đêm): ma đuổi theo tấn công, mỗi đòn mất 5%, 10%, 15%… (tối đa 25%) máu và 5% năng lượng. Hết máu → ngất, tỉnh ở nhà với 30% máu/tinh thần, mất 10% tiền (tối đa 1000 ₫).
 
-### Việc chờ làm: 10 bản đồ miền Trung (chưa bắt đầu)
+### 10 bản đồ miền Trung (đang làm — xong đợt 1/3)
 - 10 tỉnh theo tên cũ (trước sáp nhập 2025), nối từ Bắc vào Nam: Thanh Hóa → Nghệ An → Hà Tĩnh → Quảng Bình → Quảng Trị → Huế → Đà Nẵng → Quảng Nam (Hội An) → Quảng Ngãi → Bình Định.
 - Nông trại và thị trấn hiện tại nằm ở **Quảng Bình**.
 - Bước đầu chỉ làm phong cảnh đặc trưng từng vùng, chưa có cửa hàng hay đặc sản.
+- Cách thêm một tỉnh: thêm mục vào `src/data/maps.json` (`province`, `forestTrees`, `orchardTree`), viết hàm dựng map trong `scripts/art/province_maps.py`, vẽ sprite riêng trong `scripts/art/provinces.py`, chạy `python3 scripts/gen_placeholders.py`. Mỗi map không có scene riêng sẽ tự chạy bằng `ProvinceScene`.
+- [x] Đợt 1: khung chung + **Hà Tĩnh** (núi Hồng Lĩnh, chùa trên sườn núi, đồi chè Hương Sơn, hồ Kẻ Gỗ, vườn bưởi Phúc Trạch, biển Thiên Cầm) — đi lên từ mép bắc nông trại; **Quảng Trị** (sông Bến Hải, cầu Hiền Lương sơn hai màu, cột cờ, mỏm đá đỏ Cửa Tùng, rừng cao su) — đi xuống từ mép nam làng. Có ô cát, biển (câu cá được), hàng chè, ván cầu, cây phi lao, thuyền thúng.
+- [ ] Đợt 2: Huế, Đà Nẵng, Quảng Nam (Hội An) — nối tiếp từ mép nam Quảng Trị (đang có biển chỉ đường).
+- [ ] Đợt 3: Thanh Hóa, Nghệ An (nối từ mép bắc Hà Tĩnh), Quảng Ngãi, Bình Định.
 
 ### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)
 Ý tưởng của người chơi (tóm tắt):

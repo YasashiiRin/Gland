@@ -153,7 +153,7 @@ class MapBuilder:
 def build_farm() -> MapBuilder:
     m = MapBuilder(64, 48, seed=11)
     m.grass_variation()
-    m.forest_border({(x, y) for x in (62, 63) for y in range(23, 27)})
+    m.forest_border({(x, y) for x in (62, 63) for y in range(23, 27)} | {(x, y) for x in range(30, 34) for y in (0, 1)})
     # farmhouse (7x6 sprite at 8,4), door at (11,9)
     m.prop("farmhouse", 8, 4, 7, 6, solid_from=1, door=(11, 9), base=DIRT)
     m.door(11, 9, 1, 1, "House", "fromFarm")
@@ -193,6 +193,12 @@ def build_farm() -> MapBuilder:
     m.scatter(ROCK, 26, (12, 12, 60, 44), avoid=starter)
     m.scatter(BUSH, 70, (10, 12, 60, 44), avoid=starter)
     m.scatter(BUSH, 4, starter)
+    # road north to Hà Tĩnh, laid after the scatter so the field layout stays the same
+    m.fill(31, 0, 32, 23, PATH)
+    for y in range(0, 24):
+        m.put(31, y, None); m.put(32, y, None)
+    m.door(30, 0, 4, 1, "HaTinh", "fromQuangBinh")
+    m.spawn("fromHaTinh", 31, 2)
     m.door(63, 23, 1, 4, "Town", "fromFarm")
     m.spawn("default", 11, 11)
     m.spawn("fromHouse", 11, 10)
@@ -204,7 +210,7 @@ def build_farm() -> MapBuilder:
 def build_town() -> MapBuilder:
     m = MapBuilder(40, 24, seed=23)
     m.grass_variation()
-    m.forest_border({(0, y) for y in (11, 12, 13)}, depth=1)
+    m.forest_border({(0, y) for y in (11, 12, 13)} | {(x, 23) for x in range(34, 37)}, depth=1)
     m.fill(0, 12, 39, 12, PATH)
     m.fill(14, 6, 26, 18, PATH)
     m.prop("well", 19, 11, 2, 2, solid_from=1)      # village well in the square
@@ -233,6 +239,12 @@ def build_town() -> MapBuilder:
         m.put(x, 19, BUSH)
     m.scatter(TRUNK, 10, (2, 2, 37, 21))
     m.scatter(BUSH, 6, (2, 2, 37, 21))
+    # road south to Quảng Trị, laid after the scatter so the village layout stays the same
+    m.fill(35, 13, 35, 23, PATH)
+    for y in range(13, 24):
+        m.put(35, y, None)
+    m.door(34, 23, 3, 1, "QuangTri", "fromQuangBinh")
+    m.spawn("fromQuangTri", 35, 21)
     m.door(0, 11, 1, 3, "Farm", "fromTown")
     m.spawn("fromFarm", 2, 12)
     m.spawn("default", 2, 12)
@@ -274,5 +286,6 @@ def build_house() -> MapBuilder:
 def make_maps() -> None:
     out = ASSETS / "maps"
     out.mkdir(parents=True, exist_ok=True)
-    for name, builder in (("farm", build_farm), ("town", build_town), ("house", build_house)):
+    from .province_maps import PROVINCE_MAPS
+    for name, builder in (("farm", build_farm), ("town", build_town), ("house", build_house), *PROVINCE_MAPS):
         (out / f"{name}.tmj").write_text(json.dumps(builder().to_tmj(), indent=1))

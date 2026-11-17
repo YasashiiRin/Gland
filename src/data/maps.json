@@ -2,16 +2,47 @@
   "Farm": {
     "file": "farm",
     "displayName": "Nông trại",
-    "outdoor": true
+    "outdoor": true,
+    "province": "Quảng Bình"
   },
   "House": {
     "file": "house",
     "displayName": "Nhà của bạn",
-    "outdoor": false
+    "outdoor": false,
+    "province": "Quảng Bình"
   },
   "Town": {
     "file": "town",
     "displayName": "Làng",
-    "outdoor": true
+    "outdoor": true,
+    "province": "Quảng Bình"
+  },
+  "HaTinh": {
+    "file": "ha_tinh",
+    "displayName": "Hà Tĩnh",
+    "province": "Hà Tĩnh",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_bamboo",
+      "tree_oak_1",
+      "tree_areca",
+      "tree_bamboo",
+      "tree_oak_0"
+    ],
+    "orchardTree": "tree_pomelo"
+  },
+  "QuangTri": {
+    "file": "quang_tri",
+    "displayName": "Quảng Trị",
+    "province": "Quảng Trị",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_bamboo",
+      "tree_oak_1",
+      "tree_rubber",
+      "tree_bamboo",
+      "tree_areca"
+    ],
+    "orchardTree": "tree_rubber"
   }
 }

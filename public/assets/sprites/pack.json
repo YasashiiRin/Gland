@@ -331,6 +331,56 @@
     "type": "image",
     "key": "vendor_rice",
     "url": "sprites/npcs/vendor_rice.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_casuarina",
+    "url": "sprites/trees/casuarina.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_pomelo",
+    "url": "sprites/trees/pomelo.png"
+   },
+   {
+    "type": "image",
+    "key": "tree_rubber",
+    "url": "sprites/trees/rubber.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_mountain",
+    "url": "sprites/props/mountain.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_pagoda",
+    "url": "sprites/props/pagoda.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_river_bridge",
+    "url": "sprites/props/river_bridge.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_flag_tower",
+    "url": "sprites/props/flag_tower.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_basket_boat",
+    "url": "sprites/props/basket_boat.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_red_cliff",
+    "url": "sprites/props/red_cliff.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_casuarina",
+    "url": "sprites/trees/casuarina.png"
    }
   ]
  }

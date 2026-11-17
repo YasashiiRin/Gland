@@ -180,7 +180,7 @@ export abstract class MapScene extends Phaser.Scene {
       .setVisible(false);
     this.applyResourceNodeVisuals();
     createProps(this, this.map);
-    this.trees = new TreeSprites(this, decor);
+    this.trees = new TreeSprites(this, decor, info);
     if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.afterMapBuilt();
@@ -445,7 +445,7 @@ export abstract class MapScene extends Phaser.Scene {
     return false;
   }
 
-  private findSpawn(id: string): { x: number; y: number } {
+  protected findSpawn(id: string): { x: number; y: number } {
     const objects = this.map.getObjectLayer('objects')?.objects ?? [];
     const match =
       objects.find((o) => o.name === `spawn_${id}`) ?? objects.find((o) => o.name === 'spawn_default');
