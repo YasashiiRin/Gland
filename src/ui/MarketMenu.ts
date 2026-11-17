@@ -3,6 +3,7 @@ import { ITEMS, type ItemId } from '../data/items';
 import { SHOPS, type ShopId } from '../data/shops';
 import type { InventoryState } from '../systems/InventorySystem';
 import { marketBuyPrice, marketSellPrice, stallBuys } from '../systems/ShopSystem';
+import { artScale } from '../scenes/hd';
 import { iconTextureKey } from './itemIcons';
 import { UI_COLORS, UI_FONT } from './uiStyle';
 
@@ -80,7 +81,8 @@ export class MarketMenu {
 
     // Vendor and speech bubble.
     const frame = scene.add.rectangle(left + 82, top + 150, 116, 150, 0x8a5a34).setStrokeStyle(3, UI_COLORS.edge);
-    this.vendor = scene.add.image(left + 82, top + 230, 'vendor_fish').setOrigin(0.5, 1).setScale(5).setCrop(0, 0, 16, 22);
+    const k = artScale(scene, 'vendor_fish'); // HD vendors are drawn at x2
+    this.vendor = scene.add.image(left + 82, top + 230, 'vendor_fish').setOrigin(0.5, 1).setScale(5 / k).setCrop(0, 0, 16 * k, 22 * k);
     this.bubble = scene.add
       .text(left + 24, top + 236, '', { fontFamily: UI_FONT, fontSize: '13px', color: '#2b1a10', backgroundColor: '#fffaf0', wordWrap: { width: 132 } })
       .setPadding(8, 6, 8, 6);

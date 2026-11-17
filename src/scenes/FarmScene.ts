@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hdScale } from './hd';
 import { digsWorm } from '../systems/FishSpawnSystem';
 import { FADE_MS, TILE } from '../config/constants';
 import type { MineSceneData } from './MineScene';
@@ -99,7 +100,7 @@ export class FarmScene extends MapScene {
       // A placed object uses its own sprite if one exists (e.g. the carpenter bench), else its item icon.
       const propKey = `prop_${obj.kind}`;
       const sprite = this.textures.exists(propKey)
-        ? this.add.image(x * TILE + TILE / 2, y * TILE + TILE, propKey).setOrigin(0.5, 1)
+        ? this.add.image(x * TILE + TILE / 2, y * TILE + TILE, propKey).setOrigin(0.5, 1).setScale(hdScale(this, propKey))
         : this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, iconTextureKey(obj.kind as ItemId));
       sprite.setDepth(y * TILE + TILE / 2 - 1);
       this.furnitureSprites.set(key, sprite);

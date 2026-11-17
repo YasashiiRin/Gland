@@ -496,5 +496,6 @@ nâng cấp dần từng đợt. Lưu ý: ở mức phóng to ×1 hình HD bị 
 - [x] Đợt 2: nhân vật HD 32×64 (người chơi + 4 dân làng: mắt có ánh sáng, lông mày, tóc sợi, nút áo, túi áo bà ba,
       nón lá có vành), con vật HD (gà, heo, bò, trâu, hổ), xe HD (xe máy, máy cày, máy gặt, xe bò: bánh có lốp, vành, nan).
       Ảnh: `docs/previews/hd_nhan_vat.png`, `hd_con_vat_xe.png`, `hd_trong_game.png`.
-- [ ] Đợt 3: nhà cửa, công trình phố, chợ, địa danh ở HD.
+- [x] Đợt 3: nhà cửa, công trình phố, chợ (cả người bán), mọi địa danh ở HD — vẽ lại bằng `scripts/art/hd_canvas.py`
+      (giữ nguyên bố cục, vẽ ở x2: viền mảnh một nửa, hình tròn mượt, mép sáng). Ảnh: `docs/previews/hd_dong_hoi_dot3.png`, `hd_lang_dot3.png`.
 - [ ] Đợt 4: các ô còn lại (ruộng lúa, đầm lầy, đá, tường thành, bờ kè…), cây còn lại (chuối, bưởi, phi lao, phượng, đước…), đồ nội thất, cây trồng.

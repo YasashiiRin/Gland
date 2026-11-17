@@ -15,7 +15,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from art.buildings import make_buildings  # noqa: E402
 from art.common import ASSETS  # noqa: E402
 from art.crops import make_crops  # noqa: E402
 from art.furniture import make_furniture  # noqa: E402
@@ -25,19 +24,10 @@ from art.nature import make_nature  # noqa: E402
 from art.tiles import make_tileset  # noqa: E402
 from art.vn_nature import make_vn_nature  # noqa: E402
 from art.horror import make_horror  # noqa: E402
-from art.market import make_market  # noqa: E402
-from art.provinces import make_province_art  # noqa: E402
-from art.landmarks_hue_danang import make_hue_danang_art  # noqa: E402
-from art.landmarks_hoi_an import make_hoi_an_art  # noqa: E402
-from art.landmarks_north import make_north_landmarks  # noqa: E402
-from art.landmarks_south import make_south_landmarks  # noqa: E402
 from art.extra_trees import make_extra_trees  # noqa: E402
-from art.landmarks_qb import make_qb_landmarks  # noqa: E402
-from art.landmarks_qb2 import make_qb2_landmarks  # noqa: E402
-from art.town_buildings import make_town_buildings  # noqa: E402
-from art.town_props import make_town_props  # noqa: E402
 from art.trees_hd import HD_SPRITES, make_trees_hd  # noqa: E402
 from art.characters_hd import make_characters_hd  # noqa: E402
+from art.buildings_hd import make_buildings_hd  # noqa: E402
 from art.animals_hd import make_animals_hd  # noqa: E402
 from art.vehicles_hd import make_vehicles_hd  # noqa: E402
 
@@ -45,7 +35,7 @@ from art.vehicles_hd import make_vehicles_hd  # noqa: E402
 def main() -> None:
     make_tileset()
     make_mine_tileset()
-    files = make_characters_hd() + make_nature() + make_buildings() + make_furniture() + make_crops() + make_vehicles_hd() + make_vn_nature() + make_horror() + make_market() + make_province_art() + make_hue_danang_art() + make_hoi_an_art() + make_north_landmarks() + make_south_landmarks() + make_extra_trees() + make_qb_landmarks() + make_qb2_landmarks() + make_town_buildings() + make_town_props() + make_animals_hd()
+    files = make_characters_hd() + make_buildings_hd() + make_nature() + make_furniture() + make_crops() + make_vehicles_hd() + make_vn_nature() + make_horror() + make_extra_trees() + make_animals_hd()
     make_trees_hd()  # graphics x2: these overwrite the 1x tree PNGs
     for f in files:
         if f["key"] in HD_SPRITES:

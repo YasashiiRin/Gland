@@ -40,6 +40,7 @@ for y in range(y0,y1):
             img.paste(im,(px,py),im)
 pack=json.load(open(R+'sprites/pack.json'))['generated']['files']
 url={f['key']:f['url'] for f in pack if 'url' in f}
+hd={f['key'] for f in pack if f.get('hd')}
 props=[o for o in L['objects']['objects'] if o['name']=='prop']
 props.sort(key=lambda o:(0 if any(p['value']=='floor' for p in o.get('properties',[])) else 1, o['y']+o['height']))
 for o in props:
@@ -48,10 +49,10 @@ for o in props:
     if not (x0-12<tx<x1 and y0-12<ty<y1+12): continue
     try: im=Image.open(R+url['prop_'+key]).convert('RGBA')
     except Exception: continue
-    sc=s/16; w,h=max(1,int(im.width*sc)),max(1,int(im.height*sc))
+    sc=s/16/(2 if 'prop_'+key in hd else 1); w,h=max(1,int(im.width*sc)),max(1,int(im.height*sc))
     im=im.resize((w,h),Image.BOX if s<16 else Image.NEAREST)
     # sprite bottom aligned to footprint bottom, centered
-    px=int((tx-x0)*s+o['width']*sc/2-w/2); py=int((ty-y0)*s+o['height']*sc-h)
+    px=int((tx-x0)*s+o['width']*s/32-w/2); py=int((ty-y0)*s+o['height']*s/16-h)
     img.alpha_composite(im,(px,py)) if px>=0 and py>=0 else img.paste(im,(px,py),im)
 img.convert('RGB').save(out)
 print(img.size)

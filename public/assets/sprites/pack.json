@@ -53,6 +53,534 @@
    },
    {
     "type": "image",
+    "key": "prop_farmhouse",
+    "url": "sprites/props/farmhouse.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shop",
+    "url": "sprites/props/shop.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_a",
+    "url": "sprites/props/house_a.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_b",
+    "url": "sprites/props/house_b.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_c",
+    "url": "sprites/props/house_c.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_warehouse",
+    "url": "sprites/props/warehouse.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_stall_fish",
+    "url": "sprites/props/stall_fish.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "vendor_fish",
+    "url": "sprites/npcs/vendor_fish.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_stall_veg",
+    "url": "sprites/props/stall_veg.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "vendor_veg",
+    "url": "sprites/npcs/vendor_veg.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_stall_rice",
+    "url": "sprites/props/stall_rice.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "vendor_rice",
+    "url": "sprites/npcs/vendor_rice.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_casuarina",
+    "url": "sprites/trees/casuarina.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_pomelo",
+    "url": "sprites/trees/pomelo.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_rubber",
+    "url": "sprites/trees/rubber.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_mountain",
+    "url": "sprites/props/mountain.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_pagoda",
+    "url": "sprites/props/pagoda.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_river_bridge",
+    "url": "sprites/props/river_bridge.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_flag_tower",
+    "url": "sprites/props/flag_tower.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_basket_boat",
+    "url": "sprites/props/basket_boat.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_red_cliff",
+    "url": "sprites/props/red_cliff.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_casuarina",
+    "url": "sprites/trees/casuarina.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_ngo_mon",
+    "url": "sprites/props/ngo_mon.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_royal_hall",
+    "url": "sprites/props/royal_hall.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_thien_mu",
+    "url": "sprites/props/thien_mu.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_truong_tien",
+    "url": "sprites/props/truong_tien.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_dragon_boat",
+    "url": "sprites/props/dragon_boat.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_dragon_bridge",
+    "url": "sprites/props/dragon_bridge.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_lady_buddha",
+    "url": "sprites/props/lady_buddha.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_marble_mountain",
+    "url": "sprites/props/marble_mountain.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_city_tower",
+    "url": "sprites/props/city_tower.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_hoian_house_a",
+    "url": "sprites/props/hoian_house_a.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_hoian_house_b",
+    "url": "sprites/props/hoian_house_b.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_japanese_bridge",
+    "url": "sprites/props/japanese_bridge.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_lantern_boat",
+    "url": "sprites/props/lantern_boat.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_cham_tower_a",
+    "url": "sprites/props/cham_tower_a.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_cham_tower_b",
+    "url": "sprites/props/cham_tower_b.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_coconut",
+    "url": "sprites/trees/coconut.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_flame",
+    "url": "sprites/trees/flame.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_coconut",
+    "url": "sprites/trees/coconut.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_karst_a",
+    "url": "sprites/props/karst_a.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_karst_b",
+    "url": "sprites/props/karst_b.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_phong_nha_cave",
+    "url": "sprites/props/phong_nha_cave.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_memorial",
+    "url": "sprites/props/memorial.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_royal_tomb",
+    "url": "sprites/props/royal_tomb.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_ho_gate",
+    "url": "sprites/props/ho_gate.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_trong_mai",
+    "url": "sprites/props/trong_mai.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_stilt_house",
+    "url": "sprites/props/stilt_house.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_thatched_house",
+    "url": "sprites/props/thatched_house.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_sampan",
+    "url": "sprites/props/sampan.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_golden_bridge",
+    "url": "sprites/props/golden_bridge.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_water_wheel",
+    "url": "sprites/props/water_wheel.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_salt_pile",
+    "url": "sprites/props/salt_pile.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_crater",
+    "url": "sprites/props/crater.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_sea_arch",
+    "url": "sprites/props/sea_arch.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_twin_towers",
+    "url": "sprites/props/twin_towers.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_granite_rocks",
+    "url": "sprites/props/granite_rocks.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_martial_yard",
+    "url": "sprites/props/martial_yard.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_quang_binh_quan",
+    "url": "sprites/props/quang_binh_quan.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_cable_bridge",
+    "url": "sprites/props/cable_bridge.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_buffalo",
+    "url": "sprites/props/buffalo.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_hot_spring",
+    "url": "sprites/props/hot_spring.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_memorial_house",
+    "url": "sprites/props/memorial_house.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_race_boat",
+    "url": "sprites/props/race_boat.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_hat_stall",
+    "url": "sprites/props/hat_stall.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_station",
+    "url": "sprites/props/station.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_paradise_cave",
+    "url": "sprites/props/paradise_cave.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_signpost",
+    "url": "sprites/props/signpost.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_beach_parasol",
+    "url": "sprites/props/beach_parasol.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_lookout",
+    "url": "sprites/props/lookout.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_waterfall",
+    "url": "sprites/props/waterfall.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_0",
+    "url": "sprites/props/shophouse_0.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_1",
+    "url": "sprites/props/shophouse_1.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_2",
+    "url": "sprites/props/shophouse_2.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_3",
+    "url": "sprites/props/shophouse_3.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_4",
+    "url": "sprites/props/shophouse_4.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_5",
+    "url": "sprites/props/shophouse_5.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_ubnd",
+    "url": "sprites/props/ubnd.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_post_office",
+    "url": "sprites/props/post_office.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_school",
+    "url": "sprites/props/school.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_fruit",
+    "url": "sprites/props/umbrella_fruit.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_veg",
+    "url": "sprites/props/umbrella_veg.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_fish",
+    "url": "sprites/props/umbrella_fish.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_umbrella_flower",
+    "url": "sprites/props/umbrella_flower.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_pagoda_gate",
+    "url": "sprites/props/pagoda_gate.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_ferry_shelter",
+    "url": "sprites/props/ferry_shelter.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_bench",
+    "url": "sprites/props/bench.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_street_lamp",
+    "url": "sprites/props/street_lamp.png",
+    "hd": true
+   },
+   {
+    "type": "image",
     "key": "tree_oak_0",
     "url": "sprites/trees/oak_0.png",
     "hd": true
@@ -78,36 +606,6 @@
     "type": "image",
     "key": "prop_shipping_bin",
     "url": "sprites/props/shipping_bin.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_farmhouse",
-    "url": "sprites/props/farmhouse.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_shop",
-    "url": "sprites/props/shop.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_house_a",
-    "url": "sprites/props/house_a.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_house_b",
-    "url": "sprites/props/house_b.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_house_c",
-    "url": "sprites/props/house_c.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_warehouse",
-    "url": "sprites/props/warehouse.png"
    },
    {
     "type": "image",
@@ -327,420 +825,8 @@
    },
    {
     "type": "image",
-    "key": "prop_stall_fish",
-    "url": "sprites/props/stall_fish.png"
-   },
-   {
-    "type": "image",
-    "key": "vendor_fish",
-    "url": "sprites/npcs/vendor_fish.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_stall_veg",
-    "url": "sprites/props/stall_veg.png"
-   },
-   {
-    "type": "image",
-    "key": "vendor_veg",
-    "url": "sprites/npcs/vendor_veg.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_stall_rice",
-    "url": "sprites/props/stall_rice.png"
-   },
-   {
-    "type": "image",
-    "key": "vendor_rice",
-    "url": "sprites/npcs/vendor_rice.png"
-   },
-   {
-    "type": "image",
-    "key": "tree_casuarina",
-    "url": "sprites/trees/casuarina.png"
-   },
-   {
-    "type": "image",
-    "key": "tree_pomelo",
-    "url": "sprites/trees/pomelo.png"
-   },
-   {
-    "type": "image",
-    "key": "tree_rubber",
-    "url": "sprites/trees/rubber.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_mountain",
-    "url": "sprites/props/mountain.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_pagoda",
-    "url": "sprites/props/pagoda.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_river_bridge",
-    "url": "sprites/props/river_bridge.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_flag_tower",
-    "url": "sprites/props/flag_tower.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_basket_boat",
-    "url": "sprites/props/basket_boat.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_red_cliff",
-    "url": "sprites/props/red_cliff.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_casuarina",
-    "url": "sprites/trees/casuarina.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_ngo_mon",
-    "url": "sprites/props/ngo_mon.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_royal_hall",
-    "url": "sprites/props/royal_hall.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_thien_mu",
-    "url": "sprites/props/thien_mu.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_truong_tien",
-    "url": "sprites/props/truong_tien.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_dragon_boat",
-    "url": "sprites/props/dragon_boat.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_dragon_bridge",
-    "url": "sprites/props/dragon_bridge.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_lady_buddha",
-    "url": "sprites/props/lady_buddha.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_marble_mountain",
-    "url": "sprites/props/marble_mountain.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_city_tower",
-    "url": "sprites/props/city_tower.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_hoian_house_a",
-    "url": "sprites/props/hoian_house_a.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_hoian_house_b",
-    "url": "sprites/props/hoian_house_b.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_japanese_bridge",
-    "url": "sprites/props/japanese_bridge.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_lantern_boat",
-    "url": "sprites/props/lantern_boat.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_cham_tower_a",
-    "url": "sprites/props/cham_tower_a.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_cham_tower_b",
-    "url": "sprites/props/cham_tower_b.png"
-   },
-   {
-    "type": "image",
-    "key": "tree_coconut",
-    "url": "sprites/trees/coconut.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "tree_flame",
-    "url": "sprites/trees/flame.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_coconut",
-    "url": "sprites/trees/coconut.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_karst_a",
-    "url": "sprites/props/karst_a.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_karst_b",
-    "url": "sprites/props/karst_b.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_phong_nha_cave",
-    "url": "sprites/props/phong_nha_cave.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_memorial",
-    "url": "sprites/props/memorial.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_royal_tomb",
-    "url": "sprites/props/royal_tomb.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_ho_gate",
-    "url": "sprites/props/ho_gate.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_trong_mai",
-    "url": "sprites/props/trong_mai.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_stilt_house",
-    "url": "sprites/props/stilt_house.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_thatched_house",
-    "url": "sprites/props/thatched_house.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_sampan",
-    "url": "sprites/props/sampan.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_golden_bridge",
-    "url": "sprites/props/golden_bridge.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_water_wheel",
-    "url": "sprites/props/water_wheel.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_salt_pile",
-    "url": "sprites/props/salt_pile.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_crater",
-    "url": "sprites/props/crater.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_sea_arch",
-    "url": "sprites/props/sea_arch.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_twin_towers",
-    "url": "sprites/props/twin_towers.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_granite_rocks",
-    "url": "sprites/props/granite_rocks.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_martial_yard",
-    "url": "sprites/props/martial_yard.png"
-   },
-   {
-    "type": "image",
     "key": "tree_mangrove",
     "url": "sprites/trees/mangrove.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_quang_binh_quan",
-    "url": "sprites/props/quang_binh_quan.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_cable_bridge",
-    "url": "sprites/props/cable_bridge.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_buffalo",
-    "url": "sprites/props/buffalo.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_hot_spring",
-    "url": "sprites/props/hot_spring.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_memorial_house",
-    "url": "sprites/props/memorial_house.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_race_boat",
-    "url": "sprites/props/race_boat.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_hat_stall",
-    "url": "sprites/props/hat_stall.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_station",
-    "url": "sprites/props/station.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_paradise_cave",
-    "url": "sprites/props/paradise_cave.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_signpost",
-    "url": "sprites/props/signpost.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_beach_parasol",
-    "url": "sprites/props/beach_parasol.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_lookout",
-    "url": "sprites/props/lookout.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_waterfall",
-    "url": "sprites/props/waterfall.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_0",
-    "url": "sprites/props/shophouse_0.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_1",
-    "url": "sprites/props/shophouse_1.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_2",
-    "url": "sprites/props/shophouse_2.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_3",
-    "url": "sprites/props/shophouse_3.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_4",
-    "url": "sprites/props/shophouse_4.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_5",
-    "url": "sprites/props/shophouse_5.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_ubnd",
-    "url": "sprites/props/ubnd.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_post_office",
-    "url": "sprites/props/post_office.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_school",
-    "url": "sprites/props/school.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_umbrella_fruit",
-    "url": "sprites/props/umbrella_fruit.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_umbrella_veg",
-    "url": "sprites/props/umbrella_veg.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_umbrella_fish",
-    "url": "sprites/props/umbrella_fish.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_umbrella_flower",
-    "url": "sprites/props/umbrella_flower.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_pagoda_gate",
-    "url": "sprites/props/pagoda_gate.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_ferry_shelter",
-    "url": "sprites/props/ferry_shelter.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_bench",
-    "url": "sprites/props/bench.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_street_lamp",
-    "url": "sprites/props/street_lamp.png"
    },
    {
     "type": "spritesheet",
