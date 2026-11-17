@@ -6,7 +6,7 @@ import { NPC_IDS, NPCS } from '../data/npcs';
 export function portraitKey(npcId: string): string {
   return `portrait_${npcId}`;
 }
-import { PLAYER_FRAME, PLAYER_TEXTURE } from '../entities/Player';
+import { PLAYER_TEXTURE } from '../entities/Player';
 import { DIRECTIONS } from '../systems/movement';
 import { gameState } from '../state/GameState';
 import { sessionFlags } from '../state/sessionFlags';
@@ -39,10 +39,6 @@ export class PreloadScene extends Phaser.Scene {
     // Every generated sprite (trees, buildings, furniture, crops, villagers) is
     // listed in this pack, so swapping in real art only means replacing PNGs.
     this.load.pack('generated', 'sprites/pack.json');
-    this.load.spritesheet(PLAYER_TEXTURE, 'sprites/player.png', {
-      frameWidth: PLAYER_FRAME.width,
-      frameHeight: PLAYER_FRAME.height,
-    });
     // The big province maps are loaded when you walk into them (MapScene.preload).
     for (const key of MAP_KEYS) {
       if (PROVINCE_MAP_KEYS.includes(key)) continue;

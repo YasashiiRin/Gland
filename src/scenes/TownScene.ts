@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hdScale } from './hd';
 import { TILE } from '../config/constants';
 import { randomLine } from '../data/dialogues';
 import { ITEMS, type ItemId } from '../data/items';
@@ -74,7 +75,7 @@ export class TownScene extends MapScene {
       const npcKey = `npc_${npcId}`;
       const feetY = entry.y * TILE + TILE / 2 + 4;
       const sprite = this.textures.exists(npcKey)
-        ? this.add.image(entry.x * TILE + TILE / 2, feetY, npcKey, 0).setOrigin(0.5, 28 / 32)
+        ? this.add.image(entry.x * TILE + TILE / 2, feetY, npcKey, 0).setOrigin(0.5, 28 / 32).setScale(hdScale(this, npcKey))
         : this.add.image(entry.x * TILE + TILE / 2, entry.y * TILE + TILE / 2, portraitKey(npcId)).setDisplaySize(TILE, TILE);
       sprite.setDepth(feetY);
       this.npcSprites.push(sprite);

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hdScale } from './hd';
 import { TILE } from '../config/constants';
 import { ITEMS, type ItemId, type VehicleAbility } from '../data/items';
 import type { Player } from '../entities/Player';
@@ -178,7 +179,7 @@ export class RideController {
       TILE,
     );
     this.player.setDepth(driver.y - (driver.dir === 'down' ? 1 : -1));
-    this.player.setCrop(0, 0, 16, RIDER_CROP_HEIGHT);
+    this.player.cropTo(RIDER_CROP_HEIGHT);
   }
 
   private syncParked(): void {
@@ -194,7 +195,7 @@ export class RideController {
       }
       if (!img) {
         if (!this.scene.textures.exists(`vehicle_${id}`)) continue;
-        img = this.scene.add.image(0, 0, `vehicle_${id}`, 0).setOrigin(0.5, 1);
+        img = this.scene.add.image(0, 0, `vehicle_${id}`, 0).setOrigin(0.5, 1).setScale(hdScale(this.scene, `vehicle_${id}`));
         this.parked.set(id, img);
       }
       img.setFrame(DIRECTIONS.indexOf(spot.facing)).setPosition(spot.x, spot.y).setDepth(spot.y - 2);
@@ -212,7 +213,7 @@ export class RideController {
     }
     if (!this.image || this.image.texture.key !== textureKey) {
       this.image?.destroy();
-      this.image = this.scene.add.image(0, 0, textureKey, 0).setOrigin(0.5, 1);
+      this.image = this.scene.add.image(0, 0, textureKey, 0).setOrigin(0.5, 1).setScale(hdScale(this.scene, textureKey));
     }
     this.image
       .setFrame(DIRECTIONS.indexOf(this.player.direction))
@@ -220,7 +221,7 @@ export class RideController {
       // Facing the viewer, the vehicle's front (handlebars, hood, cart board)
       // is between us and the rider, so it draws on top; otherwise below.
       .setDepth(this.player.depth + (this.player.direction === 'down' ? 0.5 : -0.5));
-    this.player.setCrop(0, 0, 16, RIDER_CROP_HEIGHT);
+    this.player.cropTo(RIDER_CROP_HEIGHT);
   }
 
   /** Grey exhaust puffs from the back of the vehicle, drifting up and fading. */

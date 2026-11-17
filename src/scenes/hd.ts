@@ -31,6 +31,11 @@ export function hdScale(scene: Phaser.Scene, key: string): number {
   return HD_KEYS.has(key) && scene.textures.exists(key) ? 0.5 : 1;
 }
 
+/** Art pixels per world pixel for a texture: 2 for HD art, 1 otherwise. */
+export function artScale(scene: Phaser.Scene, key: string): number {
+  return 1 / hdScale(scene, key);
+}
+
 /**
  * Tiled maps are authored at 16 px tiles; the HD tileset has 32 px tiles.
  * Rewrites the cached map JSON once so Phaser reads it at 32 px (objects

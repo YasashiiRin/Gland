@@ -3,39 +3,53 @@
   "files": [
    {
     "type": "spritesheet",
+    "key": "player",
+    "url": "sprites/player.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
     "key": "npc_chu_tu",
     "url": "sprites/npcs/chu_tu.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "npc_co_hanh",
     "url": "sprites/npcs/co_hanh.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "npc_linh",
     "url": "sprites/npcs/linh.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "npc_minh",
     "url": "sprites/npcs/minh.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "image",
@@ -219,36 +233,40 @@
     "key": "vehicle_motorbike",
     "url": "sprites/vehicles/motorbike.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 32
-    }
+     "frameWidth": 64,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "vehicle_tractor",
     "url": "sprites/vehicles/tractor.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 32
-    }
+     "frameWidth": 64,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "vehicle_harvester",
     "url": "sprites/vehicles/harvester.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 32
-    }
+     "frameWidth": 64,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "vehicle_ox_cart",
     "url": "sprites/vehicles/ox_cart.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 32
-    }
+     "frameWidth": 64,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "image",
@@ -729,45 +747,50 @@
     "key": "animal_chicken",
     "url": "sprites/animals/chicken.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 16
-    }
+     "frameWidth": 32,
+     "frameHeight": 32
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "animal_pig",
     "url": "sprites/animals/pig.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 24
-    }
+     "frameWidth": 64,
+     "frameHeight": 48
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "animal_cow",
     "url": "sprites/animals/cow.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 24
-    }
+     "frameWidth": 64,
+     "frameHeight": 48
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "animal_buffalo",
     "url": "sprites/animals/buffalo.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 24
-    }
+     "frameWidth": 64,
+     "frameHeight": 48
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "animal_tiger",
     "url": "sprites/animals/tiger.png",
     "frameConfig": {
-     "frameWidth": 40,
-     "frameHeight": 24
-    }
+     "frameWidth": 80,
+     "frameHeight": 48
+    },
+    "hd": true
    }
   ]
  }

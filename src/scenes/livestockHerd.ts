@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { TILE } from '../config/constants';
+import { artScale } from './hd';
 import { TILLABLE_GIDS, TILE_GID } from '../config/tileGids';
 import type { Player } from '../entities/Player';
 import { gameState } from '../state/GameState';
@@ -126,10 +127,11 @@ export class LivestockHerd {
     const key = `animal_${a.kind}`;
     if (!this.scene.textures.exists(key)) return;
     const sprite = this.scene.physics.add.sprite(a.x, a.y, key, 0).setOrigin(0.5, 1);
-    sprite.setScale(sizeScale(a.growth));
+    const k = artScale(this.scene, key);
+    sprite.setScale(sizeScale(a.growth) / k);
     const body = sprite.body as Phaser.Physics.Arcade.Body;
     const w = sprite.width * 0.5;
-    body.setSize(w, 6).setOffset((sprite.width - w) / 2, sprite.height - 6);
+    body.setSize(w, 6 * k).setOffset((sprite.width - w) / 2, sprite.height - 6 * k);
     sprite.setCollideWorldBounds(true);
     this.scene.physics.add.collider(sprite, this.ground);
     this.scene.physics.add.collider(sprite, this.decor);

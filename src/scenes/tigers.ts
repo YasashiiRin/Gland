@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hdScale } from './hd';
 import { TILE } from '../config/constants';
 import { isTreeGid } from '../config/tileGids';
 import type { Player } from '../entities/Player';
@@ -51,7 +52,7 @@ export class Tigers {
     for (const d of dens) {
       const x = d.x * TILE + TILE / 2;
       const y = d.y * TILE + TILE;
-      const sprite = scene.add.sprite(x, y, 'animal_tiger', 0).setOrigin(0.5, 1);
+      const sprite = scene.add.sprite(x, y, 'animal_tiger', 0).setOrigin(0.5, 1).setScale(hdScale(scene, 'animal_tiger'));
       this.tigers.push({ beast: createBeast(x, y), sprite, wander: { dx: 0, dy: 0 }, nextTurn: 0 });
     }
   }

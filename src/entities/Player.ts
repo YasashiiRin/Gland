@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import { PLAYER_SPEED } from '../config/constants';
+import { artScale } from '../scenes/hd';
 import { computeMovement, type Direction, type MoveInput } from '../systems/movement';
 
 export const PLAYER_TEXTURE = 'player';
 
-/** Frame size of the player spritesheet (4 frames per row, rows: down, left, right, up). */
+/** Frame size of the player in world pixels (4 frames per row, rows: down, left, right, up); HD art is twice this. */
 export const PLAYER_FRAME = { width: 16, height: 32 } as const;
 
 export type PlayerInput = MoveInput;
@@ -13,6 +14,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private facing: Direction = 'down';
   private exhausted = false;
   private bigBody = false;
+  /** Art pixels per world pixel (2 for the HD sheet). */
+  private readonly k: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number, facing: Direction = 'down') {
     super(scene, x, y, PLAYER_TEXTURE, 0);
@@ -21,10 +24,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     // x/y is the point between the feet, so spawn points and depth sorting line up with tiles.
     this.setOrigin(0.5, 28 / 32);
+    this.k = artScale(scene, PLAYER_TEXTURE);
+    this.setScale(1 / this.k);
 
+    this.setFeetBox(10, 6, 3, 23);
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.setSize(10, 6);
-    body.setOffset(3, 23);
     body.setCollideWorldBounds(true);
 
     this.facing = facing;
@@ -61,14 +65,20 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   setBigBody(big: boolean): void {
     if (big === this.bigBody) return;
     this.bigBody = big;
+    if (big) this.setFeetBox(26, 12, -5, 19);
+    else this.setFeetBox(10, 6, 3, 23);
+  }
+
+  /** Collision box in world pixels, relative to the 16x32 frame. */
+  private setFeetBox(w: number, h: number, x: number, y: number): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
-    if (big) {
-      body.setSize(26, 12);
-      body.setOffset(-5, 19);
-    } else {
-      body.setSize(10, 6);
-      body.setOffset(3, 23);
-    }
+    body.setSize(w * this.k, h * this.k);
+    body.setOffset(x * this.k, y * this.k);
+  }
+
+  /** Shows only the top `height` world pixels (a rider's legs hidden by the vehicle or boat). */
+  cropTo(height: number): void {
+    this.setCrop(0, 0, PLAYER_FRAME.width * this.k, height * this.k);
   }
 
   /** Turns to look at a tile (used when aiming with the mouse). Keeps facing if it's our own tile. */
@@ -87,8 +97,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   playUseToolFeedback(): void {
     this.scene.tweens.add({
       targets: this,
-      scaleX: 1.15,
-      scaleY: 0.85,
+      scaleX: 1.15 / this.k,
+      scaleY: 0.85 / this.k,
       duration: 90,
       yoyo: true,
       ease: 'Quad.easeOut',

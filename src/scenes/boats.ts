@@ -5,6 +5,7 @@ import type { MapKey } from '../data/maps';
 import type { Player } from '../entities/Player';
 import { gameState } from '../state/GameState';
 import { boatSpot, landingTile, nearestBoat, type BoatSpot } from '../systems/BoatSystem';
+import { hdScale } from './hd';
 import { readProp } from './worldSprites';
 
 const RIDER_CROP_HEIGHT = 22;
@@ -95,14 +96,14 @@ export class Boats {
         this.player.setPosition(this.lastGood.x, this.lastGood.y);
         (this.player.body as Phaser.Physics.Arcade.Body).setVelocity(0, 0);
       }
-      this.player.setCrop(0, 0, 16, RIDER_CROP_HEIGHT);
+      this.player.cropTo(RIDER_CROP_HEIGHT);
     } else if (this.player.isCropped && !gameState.riding) {
       this.player.setCrop();
     }
     for (const { id, spot } of this.spots()) {
       let img = this.images.get(id);
       if (!img) {
-        img = this.scene.add.image(0, 0, 'prop_sampan').setOrigin(0.5, 0.75);
+        img = this.scene.add.image(0, 0, 'prop_sampan').setOrigin(0.5, 0.75).setScale(hdScale(this.scene, 'prop_sampan'));
         this.images.set(id, img);
       }
       if (id === rowing) {

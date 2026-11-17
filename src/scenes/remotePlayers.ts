@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { PLAYER_TEXTURE } from '../entities/Player';
+import { artScale, hdScale } from './hd';
 import { net } from '../net/NetSession';
 import { DIRECTIONS } from '../systems/movement';
 import { UI_FONT } from '../ui/uiStyle';
@@ -33,7 +34,7 @@ export class RemotePlayers {
       seen.add(pose.id);
       let r = this.remotes.get(pose.id);
       if (!r) {
-        const sprite = this.scene.add.sprite(pose.x, pose.y, PLAYER_TEXTURE, 0).setOrigin(0.5, 28 / 32);
+        const sprite = this.scene.add.sprite(pose.x, pose.y, PLAYER_TEXTURE, 0).setOrigin(0.5, 28 / 32).setScale(hdScale(this.scene, PLAYER_TEXTURE));
         sprite.setTint(TINTS[(index - 1) % TINTS.length]);
         const label = this.scene.add
           .text(pose.x, pose.y - 34, net.nameOf(pose.id), {
@@ -55,7 +56,7 @@ export class RemotePlayers {
       s.setDepth(s.y);
       r.label.setPosition(s.x, s.y - 30).setDepth(s.y + 1).setText(net.nameOf(pose.id));
       this.syncVehicle(r, pose.riding, pose.dir);
-      if (pose.seatOf) r.sprite.setCrop(0, 0, 16, 23); // sitting in a friend's vehicle
+      if (pose.seatOf) this.cropRider(r.sprite); // sitting in a friend's vehicle
     }
     for (const [id, r] of this.remotes) {
       if (seen.has(id)) continue;
@@ -76,12 +77,18 @@ export class RemotePlayers {
     }
     if (!r.vehicle || r.vehicle.texture.key !== key) {
       r.vehicle?.destroy();
-      r.vehicle = this.scene.add.image(0, 0, key, 0).setOrigin(0.5, 1);
+      r.vehicle = this.scene.add.image(0, 0, key, 0).setOrigin(0.5, 1).setScale(hdScale(this.scene, key));
     }
     r.vehicle
       .setFrame(DIRECTIONS.indexOf(dir))
       .setPosition(r.sprite.x, r.sprite.y + 4)
       .setDepth(r.sprite.depth + (dir === 'down' ? 0.5 : -0.5));
-    r.sprite.setCrop(0, 0, 16, 23);
+    this.cropRider(r.sprite);
+  }
+
+  /** Hides a rider's legs (the vehicle covers them). */
+  private cropRider(sprite: Phaser.GameObjects.Sprite): void {
+    const k = artScale(this.scene, PLAYER_TEXTURE);
+    sprite.setCrop(0, 0, 16 * k, 23 * k);
   }
 }

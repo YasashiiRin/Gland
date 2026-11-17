@@ -493,6 +493,8 @@ vị trí, va chạm, logic không đổi. Bản đồ dùng bộ ô `tilesets/f
 nâng cấp dần từng đợt. Lưu ý: ở mức phóng to ×1 hình HD bị thu nhỏ (mất nét), ×3 không chia hết; nên chơi ở ×2 hoặc ×4.
 - [x] Đợt 1: engine HD; ô nền HD: cỏ (4 kiểu), đường đất + mép cỏ, nước + bờ (16 kiểu), nước sâu, cát, biển, biển sâu,
       sóng vỗ bờ, đường đá cuội, đất, bụi cây; cây HD: cây tán tròn (2), dừa, tre, cau, thông. Ảnh: `docs/previews/hd_*.png`, `cay_hd.png`.
-- [ ] Đợt 2: nhân vật (người chơi, NPC) + con vật + xe ở HD.
+- [x] Đợt 2: nhân vật HD 32×64 (người chơi + 4 dân làng: mắt có ánh sáng, lông mày, tóc sợi, nút áo, túi áo bà ba,
+      nón lá có vành), con vật HD (gà, heo, bò, trâu, hổ), xe HD (xe máy, máy cày, máy gặt, xe bò: bánh có lốp, vành, nan).
+      Ảnh: `docs/previews/hd_nhan_vat.png`, `hd_con_vat_xe.png`, `hd_trong_game.png`.
 - [ ] Đợt 3: nhà cửa, công trình phố, chợ, địa danh ở HD.
 - [ ] Đợt 4: các ô còn lại (ruộng lúa, đầm lầy, đá, tường thành, bờ kè…), cây còn lại (chuối, bưởi, phi lao, phượng, đước…), đồ nội thất, cây trồng.
