@@ -428,3 +428,14 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - 10 tỉnh theo tên cũ (trước sáp nhập 2025), nối từ Bắc vào Nam: Thanh Hóa → Nghệ An → Hà Tĩnh → Quảng Bình → Quảng Trị → Huế → Đà Nẵng → Quảng Nam (Hội An) → Quảng Ngãi → Bình Định.
 - Nông trại và thị trấn hiện tại nằm ở **Quảng Bình**.
 - Bước đầu chỉ làm phong cảnh đặc trưng từng vùng, chưa có cửa hàng hay đặc sản.
+
+### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)
+Ý tưởng của người chơi (tóm tắt):
+- Hệ thống chức nghiệp; vật phẩm mở khóa nghề có thể xuất hiện ở bất kỳ đâu trên bản đồ (theo tỉ lệ).
+- Nhấn vào minimap → mở bản đồ cả thế giới, phóng to / thu nhỏ được.
+- Mở nghề → avatar nhỏ phía trên các thanh trạng thái + thanh **linh khí** màu cam.
+- Nhấn avatar → bảng thông tin: chỉ số 3 thanh, tổng linh khí, cây kỹ năng bị động, danh sách kỹ năng chủ động đã học, hàng ô ngang để xếp thứ tự; ra ngoài hiện thành cột dọc bên phải màn hình; kéo thả để đổi chỗ.
+- Học kỹ năng chủ động chỉ qua 3 đường: (1) sách cổ ở rừng sâu (0,5% mỗi cây trong phạm vi 20 ô); (2) người cùng nghề truyền lại (multiplayer); (3) ma rơi ra, tỉ lệ = sát thương đòn đầu / 10 (đòn 5% máu → 0,5%).
+- Linh khí khởi đầu 5, mỗi ngày +1. Kỹ năng bị động mở ở mốc 10, 20 … 100 linh khí.
+- Thầy pháp nhìn thấy ma nên dễ mất tinh thần hơn; ban đêm ma xuất hiện là tấn công ngay, không cần chờ tinh thần thấp.
+- Kỹ năng chủ động đầu tiên **Khai nhãn**: hiện khói bụi ở các vùng ma hay xuất hiện (càng dày tỉ lệ càng cao), tốn 0,4 linh lực mỗi lần.
