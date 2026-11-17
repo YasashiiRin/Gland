@@ -1,163 +1,134 @@
-"""Round 2 of the central-Vietnam maps: Huế, Đà Nẵng and Quảng Nam (Hội An),
-continuing south from Quảng Trị. Each map is 64x40 with the sea to the east
-and the north-south road through x 31-32, like the round 1 maps.
+"""Big province maps, round 2: Huế, Đà Nẵng and Quảng Nam (Hội An), going south
+from Quảng Trị along the main road (x 112).
 """
 from __future__ import annotations
 
-from .maps import MapBuilder
-from .province_maps import H, SHORE_X, W, border, casuarinas, coast, edge_road, road
-from .province_tiles import BRIDGE, CITADEL, LOTUS, ORCHARD, PAVING, SAND
-from .tiles import BLOCK, BUSH, ROCK, SIGN, TRUNK, WATER
+from .province_maps import HOUSES, MOUNTAINS
+from .province_tiles import BRIDGE, LOTUS, PAVING, SAND
+from .region import (Province, beach_trees, boats, coast, ellipse, exit_north, exit_south, finish, forest, meander,
+                     mountains, orchard, place, rice_fields, river, road, scatter, village, walls)
+from .tiles import BLOCK, BUSH, ROCK, TRUNK, WATER
+
+GARDEN_HOUSES = [("house_a", 5, 4), ("house_c", 5, 4), ("house_b", 5, 4)]
+HOI_AN_HOUSES = [("hoian_house_a", 4, 4), ("hoian_house_b", 4, 4)]
 
 
-def river(m: MapBuilder, y0: int, y1: int) -> None:
-    """A river across the map flowing out to sea, with sand banks at its mouth."""
-    m.fill(0, y0, SHORE_X + 6, y1, WATER)
-    for x in range(SHORE_X, SHORE_X + 7):
-        m.ground[y0 - 1][x] = SAND
-        m.ground[y1 + 1][x] = SAND
-
-
-def pave(m: MapBuilder, x0: int, y0: int, x1: int, y1: int) -> None:
-    """A paved street (old town, city, citadel), clearing anything standing on it."""
-    m.fill(x0, y0, x1, y1, PAVING)
-    for y in range(y0, y1 + 1):
-        for x in range(x0, x1 + 1):
-            m.put(x, y, None)
-
-
-def build_hue() -> MapBuilder:
-    """Huế: the citadel with Ngọ Môn and the Thái Hòa hall, the Perfume River with
-    the Trường Tiền bridge and dragon boats, Thiên Mụ's tower, lotus ponds, pine hills."""
-    m = MapBuilder(W, H, seed=107)
-    m.grass_variation()
-    coast(m)
-    river(m, 22, 26)                                    # sông Hương
-    m.fill(30, 21, 32, 27, BRIDGE)
-    # the citadel: brick walls around a paved courtyard
-    m.fill(20, 4, 43, 16, CITADEL)
-    m.fill(21, 5, 42, 15, PAVING)
-    m.fill(31, 16, 32, 16, PAVING)                      # the way through Ngọ Môn
-    m.blob(13, 35, 5, 2.2, LOTUS)                       # lotus pond on the south bank
-    border(m, edge_road(0) | edge_road(H - 1))
-    m.prop("royal_hall", 25, 6, 7, 4, solid_from=1)
-    m.prop("ngo_mon", 28, 12, 8, 5, solid_from=None)    # gate over the south wall; the middle arch is open
-    for y in range(14, 17):
-        for x in range(28, 36):
-            if x not in (31, 32):
+def build_hue() -> Province:
+    """Huế: the moated citadel (Ngọ Môn, Thái Hòa hall, Tịnh Tâm lotus lake), the
+    Perfume River with Trường Tiền bridge and dragon boats, Thiên Mụ's tower, royal
+    tombs among the pine hills, garden houses, rice plains and Thuận An beach."""
+    m = Province(seed=211)
+    shore = coast(m, 192)
+    river(m, meander(0, 118, 100, 76, 6, 1, seed=5) + meander(100, 76, shore[44] + 2, 44, 5, 1, seed=6), 7)
+    walls(m, 84, 16, 141, 58, inside=PAVING, moat=True)                     # the citadel
+    exit_north(m, 112, "QuangTri", "fromHue", "fromQuangTri")
+    exit_south(m, 112, "DaNang", "fromHue", "fromDaNang")
+    road(m, [(112, 6), (112, 133)])                                          # through the citadel's gates
+    road(m, [(112, 96), (40, 96), (40, 116)])                                # to the tombs
+    road(m, [(112, 70), (shore[70] + 2, 70)])
+    place(m, "ngo_mon", 109, 54, 8, 5, solid_from=None, force=True)          # over the south wall
+    for y in range(56, 59):
+        for x in range(109, 117):
+            if x not in (112, 113):
                 m.put(x, y, BLOCK)
-    m.prop("thien_mu", 9, 18, 2, 2, solid_from=1)       # Phước Duyên tower on the north bank, west of the city
-    m.prop("pagoda", 12, 16, 4, 4, solid_from=1)
-    m.prop("truong_tien", 29, 21, 5, 7, solid_from=None, layer="floor")
-    for x in (12, 44):
-        m.prop("dragon_boat", x, 23, 4, 2)
-    for y in range(29, 38, 3):                          # pine hill on the south bank
-        for x in range(38, 50, 3):
-            m.put(x + (y % 2), y, ORCHARD)
-    # roads: around the citadel's east side, through Ngọ Môn, over the bridge, on south
-    road(m, 31, 0, 32, 3)
-    road(m, 31, 2, 46, 3)
-    road(m, 45, 2, 46, 19)
-    road(m, 31, 18, 46, 19)
-    road(m, 31, 17, 32, 20)
-    road(m, 31, 28, 32, H - 1)
-    road(m, 4, 31, 30, 32)
-    casuarinas(m, SHORE_X - 2, [y for y in range(2, H - 2, 2) if not 19 <= y <= 28])
-    m.scatter(TRUNK, 10, (4, 3, 18, 15))
-    m.scatter(TRUNK, 6, (4, 28, 28, 37), avoid=(7, 30, 19, 36))
-    m.scatter(BUSH, 26, (4, 3, 50, 38), avoid=(19, 3, 47, 20))
-    m.door(30, 0, 4, 1, "QuangTri", "fromHue")
-    m.door(30, H - 1, 4, 1, "DaNang", "fromHue")
-    m.spawn("fromQuangTri", 31, 2)
-    m.spawn("fromDaNang", 31, H - 3)
-    m.spawn("default", 31, 2)
-    return m
+    place(m, "royal_hall", 101, 24, 7, 4, force=True)
+    ellipse(m, 128, 30, 7, 4, LOTUS)                                         # Tịnh Tâm lake
+    bridge_y = min((y for y in range(62, 110) if m.ground[y][112] == BRIDGE), default=80)
+    place(m, "truong_tien", 110, bridge_y, 5, 7, solid_from=None, layer="floor", force=True)
+    place(m, "thien_mu", 46, 90, 2, 2, force=True)
+    place(m, "pagoda", 50, 88, 4, 4, force=True)
+    for x, y in ((24, 120), (62, 124), (80, 110)):
+        place(m, "royal_tomb", x, y, 6, 4, force=True)
+    for x, y in ((70, 100), (140, 64), (160, 54)):
+        if all(m.ground[y][xx] == WATER for xx in range(x, x + 4)):
+            m.prop("dragon_boat", x, y, 4, 2)
+    orchard(m, (6, 100, 96, 136), step=3)                                    # pine hills
+    mountains(m, (3, 3, 70, 60), MOUNTAINS, 6)
+    village(m, (122, 84, 184, 112), GARDEN_HOUSES)                           # garden houses (nhà vườn)
+    village(m, (6, 64, 60, 86), GARDEN_HOUSES)
+    rice_fields(m, (146, 4, 188, 50))
+    rice_fields(m, (120, 114, 188, 136))
+    forest(m, (3, 3, 80, 136), 0.05)
+    scatter(m, TRUNK, (3, 3, 188, 136), 0.006)
+    scatter(m, BUSH, (3, 3, 188, 136), 0.012)
+    beach_trees(m, shore, "casuarina", skip={69, 70, 71})
+    return finish(m, "fromQuangTri")
 
 
-def build_da_nang() -> MapBuilder:
-    """Đà Nẵng: the Hải Vân pass, the Hàn river with the Dragon Bridge, a city street
-    of towers and flame trees, Sơn Trà's Lady Buddha, Marble Mountains, Mỹ Khê beach."""
-    m = MapBuilder(W, H, seed=109)
-    m.grass_variation()
-    coast(m)
-    m.fill(40, 0, 44, H - 1, WATER)                     # sông Hàn, flowing north to the bay
-    border(m, edge_road(0) | edge_road(H - 1))
-    for x0, y0 in ((2, 1), (12, 0)):                    # Hải Vân pass in the north-west
-        m.prop("mountain", x0, y0, 8, 6, solid_from=2)
-    pave(m, 4, 20, 39, 21)                              # Bạch Đằng street to the bridge
-    pave(m, 31, 0, 32, H - 1)
-    m.fill(39, 19, 45, 21, PAVING)                      # Dragon Bridge deck over the river
-    pave(m, 46, 20, SHORE_X - 1, 21)
-    m.fill(SHORE_X, 20, SHORE_X + 1, 21, SAND)
-    m.prop("dragon_bridge", 39, 19, 7, 3, solid_from=None)
-    for x in range(6, 30, 6):                           # tower blocks along the street
-        m.prop("city_tower", x, 13, 3, 3, solid_from=1)
-    for x in range(5, 39, 3):                           # flame trees lining the street
-        if x not in (31, 32):
-            m.put(x, 23, ORCHARD)
-    m.prop("lady_buddha", 49, 6, 2, 2, solid_from=1)    # Sơn Trà, facing the sea
-    m.prop("mountain", 45, 0, 8, 6, solid_from=2)
-    m.prop("marble_mountain", 45, 29, 6, 6, solid_from=2)
-    casuarinas(m, SHORE_X - 2, [y for y in range(8, H - 2, 2) if y not in (20, 22) and not 28 <= y <= 35])
-    for x, y in ((54, 12), (55, 27), (53, 36)):
-        m.prop("basket_boat", x, y, 2, 1)
-    m.scatter(TRUNK, 8, (4, 25, 38, 37))
-    m.scatter(ROCK, 6, (4, 7, 30, 12))
-    m.scatter(BUSH, 24, (4, 7, 38, 37), avoid=(4, 12, 39, 24))
-    m.door(30, 0, 4, 1, "Hue", "fromDaNang")
-    m.door(30, H - 1, 4, 1, "QuangNam", "fromDaNang")
-    m.spawn("fromHue", 31, 2)
-    m.spawn("fromQuangNam", 31, H - 3)
-    m.spawn("default", 31, 2)
-    return m
+def build_da_nang() -> Province:
+    """Đà Nẵng: the Hải Vân pass, Bà Nà hills with the Golden Bridge, the Hàn river
+    and the Dragon Bridge, a city of towers and flame trees, Sơn Trà with Lady
+    Buddha, the Marble Mountains, rice in Hòa Vang and Mỹ Khê beach."""
+    m = Province(seed=213)
+    shore = coast(m, 192)
+    river(m, meander(150, 0, 146, 139, 5, 1.5, seed=7), 7)                  # sông Hàn
+    exit_north(m, 112, "Hue", "fromDaNang", "fromHue")
+    exit_south(m, 112, "QuangNam", "fromDaNang", "fromQuangNam")
+    road(m, [(112, 6), (112, 133)], tile=PAVING)
+    road(m, [(60, 72), (shore[72] + 2, 72)], tile=PAVING)                    # across the Dragon Bridge
+    road(m, [(112, 40), (40, 40), (40, 60)])                                 # up to Bà Nà
+    river_x = [x for x in range(120, 180) if m.ground[72][x] == BRIDGE]
+    if river_x:
+        place(m, "dragon_bridge", river_x[0] - 1, 71, 7, 3, solid_from=None, force=True)
+    place(m, "golden_bridge", 32, 56, 8, 3, solid_from=None, force=True)
+    place(m, "lady_buddha", 178, 36, 2, 2, force=True)
+    for x, y in ((170, 100), (176, 112), (164, 116)):
+        place(m, "marble_mountain", x, y, 6, 6, solid_from=2, force=True)
+    mountains(m, (3, 3, 100, 34), MOUNTAINS, 8)                              # Hải Vân
+    mountains(m, (3, 44, 70, 104), MOUNTAINS, 6)                             # Bà Nà
+    mountains(m, (156, 3, 188, 32), MOUNTAINS, 3)                            # Sơn Trà
+    village(m, (76, 48, 140, 96), [("city_tower", 3, 3)], street=PAVING, yard=(4, 4))
+    village(m, (154, 40, 186, 96), GARDEN_HOUSES)
+    orchard(m, (74, 98, 140, 104))                                           # flame trees along the boulevard
+    rice_fields(m, (60, 108, 140, 136))
+    forest(m, (3, 3, 74, 136), 0.06)
+    scatter(m, TRUNK, (3, 3, 188, 136), 0.005)
+    scatter(m, ROCK, (3, 3, 70, 104), 0.01)
+    scatter(m, BUSH, (3, 3, 188, 136), 0.01)
+    beach_trees(m, shore, "casuarina", every=4, skip={71, 72, 73})
+    boats(m, "basket_boat", 2, [(shore[y] + 2, y) for y in (20, 58, 90, 128)])
+    return finish(m, "fromHue")
 
 
-def build_quang_nam() -> MapBuilder:
-    """Quảng Nam: Hội An's old quarter (yellow shophouses, lanterns, the covered
-    Japanese bridge), the Thu Bồn river with lantern boats, Mỹ Sơn's Cham towers,
-    the Bảy Mẫu coconut grove and the Cù Lao Chàm islands offshore."""
-    m = MapBuilder(W, H, seed=113)
-    m.grass_variation()
-    coast(m)
-    river(m, 27, 30)                                    # sông Thu Bồn
-    m.fill(26, 8, 27, 26, WATER)                        # the little canal under Chùa Cầu
-    for cy in (12, 25):                                 # Cù Lao Chàm: small islands out at sea
-        m.blob(61, cy, 3.2, 3.6, SAND)
-    border(m, edge_road(0))
-    pave(m, 4, 14, 50, 15)                              # Trần Phú street
-    pave(m, 4, 22, 50, 23)                              # Bạch Đằng riverside street
-    pave(m, 31, 0, 32, 26)
-    for y in (14, 15, 22, 23):                          # wooden decks over the canal
-        for x in (26, 27):
-            m.ground[y][x] = BRIDGE
-    m.prop("japanese_bridge", 25, 13, 4, 3, solid_from=None)
-    m.fill(30, 26, 32, 31, BRIDGE)                      # An Hội bridge over the river
-    for i, x in enumerate((6, 11, 16, 20, 34, 39, 44)):
-        side = "a" if i % 2 else "b"
-        m.prop(f"hoian_house_{side}", x, 10, 4, 4, solid_from=1)
-        m.prop(f"hoian_house_{'b' if side == 'a' else 'a'}", x, 17, 4, 4, solid_from=1)
-    for x in (8, 22, 42):
-        m.prop("lantern_boat", x, 28, 3, 1)
-    # south bank: Mỹ Sơn towers among the trees (west) and the coconut grove (east)
-    road(m, 31, 32, 32, H - 2)
-    for x, y, v in ((5, 34, "a"), (9, 33, "b"), (13, 35, "a")):
-        m.prop(f"cham_tower_{v}", x, y, 3, 2, solid_from=1)
-    for y in range(33, 38, 2):
-        for x in range(37, 47, 3):
-            m.put(x + (y % 3), y, ORCHARD)
-    casuarinas(m, SHORE_X - 2, [y for y in range(2, H - 2, 3) if not 12 <= y <= 31], sprite="coconut")
-    for x, y in ((54, 6), (55, 18), (53, 35)):
-        m.prop("basket_boat", x, y, 2, 1)
-    for x, y in ((61, 11), (61, 24)):
+def build_quang_nam() -> Province:
+    """Quảng Nam: Hội An's old quarter (yellow shophouses with lanterns, Chùa Cầu over
+    the canal), the Thu Bồn river with lantern boats, Mỹ Sơn's Cham towers in the
+    hills, Trà Quế gardens and rice, the Bảy Mẫu coconut grove, Cù Lao Chàm offshore."""
+    m = Province(seed=215)
+    shore = coast(m, 186)
+    river(m, meander(0, 72, shore[86] + 2, 86, 7, 1.5, seed=8), 7)           # sông Thu Bồn
+    river(m, [(150, 40), (150, 72)], 2)                                      # the canal under Chùa Cầu
+    for cy, cx in ((26, 208), (48, 214)):                                    # Cù Lao Chàm islands
+        ellipse(m, cx, cy, 7, 6, SAND)
+        ellipse(m, cx, cy, 4, 3.5, 0)
+    exit_north(m, 112, "DaNang", "fromQuangNam", "fromDaNang")
+    exit_south(m, 112, "QuangNgai", "fromQuangNam", "fromQuangNgai")
+    road(m, [(112, 6), (112, 133)])
+    road(m, [(118, 58), (184, 58)], tile=PAVING)                             # Trần Phú street
+    road(m, [(118, 66), (184, 66)], tile=PAVING)                             # Bạch Đằng riverside
+    road(m, [(112, 58), (118, 58)], tile=PAVING)
+    road(m, [(112, 110), (40, 110), (40, 100)])                              # to Mỹ Sơn
+    place(m, "japanese_bridge", 149, 56, 4, 3, solid_from=None, force=True)
+    for i, (x, y) in enumerate(((30, 96), (36, 94), (44, 97), (34, 102), (48, 102))):
+        place(m, "cham_tower_a" if i % 2 else "cham_tower_b", x, y, 3, 2, force=True)
+    village(m, (118, 40, 186, 57), HOI_AN_HOUSES, street=PAVING, yard=(2, 2))
+    village(m, (118, 60, 186, 66), HOI_AN_HOUSES, street=PAVING, yard=(2, 1))
+    for x in (126, 140, 162, 174):
+        if all(m.ground[70][xx] == WATER for xx in range(x, x + 3)):
+            m.prop("lantern_boat", x, 70, 3, 1)
+    mountains(m, (3, 88, 90, 136), MOUNTAINS, 7)                             # Mỹ Sơn's hills
+    orchard(m, (152, 94, 184, 132))                                          # Bảy Mẫu coconuts
+    rice_fields(m, (60, 8, 108, 52))
+    rice_fields(m, (118, 8, 184, 36), plot=(7, 4))                           # Trà Quế
+    village(m, (6, 8, 56, 56), HOUSES)
+    rice_fields(m, (94, 96, 148, 136))
+    forest(m, (3, 3, 100, 136), 0.04)
+    scatter(m, BUSH, (3, 3, 184, 136), 0.01)
+    beach_trees(m, shore, "coconut", skip={85, 86, 87})
+    for x, y in ((206, 24), (211, 28), (213, 47), (217, 50)):
         m.prop("coconut", x, y, 1, 1)
-    m.scatter(TRUNK, 10, (4, 32, 28, 37), avoid=(4, 32, 16, 37))
-    m.scatter(TRUNK, 6, (4, 3, 50, 8))
-    m.scatter(BUSH, 20, (4, 3, 50, 38), avoid=(4, 9, 50, 26))
-    m.put(34, H - 2, SIGN)                              # the road south to Quảng Ngãi (not open yet)
-    m.door(30, 0, 4, 1, "DaNang", "fromQuangNam")
-    m.spawn("fromDaNang", 31, 2)
-    m.spawn("default", 31, 2)
-    return m
+    boats(m, "basket_boat", 2, [(shore[y] + 2, y) for y in (100, 110, 120, 30)])
+    return finish(m, "fromDaNang")
 
 
 ROUND_2_MAPS = (("hue", build_hue), ("da_nang", build_da_nang), ("quang_nam", build_quang_nam))

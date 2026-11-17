@@ -21,6 +21,7 @@ export const SHARED_KEYS = [
   'farmPlots',
   'shippingBin',
   'resourceNodes',
+  'wildFields',
   'placedObjects',
   'relationships',
   'deepestFloor',

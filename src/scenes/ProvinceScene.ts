@@ -14,6 +14,8 @@ export class ProvinceScene extends MapScene {
 
   /** Arriving at the north edge you face south into the map, and vice versa. */
   protected override defaultFacing(spawn?: string): Direction {
-    return this.findSpawn(spawn ?? 'default').y < this.map.heightInPixels / 2 ? 'down' : 'up';
+    const at = this.findSpawn(spawn ?? 'default');
+    if (at.x > this.map.widthInPixels - 8 * 16) return 'left'; // came in from the east edge
+    return at.y < this.map.heightInPixels / 2 ? 'down' : 'up';
   }
 }

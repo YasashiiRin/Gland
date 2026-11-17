@@ -17,6 +17,48 @@
     "outdoor": true,
     "province": "Quảng Bình"
   },
+  "PhongNha": {
+    "file": "phong_nha",
+    "displayName": "Phong Nha – Kẻ Bàng",
+    "province": "Quảng Bình",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_oak_1",
+      "tree_bamboo",
+      "tree_oak_0",
+      "tree_areca",
+      "tree_oak_1"
+    ],
+    "orchardTree": "tree_areca"
+  },
+  "ThanhHoa": {
+    "file": "thanh_hoa",
+    "displayName": "Thanh Hóa",
+    "province": "Thanh Hóa",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_bamboo",
+      "tree_oak_1",
+      "tree_pine",
+      "tree_bamboo",
+      "tree_oak_0"
+    ],
+    "orchardTree": "tree_areca"
+  },
+  "NgheAn": {
+    "file": "nghe_an",
+    "displayName": "Nghệ An",
+    "province": "Nghệ An",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_oak_1",
+      "tree_pine",
+      "tree_bamboo",
+      "tree_oak_0",
+      "tree_oak_1"
+    ],
+    "orchardTree": "tree_areca"
+  },
   "HaTinh": {
     "file": "ha_tinh",
     "displayName": "Hà Tĩnh",
@@ -84,6 +126,34 @@
       "tree_areca",
       "tree_bamboo",
       "tree_oak_1"
+    ],
+    "orchardTree": "tree_coconut"
+  },
+  "QuangNgai": {
+    "file": "quang_ngai",
+    "displayName": "Quảng Ngãi",
+    "province": "Quảng Ngãi",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_bamboo",
+      "tree_oak_1",
+      "tree_areca",
+      "tree_coconut",
+      "tree_oak_0"
+    ],
+    "orchardTree": "tree_coconut"
+  },
+  "BinhDinh": {
+    "file": "binh_dinh",
+    "displayName": "Bình Định",
+    "province": "Bình Định",
+    "outdoor": true,
+    "forestTrees": [
+      "tree_oak_1",
+      "tree_bamboo",
+      "tree_coconut",
+      "tree_oak_0",
+      "tree_areca"
     ],
     "orchardTree": "tree_coconut"
   }

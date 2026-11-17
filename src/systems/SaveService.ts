@@ -45,6 +45,7 @@ export function load(): GameState | null {
       console.warn(`Save is version ${parsed.version}, expected ${STATE_VERSION}; starting a new game instead.`);
       return null;
     }
+    parsed.wildFields ??= {}; // added after save version 11 shipped; older saves just lack it
     return parsed;
   } catch (e) {
     console.warn('Could not read the save file:', e);

@@ -1,3 +1,4 @@
+import { pruneWildFields, seasonStamp } from '../systems/WildFieldSystem';
 import { ITEMS } from '../data/items';
 import { advanceAnimalDay } from '../systems/AnimalSystem';
 import { restoreBySleep, type EnergyState } from '../systems/EnergySystem';
@@ -27,6 +28,7 @@ export function endWorldDay(): { time: TimeState; earnings: number } {
   gameState.time = time;
   gameState.farmPlots = advanceFarmDay(gameState.farmPlots, time.season, wasRaining);
   gameState.resourceNodes = advanceResourceDay(gameState.resourceNodes, absoluteDayNumber(time));
+  gameState.wildFields = pruneWildFields(gameState.wildFields, seasonStamp(time));
   for (const key of sprinklerTileKeysOnMap(gameState.placedObjects, 'Farm')) {
     gameState.farmPlots = waterPlot(gameState.farmPlots, key);
   }

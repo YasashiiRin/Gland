@@ -471,6 +471,96 @@
     "type": "image",
     "key": "prop_coconut",
     "url": "sprites/trees/coconut.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_karst_a",
+    "url": "sprites/props/karst_a.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_karst_b",
+    "url": "sprites/props/karst_b.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_phong_nha_cave",
+    "url": "sprites/props/phong_nha_cave.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_memorial",
+    "url": "sprites/props/memorial.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_royal_tomb",
+    "url": "sprites/props/royal_tomb.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_ho_gate",
+    "url": "sprites/props/ho_gate.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_trong_mai",
+    "url": "sprites/props/trong_mai.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_stilt_house",
+    "url": "sprites/props/stilt_house.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_thatched_house",
+    "url": "sprites/props/thatched_house.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_sampan",
+    "url": "sprites/props/sampan.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_golden_bridge",
+    "url": "sprites/props/golden_bridge.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_water_wheel",
+    "url": "sprites/props/water_wheel.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_salt_pile",
+    "url": "sprites/props/salt_pile.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_crater",
+    "url": "sprites/props/crater.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_sea_arch",
+    "url": "sprites/props/sea_arch.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_twin_towers",
+    "url": "sprites/props/twin_towers.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_granite_rocks",
+    "url": "sprites/props/granite_rocks.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_martial_yard",
+    "url": "sprites/props/martial_yard.png"
    }
   ]
  }

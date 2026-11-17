@@ -42,22 +42,25 @@ export class Minimap {
   setMap(data: MinimapData | undefined, name: string): void {
     this.hasMap = !!data;
     if (data) {
-      this.scale = Math.max(1, Math.floor(Math.min(MAX_W / data.width, MAX_H / data.height)));
-      const w = data.width * this.scale;
-      const h = data.height * this.scale;
+      // Small maps are drawn several pixels per tile; big ones are drawn 1:1 and shrunk to fit.
+      const fit = Math.min(MAX_W / data.width, MAX_H / data.height);
+      this.scale = fit >= 1 ? Math.floor(fit) : fit;
+      const px = Math.max(1, Math.floor(this.scale));
+      const w = Math.round(data.width * this.scale);
+      const h = Math.round(data.height * this.scale);
       if (this.scene.textures.exists(TEXTURE_KEY)) this.scene.textures.remove(TEXTURE_KEY);
-      const canvas = this.scene.textures.createCanvas(TEXTURE_KEY, w, h);
+      const canvas = this.scene.textures.createCanvas(TEXTURE_KEY, data.width * px, data.height * px);
       const ctx = canvas?.getContext();
       if (canvas && ctx) {
         data.colors.forEach((color, i) => {
           ctx.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
-          ctx.fillRect((i % data.width) * this.scale, Math.floor(i / data.width) * this.scale, this.scale, this.scale);
+          ctx.fillRect((i % data.width) * px, Math.floor(i / data.width) * px, px, px);
         });
         canvas.refresh();
-        this.image.setTexture(TEXTURE_KEY);
+        this.image.setTexture(TEXTURE_KEY).setScale(this.scale / px);
         // The click area was sized for the old texture: make it match the new picture.
         const hit: unknown = this.image.input?.hitArea;
-        if (hit instanceof Phaser.Geom.Rectangle) hit.setSize(w, h);
+        if (hit instanceof Phaser.Geom.Rectangle) hit.setSize(data.width * px, data.height * px);
       }
       this.frame.clear();
       this.frame.fillStyle(UI_COLORS.edge, 0.9).fillRoundedRect(0, 0, w + PAD * 2, h + PAD * 2 + 15, 4);

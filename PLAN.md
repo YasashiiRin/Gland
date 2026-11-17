@@ -424,7 +424,7 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - Tinh thần (SanitySystem): mỗi lần bị hù mất 12, 16, 20… (tối đa 30) trong đêm; mỗi 10% mất → −3% tốc chạy; 35% bị "mất kiểm soát" (60% hoặc 80% tốc độ trong 2 giây); ban ngày hồi 3%/giờ.
 - Tinh thần < 15% (chế độ kinh dị "Bật", ban đêm): ma đuổi theo tấn công, mỗi đòn mất 5%, 10%, 15%… (tối đa 25%) máu và 5% năng lượng. Hết máu → ngất, tỉnh ở nhà với 30% máu/tinh thần, mất 10% tiền (tối đa 1000 ₫).
 
-### 10 bản đồ miền Trung (đang làm — xong đợt 2/3)
+### 10 bản đồ miền Trung (xong 3 đợt, bản 224×140)
 - 10 tỉnh theo tên cũ (trước sáp nhập 2025), nối từ Bắc vào Nam: Thanh Hóa → Nghệ An → Hà Tĩnh → Quảng Bình → Quảng Trị → Huế → Đà Nẵng → Quảng Nam (Hội An) → Quảng Ngãi → Bình Định.
 - Nông trại và thị trấn hiện tại nằm ở **Quảng Bình**.
 - Bước đầu chỉ làm phong cảnh đặc trưng từng vùng, chưa có cửa hàng hay đặc sản.
@@ -432,7 +432,19 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - [x] Đợt 1: khung chung + **Hà Tĩnh** (núi Hồng Lĩnh, chùa trên sườn núi, đồi chè Hương Sơn, hồ Kẻ Gỗ, vườn bưởi Phúc Trạch, biển Thiên Cầm) — đi lên từ mép bắc nông trại; **Quảng Trị** (sông Bến Hải, cầu Hiền Lương sơn hai màu, cột cờ, mỏm đá đỏ Cửa Tùng, rừng cao su) — đi xuống từ mép nam làng. Có ô cát, biển (câu cá được), hàng chè, ván cầu, cây phi lao, thuyền thúng.
 - [x] Bản đồ thế giới: nhấn vào minimap để mở; ghép các vùng đúng chỗ đường nối (vị trí trong `src/data/world.json`), chấm đỏ "Bạn ở đây" (trong nhà/hầm mỏ thì hiện ở cửa vào); phóng to/thu nhỏ bằng lăn chuột, nút +/−, chụm hai ngón; kéo để di chuyển; ⌖ về chỗ mình; Esc/✕ để đóng (đồng hồ tạm dừng). Thêm tỉnh mới nhớ thêm vị trí vào `world.json` (có test kiểm tra đường nối khớp).
 - [x] Đợt 2 (nối tiếp từ mép nam Quảng Trị): **Huế** (kinh thành tường gạch, Ngọ Môn, điện Thái Hòa, sông Hương, cầu Trường Tiền, thuyền rồng, tháp Phước Duyên chùa Thiên Mụ, hồ sen, đồi thông, biển Thuận An); **Đà Nẵng** (đèo Hải Vân, sông Hàn, cầu Rồng, phố nhà cao tầng với hàng phượng, tượng Phật Bà Sơn Trà, Ngũ Hành Sơn, biển Mỹ Khê); **Quảng Nam / Hội An** (phố cổ nhà vàng treo đèn lồng, Chùa Cầu, sông Thu Bồn với thuyền đèn, tháp Chăm Mỹ Sơn, rừng dừa Bảy Mẫu, đảo Cù Lao Chàm). Mép nam Hội An có biển chỉ đường đi Quảng Ngãi (chưa mở).
-- [ ] Đợt 3: Thanh Hóa, Nghệ An (nối từ mép bắc Hà Tĩnh), Quảng Ngãi, Bình Định.
+- [x] Đợt 3 + làm giàu map cũ (bản 224×140, sẽ được thay bằng bản 425×425 bên dưới): đủ 10 tỉnh — thêm **Phong Nha – Kẻ Bàng** (Quảng Bình, đi từ mép tây nông trại), **Thanh Hóa** (ruộng bậc thang Pù Luông, nhà sàn, Thành nhà Hồ, sông Mã, Sầm Sơn – Hòn Trống Mái), **Nghệ An** (rừng Pù Mát, sông Lam, làng Sen – Kim Liên, Cửa Lò), **Quảng Ngãi** (núi Thiên Ấn, sông Trà Khúc với guồng nước, ruộng muối Sa Huỳnh, đảo Lý Sơn với tỏi, miệng núi lửa, vòm đá), **Bình Định** (võ đường Tây Sơn, tháp Bánh Ít, Tháp Đôi, Ghềnh Ráng, dừa Tam Quan). Quảng Trị có Thành cổ + đài tưởng niệm, Huế có lăng vua, Đà Nẵng có Cầu Vàng Bà Nà.
+- [x] **Đồng lúa làng** gặt được (phím E hoặc liềm): mỗi ô cho lúa theo tỉ lệ trong `src/data/wildFields.json`, gặt xong còn gốc rạ, **đầu mùa sau chín lại**; chơi chung thì mọi người thấy như nhau.
+
+### Việc chờ làm: thế giới lớn 425×425 kiểu Don't Starve (đã chốt với người chơi)
+- Giữ **10 map tỉnh**, mỗi map **425×425 ô** (≈ 6 lần bản 224×140).
+- Mỗi map có nhiều **vùng địa hình hình dạng tự nhiên** (không vuông vức), thảm thực vật khác nhau: đồng cỏ, rừng rậm, rừng thông, núi đá, đầm lầy/đồng sen, đồng lúa, bãi biển, sông ngòi… theo đặc trưng tỉnh; đường mòn nối các vùng; địa danh đặt trong vùng hợp với nó.
+- Mỗi map có **một khu làng NPC** tập trung nhiều nhà.
+- **Bỏ nông trại + nhà riêng ban đầu**: lúc bắt đầu, người chơi **chọn vị trí** trên bản đồ; được phát **một chiếc chiếu** để ngủ đêm (thay cho giường).
+- Chia giai đoạn (mỗi giai đoạn một cuộc trò chuyện mới):
+  1. Bộ sinh địa hình theo vùng (biome) + hiệu năng map lớn (chỉ vẽ cây/vật thể gần nhân vật, tải map theo nhu cầu); dựng lại 10 map 425×425.
+  2. Bỏ Farm/House/Town: khu làng NPC trong map Quảng Bình nhận cửa hàng, chợ, bảng nhiệm vụ, lịch NPC; trồng trọt được ở mọi map (cuốc đất bất kỳ đâu); thùng bán hàng, bàn chế tác, nhà kho xe, chuồng gà, lối vào hầm mỏ chuyển vào thế giới mới.
+  3. Màn chọn vị trí bắt đầu + vật phẩm **chiếu** (trải ra để ngủ, cất lại được); đổi phiên bản lưu (bản lưu cũ sẽ bắt đầu lại).
+  4. Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại.
 
 ### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)
 Ý tưởng của người chơi (tóm tắt):

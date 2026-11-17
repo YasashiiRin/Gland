@@ -5,7 +5,7 @@ import { TILE_GID } from '../src/config/tileGids';
 describe('world map', () => {
   it('lists the outdoor maps north to south, without the house', () => {
     const keys = worldMapKeys();
-    expect(keys[0]).toBe('HaTinh');
+    expect(keys[0]).toBe('ThanhHoa');
     expect(keys).toContain('Farm');
     expect(keys).not.toContain('House');
   });
@@ -25,7 +25,7 @@ describe('world map', () => {
   });
 
   it('puts the player on the world map, indoors at the door', () => {
-    expect(playerWorldTile('HaTinh', 31, 37)).toEqual({ x: 31, y: -3 });
+    expect(playerWorldTile('HaTinh', 31, 137)).toEqual({ x: 31, y: -3 });
     expect(playerWorldTile('House', 3, 5)).toEqual({ x: 11, y: 9 });
     expect(playerWorldTile('Nowhere', 1, 1)).toBeNull();
   });

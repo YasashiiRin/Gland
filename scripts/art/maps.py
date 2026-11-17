@@ -153,7 +153,8 @@ class MapBuilder:
 def build_farm() -> MapBuilder:
     m = MapBuilder(64, 48, seed=11)
     m.grass_variation()
-    m.forest_border({(x, y) for x in (62, 63) for y in range(23, 27)} | {(x, y) for x in range(30, 34) for y in (0, 1)})
+    m.forest_border({(x, y) for x in (62, 63) for y in range(23, 27)} | {(x, y) for x in range(30, 34) for y in (0, 1)}
+                    | {(x, y) for x in (0, 1) for y in range(23, 27)})
     # farmhouse (7x6 sprite at 8,4), door at (11,9)
     m.prop("farmhouse", 8, 4, 7, 6, solid_from=1, door=(11, 9), base=DIRT)
     m.door(11, 9, 1, 1, "House", "fromFarm")
@@ -198,6 +199,12 @@ def build_farm() -> MapBuilder:
     for y in range(0, 24):
         m.put(31, y, None); m.put(32, y, None)
     m.door(30, 0, 4, 1, "HaTinh", "fromQuangBinh")
+    # road west to Phong Nha, also laid after the scatter
+    m.fill(0, 24, 10, 25, PATH)
+    for x in range(0, 11):
+        m.put(x, 24, None); m.put(x, 25, None)
+    m.door(0, 23, 1, 4, "PhongNha", "fromFarm")
+    m.spawn("fromPhongNha", 2, 24)
     m.spawn("fromHaTinh", 31, 2)
     m.door(63, 23, 1, 4, "Town", "fromFarm")
     m.spawn("default", 11, 11)
@@ -288,4 +295,5 @@ def make_maps() -> None:
     out.mkdir(parents=True, exist_ok=True)
     from .province_maps import province_maps
     for name, builder in (("farm", build_farm), ("town", build_town), ("house", build_house), *province_maps()):
-        (out / f"{name}.tmj").write_text(json.dumps(builder().to_tmj(), indent=1))
+        # compact JSON: the province maps are 224x140 tiles
+        (out / f"{name}.tmj").write_text(json.dumps(builder().to_tmj(), separators=(",", ":")))

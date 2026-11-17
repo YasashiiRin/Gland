@@ -16,7 +16,10 @@ from .common import P, T, new, put, rect, sprinkle
 SAND, SAND2, SEA, SURF, TEA, BRIDGE, CLIFF, ORCHARD = range(64, 72)
 # 72.. : Huế citadel brick wall, a lotus pond, stone paving (old-town streets, courtyards).
 CITADEL, LOTUS, PAVING = range(72, 75)
-LAST_PROVINCE_TILE = PAVING
+# 75.. : flooded paddy mud, ripe rice (decor, reapable), stubble after reaping,
+# Sa Huỳnh salt pans, Lý Sơn garlic rows (decor).
+PADDY, RICE, STUBBLE, SALT, GARLIC = range(75, 80)
+LAST_PROVINCE_TILE = GARLIC
 PROVINCE_COLLIDES = [SEA, SURF, TEA, CLIFF, ORCHARD, CITADEL, LOTUS]
 
 SAND_C = [(206, 186, 140), (222, 204, 160), (236, 222, 184), (184, 162, 118)]
@@ -126,6 +129,53 @@ def paving(im: Image.Image, rnd: random.Random) -> None:
     sprinkle(im, rnd, 14, [(196, 184, 160), (158, 146, 124)])
 
 
+def paddy(im: Image.Image, rnd: random.Random) -> None:
+    """Wet field mud with a sheen of water."""
+    rect(im, 0, 0, T - 1, T - 1, (104, 92, 62))
+    sprinkle(im, rnd, 16, [(88, 78, 52)])
+    sprinkle(im, rnd, 10, [(120, 138, 128), (140, 160, 150)])
+
+
+def rice(im: Image.Image, rnd: random.Random) -> None:
+    """Ripe rice: dense golden stalks with heavy, nodding grain heads."""
+    for i in range(14):
+        x = 1 + i + rnd.choice((-1, 0, 0))
+        top = 1 + rnd.randint(0, 4)
+        for y in range(top + 2, T):
+            put(im, x, y, (150, 156, 70) if y > 11 else (196, 176, 72))
+        for k in range(3):  # the drooping head
+            put(im, x + (k // 2), top + k, (232, 196, 88) if k < 2 else (204, 160, 60))
+        if rnd.random() < 0.5:
+            put(im, x - 1, top + 1, (244, 214, 110))
+    rect(im, 0, T - 1, T - 1, T - 1, (110, 116, 52))
+
+
+def stubble(im: Image.Image, rnd: random.Random) -> None:
+    """Cut stubble in short rows: the field was reaped."""
+    for y in (3, 8, 13):
+        for x in range(1, T - 1, 3):
+            xx = x + rnd.choice((0, 1))
+            put(im, xx, y, (196, 170, 96)); put(im, xx, y + 1, (150, 128, 70))
+
+
+def salt(im: Image.Image, rnd: random.Random) -> None:
+    """A shallow salt pan: white crystals drying on grey-blue clay."""
+    rect(im, 0, 0, T - 1, T - 1, (196, 204, 206))
+    sprinkle(im, rnd, 40, [(236, 240, 238), (250, 252, 250)])
+    sprinkle(im, rnd, 8, [(160, 172, 178)])
+    rect(im, 0, 0, T - 1, 0, (140, 128, 104)); rect(im, 0, 0, 0, T - 1, (140, 128, 104))
+
+
+def garlic(im: Image.Image, rnd: random.Random) -> None:
+    """Rows of young garlic leaves on sandy soil (Lý Sơn)."""
+    for x in range(2, T, 4):
+        for _ in range(4):
+            y = rnd.randint(4, 13)
+            for d in range(4):
+                put(im, x + (d % 2), y - d, P["f3"] if d < 3 else P["f4"])
+        put(im, x, 14, (230, 226, 210))
+
+
 def province_tile(idx: int, rnd: random.Random) -> Image.Image | None:
     """Draws one of the province tiles, or returns None if idx isn't one."""
     if not SAND <= idx <= LAST_PROVINCE_TILE:
@@ -149,5 +199,15 @@ def province_tile(idx: int, rnd: random.Random) -> Image.Image | None:
         lotus(im, rnd)
     elif idx == PAVING:
         paving(im, rnd)
+    elif idx == PADDY:
+        paddy(im, rnd)
+    elif idx == RICE:
+        rice(im, rnd)
+    elif idx == STUBBLE:
+        stubble(im, rnd)
+    elif idx == SALT:
+        salt(im, rnd)
+    elif idx == GARLIC:
+        garlic(im, rnd)
     # ORCHARD stays transparent: the tree is a sprite (chosen per map).
     return im

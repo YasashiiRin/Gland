@@ -45,6 +45,7 @@ import { createProps, readProp, TreeSprites } from './worldSprites';
 import { RideController } from './rideController';
 import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
+import { WildRice } from './wildFields';
 import { net, NetEvents } from '../net/NetSession';
 import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
@@ -113,6 +114,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected ride!: RideController;
   private remotes!: RemotePlayers;
   protected horror!: HorrorDirector;
+  private wildRice!: WildRice;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -181,6 +183,8 @@ export abstract class MapScene extends Phaser.Scene {
     this.applyResourceNodeVisuals();
     createProps(this, this.map);
     this.trees = new TreeSprites(this, decor, info);
+    this.wildRice = new WildRice(this.mapKey, decor);
+    this.wildRice.refresh();
     if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.afterMapBuilt();
@@ -293,6 +297,7 @@ export abstract class MapScene extends Phaser.Scene {
       EventBus.emit(GameEvents.CraftingOpenRequested, { station: craftingState.nearStation });
       return;
     }
+    if (this.say(this.wildRice.tryReap(this.actionTile()))) return;
     if (
       !this.tryHarvestFacingTile() &&
       !this.tryOpenChest() &&
@@ -363,6 +368,7 @@ export abstract class MapScene extends Phaser.Scene {
       this.tryStartFishing(tile);
       return;
     }
+    if (itemId === 'scythe' && this.say(this.wildRice.tryReap(tile))) return;
     this.applyGatheringToolEffect(itemId, tile);
   }
 
@@ -438,6 +444,7 @@ export abstract class MapScene extends Phaser.Scene {
       stack.itemId === 'axe' ? 'tree' : stack.itemId === 'pickaxe' ? 'rock' : stack.itemId === 'scythe' ? 'weed' : undefined;
     if (!kind) return 'none';
     const gid = this.decorLayer.getTileAt(tile.x, tile.y)?.index;
+    if (kind === 'weed' && gid === TILE_GID.RICE) return 'valid'; // the sickle also reaps village rice
     const expectedGid = kind === 'tree' ? TILE_GID.TRUNK : kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH;
     return gid === expectedGid ? 'valid' : 'invalid';
   }
@@ -663,6 +670,7 @@ export abstract class MapScene extends Phaser.Scene {
    * base map handles felled trees / broken rocks / cut weeds; Farm extends it.
    */
   protected onWorldPatched(patch: WorldPatch): void {
+    this.wildRice.refresh(touchedKeys(patch, 'wildFields'));
     const prefix = `${this.mapKey}:`;
     const today = absoluteDayNumber(gameState.time);
     for (const key of touchedKeys(patch, 'resourceNodes')) {

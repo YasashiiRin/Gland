@@ -1,3 +1,4 @@
+import type { WildFields } from '../systems/WildFieldSystem';
 import type { ItemId } from '../data/items';
 import type { MapKey } from '../data/maps';
 import { createHauntState, createInitialSanity, type HauntState } from '../systems/SanitySystem';
@@ -41,6 +42,8 @@ export interface GameState {
   farmName: string;
   /** Trees/rocks/weeds that have been chopped/mined/cut, keyed by "mapKey:x,y". */
   resourceNodes: ResourceNodes;
+  /** Village rice fields reaped this season (see WildFieldSystem). */
+  wildFields: WildFields;
   /** Chests, scarecrows and sprinklers the player has placed, keyed by "mapKey:x,y". */
   placedObjects: PlacedObjects;
   relationships: Relationships;
@@ -112,6 +115,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     playerName,
     farmName,
     resourceNodes: {},
+    wildFields: {},
     placedObjects: {},
     relationships: {},
     playerHealth: createInitialHealth(),

@@ -41,6 +41,16 @@ export const TILE_GID = {
   LOTUS: 74,
   /** Stone paving: old-town streets, city streets, the citadel courtyard. */
   PAVING: 75,
+  /** Flooded rice-field mud. */
+  PADDY: 76,
+  /** Ripe village rice (decor): reap it with E or the sickle. */
+  RICE: 77,
+  /** Rice stubble left after reaping; ripe again next season. */
+  STUBBLE: 78,
+  /** Sa Huỳnh salt pans. */
+  SALT: 79,
+  /** Lý Sơn garlic rows (decor). */
+  GARLIC: 80,
 } as const;
 
 /** Decor tiles that stand for a tree sprite (and count as "trees" for the ghosts). */
