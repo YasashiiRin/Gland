@@ -423,3 +423,8 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - Ma (horror.json): 20:00–5:00, cứ 30 phút gieo một lần; 15% lúc 20:00, +6%/giờ; ×0.6 ở chỗ trống → ×1.6 giữa rừng cây; tối đa 85%.
 - Tinh thần (SanitySystem): mỗi lần bị hù mất 12, 16, 20… (tối đa 30) trong đêm; mỗi 10% mất → −3% tốc chạy; 35% bị "mất kiểm soát" (60% hoặc 80% tốc độ trong 2 giây); ban ngày hồi 3%/giờ.
 - Tinh thần < 15% (chế độ kinh dị "Bật", ban đêm): ma đuổi theo tấn công, mỗi đòn mất 5%, 10%, 15%… (tối đa 25%) máu và 5% năng lượng. Hết máu → ngất, tỉnh ở nhà với 30% máu/tinh thần, mất 10% tiền (tối đa 1000 ₫).
+
+### Việc chờ làm: 10 bản đồ miền Trung (chưa bắt đầu)
+- 10 tỉnh theo tên cũ (trước sáp nhập 2025), nối từ Bắc vào Nam: Thanh Hóa → Nghệ An → Hà Tĩnh → Quảng Bình → Quảng Trị → Huế → Đà Nẵng → Quảng Nam (Hội An) → Quảng Ngãi → Bình Định.
+- Nông trại và thị trấn hiện tại nằm ở **Quảng Bình**.
+- Bước đầu chỉ làm phong cảnh đặc trưng từng vùng, chưa có cửa hàng hay đặc sản.
