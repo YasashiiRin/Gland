@@ -40,7 +40,8 @@
       "ox_cart",
       "motorbike",
       "tractor",
-      "harvester"
+      "harvester",
+      "water_truck"
     ]
   },
   "market_fish": {
@@ -56,7 +57,8 @@
       "perch",
       "grass_carp",
       "snakehead",
-      "goby"
+      "goby",
+      "fish_fry"
     ],
     "buysCategories": [
       "fish"

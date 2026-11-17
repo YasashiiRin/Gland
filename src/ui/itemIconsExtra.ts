@@ -100,6 +100,32 @@ export const EXTRA_ICONS: Partial<Record<ItemId, Draw>> = {
     g.fillCircle(6, 7.5, 0.8);
     g.fillCircle(9, 8, 0.8);
   }),
+  fish_fry: (g) => {
+    // A clear bag of water with three little fish.
+    g.fillStyle(0xbfe3f2, 0.9);
+    g.fillEllipse(8, 10, 10, 9);
+    g.fillStyle(0xd8c8a4, 1);
+    g.fillRect(6, 3, 4, 3);
+    g.fillStyle(0xd6503c, 1);
+    g.fillRect(5, 5, 6, 1);
+    g.fillStyle(0x6a8aa0, 1);
+    for (const [x, y] of [[6, 9], [10, 10], [7, 12]]) g.fillEllipse(x, y, 3, 1.4);
+    g.lineStyle(1, INK, 1);
+    g.strokeEllipse(8, 10, 10, 9);
+  },
+  water_truck: (g) => {
+    g.fillStyle(0x4680b0, 1);
+    g.fillEllipse(6, 7, 9, 7);
+    g.fillStyle(0xe8c446, 1);
+    g.fillRect(10, 6, 5, 5);
+    g.fillStyle(0x2a2420, 1);
+    g.fillCircle(5, 12, 2.5);
+    g.fillCircle(12, 12, 2);
+    g.fillStyle(0x78bee6, 1);
+    for (const x of [1, 3]) g.fillRect(x, 12, 1, 2);
+    g.lineStyle(1, INK, 1);
+    g.strokeEllipse(6, 7, 9, 7);
+  },
   anchovy: fish(0xa8c4d4, 0xeef4f6, 7),
   mackerel: fish(0x3a6a90, 0xdfe8ee, 10, (g) => {
     g.lineStyle(1, 0x24486a, 1);

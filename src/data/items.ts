@@ -3,7 +3,7 @@ import type { ItemStats } from '../systems/StatsSystem';
 
 export type ItemId = keyof typeof items;
 
-export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment' | 'bait' | 'animal';
+export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment' | 'bait' | 'animal' | 'fry';
 
 export interface FoodDef {
   /** Energy restored when eaten. */
@@ -31,7 +31,7 @@ export interface ItemDef {
  * till = ploughs its 2x2 area, harvest = reaps its 2x2 area (both toggled),
  * storage = has a cargo bed you can open, none = just a ride.
  */
-export type VehicleAbility = 'none' | 'till' | 'harvest' | 'storage';
+export type VehicleAbility = 'none' | 'till' | 'harvest' | 'water' | 'storage';
 
 export interface VehicleDef {
   ability: VehicleAbility;

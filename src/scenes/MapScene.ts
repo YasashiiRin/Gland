@@ -52,6 +52,7 @@ import { RideController } from './rideController';
 import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
+import { FishPondsView } from './fishPonds';
 import { net, NetEvents } from '../net/NetSession';
 import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
@@ -126,6 +127,7 @@ export abstract class MapScene extends Phaser.Scene {
   private remotes!: RemotePlayers;
   protected horror!: HorrorDirector;
   private wildRice!: WildRice;
+  private ponds!: FishPondsView;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -211,6 +213,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.trees = new TreeSprites(this, decor, info);
     this.wildRice = new WildRice(this.mapKey, decor);
     this.wildRice.refresh();
+    this.ponds = new FishPondsView(this.mapKey, this.map);
     if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
@@ -339,6 +342,7 @@ export abstract class MapScene extends Phaser.Scene {
       EventBus.emit(GameEvents.CraftingOpenRequested, { station: craftingState.nearStation });
       return;
     }
+    if (this.say(this.ponds.collect(this.actionTile()))) return;
     if (this.say(this.wildRice.tryReap(this.actionTile()))) return;
     if (
       !this.tryHarvestFacingTile() &&
@@ -806,6 +810,10 @@ export abstract class MapScene extends Phaser.Scene {
 
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);
+      return;
+    }
+    if (ITEMS[stack.itemId].category === 'fry') {
+      this.say(this.ponds.stock(stack.itemId, this.actionTile()));
       return;
     }
     if (ITEMS[stack.itemId].category === 'bait') {

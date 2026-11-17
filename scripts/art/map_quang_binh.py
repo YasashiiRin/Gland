@@ -28,6 +28,7 @@ run north-south along the east, so places keep their real order and sides:
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
+from .landmark_fields import landmark_fields
 from .map_services import services
 from .map_helpers import (HOUSES, KARST, SIZE, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
                           walk_under, water_spots, zone)
@@ -181,7 +182,7 @@ def _quan_hau(m: Province) -> None:
     place(m, "mountain", 186, 330, 8, 6, solid_from=2, force=True)                       # núi Thần Đinh
     place_near(m, "pagoda", 194, 338, 4, 4)
     walk_under(m, "waterfall", 40, 298, 4, 5, solid_rows=3)                               # thác Tam Lu
-    fish_ponds(m, 222, 296, 262, 320)                                                     # ao cá
+    fish_ponds(m, 222, 296, 262, 320, "Quán Hàu")                                                     # ao cá
 
 
 def _ba_don(m: Province) -> None:
@@ -204,7 +205,17 @@ def _south(m: Province) -> None:
         m.prop("race_boat", x, y, 6, 1)
 
 
+FIELDS = [  # (zone, area, pond near, rice field near) - see landmark_fields.py
+    ("Đồng Hới", (272, 160, 402, 262), (350, 225), (380, 245)),
+    ("Ba Đồn", (284, 22, 372, 52), (320, 30), (345, 30)),
+    ("Phong Nha – Kẻ Bàng", (104, 80, 252, 190), (190, 150), (215, 165)),
+    ("Quán Hàu", (220, 270, 380, 330), None, None),                # its ao cá are fish_ponds() above
+    ("Lệ Thủy", (270, 360, 340, 404), (300, 385), None),
+]
+
+
 def _zones(m: Province) -> None:
+    landmark_fields(m, FIELDS)
     for name, area in [("Ba Đồn", (284, 22, 372, 52)), ("Phong Nha – Kẻ Bàng", (104, 80, 252, 190)),
                        ("Đồng Hới", (272, 160, 402, 262)), ("Quán Hàu", (220, 270, 380, 330)),
                        ("Núi Thần Đinh", (180, 324, 202, 346)), ("Thác Tam Lu", (34, 292, 50, 308)),

@@ -1,5 +1,6 @@
 import config from '../data/wildFields.json';
 import { SEASON_ORDER } from '../config/time';
+import type { FarmPlots } from './FarmingSystem';
 import type { TimeState } from './TimeSystem';
 
 /**
@@ -45,4 +46,20 @@ export function pruneWildFields(fields: WildFields, stamp: number): WildFields {
   const out: WildFields = {};
   for (const [key, s] of Object.entries(fields)) if (s === stamp) out[key] = s;
   return out;
+}
+
+/**
+ * The season turned: every reaped field tile is ripe rice again, and whatever
+ * a player sowed there and did not harvest in time is replaced by it.
+ */
+export function regrowFields(fields: WildFields, plots: FarmPlots, stamp: number): { fields: WildFields; plots: FarmPlots } {
+  const kept = pruneWildFields(fields, stamp);
+  const next = { ...plots };
+  for (const key of Object.keys(fields)) if (!(key in kept)) delete next[key];
+  return { fields: kept, plots: next };
+}
+
+/** Can a seed go straight onto this tile? Only on rice stubble reaped this season. */
+export function isSowableField(fields: WildFields, key: string, stamp: number): boolean {
+  return isReaped(fields, key, stamp);
 }

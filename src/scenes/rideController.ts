@@ -23,9 +23,14 @@ const VEHICLE_DROP = 4;
 /** How close (px) you must stand to a parked vehicle to get on. */
 const MOUNT_RANGE = 22;
 /** Vehicles that take up 2x2 tiles, work a 2x2 area and need a wider collision body. */
-const BIG_VEHICLES: ReadonlySet<string> = new Set(['tractor', 'harvester']);
+const BIG_VEHICLES: ReadonlySet<string> = new Set(['tractor', 'harvester', 'water_truck']);
+/** Vehicles with a work mode (Space toggles it), and what it is called. */
+const WORK_MODE_NAME = { till: 'Chế độ cày', harvest: 'Chế độ gặt', water: 'Chế độ tưới' } as const;
+function isWorkAbility(ability: VehicleAbility | null): ability is keyof typeof WORK_MODE_NAME {
+  return !!ability && ability in WORK_MODE_NAME;
+}
 /** Exhaust smoke: ms between puffs while moving (working tractors puff harder). */
-const SMOKE_INTERVAL: Partial<Record<string, number>> = { motorbike: 140, tractor: 110, harvester: 130 };
+const SMOKE_INTERVAL: Partial<Record<string, number>> = { motorbike: 140, tractor: 110, harvester: 130, water_truck: 150 };
 
 /**
  * Vehicles in the world: draws parked ones, gets the player on and off,
@@ -126,10 +131,10 @@ export class RideController {
       return '';
     }
     const ability = this.ability;
-    if (ability === 'till' || ability === 'harvest') {
+    if (isWorkAbility(ability)) {
       gameState.vehicleWorking = !gameState.vehicleWorking;
       this.lastArea = '';
-      const what = ability === 'till' ? 'Chế độ cày' : 'Chế độ gặt';
+      const what = WORK_MODE_NAME[ability];
       return gameState.vehicleWorking ? `${what}: BẬT` : `${what}: TẮT (chạy thường)`;
     }
     return gameState.riding === 'motorbike' ? 'Bíp bíp!' : '';
@@ -146,7 +151,7 @@ export class RideController {
     if (moving) this.puffSmoke(time);
 
     const ability = this.ability;
-    const working = gameState.vehicleWorking && (ability === 'till' || ability === 'harvest');
+    const working = gameState.vehicleWorking && isWorkAbility(ability);
     if (!working || !ability) {
       this.workHighlight.setVisible(false);
       return;

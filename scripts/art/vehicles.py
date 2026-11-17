@@ -104,6 +104,41 @@ def harvester_front(im: Image.Image, back: bool) -> None:
             put(im, x, 30, (120, 116, 112))
 
 
+# ------------------------------------------------------------------ water truck (a pump cart with a tank)
+TANK = (70, 128, 176)
+CAB = (232, 196, 70)
+
+
+def watertruck_side(im: Image.Image) -> None:
+    rect(im, 2, 21, 29, 24, (60, 56, 56))                                    # chassis
+    disc(im, 9, 16, 6.5, TANK, squash=0.75); rect(im, 3, 12, 15, 20, TANK)     # tank (behind the seat)
+    rect(im, 3, 12, 15, 13, shade(TANK, 1.3)); rect(im, 8, 10, 10, 11, (60, 56, 56))  # filler cap
+    for x in (6, 12):
+        rect(im, x, 12, x, 20, shade(TANK, 0.8))                             # tank bands
+    rect(im, 1, 23, 3, 24, (150, 150, 156))                                  # spray bar
+    rect(im, 15, 17, 19, 20, (40, 34, 30))                                   # seat
+    rect(im, 20, 15, 29, 22, CAB); rect(im, 20, 15, 29, 16, shade(CAB, 1.2))  # bonnet with the pump
+    rect(im, 26, 18, 29, 20, (60, 56, 56))                                   # grille
+    wheel(im, 8, 26, 5); wheel(im, 24, 27, 4)
+
+
+def watertruck_front(im: Image.Image, back: bool) -> None:
+    for x in (6, 25):
+        wheel_front(im, x, 21, 31, 5)
+    if back:   # the tank nearest the viewer, spray bar under it
+        disc(im, 15.5, 16, 9, TANK, squash=0.8); rect(im, 7, 14, 24, 23, TANK)
+        rect(im, 7, 14, 24, 15, shade(TANK, 1.3))
+        for x in (11, 20):
+            rect(im, x, 14, x, 23, shade(TANK, 0.8))
+        rect(im, 4, 25, 27, 26, (150, 150, 156))
+        for x in range(5, 27, 4):
+            put(im, x, 27, (120, 190, 230))
+    else:      # bonnet towards the viewer
+        rect(im, 9, 15, 22, 26, CAB); rect(im, 9, 15, 22, 16, shade(CAB, 1.2))
+        rect(im, 12, 20, 19, 25, (60, 56, 56)); put(im, 10, 17, (250, 230, 150)); put(im, 21, 17, (250, 230, 150))
+        rect(im, 8, 9, 23, 13, TANK); rect(im, 8, 9, 23, 9, shade(TANK, 1.3))   # tank top behind the rider
+
+
 # ------------------------------------------------------------------ ox cart
 OX = (150, 96, 58)
 HORN = (232, 220, 190)
@@ -145,6 +180,7 @@ VEHICLES: dict[str, tuple[Frame, Callable[[Image.Image, bool], None]]] = {
     "motorbike": (bike_side, bike_front),
     "tractor": (tractor_side, tractor_front),
     "harvester": (harvester_side, harvester_front),
+    "water_truck": (watertruck_side, watertruck_front),
     "ox_cart": (oxcart_side, oxcart_front),
 }
 

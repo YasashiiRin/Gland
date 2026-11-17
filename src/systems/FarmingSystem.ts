@@ -6,6 +6,11 @@ export interface FarmPlot {
   cropId?: CropId;
   growthDay: number;
   wateredToday: boolean;
+  /**
+   * Who sowed it, for plots sown on a landmark's prebuilt field: in a shared
+   * world only they may harvest it. Plots on your own tilled land have none.
+   */
+  owner?: string;
 }
 
 export type FarmPlots = Record<string, FarmPlot>;
@@ -49,6 +54,20 @@ export function plantSeed(plots: FarmPlots, key: string, cropId: CropId): FarmPl
   return { ...plots, [key]: { ...plot, cropId, growthDay: 0 } };
 }
 
+/**
+ * Sows straight onto a prebuilt field (reaped rice stubble in a landmark
+ * zone): no hoeing needed, and the crop belongs to whoever sowed it.
+ */
+export function sowField(plots: FarmPlots, key: string, cropId: CropId, owner: string): FarmPlots {
+  if (plots[key]?.cropId) return plots;
+  return { ...plots, [key]: { tilled: true, cropId, growthDay: 0, wateredToday: plots[key]?.wateredToday ?? false, owner } };
+}
+
+/** May `who` harvest this plot? Anyone may, unless someone else sowed it on a landmark field. */
+export function mayHarvest(plot: FarmPlot | undefined, who: string): boolean {
+  return !plot?.owner || plot.owner === who;
+}
+
 export function isReadyToHarvest(plot: FarmPlot | undefined): boolean {
   if (!plot?.cropId) return false;
   return plot.growthDay >= totalGrowthDays(CROPS[plot.cropId]);
@@ -86,6 +105,7 @@ export function harvestPlot(plots: FarmPlots, key: string, random: () => number 
   } else {
     nextPlot = { tilled: true, growthDay: 0, wateredToday: plot.wateredToday };
   }
+  if (plot.owner) nextPlot.owner = plot.owner;
 
   return { plots: { ...plots, [key]: nextPlot }, harvestedItemId: def.harvestedItemId, quantity };
 }
@@ -112,6 +132,7 @@ export function advanceDay(plots: FarmPlots, season: Season, isRaining: boolean)
     }
 
     next[key] = { tilled: true, cropId, growthDay, wateredToday: false };
+    if (plot.owner) next[key].owner = plot.owner;
   }
   return next;
 }

@@ -44,13 +44,21 @@ def market(m: Province, x0: int, y0: int, rows: int = 2, cols: int = 4) -> None:
                     m.put(xx, yy, BLOCK)
 
 
-def fish_ponds(m: Province, x0: int, y0: int, x1: int, y1: int) -> None:
-    """Square fish ponds separated by earth dikes."""
+def fish_ponds(m: Province, x0: int, y0: int, x1: int, y1: int, name: str = "") -> None:
+    """Square fish ponds separated by earth dikes; each one a "fish_pond" players can stock."""
     for y in range(y0, y1 + 1):
         for x in range(x0, x1 + 1):
             if m.free(x, y):
                 m.ground[y][x] = DIRT if (x - x0) % 12 == 11 or (y - y0) % 9 == 8 else WATER
                 m.taken.add((x, y))
+    n = 0
+    for cy in range(y0, y1 + 1, 9):
+        for cx in range(x0, x1 + 1, 12):
+            w, h = min(11, x1 + 1 - cx), min(8, y1 + 1 - cy)
+            water = sum(m.ground[y][x] == WATER for y in range(cy, cy + h) for x in range(cx, cx + w))
+            if w > 2 and h > 2 and water * 2 > w * h:
+                n += 1
+                m.obj("fish_pond", cx * 16, cy * 16, w * 16, h * 16, {"pondName": f"Ao cá {name} số {n}".replace("  ", " ")})
 
 
 def herd(m: Province, regions: Regions, biomes: tuple[str, ...], count: int) -> None:

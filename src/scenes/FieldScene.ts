@@ -17,6 +17,7 @@ import {
   harvestPlot,
   isReadyToHarvest,
   plantSeed,
+  sowField,
   tillPlot,
   waterPlot,
   type FarmPlot,
@@ -40,6 +41,8 @@ import type { Station } from '../data/recipes';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
 import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
 import { recallAll } from '../systems/VehicleSystem';
+import { isSowableField, seasonStamp } from '../systems/WildFieldSystem';
+import { isMine, ownerName } from '../state/owner';
 
 /** Energy the tractor uses per tile it tills (the hand hoe costs 2). */
 const TRACTOR_ENERGY_PER_TILE = 1;
@@ -82,8 +85,7 @@ export abstract class FieldScene extends MapScene {
       const at = this.tileOfKey(key);
       if (!at) continue;
       const { x, y } = at;
-      this.groundLayer.putTileAt(TILE_GID.SOIL, x, y);
-      this.setSoilTint(x, y, plot.wateredToday);
+      this.showSoil(x, y, plot.wateredToday);
       if (plot.cropId) this.spawnOrUpdateCrop(key, x, y, plot);
     }
 
@@ -116,8 +118,7 @@ export abstract class FieldScene extends MapScene {
       const { x, y } = at;
       const plot = gameState.farmPlots[key];
       if (plot) {
-        this.groundLayer.putTileAt(TILE_GID.SOIL, x, y);
-        this.setSoilTint(x, y, plot.wateredToday);
+        this.showSoil(x, y, plot.wateredToday);
       } else {
         this.groundLayer.putTileAt(TILE_GID.GRASS, x, y);
       }
@@ -148,7 +149,7 @@ export abstract class FieldScene extends MapScene {
         return canWater(gameState.farmPlots, key) ? 'valid' : 'invalid';
       }
       if (def.category === 'seed') {
-        return canPlant(gameState.farmPlots, key) ? 'valid' : 'invalid';
+        return canPlant(gameState.farmPlots, key) || this.isOpenField(tile) ? 'valid' : 'invalid';
       }
       if (def.category === 'furniture') {
         const objKey = placedObjectKey(this.mapKey, tile.x, tile.y);
@@ -181,30 +182,40 @@ export abstract class FieldScene extends MapScene {
         this.say('Đào được 1 con giun! (mồi câu cá)');
       }
     } else if (itemId === 'watering_can') {
-      if (!canWater(gameState.farmPlots, key)) return;
-      gameState.farmPlots = waterPlot(gameState.farmPlots, key);
-      this.setSoilTint(tile.x, tile.y, true);
-      this.playBurstEffect(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2 - 6, WATER_DROPLET_TEXTURE, {
-        count: 6,
-        speed: { min: 20, max: 50 },
-        angle: { min: 250, max: 290 },
-        lifespan: 350,
-        gravityY: 260,
-        scale: { start: 1, end: 0.6 },
-      });
+      this.waterAt(tile);
     } else {
       super.applyToolEffect(itemId, tile);
     }
   }
 
+  /** The watering can or the water truck: dampens a tilled tile, with a splash. */
+  private waterAt(tile: { x: number; y: number }): void {
+    const key = this.plotKey(tile.x, tile.y);
+    if (!canWater(gameState.farmPlots, key)) return;
+    gameState.farmPlots = waterPlot(gameState.farmPlots, key);
+    this.setSoilTint(tile.x, tile.y, true);
+    this.playBurstEffect(tile.x * TILE + TILE / 2, tile.y * TILE + TILE / 2 - 6, WATER_DROPLET_TEXTURE, {
+      count: 6,
+      speed: { min: 20, max: 50 },
+      angle: { min: 250, max: 290 },
+      lifespan: 350,
+      gravityY: 260,
+      scale: { start: 1, end: 0.6 },
+    });
+  }
+
   protected override tryPlantFacingTile(seedItemId: ItemId): void {
     const tile = this.actionTile();
     const key = this.plotKey(tile.x, tile.y);
-    if (!canPlant(gameState.farmPlots, key)) return;
     const cropId = cropForSeed(seedItemId);
     if (!cropId) return;
-
-    gameState.farmPlots = plantSeed(gameState.farmPlots, key, cropId);
+    if (this.isOpenField(tile)) {
+      // A landmark's prebuilt field: sow straight onto the stubble, the crop is yours.
+      gameState.farmPlots = sowField(gameState.farmPlots, key, cropId, ownerName());
+      this.showSoil(tile.x, tile.y, gameState.farmPlots[key].wateredToday);
+    } else if (canPlant(gameState.farmPlots, key)) {
+      gameState.farmPlots = plantSeed(gameState.farmPlots, key, cropId);
+    } else return;
     gameState.inventory = removeOneFromInventory(gameState, seedItemId);
     this.spawnOrUpdateCrop(key, tile.x, tile.y, gameState.farmPlots[key]);
   }
@@ -218,6 +229,10 @@ export abstract class FieldScene extends MapScene {
     for (const tile of tiles) {
       if (ability === 'harvest') {
         this.harvestAt(tile);
+        continue;
+      }
+      if (ability === 'water') {
+        this.waterAt(tile);
         continue;
       }
       if (ability !== 'till' || isExhausted(gameState.energy)) return;
@@ -239,6 +254,10 @@ export abstract class FieldScene extends MapScene {
   private harvestAt(tile: { x: number; y: number }): boolean {
     const key = this.plotKey(tile.x, tile.y);
     if (!isReadyToHarvest(gameState.farmPlots[key])) return false;
+    if (!isMine(gameState.farmPlots[key]?.owner)) {
+      this.say(`Ruộng này do ${gameState.farmPlots[key]?.owner} gieo — để người ấy gặt`);
+      return true;
+    }
 
     const result = harvestPlot(gameState.farmPlots, key);
     if (!result) return false;
@@ -406,6 +425,24 @@ export abstract class FieldScene extends MapScene {
     if (!key.startsWith(prefix)) return null;
     const [x, y] = key.slice(prefix.length).split(',').map(Number);
     return { x, y };
+  }
+
+  /**
+   * A reaped rice tile of a landmark field, not sown yet this season: seeds go
+   * straight in (no hoe; the zone's fields can't be tilled by hand).
+   */
+  private isOpenField(tile: { x: number; y: number }): boolean {
+    const key = this.plotKey(tile.x, tile.y);
+    return !gameState.farmPlots[key]?.cropId
+      && this.decorLayer.getTileAt(tile.x, tile.y)?.index === TILE_GID.STUBBLE
+      && isSowableField(gameState.wildFields, key, seasonStamp(gameState.time));
+  }
+
+  /** Draws a plot's soil (over field stubble, which is cleared away). */
+  private showSoil(x: number, y: number, watered: boolean): void {
+    if (this.decorLayer.getTileAt(x, y)?.index === TILE_GID.STUBBLE) this.decorLayer.removeTileAt(x, y);
+    this.groundLayer.putTileAt(TILE_GID.SOIL, x, y);
+    this.setSoilTint(x, y, watered);
   }
 
   private setSoilTint(x: number, y: number, watered: boolean): void {

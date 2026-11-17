@@ -13,7 +13,7 @@ export const VEHICLE_IDS: readonly ItemId[] = ITEM_IDS.filter((id) => ITEMS[id].
  * tile column of each 2-tile-wide bay. Keep in sync with scripts/art/map_services.py.
  */
 const BAY_MAP = 'QuangBinh';
-const BAY_TILE_COLUMNS = [260, 263, 266, 269];
+const BAY_TILE_COLUMNS = [260, 263, 266, 269, 272];
 const BAY_TILE_ROW = 243;
 
 /** The co-operative's meadow, where bought farm animals are let loose (world pixels). */

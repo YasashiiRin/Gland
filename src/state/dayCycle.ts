@@ -1,4 +1,5 @@
-import { pruneWildFields, seasonStamp } from '../systems/WildFieldSystem';
+import { regrowFields, seasonStamp } from '../systems/WildFieldSystem';
+import { pruneFishPonds } from '../systems/FishPondSystem';
 import { ITEMS } from '../data/items';
 import { MAP_KEYS } from '../data/maps';
 import { advanceAnimalDay } from '../systems/AnimalSystem';
@@ -30,7 +31,10 @@ export function endWorldDay(): { time: TimeState; earnings: number } {
   gameState.time = time;
   gameState.farmPlots = advanceFarmDay(gameState.farmPlots, time.season, wasRaining);
   gameState.resourceNodes = advanceResourceDay(gameState.resourceNodes, absoluteDayNumber(time));
-  gameState.wildFields = pruneWildFields(gameState.wildFields, seasonStamp(time));
+  const regrown = regrowFields(gameState.wildFields, gameState.farmPlots, seasonStamp(time));
+  gameState.wildFields = regrown.fields;
+  gameState.farmPlots = regrown.plots;
+  gameState.fishPonds = pruneFishPonds(gameState.fishPonds, seasonStamp(time));
   for (const mapKey of MAP_KEYS) {
     // Plots and placed objects share the "Map:x,y" key, so a sprinkler waters the plot under it.
     for (const tileKey of sprinklerTileKeysOnMap(gameState.placedObjects, mapKey)) {

@@ -439,7 +439,7 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - [x] Đợt 3 + làm giàu map cũ (bản 224×140, sẽ được thay bằng bản 425×425 bên dưới): đủ 10 tỉnh — thêm **Phong Nha – Kẻ Bàng** (Quảng Bình, đi từ mép tây nông trại), **Thanh Hóa** (ruộng bậc thang Pù Luông, nhà sàn, Thành nhà Hồ, sông Mã, Sầm Sơn – Hòn Trống Mái), **Nghệ An** (rừng Pù Mát, sông Lam, làng Sen – Kim Liên, Cửa Lò), **Quảng Ngãi** (núi Thiên Ấn, sông Trà Khúc với guồng nước, ruộng muối Sa Huỳnh, đảo Lý Sơn với tỏi, miệng núi lửa, vòm đá), **Bình Định** (võ đường Tây Sơn, tháp Bánh Ít, Tháp Đôi, Ghềnh Ráng, dừa Tam Quan). Quảng Trị có Thành cổ + đài tưởng niệm, Huế có lăng vua, Đà Nẵng có Cầu Vàng Bà Nà.
 - [x] **Đồng lúa làng** gặt được (phím E hoặc liềm): mỗi ô cho lúa theo tỉ lệ trong `src/data/wildFields.json`, gặt xong còn gốc rạ, **đầu mùa sau chín lại**; chơi chung thì mọi người thấy như nhau.
 
-### Thế giới lớn 425×425 kiểu Don't Starve (đang làm — xong giai đoạn 1 và 2a)
+### Thế giới lớn 425×425 kiểu Don't Starve (đang làm — xong giai đoạn 1, 2a và 2b)
 - Người chơi đổi ý: **chỉ 2 map tỉnh — Quảng Bình và Huế**, mỗi map **425×425 ô** (các tỉnh khác bỏ khỏi game; hình vẽ vẫn giữ trong `scripts/art`).
 - Mỗi map có nhiều **vùng địa hình hình dạng tự nhiên** (không vuông vức), thảm thực vật khác nhau: đồng cỏ, rừng rậm, rừng thông, núi đá, đầm lầy/đồng sen, đồng lúa, bãi biển, sông ngòi… theo đặc trưng tỉnh; đường mòn nối các vùng; địa danh đặt trong vùng hợp với nó.
 - Mỗi map có **một khu làng NPC** tập trung nhiều nhà.
@@ -465,8 +465,11 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       Bản lưu cũ: về Quảng Bình, cây trên nông trại cũ mất, đồ đã đặt ở nông trại cũ (và đồ trong rương) chuyển vào nhà kho
       hợp tác xã, xe về chỗ đậu, vật nuôi về bãi cỏ. Code: `scripts/art/map_services.py`, `src/scenes/FieldScene.ts`,
       `VillageScene.ts`, `src/state/worldMigration.ts`. Ảnh: `docs/previews/gd2_dong_hoi.png`, `gd2_hop_tac_xa.png`.
-  2b. [ ] **Khu địa danh đặc biệt**: ruộng và ao dựng sẵn trong các zone; gieo hạt trên ruộng có sẵn, thả cá vào ao (chờ vài
-      ngày cá lớn), gặt/thu tài nguyên; đầu mùa tài nguyên mọc lại (thay cây người chơi chưa gặt); ai gieo/thả người đó thu.
+  2b. [x] **Khu địa danh đặc biệt** (xong): ruộng lúa và ao cá dựng sẵn trong các zone (Đồng Hới, Ba Đồn, Phong Nha, Quán Hàu
+      12 ao, Lệ Thủy; Huế thêm zone Đại Nội (hồ sen), chợ Đông Ba, Phú Xuân, Thiên Mụ, Ngự Bình). Gặt lúa xong gieo hạt thẳng
+      lên gốc rạ (không cần cuốc); **cá giống** (sạp cá) thả xuống ao, 3 ngày sau tương tác cạnh ao để vớt; ai gieo/thả người
+      đó thu (khi chơi chung); đầu mùa lúa mọc lại thay cây chưa gặt, ao làm lại từ đầu (`FishPondSystem`, `landmark_fields.py`).
+      Thêm **máy tưới nước** ở tiệm xe (bật chế độ tưới: tưới ô đất dưới xe), chỗ đậu thứ 5 ở hợp tác xã.
   (Ghi chú cũ) 2. Bỏ Farm/House/Town: khu làng NPC trong map Quảng Bình nhận cửa hàng, chợ, bảng nhiệm vụ, lịch NPC; trồng trọt được ở mọi map (cuốc đất bất kỳ đâu); thùng bán hàng, bàn chế tác, nhà kho xe, chuồng gà, lối vào hầm mỏ chuyển vào thế giới mới.
   3. Màn chọn vị trí bắt đầu + vật phẩm **chiếu** (trải ra để ngủ, cất lại được); đổi phiên bản lưu (bản lưu cũ sẽ bắt đầu lại).
   4. Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại.

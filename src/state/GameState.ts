@@ -1,3 +1,4 @@
+import type { FishPonds } from '../systems/FishPondSystem';
 import type { WildFields } from '../systems/WildFieldSystem';
 import type { ItemId } from '../data/items';
 import type { MapKey } from '../data/maps';
@@ -46,6 +47,8 @@ export interface GameState {
   resourceNodes: ResourceNodes;
   /** Village rice fields reaped this season (see WildFieldSystem). */
   wildFields: WildFields;
+  /** Fingerlings stocked in the landmark ponds, by pond. */
+  fishPonds: FishPonds;
   /** Chests, scarecrows and sprinklers the player has placed, keyed by "mapKey:x,y". */
   placedObjects: PlacedObjects;
   relationships: Relationships;
@@ -126,6 +129,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     farmName,
     resourceNodes: {},
     wildFields: {},
+    fishPonds: {},
     placedObjects: {},
     relationships: {},
     playerHealth: createInitialHealth(),

@@ -851,6 +851,16 @@
    },
    {
     "type": "spritesheet",
+    "key": "vehicle_water_truck",
+    "url": "sprites/vehicles/water_truck.png",
+    "frameConfig": {
+     "frameWidth": 64,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
     "key": "vehicle_ox_cart",
     "url": "sprites/vehicles/ox_cart.png",
     "frameConfig": {

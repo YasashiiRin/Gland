@@ -325,6 +325,19 @@
       "ability": "harvest"
     }
   },
+  "water_truck": {
+    "name": "Máy tưới nước",
+    "category": "vehicle",
+    "stackable": false,
+    "sellPrice": 3500,
+    "description": "Xe bồn có vòi phun, to 4 ô (2x2). Bấm chuột trái/Space để bật chế độ tưới: mọi ô đất đã cuốc dưới xe đều được tưới (không tốn năng lượng). +12% tốc độ.",
+    "stats": {
+      "speed": 0.12
+    },
+    "vehicle": {
+      "ability": "water"
+    }
+  },
   "gao": {
     "name": "Gạo",
     "category": "material",
@@ -360,6 +373,13 @@
     "stackable": true,
     "sellPrice": 5,
     "description": "Mồi câu cá. Cuốc đất đôi khi đào được. Cầm giun và bấm dùng để gắn vào cần câu."
+  },
+  "fish_fry": {
+    "name": "Cá giống",
+    "category": "fry",
+    "stackable": true,
+    "sellPrice": 12,
+    "description": "Một túi cá con. Thả vào ao cá dựng sẵn ở các khu địa danh (cầm và bấm dùng cạnh ao), chờ 3 ngày cho cá lớn rồi bấm tương tác (E/chuột phải) cạnh ao để vớt. Cá của ai người nấy vớt; sang mùa mới ao làm lại từ đầu."
   },
   "whip": {
     "name": "Cây roi",

@@ -5,7 +5,7 @@ the separate Farm and Town maps now sits in the world itself.
   object in front), three market stalls with their vendors, the quest board,
   and a guesthouse to sleep in (until the player gets a sleeping mat).
 * The farming co-operative (hợp tác xã) on the edge of Đồng Hới: warehouse with
-  four vehicle bays in front (keep in sync with src/data/garage.ts) and the
+  five vehicle bays in front (keep in sync with src/data/garage.ts) and the
   shipping bin; its meadow is where bought farm animals arrive.
 * Sơn Đoòng: the entrance of the mine.
 
@@ -20,7 +20,7 @@ from .tiles import DIRT, GRASS, PATH
 T = 16
 # The co-operative yard: warehouse (6x5) at (CX, CY), bays on row CY + 7.
 COOP = (262, 236)
-BAY_OFFSETS = (-2, 1, 4, 7)
+BAY_OFFSETS = (-2, 1, 4, 7, 10)
 
 
 def _shop(m: Province, sprite: str, x: int, y: int, w: int, shop_id: str, name: str = "shop") -> None:

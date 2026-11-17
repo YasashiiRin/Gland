@@ -22,6 +22,7 @@ export const SHARED_KEYS = [
   'shippingBin',
   'resourceNodes',
   'wildFields',
+  'fishPonds',
   'placedObjects',
   'relationships',
   'deepestFloor',

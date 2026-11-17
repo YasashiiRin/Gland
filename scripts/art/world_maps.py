@@ -10,7 +10,8 @@ Giang lagoon with Rú Chá mangroves, the Thuận An mouth and the dunes.
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
-from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, crossing, herd, market, mooring, street_row, water_spots
+from .landmark_fields import landmark_fields
+from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, crossing, herd, market, mooring, street_row, water_spots, zone
 from .map_quang_binh import build_quang_binh
 from .province_tiles import LOTUS, PAVING
 from .region import Province, beach_trees, coast, ellipse, exit_north, finish, meander, place, river, road, walls
@@ -57,6 +58,7 @@ def build_hue() -> Province:
                 m.put(x, y, BLOCK)
     place(m, "royal_hall", 181, 130, 7, 4, force=True)
     ellipse(m, 222, 152, 9, 5, LOTUS)
+    m.obj("fish_pond", 213 * 16, 147 * 16, 19 * 16, 11 * 16, {"pondName": "Hồ sen Đại Nội"})
     bridge_y = crossing(m, 195, range(196, 290))
     if bridge_y:
         place(m, "truong_tien", 193, bridge_y, 5, 7, solid_from=None, layer="floor", force=True)
@@ -83,7 +85,23 @@ def build_hue() -> Province:
     trail(m, (195, 300), (195, 318))
     for i, (x, y) in enumerate([(190, 222), (120, 270), (300, 212)]):
         mooring(m, f"hue_boat_{i}", x, y)                                                # rowing boats on the Hương
+    _hue_zones(m)
     return finish(m, "fromQuangBinh")
+
+
+HUE_ZONES = [  # (zone, area, pond near, rice field near) - see landmark_fields.py
+    ("Đại Nội", (148, 110, 242, 194), None, None),                    # its lotus lake is the pond
+    ("Chợ Đông Ba", (242, 186, 278, 214), None, None),
+    ("Phú Xuân", (176, 236, 300, 300), (270, 285), None),
+    ("Chùa Thiên Mụ", (104, 248, 132, 276), (112, 272), None),
+    ("Núi Ngự Bình", (204, 328, 224, 348), None, None),
+]
+
+
+def _hue_zones(m: Province) -> None:
+    landmark_fields(m, HUE_ZONES)
+    for name, area, _, _ in HUE_ZONES:
+        zone(m, name, area)
 
 
 WORLD_MAPS = (("quang_binh", build_quang_binh), ("hue", build_hue))
