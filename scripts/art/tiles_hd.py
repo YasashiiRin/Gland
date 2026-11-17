@@ -275,15 +275,24 @@ def hd_tile(idx: int, rnd: random.Random) -> Image.Image | None:
     return None
 
 
+def _redraw_x2() -> list[Image.Image]:
+    """Every 1x tile drawn again at double resolution (same random sequence as the 1x sheet)."""
+    from . import province_tiles, tiles, water_tiles
+    from .hd_canvas import hd_modules
+    rnd = random.Random(7)
+    with hd_modules(tiles, water_tiles, province_tiles):
+        return [tiles.tile_img(i, rnd).raw for i in range(COLS * ROWS)]
+
+
 def make_tileset_hd(sheet16: Image.Image) -> None:
     """The 32 px tileset: HD drawings where they exist, else each 16 px tile scaled 2x."""
     rnd = random.Random(17)
+    redrawn = _redraw_x2()
     sheet = new(COLS * S, ROWS * S)
     for i in range(COLS * ROWS):
         tile = hd_tile(i, rnd)
         if tile is None:
-            sx, sy = (i % COLS) * T, (i // COLS) * T
-            tile = sheet16.crop((sx, sy, sx + T, sy + T)).resize((S, S), Image.NEAREST)
+            tile = redrawn[i]
         sheet.paste(tile, ((i % COLS) * S, (i // COLS) * S))
     out = ASSETS / "tilesets" / "farm_tiles_hd.png"
     sheet.save(out)

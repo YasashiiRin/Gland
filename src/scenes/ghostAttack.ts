@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { hdScale } from './hd';
 import { TILE } from '../config/constants';
 import type { Player } from '../entities/Player';
 import { EventBus, GameEvents } from '../events/EventBus';
@@ -60,7 +61,7 @@ export class GhostAttacker {
     const map = (this.scene as Phaser.Scene & { physics: Phaser.Physics.Arcade.ArcadePhysics }).physics.world.bounds;
     const x = Phaser.Math.Clamp(this.player.x + Math.cos(angle) * TILE * 5, TILE, map.width - TILE);
     const y = Phaser.Math.Clamp(this.player.y + Math.sin(angle) * TILE * 5, TILE, map.height - TILE);
-    this.ghost = this.scene.add.image(x, y, 'horror_ghost').setOrigin(0.5, 0.8).setTint(0xffb0b0).setAlpha(0);
+    this.ghost = this.scene.add.image(x, y, 'horror_ghost').setScale(hdScale(this.scene, 'horror_ghost')).setOrigin(0.5, 0.8).setTint(0xffb0b0).setAlpha(0);
     this.scene.tweens.add({ targets: this.ghost, alpha: 0.95, duration: 500 });
     this.bornAt = time;
     playWhisper(gameState.settings, Phaser.Math.Clamp((x - this.player.x) / (TILE * 5), -1, 1));

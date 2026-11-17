@@ -403,7 +403,7 @@ export class FarmScene extends MapScene {
       // Per-crop growth art, rooted on the tile's bottom edge (tall plants overlap the tile above).
       const frame = ready ? CROP_FRAMES - 1 : Math.min(CROP_FRAMES - 2, Math.floor(fraction * (CROP_FRAMES - 1)));
       sprite.setTexture(sheetKey, frame).setOrigin(0.5, 1).setPosition(x * TILE + TILE / 2, y * TILE + TILE);
-      sprite.setScale(1).clearTint();
+      sprite.setScale(hdScale(this, sheetKey)).clearTint();
     } else {
       // Fallback for a crop added to crops.json without its own art yet.
       sprite.setTexture(CROP_TEXTURE).setOrigin(0.5).setPosition(x * TILE + TILE / 2, y * TILE + TILE / 2);

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { artScale, hdScale } from './hd';
 import { TILE } from '../config/constants';
 import { isTreeGid, isWaterGid } from '../config/tileGids';
 import type { Player } from '../entities/Player';
@@ -184,7 +185,7 @@ export class HorrorDirector {
     const dist = 7 * TILE;
     const x = Phaser.Math.Clamp(this.player.x + Math.cos(angle) * dist, TILE, this.ground.tilemap.width * TILE - TILE);
     const y = Phaser.Math.Clamp(this.player.y + Math.sin(angle) * dist, TILE * 2, this.ground.tilemap.height * TILE - TILE);
-    const sprite = this.scene.add.image(x, y, 'horror_ghost').setOrigin(0.5, 28 / 32).setAlpha(0).setDepth(y);
+    const sprite = this.scene.add.image(x, y, 'horror_ghost').setScale(hdScale(this.scene, 'horror_ghost')).setOrigin(0.5, 28 / 32).setAlpha(0).setDepth(y);
     this.scene.tweens.add({ targets: sprite, alpha: 0.9, duration: 1600 });
     this.haunts.push({ kind: 'ghost', sprite, born: this.scene.time.now, reappear: Math.random() < 0.4 });
   }
@@ -193,7 +194,7 @@ export class HorrorDirector {
     const [fx, fy] = DIR_VECTORS[this.player.direction];
     const x = this.player.x - fx * TILE * 1.3;
     const y = this.player.y - fy * TILE * 1.3;
-    const sprite = this.scene.add.image(x, y, 'horror_ghost').setOrigin(0.5, 28 / 32).setAlpha(0.95).setDepth(y);
+    const sprite = this.scene.add.image(x, y, 'horror_ghost').setScale(hdScale(this.scene, 'horror_ghost')).setOrigin(0.5, 28 / 32).setAlpha(0.95).setDepth(y);
     this.screen({ kind: 'caption', text: '…sau lưng kìa…' });
     playWhisper(gameState.settings, 0);
     this.scene.time.delayedCall(900, () => {
@@ -208,7 +209,7 @@ export class HorrorDirector {
     const [fx, fy] = DIR_VECTORS[this.player.direction];
     const x = this.player.x - fx * TILE * 6;
     const y = this.player.y - fy * TILE * 6;
-    const sprite = this.scene.add.image(x, y, 'horror_shadow').setOrigin(0.5, 28 / 32).setAlpha(0).setDepth(y);
+    const sprite = this.scene.add.image(x, y, 'horror_shadow').setScale(hdScale(this.scene, 'horror_shadow')).setOrigin(0.5, 28 / 32).setAlpha(0).setDepth(y);
     this.scene.tweens.add({ targets: sprite, alpha: 0.85, duration: 1200 });
     this.haunts.push({ kind: 'follower', sprite, born: this.scene.time.now, lastStep: 0 });
   }
@@ -291,7 +292,8 @@ export class HorrorDirector {
       const ring = this.scene.add.circle(x, y, 3).setStrokeStyle(1, 0xcfe8f0, 0.8).setDepth(y);
       this.scene.tweens.add({ targets: ring, radius: 14, alpha: 0, delay: i * 400, duration: 1300, onComplete: () => ring.destroy() });
     }
-    const hand = this.scene.add.image(x, y + 10, 'horror_hand').setOrigin(0.5, 1).setDepth(y + 1).setCrop(0, 0, 12, 0);
+    const k = artScale(this.scene, 'horror_hand');
+    const hand = this.scene.add.image(x, y + 10, 'horror_hand').setScale(1 / k).setOrigin(0.5, 1).setDepth(y + 1).setCrop(0, 0, 12 * k, 0);
     const reveal = { h: 0 };
     this.scene.tweens.add({
       targets: reveal,
@@ -301,7 +303,7 @@ export class HorrorDirector {
       yoyo: true,
       hold: 1300,
       onUpdate: () => {
-        hand.setCrop(0, 0, 12, reveal.h);
+        hand.setCrop(0, 0, 12 * k, reveal.h * k);
         hand.setY(y + 10 - reveal.h * 0.4);
       },
       onComplete: () => hand.destroy(),

@@ -97,9 +97,9 @@ export class HorrorOverlay {
     this.blackout.setAlpha(1);
     this.scene.time.delayedCall(650, () => {
       const { height } = this.scene.scale;
-      this.face.setVisible(true).setScale((height * 0.85) / 64).setAlpha(1);
+      this.face.setVisible(true).setScale((height * 0.85) / this.face.height).setAlpha(1);
       playScreech(gameState.settings);
-      this.scene.tweens.add({ targets: this.face, scale: (height * 1.05) / 64, duration: 380, ease: 'Quad.easeIn' });
+      this.scene.tweens.add({ targets: this.face, scale: (height * 1.05) / this.face.height, duration: 380, ease: 'Quad.easeIn' });
       this.scene.time.delayedCall(420, () => {
         this.face.setVisible(false);
         this.scene.tweens.add({ targets: this.blackout, alpha: 0, duration: 500 });

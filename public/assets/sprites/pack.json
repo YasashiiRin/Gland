@@ -600,131 +600,224 @@
    {
     "type": "image",
     "key": "prop_cave",
-    "url": "sprites/props/cave.png"
+    "url": "sprites/props/cave.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_shipping_bin",
-    "url": "sprites/props/shipping_bin.png"
+    "url": "sprites/props/shipping_bin.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_bed",
-    "url": "sprites/furniture/bed.png"
+    "url": "sprites/furniture/bed.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_table",
-    "url": "sprites/furniture/table.png"
+    "url": "sprites/furniture/table.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_chair",
-    "url": "sprites/furniture/chair.png"
+    "url": "sprites/furniture/chair.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_dish_cabinet",
-    "url": "sprites/furniture/dish_cabinet.png"
+    "url": "sprites/furniture/dish_cabinet.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_kitchen_stove",
-    "url": "sprites/furniture/kitchen_stove.png"
+    "url": "sprites/furniture/kitchen_stove.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_tea_cabinet",
-    "url": "sprites/furniture/tea_cabinet.png"
+    "url": "sprites/furniture/tea_cabinet.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_bookshelf",
-    "url": "sprites/furniture/bookshelf.png"
+    "url": "sprites/furniture/bookshelf.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_plant",
-    "url": "sprites/furniture/plant.png"
+    "url": "sprites/furniture/plant.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_rug",
-    "url": "sprites/furniture/rug.png"
+    "url": "sprites/furniture/rug.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_window",
-    "url": "sprites/furniture/window.png"
+    "url": "sprites/furniture/window.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_painting",
-    "url": "sprites/furniture/painting.png"
+    "url": "sprites/furniture/painting.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_rough_bench",
-    "url": "sprites/furniture/rough_bench.png"
+    "url": "sprites/furniture/rough_bench.png",
+    "hd": true
    },
    {
     "type": "image",
     "key": "prop_carpenter_bench",
-    "url": "sprites/furniture/carpenter_bench.png"
+    "url": "sprites/furniture/carpenter_bench.png",
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "crop_parsnip",
     "url": "sprites/crops/parsnip.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "crop_potato",
     "url": "sprites/crops/potato.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "crop_cauliflower",
     "url": "sprites/crops/cauliflower.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "crop_strawberry",
     "url": "sprites/crops/strawberry.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "crop_green_bean",
     "url": "sprites/crops/green_bean.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    },
    {
     "type": "spritesheet",
     "key": "crop_rice",
     "url": "sprites/crops/rice.png",
     "frameConfig": {
-     "frameWidth": 16,
-     "frameHeight": 32
-    }
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_bamboo",
+    "url": "sprites/trees/bamboo.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_banana",
+    "url": "sprites/trees/banana.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_areca",
+    "url": "sprites/trees/areca.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_banyan",
+    "url": "sprites/props/banyan.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_well",
+    "url": "sprites/props/well.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_haystack",
+    "url": "sprites/props/haystack.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_jar",
+    "url": "sprites/props/jar.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "horror_ghost",
+    "url": "sprites/horror/ghost.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "horror_shadow",
+    "url": "sprites/horror/shadow.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "horror_hand",
+    "url": "sprites/horror/hand.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "horror_face",
+    "url": "sprites/horror/face.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "tree_mangrove",
+    "url": "sprites/trees/mangrove.png",
+    "hd": true
    },
    {
     "type": "spritesheet",
@@ -765,68 +858,6 @@
      "frameHeight": 64
     },
     "hd": true
-   },
-   {
-    "type": "image",
-    "key": "tree_bamboo",
-    "url": "sprites/trees/bamboo.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "tree_banana",
-    "url": "sprites/trees/banana.png"
-   },
-   {
-    "type": "image",
-    "key": "tree_areca",
-    "url": "sprites/trees/areca.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_banyan",
-    "url": "sprites/props/banyan.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_well",
-    "url": "sprites/props/well.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_haystack",
-    "url": "sprites/props/haystack.png"
-   },
-   {
-    "type": "image",
-    "key": "prop_jar",
-    "url": "sprites/props/jar.png"
-   },
-   {
-    "type": "image",
-    "key": "horror_ghost",
-    "url": "sprites/horror/ghost.png"
-   },
-   {
-    "type": "image",
-    "key": "horror_shadow",
-    "url": "sprites/horror/shadow.png"
-   },
-   {
-    "type": "image",
-    "key": "horror_hand",
-    "url": "sprites/horror/hand.png"
-   },
-   {
-    "type": "image",
-    "key": "horror_face",
-    "url": "sprites/horror/face.png"
-   },
-   {
-    "type": "image",
-    "key": "tree_mangrove",
-    "url": "sprites/trees/mangrove.png"
    },
    {
     "type": "spritesheet",
