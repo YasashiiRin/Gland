@@ -36,7 +36,7 @@ import {
   type PlacedObjectKind,
 } from '../systems/PlacedObjectSystem';
 import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/EventBus';
-import { iconTextureKey } from '../ui/itemIcons';
+import { ICON_WORLD_SCALE, iconTextureKey } from '../ui/itemIcons';
 import { CROP_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
 import type { Station } from '../data/recipes';
@@ -105,7 +105,7 @@ export abstract class FieldScene extends MapScene {
       const propKey = `prop_${obj.kind}`;
       const sprite = this.textures.exists(propKey)
         ? this.add.image(x * TILE + TILE / 2, y * TILE + TILE, propKey).setOrigin(0.5, 1).setScale(hdScale(this, propKey))
-        : this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, iconTextureKey(obj.kind as ItemId));
+        : this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, iconTextureKey(obj.kind as ItemId)).setScale(ICON_WORLD_SCALE);
       // A mat lies flat on the ground: under everyone standing or lying on it.
       sprite.setDepth(obj.kind === 'sleeping_mat' ? 0.5 : y * TILE + TILE / 2 - 1);
       this.furnitureSprites.set(key, sprite);
@@ -123,7 +123,7 @@ export abstract class FieldScene extends MapScene {
       if (plot) {
         this.showSoil(x, y, plot.wateredToday);
       } else {
-        this.groundLayer.putTileAt(TILE_GID.GRASS, x, y);
+        this.groundLook.put(TILE_GID.GRASS, x, y);
       }
       if (plot?.cropId) {
         this.spawnOrUpdateCrop(key, x, y, plot);
@@ -180,7 +180,7 @@ export abstract class FieldScene extends MapScene {
       if (gid === undefined || !TILLABLE_GIDS.includes(gid)) return;
       if (this.decorLayer.getTileAt(tile.x, tile.y)) return; // something (tree/rock/bush) is in the way
       gameState.farmPlots = tillPlot(gameState.farmPlots, key);
-      this.groundLayer.putTileAt(TILE_GID.SOIL, tile.x, tile.y);
+      this.groundLook.put(TILE_GID.SOIL, tile.x, tile.y);
       this.setSoilTint(tile.x, tile.y, false);
       if (digsWorm()) {
         gameState.inventory = addItem(gameState.inventory, 'worm', 1).state;
@@ -488,13 +488,14 @@ export abstract class FieldScene extends MapScene {
   /** Draws a plot's soil (over field stubble, which is cleared away). */
   private showSoil(x: number, y: number, watered: boolean): void {
     if (this.decorLayer.getTileAt(x, y)?.index === TILE_GID.STUBBLE) this.decorLayer.removeTileAt(x, y);
-    this.groundLayer.putTileAt(TILE_GID.SOIL, x, y);
+    this.groundLook.put(TILE_GID.SOIL, x, y);
     this.setSoilTint(x, y, watered);
   }
 
   private setSoilTint(x: number, y: number, watered: boolean): void {
     const tile = this.groundLayer.getTileAt(x, y);
     if (tile) tile.tint = watered ? WATERED_SOIL_TINT : DRY_SOIL_TINT;
+    this.groundLook.sync(x, y);
   }
 
   private spawnOrUpdateCrop(key: string, x: number, y: number, plot: FarmPlot): void {

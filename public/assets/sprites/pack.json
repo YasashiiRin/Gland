@@ -1036,6 +1036,46 @@
     "key": "prop_banana",
     "url": "sprites/trees/banana.png",
     "hd": true
+   },
+   {
+    "type": "image",
+    "key": "item_icon_axe",
+    "url": "sprites/icons/axe.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_copper_ore",
+    "url": "sprites/icons/copper_ore.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_fishing_rod",
+    "url": "sprites/icons/fishing_rod.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_hoe",
+    "url": "sprites/icons/hoe.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_pickaxe",
+    "url": "sprites/icons/pickaxe.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_scythe",
+    "url": "sprites/icons/scythe.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_sword",
+    "url": "sprites/icons/sword.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_watering_can",
+    "url": "sprites/icons/watering_can.png"
    }
   ]
  }

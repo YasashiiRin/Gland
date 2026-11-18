@@ -48,7 +48,7 @@ export class FishingMinigame {
     this.bar = scene.add.rectangle(cx - 10, this.cy, TRACK_W - 6, 40, 0x7ddc6a, 0.75).setOrigin(0.5, 0).setStrokeStyle(2, 0xd8ffc8);
     this.chest = scene.add.rectangle(cx - 10, this.cy, 14, 11, 0xd9a441).setStrokeStyle(2, 0x5a3a1a);
     this.chestFill = scene.add.rectangle(cx - 18, this.cy, 2, 0, 0xfff07a).setOrigin(0.5, 1);
-    this.fish = scene.add.image(cx - 10, this.cy, '__DEFAULT').setScale(1.6);
+    this.fish = scene.add.image(cx - 10, this.cy, '__DEFAULT').setScale(0.8); // 32 px item icons
     const meterBg = scene.add.rectangle(cx + TRACK_W / 2 + 6, this.cy, 10, TRACK_H, 0x1c1814).setStrokeStyle(1, 0x2a201c);
     this.progressFill = scene.add.rectangle(cx + TRACK_W / 2 + 6, this.cy + TRACK_H / 2, 8, 0, 0x7ddc6a).setOrigin(0.5, 1);
     this.star = scene.add.text(cx, this.trackTop - 28, '★ hoàn hảo', { fontFamily: 'sans-serif', fontSize: '12px', color: '#ffe066' }).setOrigin(0.5);

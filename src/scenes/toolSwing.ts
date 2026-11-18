@@ -1,7 +1,7 @@
 import type Phaser from 'phaser';
 import type { ItemId } from '../data/items';
 import type { Direction } from '../systems/movement';
-import { iconTextureKey } from '../ui/itemIcons';
+import { ICON_WORLD_SCALE, iconTextureKey } from '../ui/itemIcons';
 
 /** Tools that are swung overhead and brought down onto the tile (the rest just bump). */
 const SWUNG: ReadonlySet<string> = new Set(['hoe', 'axe', 'pickaxe', 'scythe', 'sword']);
@@ -15,7 +15,7 @@ export function swingTool(scene: Phaser.Scene, who: { x: number; y: number; dept
   const key = iconTextureKey(itemId);
   if (!scene.textures.exists(key)) return;
   const side = facing === 'left' ? -1 : 1;
-  const img = scene.add.image(who.x + side * 5, who.y - 13, key).setOrigin(0.2, 0.85);
+  const img = scene.add.image(who.x + side * 5, who.y - 13, key).setOrigin(0.2, 0.85).setScale(ICON_WORLD_SCALE);
   img.setFlipX(side < 0).setDepth(facing === 'up' ? who.depth - 1 : who.depth + 1);
   if (itemId === 'watering_can') {
     img.setAngle(0);

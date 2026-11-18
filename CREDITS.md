@@ -15,3 +15,10 @@ Ghép từ bộ asset nhân vật lớp do người dùng cung cấp (`game_asse
 mô tả trong README đi kèm là asset tự sinh bằng script Python (có kèm mã nguồn), lấy cảm
 hứng màu sắc Stardew Valley + nét vẽ Don't Starve. Không sao chép nhân vật cụ thể của game nào.
 File: `public/assets/portraits/{chu_tu,co_hanh,linh,minh}.png`.
+
+## Hình vẽ AI theo ASSET_LIST.md (đợt 1)
+
+Người dùng tự tạo bằng Gemini theo các prompt trong `ASSET_LIST.md` (phong cách học từ ảnh mẫu
+`assets/reference.jpg`, không chép bố cục hay asset của game nào). Ảnh gốc nằm trong `assets/`
+(`tiles/`, `trees/`, `crops/`, `horror/`, `icons/`); script `scripts/art/import_assets.py` thu nhỏ,
+xoá nền trắng và ghi đè vào `public/assets/...` (tileset mặt đất, hầm mỏ, cây, cây trồng, ma, biểu tượng công cụ).

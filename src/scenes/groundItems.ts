@@ -8,7 +8,7 @@ import { gameState } from '../state/GameState';
 import { addItem } from '../systems/InventorySystem';
 import { bookChance, DROPS } from '../systems/ProfessionSystem';
 import { absoluteMinute } from '../systems/StatsSystem';
-import { iconTextureKey } from '../ui/itemIcons';
+import { ICON_WORLD_SCALE, iconTextureKey } from '../ui/itemIcons';
 
 const PICK_PX = 14;
 
@@ -49,7 +49,7 @@ export class GroundItems {
       seen.add(key);
       let img = this.images.get(key);
       if (!img) {
-        img = this.scene.add.image(x, y, iconTextureKey(it.itemId)).setDepth(y + 4);
+        img = this.scene.add.image(x, y, iconTextureKey(it.itemId)).setScale(ICON_WORLD_SCALE).setDepth(y + 4);
         this.images.set(key, img);
       }
       img.setY(y - 3 + Math.sin(time / 300 + tx) * 2).setAlpha(0.75 + 0.25 * Math.sin(time / 200 + ty));

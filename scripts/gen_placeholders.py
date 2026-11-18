@@ -26,6 +26,7 @@ from art.nature_hd import make_nature_hd  # noqa: E402
 from art.animals_hd import make_animals_hd  # noqa: E402
 from art.vehicles_hd import make_vehicles_hd  # noqa: E402
 from art.folk import make_folk_hd  # noqa: E402
+from art.import_assets import main as import_assets  # noqa: E402
 
 
 def main() -> None:
@@ -39,6 +40,7 @@ def main() -> None:
     pack = {"generated": {"files": files}}
     (ASSETS / "sprites" / "pack.json").write_text(json.dumps(pack, indent=1))
     make_maps()
+    import_assets()  # the painted pictures in assets/ (ASSET_LIST.md) replace the code-drawn ones
     print(f"Generated tileset, {len(files)} sprites and maps in {ASSETS}")
 
 

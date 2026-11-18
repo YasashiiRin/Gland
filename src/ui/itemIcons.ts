@@ -488,12 +488,33 @@ const ICONS: Partial<Record<ItemId, Draw>> = {
 };
 
 /** Draws a small procedural icon for every item once, as a reusable texture. */
+/** Item icons are 32 x 32 textures; shown in the world at this scale (one tile). */
+export const ICON_WORLD_SCALE = 0.5;
+const ICON_SIZE = 32;
+const DRAWN_SIZE = 16;
+
+/**
+ * Makes every item's icon texture: a painted picture when the sprite pack has
+ * one (assets/icons, loaded as item_icon_<id>), else the code-drawn 16 px
+ * icon blown up to 32 px, so all icons share one size.
+ */
 export function createItemIconTextures(scene: Phaser.Scene): void {
   const g = scene.add.graphics();
+  const tmp = '__item_icon_draw';
   for (const id of ITEM_IDS) {
+    const key = iconTextureKey(id);
+    if (scene.textures.exists(key)) continue;
     g.clear();
     (ICONS[id] ?? EXTRA_ICONS[id] ?? ICONS.stone)?.(g);
-    g.generateTexture(iconTextureKey(id), 16, 16);
+    g.generateTexture(tmp, DRAWN_SIZE, DRAWN_SIZE);
+    const canvas = scene.textures.createCanvas(key, ICON_SIZE, ICON_SIZE);
+    const ctx = canvas?.getContext();
+    if (canvas && ctx) {
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(scene.textures.get(tmp).getSourceImage() as CanvasImageSource, 0, 0, ICON_SIZE, ICON_SIZE);
+      canvas.refresh();
+    }
+    scene.textures.remove(tmp);
   }
   g.destroy();
 }

@@ -16,6 +16,7 @@ import { attachBait, pickFish } from '../systems/FishSpawnSystem';
 import { ROW_SPEED } from '../systems/BoatSystem';
 import { Boats } from './boats';
 import { TILESET_HD_TEXTURE, useHdTileset } from './hd';
+import { addGroundLookTileset, GroundLook } from './groundLook';
 import { LivestockHerd } from './livestockHerd';
 import { Tigers, type TileRect } from './tigers';
 import { gameState } from '../state/GameState';
@@ -135,6 +136,8 @@ export abstract class MapScene extends Phaser.Scene {
   protected decorLayer!: Phaser.Tilemaps.TilemapLayer;
   /** Tiles drawn over the player; the big province maps don't have this layer. */
   protected aboveLayer: Phaser.Tilemaps.TilemapLayer | null = null;
+  /** The painted ground drawn over groundLayer (change ground tiles through it). */
+  protected groundLook!: GroundLook;
   protected trees!: TreeSprites;
   private props!: ChunkedImages;
   protected ride!: RideController;
@@ -197,6 +200,7 @@ export abstract class MapScene extends Phaser.Scene {
     const info = MAPS[this.mapKey];
 
     useHdTileset(this.cache.tilemap.get(mapCacheKey(info.file)).data);
+    addGroundLookTileset(this.cache.tilemap.get(mapCacheKey(info.file)).data);
     this.map = this.make.tilemap({ key: mapCacheKey(info.file) });
     const tileset = this.map.addTilesetImage('farm_tiles', TILESET_HD_TEXTURE);
     if (!tileset) throw new Error(`Tileset missing for map ${this.mapKey}`);
@@ -213,6 +217,8 @@ export abstract class MapScene extends Phaser.Scene {
     ground.setCollisionByProperty({ collides: true });
     decor.setCollisionByProperty({ collides: true });
     this.groundLayer = ground;
+    this.groundLook = new GroundLook(this.map, ground, -1.5);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.groundLook.destroy());
     this.decorLayer = decor;
     this.aboveLayer = above;
 
@@ -272,7 +278,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.safeZones = this.zoneRects();
     this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.landmarks) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());
-    this.paddies = this.isOutdoor ? new VillageFields(this, ground, decor, readPaddies(this.map, this.mapKey), this.homesteads) : null;
+    this.paddies = this.isOutdoor ? new VillageFields(this, this.groundLook, ground, decor, readPaddies(this.map, this.mapKey), this.homesteads) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.paddies?.destroy());
     this.villagers = this.paddies
       ? new Villagers(this, ground, decor, this.homesteads, this.paddies, (h) => h.key in gameState.homes)

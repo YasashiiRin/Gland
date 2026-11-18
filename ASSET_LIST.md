@@ -32,6 +32,20 @@ Tài liệu này liệt kê **mọi thứ game đang vẽ bằng code**, kèm k�
    - tile mặt đất thì giữ nguyên, phủ kín ảnh, ghép liền được.
 4. Hình nào chưa ưng thì chạy lại prompt, hoặc thêm 1–2 câu mô tả cuối prompt.
 
+## Nạp hình vào game
+
+Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_placeholders.py`, nó tự gọi bước này ở cuối). Script chỉ dùng những file đã có trong `assets/`, nên có thể thêm hình dần từng đợt. Script làm các việc sau:
+- **Ô mặt đất:** một ảnh Gemini chi tiết bằng khoảng 6 x 6 ô, nên mỗi ảnh được cắt thành một **mảng 6 x 6 ô** (`public/assets/tilesets/ground_hd.png`) và game vẽ phủ lên bản đồ. Viền nước, viền đường, kè đá được ghép từ ảnh `edge_*.png`.
+- **Đồ vật, cây, cây trồng, ma, biểu tượng:** xoá nền trắng (kể cả khoảng trắng giữa cành lá), bỏ bóng xám dưới đồ vật (cây thì giữ bóng mờ), thu nhỏ đúng kích thước, kẻ viền tối.
+- **Hầm mỏ:** cắt một ô ở đúng cỡ điểm ảnh gốc. Vách và quặng tối hơn nền để dễ phân biệt.
+- **Cây trồng** để ở `assets/crops/` hoặc `assets/trees/` đều được.
+
+**Đợt 1 (đã nạp):** 53 hình gồm ô mặt đất, ô hầm mỏ, viền, đá, bụi, lau sậy, luống hoa, lúa chín, 4 cây (thông, đước, bưởi, phượng), 5 cây trồng, 4 hình ma và 8 biểu tượng công cụ.
+
+**Chưa dùng:**
+- `stubble.png`: Gemini vẽ thành cả một thửa ruộng chứ không phải 1 ô, nên vẫn giữ hình cũ. Nếu muốn thay thì vẽ lại thành 1 ô gốc rạ phủ kín.
+- `rice_young.png`: game chưa có ô riêng cho lúa non, vẫn dùng lúa chín tô xanh.
+
 ## Quy ước kích thước
 
 - Thế giới game: **1 ô = 16 px**. Đồ hoạ đang ở chế độ **HD x2**: ảnh vẽ gấp đôi rồi hiện ở ½, nên **1 ô = 32 px trong file ảnh**.

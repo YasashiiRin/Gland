@@ -6,6 +6,7 @@ import { net } from '../net/NetSession';
 import { gameState } from '../state/GameState';
 import { currentJob, jobFront, newField, simulate, type FieldState } from '../systems/NpcFarmSystem';
 import { absoluteMinute } from '../systems/StatsSystem';
+import type { GroundLook } from './groundLook';
 import { hdScale } from './hd';
 import { inRect, type Homestead, type Paddy } from './homesteads';
 
@@ -36,6 +37,7 @@ export class VillageFields {
 
   constructor(
     private readonly scene: Phaser.Scene,
+    private readonly look: GroundLook,
     private readonly ground: Phaser.Tilemaps.TilemapLayer,
     private readonly decor: Phaser.Tilemaps.TilemapLayer,
     paddies: Paddy[],
@@ -103,7 +105,7 @@ export class VillageFields {
       const [g, d, tint] = this.tileLook(f, job, r < front, r < watered);
       for (let x = p.x0; x <= p.x1; x++) {
         if (this.ground.getTileAt(x, y)?.index === TILE_GID.WATER) continue; // a stream through it
-        this.ground.putTileAt(g, x, y);
+        this.look.put(g, x, y);
         if (d) {
           const t = this.decor.putTileAt(d, x, y);
           t.tint = tint;
