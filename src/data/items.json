@@ -78,7 +78,11 @@
     "category": "crop",
     "stackable": true,
     "sellPrice": 35,
-    "description": "Một loại củ quen thuộc."
+    "description": "Một loại củ quen thuộc.",
+    "food": {
+      "energy": 10,
+      "hunger": 12
+    }
   },
   "potato_seeds": {
     "name": "Hạt khoai tây",
@@ -92,7 +96,11 @@
     "category": "crop",
     "stackable": true,
     "sellPrice": 80,
-    "description": "Củ khoai chắc bụng."
+    "description": "Củ khoai chắc bụng.",
+    "food": {
+      "energy": 12,
+      "hunger": 18
+    }
   },
   "cauliflower_seeds": {
     "name": "Hạt súp lơ",
@@ -106,7 +114,11 @@
     "category": "crop",
     "stackable": true,
     "sellPrice": 175,
-    "description": "Bông súp lơ trắng to."
+    "description": "Bông súp lơ trắng to.",
+    "food": {
+      "energy": 15,
+      "hunger": 20
+    }
   },
   "strawberry_seeds": {
     "name": "Hạt dâu tây",
@@ -120,7 +132,11 @@
     "category": "crop",
     "stackable": true,
     "sellPrice": 120,
-    "description": "Quả dâu đỏ mọng."
+    "description": "Quả dâu đỏ mọng.",
+    "food": {
+      "energy": 6,
+      "hunger": 8
+    }
   },
   "green_bean_seeds": {
     "name": "Hạt đậu que",
@@ -134,7 +150,11 @@
     "category": "crop",
     "stackable": true,
     "sellPrice": 40,
-    "description": "Đậu que xanh giòn."
+    "description": "Đậu que xanh giòn.",
+    "food": {
+      "energy": 8,
+      "hunger": 10
+    }
   },
   "wood": {
     "name": "Gỗ",
@@ -216,7 +236,8 @@
     "sellPrice": 50,
     "description": "Gà đẻ ra nếu được chăm sóc tốt.",
     "food": {
-      "energy": 20
+      "energy": 20,
+      "hunger": 15
     }
   },
   "com_nam": {
@@ -226,7 +247,8 @@
     "sellPrice": 40,
     "description": "Nắm cơm chắc bụng. Hồi 60 năng lượng.",
     "food": {
-      "energy": 60
+      "energy": 60,
+      "hunger": 45
     }
   },
   "banh_mi": {
@@ -237,7 +259,8 @@
     "description": "Hồi 40 năng lượng, đi nhanh hơn 10% trong 1 giờ.",
     "food": {
       "energy": 40,
-      "buffMinutes": 60
+      "buffMinutes": 60,
+      "hunger": 35
     },
     "stats": {
       "speed": 0.1
@@ -251,7 +274,8 @@
     "description": "Tỉnh cả người! Hồi 15 năng lượng, đi nhanh hơn 30% trong 2 giờ.",
     "food": {
       "energy": 15,
-      "buffMinutes": 120
+      "buffMinutes": 120,
+      "hunger": 5
     },
     "stats": {
       "speed": 0.3

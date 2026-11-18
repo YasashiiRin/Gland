@@ -480,6 +480,9 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       rêu, gạch trần), nhà tranh vách đất, phố cổ một tầng treo đèn lồng, đình làng (thay UBND), quán nước (thay bưu điện),
       trường làng lợp tranh, cột đèn dầu (`old_village.py`). **Đèn dầu** sáng ở cửa sổ/cửa từ 18h, tắt lúc 21h
       (`houseLights.json`, `ui/NightLights.ts`, vẽ trên lớp màn đêm).
+  3c. [x] **Thanh đói** (kiểu Don't Starve): bụng 150, mỗi ngày game hụt 75 (cả lúc ngủ); ăn để no lại (cơm nắm, bánh mì,
+      trứng, và ăn sống được nông sản như củ cải, khoai, súp lơ, đậu, dâu); đói về 0 thì mất 20 máu/giờ game. Mỗi thanh có chữ
+      cái ở đầu: N năng lượng, H máu, T tinh thần, Đ đói (`HungerSystem`, `hunger.json`, `state/hungerClock.ts`).
   4. [~] Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại:
       - [x] Điện thoại: bỏ cảnh báo xoay ngang, **chơi được cả màn hình dọc** (khung 720 x cao theo máy); khung game vừa phần
         thật sự nhìn thấy (visualViewport, vùng tai thỏ), chạm lần đầu xin toàn màn hình (Android ẩn thanh trình duyệt).

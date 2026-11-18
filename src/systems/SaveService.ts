@@ -46,6 +46,7 @@ export function load(): GameState | null {
       console.warn(`Save is version ${parsed.version}, expected ${STATE_VERSION}; starting a new game instead.`);
       return null;
     }
+    parsed.hunger ??= { current: 150, max: 150 };
     parsed.fishPonds ??= {}; // landmark ponds (big world 2b)
     parsed.wildFields ??= {}; // added after save version 11 shipped; older saves just lack it
     parsed.rodBait ??= 0; // fishing bait, farm animals and boats came later still

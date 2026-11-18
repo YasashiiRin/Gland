@@ -15,6 +15,7 @@ import { Minimap } from '../ui/Minimap';
 import { WorldMap } from '../ui/WorldMap';
 import { worldView } from '../state/worldView';
 import { NightLights } from '../ui/NightLights';
+import { resetHungerClock, tickHunger } from '../state/hungerClock';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
 import { DEPTH_ABOVE } from '../config/constants';
@@ -104,6 +105,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   create(): void {
+    resetHungerClock(); // a new game, a loaded save or a resize: count hunger from now
     this.vehicleMenus.clear(); // menus from a previous run were destroyed with the scene
     const { width, height } = this.scale;
     // fillAlpha is fixed at 1 (fully opaque fill color); the overlay's own
@@ -401,6 +403,8 @@ export class UIScene extends Phaser.Scene {
     this.hud.setEnergy(gameState.energy);
     this.hud.setHealth(gameState.playerHealth);
     this.hud.setSanity(gameState.sanity);
+    tickHunger();
+    this.hud.setHunger(gameState.hunger);
     this.hud.setMoney(gameState.money);
     this.minimap.setPlayerTile(worldView.playerTileX, worldView.playerTileY);
     this.nightLights.update(time);

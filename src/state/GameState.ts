@@ -1,3 +1,4 @@
+import { createInitialHunger } from '../systems/HungerSystem';
 import { pickStart } from '../data/startPoints';
 import type { FishPonds } from '../systems/FishPondSystem';
 import type { WildFields } from '../systems/WildFieldSystem';
@@ -54,6 +55,8 @@ export interface GameState {
   placedObjects: PlacedObjects;
   relationships: Relationships;
   playerHealth: EnergyState;
+  /** Hunger (Don't Starve style): 150 when full, empties over the day; 0 = starving. */
+  hunger: EnergyState;
   /** Deepest mine floor reached so far (persisted across visits). */
   deepestFloor: number;
   skills: SkillXp;
@@ -136,6 +139,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     placedObjects: {},
     relationships: {},
     playerHealth: createInitialHealth(),
+    hunger: createInitialHunger(),
     deepestFloor: 0,
     skills: createInitialSkills(),
     communityFund: createQuestState(),

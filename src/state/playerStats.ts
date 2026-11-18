@@ -3,6 +3,7 @@ import { restore } from '../systems/EnergySystem';
 import { itemAt, removeItem } from '../systems/InventorySystem';
 import { absoluteMinute, activeBuffs, addBuff, speedMultiplier, type ItemStats } from '../systems/StatsSystem';
 import { sanitySpeedPenalty } from '../systems/SanitySystem';
+import { feed } from '../systems/HungerSystem';
 import { gameState } from './GameState';
 
 /** Losing control after a scare: legs give way for a moment. Runtime only (never saved). */
@@ -41,12 +42,16 @@ export function eatHeldFood(): string | null {
   const held = itemAt(gameState.inventory, gameState.equippedSlot);
   if (!held) return null;
   const def = ITEMS[held.itemId];
-  if (def.category !== 'food' || !def.food) return null;
-  if (gameState.energy.current >= gameState.energy.max && !def.food.buffMinutes) return 'Đang no, chưa ăn được';
+  if (!def.food) return null;
+  const fill = def.food.hunger ?? 0;
+  const full = gameState.hunger.current >= gameState.hunger.max - 1;
+  if (gameState.energy.current >= gameState.energy.max && (full || !fill) && !def.food.buffMinutes) return 'Đang no, chưa ăn được';
 
   gameState.inventory = removeItem(gameState.inventory, held.itemId, 1);
   gameState.energy = restore(gameState.energy, def.food.energy);
+  gameState.hunger = feed(gameState.hunger, fill);
   let message = `+${def.food.energy} năng lượng`;
+  if (fill) message += ` · no +${fill}`;
   if (def.stats && def.food.buffMinutes) {
     gameState.buffs = addBuff(gameState.buffs, held.itemId, def.stats, def.food.buffMinutes, absoluteMinute(gameState.time));
     if (def.stats.speed) message += ` · tốc độ +${Math.round(def.stats.speed * 100)}%`;

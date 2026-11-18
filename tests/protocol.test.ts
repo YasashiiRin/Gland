@@ -40,6 +40,6 @@ describe('co-op sleeping and profiles', () => {
   it('keeps only personal things in a profile', async () => {
     const { pickProfile } = await import('../src/net/protocol');
     const profile = pickProfile(createInitialState());
-    expect(Object.keys(profile).sort()).toEqual(['buffs', 'energy', 'equippedSlot', 'inventory', 'playerHealth', 'sanity', 'skills']);
+    expect(Object.keys(profile).sort()).toEqual(['buffs', 'energy', 'equippedSlot', 'hunger', 'inventory', 'playerHealth', 'sanity', 'skills']);
   });
 });

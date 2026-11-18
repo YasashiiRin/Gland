@@ -1,0 +1,7 @@
+{
+  "_comment": "Hunger, after Don't Starve: a 150 stomach that empties by 75 a day; at 0 you lose health until you eat.",
+  "max": 150,
+  "perDay": 75,
+  "starveHealthPerHour": 20,
+  "faintRefill": 40
+}

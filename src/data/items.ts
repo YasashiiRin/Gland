@@ -8,6 +8,8 @@ export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fis
 export interface FoodDef {
   /** Energy restored when eaten. */
   energy: number;
+  /** Hunger filled when eaten (the stomach holds 150). */
+  hunger?: number;
   /** If set, the item's `stats` apply for this many game minutes after eating. */
   buffMinutes?: number;
 }

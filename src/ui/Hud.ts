@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { DAY_LENGTH_MINUTES, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
 import { sanityRatio } from '../systems/SanitySystem';
+import { hungerRatio } from '../systems/HungerSystem';
 import type { EnergyState } from '../systems/EnergySystem';
 import type { TimeState } from '../systems/TimeSystem';
 import { clockLabel } from '../systems/TimeSystem';
@@ -12,6 +13,7 @@ const BAR_W = 8;
 const BAR_H = 76;
 
 const SANITY_COLOR = 0x8a7ce0;
+const HUNGER_COLOR = 0xe8a040;
 
 /** Fractions of the 6:00→6:00 day: 18:00 sunset, 20:00 full night. */
 const SUNSET = 12 / 24;
@@ -37,6 +39,11 @@ export class Hud {
   private readonly healthFill: Phaser.GameObjects.Rectangle;
   private readonly sanityFill: Phaser.GameObjects.Rectangle;
   private sanity: EnergyState = { current: 0, max: 0 };
+  private hunger: EnergyState = { current: 0, max: 0 };
+  private hungerFill!: Phaser.GameObjects.Rectangle;
+  private hungerFrame!: Phaser.GameObjects.Rectangle;
+  /** The frame of the bar slimBar() made last. */
+  private lastFrame!: Phaser.GameObjects.Rectangle;
   private time?: TimeState;
   private energy: EnergyState = { current: 0, max: 0 };
   private health: EnergyState = { current: 0, max: 0 };
@@ -72,11 +79,15 @@ export class Hud {
     this.container.add([gear, gearIcon]);
 
     // --- Slim energy / health bars (bottom-right) ---
+    // Each bar has a letter on top: N năng lượng, H máu, T tinh thần, Đ đói.
     const bx = width - MARGIN - BAR_W;
     const by = height - MARGIN - BAR_H;
-    this.energyFill = this.slimBar(scene, bx, by, 0x7ccf5a, () => `Năng lượng ${Math.round(this.energy.current)}/${this.energy.max}`);
-    this.healthFill = this.slimBar(scene, bx - BAR_W - 6, by, 0xe0604f, () => `Máu ${Math.round(this.health.current)}/${this.health.max}`);
-    this.sanityFill = this.slimBar(scene, bx - (BAR_W + 6) * 2, by, SANITY_COLOR, () => `Tinh thần ${Math.round(this.sanity.current)}/${this.sanity.max}`);
+    const step = BAR_W + 8;
+    this.energyFill = this.slimBar(scene, bx, by, 0x7ccf5a, 'N', () => `Năng lượng ${Math.round(this.energy.current)}/${this.energy.max}`);
+    this.healthFill = this.slimBar(scene, bx - step, by, 0xe0604f, 'H', () => `Máu ${Math.round(this.health.current)}/${this.health.max}`);
+    this.sanityFill = this.slimBar(scene, bx - step * 2, by, SANITY_COLOR, 'T', () => `Tinh thần ${Math.round(this.sanity.current)}/${this.sanity.max}`);
+    this.hungerFill = this.slimBar(scene, bx - step * 3, by, HUNGER_COLOR, 'Đ', () => `No ${Math.round(this.hunger.current)}/${this.hunger.max}${this.hunger.current <= 0 ? ' — đang đói, mất máu!' : ''}`);
+    this.hungerFrame = this.lastFrame;
 
     this.tip = scene.add
       .text(0, 0, '', { fontFamily: UI_FONT, fontSize: '12px', color: '#fff6e0', backgroundColor: '#2b1a10dd' })
@@ -93,9 +104,15 @@ export class Hud {
       .setOrigin(0.5);
   }
 
-  private slimBar(scene: Phaser.Scene, x: number, y: number, color: number, tip: () => string): Phaser.GameObjects.Rectangle {
+  private slimBar(scene: Phaser.Scene, x: number, y: number, color: number, letter: string, tip: () => string): Phaser.GameObjects.Rectangle {
     const frame = scene.add.rectangle(x - 2, y - 2, BAR_W + 4, BAR_H + 4, UI_COLORS.edge, 0.85).setOrigin(0, 0);
     const fill = scene.add.rectangle(x, y + BAR_H, BAR_W, BAR_H, color).setOrigin(0, 1);
+    const icon = scene.add
+      .text(x + BAR_W / 2, y - 10, letter, { fontFamily: UI_FONT, fontSize: '13px', fontStyle: 'bold', color: `#${color.toString(16).padStart(6, '0')}` })
+      .setOrigin(0.5)
+      .setStroke('#2b1a10', 3);
+    this.container.add(icon);
+    this.lastFrame = frame;
     frame.setInteractive();
     frame.on('pointerover', () => this.showTip(tip(), x - 6, y + BAR_H / 2));
     frame.on('pointerout', () => this.tip.setVisible(false));
@@ -174,6 +191,16 @@ export class Hud {
     this.sanityFill.height = Math.max(0, BAR_H * ratio);
     const danger = ratio < 0.15 && Math.floor(performance.now() / 400) % 2 === 0;
     this.sanityFill.setFillStyle(danger ? 0xd02a2a : ratio < 0.4 ? 0xb06ad0 : SANITY_COLOR);
+  }
+
+  /** Hunger bar; it blinks red while the stomach is empty (losing health). */
+  setHunger(hunger: EnergyState): void {
+    this.hunger = hunger;
+    const ratio = hungerRatio(hunger);
+    this.hungerFill.height = Math.max(0, BAR_H * ratio);
+    const starving = ratio <= 0.001 || (ratio < 0.15 && Math.floor(performance.now() / 400) % 2 === 0);
+    this.hungerFill.setFillStyle(starving ? 0xd02a2a : HUNGER_COLOR);
+    this.hungerFrame.setFillStyle(ratio <= 0.001 && Math.floor(performance.now() / 300) % 2 === 0 ? 0xd02a2a : UI_COLORS.edge, 0.85);
   }
 
   setMoney(amount: number): void {

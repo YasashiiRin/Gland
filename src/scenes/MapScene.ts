@@ -56,6 +56,7 @@ import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
 import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
+import { HUNGER } from '../systems/HungerSystem';
 import { net, NetEvents } from '../net/NetSession';
 import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
@@ -713,6 +714,7 @@ export abstract class MapScene extends Phaser.Scene {
     gameState.money = Math.max(0, gameState.money - penalty);
     gameState.playerHealth = { ...gameState.playerHealth, current: Math.round(gameState.playerHealth.max * FAINT_RESTORE_RATIO) };
     gameState.sanity = { ...gameState.sanity, current: Math.max(gameState.sanity.current, gameState.sanity.max * FAINT_RESTORE_RATIO) };
+    gameState.hunger = { ...gameState.hunger, current: Math.max(gameState.hunger.current, HUNGER.faintRefill) }; // a kind soul fed you
     if (gameState.riding) this.ride.dismount();
     gameState.boating = null;
     gameState.spawnId = 'default';
@@ -841,7 +843,7 @@ export abstract class MapScene extends Phaser.Scene {
       this.tryPlaceFurniture(stack.itemId);
       return;
     }
-    if (ITEMS[stack.itemId].category === 'food') {
+    if (ITEMS[stack.itemId].food) {
       const message = eatHeldFood();
       if (message) {
         playPickup(gameState.settings);
