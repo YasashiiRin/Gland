@@ -523,7 +523,16 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       - [ ] Thử qua mạng thật giữa 2 máy khác nhau, và trên điện thoại thật (iPhone Safari, Android Chrome) — cần máy của người chơi.
       - [x] Hình hầm mỏ HD (vách đá xếp lớp, sỏi, quặng lấp lánh, thang gỗ) — `make_mine_tileset_hd` trong `scripts/art/mine.py`.
 
-### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)
+### Nghề Thầy pháp — phần A xong (2026-11-18), phần B còn: truyền phép giữa người chơi
+- [x] **Bùa khai đạo** rơi ngẫu nhiên ngoài hoang (35%/ngày/bản đồ nếu chưa có); dùng → thành Thầy pháp (`professionActions.ts`).
+- [x] **Linh lực**: khởi đầu 5, +1/ngày (khi thức dậy), tối đa 100; thanh cam "L" + hình đại diện ☯ trên các thanh (`ui/ProfessionHud.ts`).
+- [x] **Bảng Thầy pháp** (bấm hình đại diện): 4 thanh chỉ số, tổng linh lực, 10 ô bị động mốc 10…100 (khoá), phép đã học, thanh phép kéo thả đổi thứ tự (`ui/ProfessionMenu.ts`); ngoài bảng là cột phép bên phải màn hình, phím Q dùng ô đầu.
+- [x] **Khai nhãn** (0,4 linh lực, 60 giây): khói âm khí hiện ở chỗ nhiều cây quanh người chơi (`scenes/khaiNhan.ts`).
+- [x] **Sách cổ**: vùng 40x40 ô, mỗi cây +0,5%/ngày (tối đa 50%, ≤2 sách mới/ngày, ≤5 sách/bản đồ); ma đánh rơi khi đòn đầu trúng, tỉ lệ = sát thương/10 (`scenes/groundItems.ts`, `professions.json`).
+- [x] Nhược điểm: mất tinh thần ×1,5 khi bị doạ; ban đêm ma tấn công ngay không cần tinh thần thấp.
+- [ ] Phần B: người cùng nghề truyền phép cho nhau khi chơi chung; nội dung 10 kỹ năng bị động (người chơi sẽ nghĩ sau).
+
+### (Bản kế hoạch gốc) nghề Thầy pháp
 Ý tưởng của người chơi (tóm tắt):
 - Hệ thống chức nghiệp; vật phẩm mở khóa nghề có thể xuất hiện ở bất kỳ đâu trên bản đồ (theo tỉ lệ).
 - Nhấn vào minimap → mở bản đồ cả thế giới, phóng to / thu nhỏ được.

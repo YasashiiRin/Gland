@@ -1,0 +1,27 @@
+{
+  "_comment": "Professions (chức nghiệp). Thầy pháp: one resource, linh lực (orange bar). Numbers agreed with the player, see PLAN.md.",
+  "thay_phap": {
+    "name": "Thầy pháp",
+    "linhLuc": { "start": 5, "perDay": 1, "max": 100 },
+    "passiveThresholds": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+    "sanityLossMultiplier": 1.5,
+    "skills": {
+      "khai_nhan": {
+        "name": "Khai nhãn",
+        "cost": 0.4,
+        "seconds": 60,
+        "description": "Mở mắt âm dương: khói bụi hiện lên ở những vùng ma hay xuất hiện — càng nhiều cây cối, khói càng dày (càng dễ gặp ma)."
+      }
+    }
+  },
+  "drops": {
+    "_comment": "Ancient books: the map is cut into areas of radius 20 tiles; each tree in an area adds bookChancePerTree to the daily chance (capped). Talisman: daily chance per map.",
+    "areaSize": 40,
+    "bookChancePerTree": 0.005,
+    "bookChanceMax": 0.5,
+    "maxNewBooksPerDay": 2,
+    "maxBooksOnMap": 5,
+    "talismanChancePerDay": 0.35,
+    "ghostDropPerDamage": 0.1
+  }
+}

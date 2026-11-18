@@ -27,6 +27,8 @@ export const GameEvents = {
   /** A map asks the player to choose (payload: ChoiceRequest); the answer comes back as ChoiceMade ({ id }). */
   ChoiceRequested: 'choice:requested',
   ChoiceMade: 'choice:made',
+  /** The Thầy pháp casts a skill from the skill bar (payload: { skill }). */
+  SkillCast: 'skill:cast',
   /** A screen-wide horror effect for the UI (payload: HorrorScreenPayload). */
   HorrorScreen: 'horror:screen',
   /** Open the crafting screen for a bench (payload: { station }). */

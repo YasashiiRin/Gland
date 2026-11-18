@@ -16,6 +16,9 @@ import { WorldMap } from '../ui/WorldMap';
 import { worldView } from '../state/worldView';
 import { NightLights } from '../ui/NightLights';
 import { ChoiceMenu, type ChoiceRequest } from '../ui/ChoiceMenu';
+import { ProfessionHud } from '../ui/ProfessionHud';
+import { ProfessionMenu } from '../ui/ProfessionMenu';
+import { reorder } from '../systems/ProfessionSystem';
 import { resetHungerClock, tickHunger } from '../state/hungerClock';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
@@ -88,6 +91,8 @@ export class UIScene extends Phaser.Scene {
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private nightLights!: NightLights;
   private choiceMenu!: ChoiceMenu;
+  private professionHud!: ProfessionHud;
+  private professionMenu!: ProfessionMenu;
   private minimap!: Minimap;
   private worldMap!: WorldMap;
   private dayBanner!: Phaser.GameObjects.Text;
@@ -119,6 +124,15 @@ export class UIScene extends Phaser.Scene {
       .setAlpha(0);
     this.nightLights = new NightLights(this, DEPTH_ABOVE - 0.5);
     this.choiceMenu = new ChoiceMenu(this, DEPTH_ABOVE + 3);
+    this.professionHud = new ProfessionHud(this, DEPTH_ABOVE);
+    this.professionMenu = new ProfessionMenu(this, DEPTH_ABOVE + 3);
+    this.professionHud.onCast = (skill) => EventBus.emit(GameEvents.SkillCast, { skill });
+    this.professionHud.onOpenPanel = () => this.openProfessionMenu();
+    this.professionMenu.onReorder = (from, to) => {
+      if (!gameState.profession) return;
+      gameState.profession = { ...gameState.profession, order: reorder(gameState.profession.order, from, to) };
+      this.openProfessionMenu();
+    };
     this.choiceMenu.onPick = (id) => EventBus.emit(GameEvents.ChoiceMade, { id });
     const onChoice = (req: ChoiceRequest) => this.choiceMenu.open(req);
     EventBus.on(GameEvents.ChoiceRequested, onChoice);
@@ -415,6 +429,7 @@ export class UIScene extends Phaser.Scene {
     this.hud.setSanity(gameState.sanity);
     tickHunger();
     this.hud.setHunger(gameState.hunger);
+    this.professionHud.update(gameState.profession, this.professionMenu.isOpen);
     this.hud.setMoney(gameState.money);
     this.minimap.setPlayerTile(worldView.playerTileX, worldView.playerTileY);
     this.nightLights.update(time);
@@ -638,8 +653,15 @@ export class UIScene extends Phaser.Scene {
   }
 
   /** Esc (or the on-screen close button): closes whichever menu is on top. */
+  /** The Thầy pháp panel (click the portrait above the bars). */
+  private openProfessionMenu(): void {
+    if (!gameState.profession) return;
+    this.professionMenu.open(gameState.profession, { health: gameState.playerHealth, sanity: gameState.sanity, energy: gameState.energy });
+  }
+
   private closeTopMenu(): void {
     if (this.choiceMenu.isOpen) this.choiceMenu.close();
+    else if (this.professionMenu.isOpen) this.professionMenu.close();
     else if (uiState.worldMapOpen) this.worldMap.close();
     else if (uiState.settingsOpen) this.closeSettings();
     else if (uiState.dialogueOpen) this.closeDialogue();

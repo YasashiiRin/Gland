@@ -1,3 +1,5 @@
+import { ghostDropChance } from '../systems/ProfessionSystem';
+import { addItem } from '../systems/InventorySystem';
 import Phaser from 'phaser';
 import { hdScale } from './hd';
 import { TILE } from '../config/constants';
@@ -32,7 +34,10 @@ export class GhostAttacker {
   }
 
   update(time: number, delta: number): void {
-    const allowed = ghostsCanAttack(gameState.sanity, gameState.settings.horror, isHorrorNight(gameState.time)) && !isWorldInputBlocked();
+    // A Thầy pháp sees them: at night they come straight for him, sanity or not.
+    const night = isHorrorNight(gameState.time);
+    const seer = gameState.profession?.id === 'thay_phap' && gameState.settings.horror === 'on' && night;
+    const allowed = (seer || ghostsCanAttack(gameState.sanity, gameState.settings.horror, night)) && !isWorldInputBlocked();
     if (!this.ghost) {
       if (allowed && time >= this.nextAt) this.spawn(time);
       return;
@@ -72,7 +77,13 @@ export class GhostAttacker {
   private strike(): void {
     const s = gameState;
     const damage = ghostHitDamage(s.haunt.hits, s.playerHealth.max);
+    const firstBlow = s.haunt.hits === 0;
     s.haunt = { ...s.haunt, hits: s.haunt.hits + 1 };
+    // A ghost striking a Thầy pháp may let an ancient book fall: chance = the first blow's damage / 10.
+    if (firstBlow && s.profession && Math.random() < ghostDropChance(damage / s.playerHealth.max)) {
+      s.inventory = addItem(s.inventory, 'sach_co', 1).state;
+      EventBus.emit(GameEvents.HorrorScreen, { kind: 'caption', text: 'Con ma đánh rơi một cuốn sách cổ…' });
+    }
     s.playerHealth = consume(s.playerHealth, damage);
     s.energy = consume(s.energy, ghostHitEnergyLoss(s.energy.max));
     playScreech(s.settings);

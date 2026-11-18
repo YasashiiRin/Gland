@@ -1,3 +1,4 @@
+import { sanityLossMultiplier } from '../systems/ProfessionSystem';
 import Phaser from 'phaser';
 import { artScale, hdScale } from './hd';
 import { TILE } from '../config/constants';
@@ -103,7 +104,7 @@ export class HorrorDirector {
   /** A scare lands: sanity drops (more each time tonight), and sometimes your legs give way. */
   private shaken(): void {
     const mode = gameState.settings.horror;
-    const loss = scareLoss(gameState.haunt.scares, mode);
+    const loss = scareLoss(gameState.haunt.scares, mode) * sanityLossMultiplier(gameState.profession); // a Thầy pháp sees them
     gameState.haunt = { ...gameState.haunt, scares: gameState.haunt.scares + 1 };
     gameState.sanity = consume(gameState.sanity, loss);
     const panic = rollPanic();

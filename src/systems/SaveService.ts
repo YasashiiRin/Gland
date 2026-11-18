@@ -50,6 +50,9 @@ export function load(): GameState | null {
     parsed.homes ??= {};
     parsed.homeHouses ??= {};
     parsed.npcFields ??= {};
+    parsed.profession ??= null;
+    parsed.groundItems ??= {};
+    parsed.groundRolls ??= {};
     parsed.fishPonds ??= {}; // landmark ponds (big world 2b)
     parsed.wildFields ??= {}; // added after save version 11 shipped; older saves just lack it
     parsed.rodBait ??= 0; // fishing bait, farm animals and boats came later still

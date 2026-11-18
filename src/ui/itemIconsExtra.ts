@@ -114,6 +114,32 @@ export const EXTRA_ICONS: Partial<Record<ItemId, Draw>> = {
     g.lineStyle(1, INK, 1);
     g.strokeRect(2.5, 5.5, 11, 6);
   },
+  bua_khai_dao: (g) => {
+    // A yellow paper talisman with red brush strokes.
+    g.fillStyle(0xf2d46a, 1);
+    g.fillRect(4, 1, 8, 14);
+    g.fillStyle(0xc0302a, 1);
+    g.fillRect(7, 3, 2, 1);
+    g.fillRect(6, 5, 4, 1);
+    g.fillRect(7, 7, 2, 5);
+    g.fillRect(5, 9, 6, 1);
+    g.fillCircle(8, 13, 1);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(4.5, 1.5, 7, 13);
+  },
+  sach_co: (g) => {
+    // An old stitched book, yellowed pages, a dark cover.
+    g.fillStyle(0x5a3a2a, 1);
+    g.fillRect(2, 3, 12, 11);
+    g.fillStyle(0xe8d8a8, 1);
+    g.fillRect(4, 4, 9, 9);
+    g.fillStyle(0x8a6a4a, 1);
+    for (const y of [6, 8, 10]) g.fillRect(6, y, 6, 1);
+    g.fillStyle(0xd8b040, 1);
+    for (const y of [4, 8, 12]) g.fillRect(2, y, 2, 1);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(2.5, 3.5, 11, 10);
+  },
   fish_fry: (g) => {
     // A clear bag of water with three little fish.
     g.fillStyle(0xbfe3f2, 0.9);

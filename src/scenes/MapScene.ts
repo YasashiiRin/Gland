@@ -57,6 +57,10 @@ import { FishPondsView } from './fishPonds';
 import { inRect, landmarkZones, readHomesteads, readPaddies, yardSpot, type Homestead } from './homesteads';
 import { claimHome, homeOf, houseOn } from '../systems/HomeSystem';
 import { HomeDoor } from './homeDoor';
+import { GroundItems } from './groundItems';
+import { castKhaiNhan } from './khaiNhan';
+import { cast, SKILLS, type SkillId } from '../systems/ProfessionSystem';
+import { useRelic } from '../state/professionActions';
 import { swingTool } from './toolSwing';
 import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
@@ -148,6 +152,8 @@ export abstract class MapScene extends Phaser.Scene {
   private lastPaddyUpdate = 0;
   private homeDoor!: HomeDoor;
   private hawkers: Hawkers | null = null;
+  /** Talismans and ancient books lying about (the Thầy pháp's). */
+  protected groundItems: GroundItems | null = null;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -273,6 +279,11 @@ export abstract class MapScene extends Phaser.Scene {
       : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.villagers?.destroy());
     this.hawkers = this.isOutdoor ? new Hawkers(this, this.map, ground, decor, this.homesteads) : null;
+    this.groundItems = this.isOutdoor ? new GroundItems(this, this.mapKey, ground, decor, (x, y) => this.inSafeZone(x, y) || this.onVillagePaddy({ x, y })) : null;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.groundItems?.destroy());
+    const onCast = (p: { skill: SkillId }) => this.castSkill(p.skill);
+    EventBus.on(GameEvents.SkillCast, onCast);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.SkillCast, onCast));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.hawkers?.destroy());
     this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
     this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
@@ -342,6 +353,7 @@ export abstract class MapScene extends Phaser.Scene {
     }
     this.villagers?.update(time, this.game.loop.delta, view);
     this.hawkers?.update(time, this.game.loop.delta, view, this.player);
+    this.groundItems?.update(time, this.player, (t) => this.say(t));
     this.ride.update(this.time.now);
     this.boats.update();
     this.herd.update(time);
@@ -791,6 +803,21 @@ export abstract class MapScene extends Phaser.Scene {
     this.newDayInPlace(payload);
   }
 
+  /** The Thầy pháp casts a skill from the bar: pay the linh lực, then its effect. */
+  private castSkill(skill: SkillId): void {
+    if (!gameState.profession || this.transitioning) return;
+    const result = cast(gameState.profession, skill);
+    if ('reason' in result) {
+      this.say(result.reason);
+      return;
+    }
+    gameState.profession = result.state;
+    if (skill === 'khai_nhan') {
+      const n = castKhaiNhan(this, this.decorLayer, this.player, (x, y) => this.inSafeZone(x, y), SKILLS.khai_nhan.seconds);
+      this.say(n ? 'Khai nhãn: khói âm khí hiện ra quanh đây — chỗ khói dày ma hay lui tới' : 'Khai nhãn: quanh đây sạch âm khí');
+    }
+  }
+
   /** Redraw this map around the player (a house was rebuilt, they moved house). */
   private redrawInPlace(): void {
     const at = { x: Math.round(this.player.x), y: Math.round(this.player.y), facing: this.player.direction };
@@ -928,6 +955,10 @@ export abstract class MapScene extends Phaser.Scene {
 
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);
+      return;
+    }
+    if (ITEMS[stack.itemId].category === 'relic') {
+      this.say(useRelic(stack.itemId));
       return;
     }
     if (ITEMS[stack.itemId].category === 'fry') {

@@ -11,6 +11,7 @@ import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../s
 import { advanceResourceDay } from '../systems/ResourceSystem';
 import { createHauntState } from '../systems/SanitySystem';
 import { absoluteDayNumber, startNewDay, type TimeState } from '../systems/TimeSystem';
+import { dailyLinhLuc } from '../systems/ProfessionSystem';
 import { gameState } from './GameState';
 
 /**
@@ -72,6 +73,7 @@ export function wakeUp(hoursSlept: number): void {
     gameState.sanity = rest(gameState.sanity);
   }
   gameState.haunt = createHauntState();
+  if (gameState.profession) gameState.profession = dailyLinhLuc(gameState.profession); // +1 linh lực a day
   sleepState.bedElapsed = null;
 }
 

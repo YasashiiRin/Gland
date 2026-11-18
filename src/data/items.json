@@ -495,5 +495,21 @@
     "stackable": true,
     "sellPrice": 25,
     "description": "Cá biển nhỏ, dễ câu."
+  },
+  "bua_khai_dao": {
+    "name": "Bùa khai đạo",
+    "category": "relic",
+    "stackable": false,
+    "sellPrice": 0,
+    "unlocks": "thay_phap",
+    "description": "Lá bùa vàng chữ son, nhặt được ở chốn hoang vu. Bấm dùng để mở nghề Thầy pháp: có linh lực, học được phép, nhưng nhìn thấy ma nên dễ mất vía và ban đêm ma tìm tới ngay."
+  },
+  "sach_co": {
+    "name": "Sách cổ: Khai nhãn",
+    "category": "relic",
+    "stackable": true,
+    "sellPrice": 0,
+    "teaches": "khai_nhan",
+    "description": "Cuốn sách cổ ố vàng (thường thấy trong rừng sâu, hoặc do ma đánh rơi). Thầy pháp bấm dùng để học phép Khai nhãn."
   }
 }

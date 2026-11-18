@@ -1,3 +1,4 @@
+import type { ProfessionState } from '../systems/ProfessionSystem';
 import type { FieldState } from '../systems/NpcFarmSystem';
 import type { HomeHouses, Homes } from '../systems/HomeSystem';
 import { createInitialHunger } from '../systems/HungerSystem';
@@ -59,6 +60,12 @@ export interface GameState {
   homeHouses: HomeHouses;
   /** The village paddies worked by the households (shared): home key -> paddy state. */
   npcFields: Record<string, FieldState>;
+  /** The player's profession (personal): null until a talisman is used. */
+  profession: ProfessionState | null;
+  /** Things lying on the ground to pick up (shared): "Map:x,y" -> item. */
+  groundItems: Record<string, { itemId: ItemId; day: number }>;
+  /** The last day each map rolled for new talismans / books (shared). */
+  groundRolls: Record<string, number>;
   /** Chests, scarecrows and sprinklers the player has placed, keyed by "mapKey:x,y". */
   placedObjects: PlacedObjects;
   relationships: Relationships;
@@ -147,6 +154,9 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     homes: {},
     homeHouses: {},
     npcFields: {},
+    profession: null,
+    groundItems: {},
+    groundRolls: {},
     placedObjects: {},
     relationships: {},
     playerHealth: createInitialHealth(),
