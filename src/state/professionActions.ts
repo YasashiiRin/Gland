@@ -27,3 +27,15 @@ export function useRelic(itemId: ItemId): string | null {
   }
   return null;
 }
+
+/** Another player in the room taught me a skill. Returns what to tell me. */
+export function receiveTeaching(from: string, skill: string): string {
+  const p = gameState.profession;
+  if (!(skill in SKILLS)) return `${from} muốn truyền một phép lạ`;
+  const name = SKILLS[skill as SkillId].name;
+  if (p?.id !== 'thay_phap') return `${from} muốn truyền phép ${name}, nhưng bạn chưa phải Thầy pháp`;
+  const next = learn(p, skill as SkillId);
+  if (!next) return `${from} truyền phép ${name} — bạn đã biết phép này rồi`;
+  gameState.profession = next;
+  return `${from} đã truyền cho bạn phép ${name}!`;
+}

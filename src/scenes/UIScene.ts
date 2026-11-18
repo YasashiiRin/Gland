@@ -18,7 +18,8 @@ import { NightLights } from '../ui/NightLights';
 import { ChoiceMenu, type ChoiceRequest } from '../ui/ChoiceMenu';
 import { ProfessionHud } from '../ui/ProfessionHud';
 import { ProfessionMenu } from '../ui/ProfessionMenu';
-import { reorder } from '../systems/ProfessionSystem';
+import { reorder, SKILLS } from '../systems/ProfessionSystem';
+import { receiveTeaching } from '../state/professionActions';
 import { resetHungerClock, tickHunger } from '../state/hungerClock';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
@@ -128,6 +129,13 @@ export class UIScene extends Phaser.Scene {
     this.professionMenu = new ProfessionMenu(this, DEPTH_ABOVE + 3);
     this.professionHud.onCast = (skill) => EventBus.emit(GameEvents.SkillCast, { skill });
     this.professionHud.onOpenPanel = () => this.openProfessionMenu();
+    this.professionMenu.onTeach = (skill, to) => {
+      net.sendTeach(to.id, skill);
+      this.toast(`Đã truyền phép ${SKILLS[skill].name} cho ${to.name}`);
+    };
+    const onTaught = (p: { from: string; skill: string }) => this.toast(receiveTeaching(p.from, p.skill));
+    net.events.on(NetEvents.Teach, onTaught);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => net.events.off(NetEvents.Teach, onTaught));
     this.professionMenu.onReorder = (from, to) => {
       if (!gameState.profession) return;
       gameState.profession = { ...gameState.profession, order: reorder(gameState.profession.order, from, to) };
@@ -656,7 +664,11 @@ export class UIScene extends Phaser.Scene {
   /** The Thầy pháp panel (click the portrait above the bars). */
   private openProfessionMenu(): void {
     if (!gameState.profession) return;
-    this.professionMenu.open(gameState.profession, { health: gameState.playerHealth, sanity: gameState.sanity, energy: gameState.energy });
+    // Players within three tiles of me on this map can be taught a skill.
+    const nearby = [...net.poses.values()]
+      .filter((pose) => pose.map === gameState.currentMap && Math.hypot(pose.x / 16 - worldView.playerTileX, pose.y / 16 - worldView.playerTileY) < 3.5)
+      .map((pose) => ({ id: pose.id, name: net.nameOf(pose.id) }));
+    this.professionMenu.open(gameState.profession, { health: gameState.playerHealth, sanity: gameState.sanity, energy: gameState.energy, nearby });
   }
 
   private closeTopMenu(): void {

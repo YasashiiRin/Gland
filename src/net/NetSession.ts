@@ -31,6 +31,8 @@ export const NetEvents = {
   /** Host: a guest sent their personal profile: { name, profile }. */
   Profile: 'net:profile',
   Disconnected: 'net:disconnected',
+  /** Someone taught me a skill: { from (name), skill }. */
+  Teach: 'net:teach',
 } as const;
 
 /**
@@ -185,6 +187,13 @@ class NetSession {
     else if (this.role === 'guest') this.hostConn?.send(msg);
   }
 
+  /** A Thầy pháp passes a skill on to another player in the room (the host relays it to the right guest). */
+  sendTeach(to: string, skill: string): void {
+    const msg: NetMessage = { t: 'teach', from: this.myId, to, skill };
+    if (this.role === 'host') this.guests.get(to)?.send(msg);
+    else if (this.role === 'guest') this.hostConn?.send(msg);
+  }
+
   nameOf(id: string): string {
     return this.players.find((p) => p.id === id)?.name ?? '?';
   }
@@ -217,6 +226,9 @@ class NetSession {
         this.events.emit(NetEvents.Profile, { name: this.nameOf(conn.peer), profile: data.profile });
       } else if (data.t === 'patch') {
         this.events.emit(NetEvents.Patch, { from: conn.peer, patch: data.patch });
+      } else if (data.t === 'teach' && data.from === conn.peer) {
+        if (data.to === this.myId) this.events.emit(NetEvents.Teach, { from: this.nameOf(conn.peer), skill: data.skill });
+        else this.guests.get(data.to)?.send(data);
       } else if (data.t === 'pose' && data.pose.id === conn.peer) {
         this.poses.set(conn.peer, data.pose);
         this.toGuests(data, conn.peer);
@@ -272,6 +284,9 @@ class NetSession {
         break;
       case 'left':
         this.poses.delete(data.id);
+        break;
+      case 'teach':
+        if (data.to === this.myId) this.events.emit(NetEvents.Teach, { from: this.nameOf(data.from), skill: data.skill });
         break;
       default:
         break;

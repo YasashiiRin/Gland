@@ -105,7 +105,9 @@ export type NetMessage =
   | { t: 'pose'; pose: PlayerPose }
   | { t: 'left'; id: string }
   | { t: 'time'; time: TimeState }
-  | { t: 'patch'; from: string; patch: WorldPatch };
+  | { t: 'patch'; from: string; patch: WorldPatch }
+  /** A Thầy pháp teaches a skill to another player (relayed by the host). */
+  | { t: 'teach'; from: string; to: string; skill: string };
 
 /** Room codes avoid look-alike characters (0/O, 1/I/L). */
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

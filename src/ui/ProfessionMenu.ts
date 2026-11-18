@@ -8,6 +8,8 @@ export interface PanelStats {
   health: EnergyState;
   sanity: EnergyState;
   energy: EnergyState;
+  /** Other players standing close by (they can be taught a skill). */
+  nearby: { id: string; name: string }[];
 }
 
 /**
@@ -18,6 +20,7 @@ export interface PanelStats {
 export class ProfessionMenu {
   private root?: Phaser.GameObjects.Container;
   onReorder?: (from: number, to: number) => void;
+  onTeach?: (skill: SkillId, to: { id: string; name: string }) => void;
   onClose?: () => void;
 
   constructor(private readonly scene: Phaser.Scene, private readonly depth: number) {}
@@ -69,7 +72,18 @@ export class ProfessionMenu {
     const ay = y0 + 262;
     root.add(text(x0 + 20, ay, 'Kỹ năng chủ động đã học', 13).setFontStyle('bold'));
     if (!p.learned.length) root.add(text(x0 + 20, ay + 20, 'Chưa học phép nào. Tìm sách cổ trong rừng sâu, hoặc nhặt sách ma đánh rơi.', 11, UI_COLORS.inkSoft));
-    p.learned.forEach((k, i) => root.add(text(x0 + 20, ay + 20 + i * 30, `• ${SKILLS[k].name} (${SKILLS[k].cost} linh lực): ${SKILLS[k].description}`, 11)));
+    p.learned.forEach((k, i) => {
+      const line = text(x0 + 20, ay + 20 + i * 30, `• ${SKILLS[k].name} (${SKILLS[k].cost} linh lực): ${SKILLS[k].description}`, 11);
+      line.setWordWrapWidth(w - (stats.nearby.length ? 170 : 40));
+      root.add(line);
+      const to = stats.nearby[0];
+      if (!to) return;
+      // Passing a skill on: another player standing right beside you.
+      const bx = x0 + w - 80;
+      const btn = s.add.rectangle(bx, ay + 28 + i * 30, 130, 22, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
+      btn.on('pointerdown', () => this.onTeach?.(k, to));
+      root.add([btn, s.add.text(bx, ay + 28 + i * 30, `Truyền cho ${to.name}`, { fontFamily: UI_FONT, fontSize: '10px', color: '#fff2d0' }).setOrigin(0.5)]);
+    });
     // The skill bar: drag to reorder
     const by = y0 + h - 56;
     root.add(text(x0 + 20, by - 40, 'Thanh phép (kéo để đổi chỗ; ô đầu dùng phím Q)', 12).setFontStyle('bold'));
