@@ -24,8 +24,9 @@ EXIT_W = 4
 class Province(MapBuilder):
     """MapBuilder plus a record of tiles already claimed by a feature."""
 
-    def __init__(self, seed: int, w: int = W, h: int = H):
+    def __init__(self, seed: int, w: int = W, h: int = H, home_prefix: str = "h"):
         super().__init__(w, h, seed)
+        self.home_prefix = home_prefix            # homestead ids ("qb12"), see homesteads.py
         self.grass_variation()
         self.taken: set[tuple[int, int]] = set()
         self.exits: list[tuple[str, int]] = []

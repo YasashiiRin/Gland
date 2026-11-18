@@ -158,17 +158,22 @@ def weed(im: Image.Image, rnd: random.Random) -> None:
 
 
 def fence(im: Image.Image, rnd: random.Random) -> None:
-    """Woven bamboo fence: two rails and slanted split-bamboo slats."""
-    bam, bam_d, bam_l = (176, 168, 90), (128, 120, 60), (206, 198, 124)
-    for y in range(13, 15):
-        for x in range(T):
-            put(im, x, y, (18, 24, 16, 60))
-    for x in range(0, T, 3):
-        for y in range(3, 13):
-            put(im, x + (y - 3) // 5, y, bam if y > 4 else bam_l)
-            put(im, x + 1 + (y - 3) // 5, y, bam_d)
-    rect(im, 0, 5, T - 1, 5, bam_l); rect(im, 0, 6, T - 1, 6, bam_d)
-    rect(im, 0, 10, T - 1, 10, bam_l); rect(im, 0, 11, T - 1, 11, bam_d)
+    """Straw wall (tường rơm): a low wall of packed straw bundles tied with bamboo bands, the homestead boundary."""
+    straw, straw_d, straw_l = (204, 172, 104), (162, 130, 72), (232, 208, 146)
+    for x in range(T):
+        put(im, x, 15, (18, 24, 16, 70))                             # shadow at its foot
+    rect(im, 0, 3, T - 1, 14, straw)
+    for x in range(T):
+        for y in range(3, 15):
+            r = rnd.random()
+            if r < 0.25:
+                put(im, x, y, straw_d)
+            elif r < 0.33:
+                put(im, x, y, straw_l)
+    for x in range(T):                                               # rounded, light top
+        put(im, x, 3, straw_l); put(im, x, 2, straw_l if x % 4 else straw)
+    for y in (7, 12):                                                # bamboo bands
+        rect(im, 0, y, T - 1, y, (120, 110, 56)); rect(im, 0, y - 1, T - 1, y - 1, (170, 160, 90))
     outline(im, 0.45)
 
 

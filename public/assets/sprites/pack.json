@@ -1012,6 +1012,12 @@
     "key": "prop_plough",
     "url": "sprites/props/plough.png",
     "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_banana",
+    "url": "sprites/trees/banana.png",
+    "hd": true
    }
   ]
  }

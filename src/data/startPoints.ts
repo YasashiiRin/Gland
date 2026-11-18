@@ -20,8 +20,11 @@ export function startProvince(id: string | undefined): StartProvince {
   return START_PROVINCES.find((p) => p.id === id) ?? START_PROVINCES[0];
 }
 
-/** Where a new game in this province begins: a random one of its start spots. */
-export function pickStart(id: string | undefined, random: () => number = Math.random): { mapKey: MapKey; spawn: string } {
-  const province = startProvince(id);
-  return { mapKey: province.mapKey, spawn: province.spawns[Math.floor(random() * province.spawns.length)] };
+/**
+ * Where a new game in this province begins: at home - the map gives the
+ * player a free thatched house in one of its villages ("home" spawn). The
+ * open-country spots are kept as a fallback should every house be taken.
+ */
+export function pickStart(id: string | undefined): { mapKey: MapKey; spawn: string } {
+  return { mapKey: startProvince(id).mapKey, spawn: 'home' };
 }

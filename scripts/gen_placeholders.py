@@ -32,6 +32,8 @@ def main() -> None:
     make_tileset()
     make_mine_tileset()
     files = make_characters_hd() + make_buildings_hd() + make_nature_hd() + make_vehicles_hd() + make_animals_hd() + make_folk_hd()
+    # Banana trees in the homesteads' back gardens reuse the banana tree sprite as a prop.
+    files.append({"type": "image", "key": "prop_banana", "url": "sprites/trees/banana.png", "hd": True})
     make_trees_hd()  # graphics x2: these overwrite the 1x tree PNGs
     pack = {"generated": {"files": files}}
     (ASSETS / "sprites" / "pack.json").write_text(json.dumps(pack, indent=1))

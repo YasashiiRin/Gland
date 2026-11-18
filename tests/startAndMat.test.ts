@@ -14,15 +14,14 @@ describe('start provinces', () => {
     expect(startProvince('nowhere').id).toBe('quang_binh');
   });
 
-  it('picks one of the province’s spots at random', () => {
-    expect(pickStart('hue', () => 0)).toEqual({ mapKey: 'Hue', spawn: 'start_hue_0' });
-    expect(pickStart('hue', () => 0.999).spawn).toBe('start_hue_4');
+  it('starts at home in the chosen province', () => {
+    expect(pickStart('hue')).toEqual({ mapKey: 'Hue', spawn: 'home' });
   });
 
   it('a new game begins in the chosen province with a sleeping mat', () => {
     resetToNewGame('An', undefined, 'hue');
     expect(gameState.currentMap).toBe('Hue');
-    expect(gameState.spawnId).toMatch(/^start_hue_/);
+    expect(gameState.spawnId).toBe('home');
     expect(hasItem(gameState.inventory, 'sleeping_mat', 1)).toBe(true);
     resetToNewGame('An');
     expect(gameState.currentMap).toBe('QuangBinh');
@@ -40,21 +39,22 @@ describe('sleeping mat', () => {
   });
 });
 
-describe('start spots on the maps', () => {
-  it('exist and lie outside every safe zone', async () => {
+describe('homesteads on the maps', () => {
+  it('every province has free thatched houses for new players, with a gate', async () => {
     const fs = await import('node:fs');
     const files: Record<string, string> = { QuangBinh: 'quang_binh', Hue: 'hue' };
     for (const p of START_PROVINCES) {
       const map = JSON.parse(fs.readFileSync(`public/assets/maps/${files[p.mapKey]}.tmj`, 'utf8')) as {
-        layers: { name: string; objects?: { name: string; x: number; y: number; width: number; height: number }[] }[];
+        layers: { name: string; objects?: { name: string; properties?: { name: string; value: string }[] }[] }[];
       };
       const objects = map.layers.find((l) => l.name === 'objects')?.objects ?? [];
-      const zones = objects.filter((o) => o.name === 'zone');
-      for (const spawn of p.spawns) {
-        const at = objects.find((o) => o.name === `spawn_${spawn}`);
-        expect(at, spawn).toBeDefined();
-        const inside = zones.some((z) => at!.x >= z.x && at!.x < z.x + z.width && at!.y >= z.y && at!.y < z.y + z.height);
-        expect(inside, spawn).toBe(false);
+      const prop = (o: { properties?: { name: string; value: string }[] }, n: string) => o.properties?.find((q) => q.name === n)?.value;
+      const homes = objects.filter((o) => o.name === 'zone' && prop(o, 'kind') === 'home');
+      const vacant = homes.filter((h) => prop(h, 'vacant') === '1');
+      expect(vacant.length, p.id).toBeGreaterThanOrEqual(3);
+      for (const h of vacant) {
+        expect(prop(h, 'house')).toBe('thatched_house');
+        expect(Number(prop(h, 'gateX'))).toBeGreaterThan(0);
       }
     }
   });

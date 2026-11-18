@@ -55,7 +55,7 @@ const WATERED_SOIL_TINT = 0xb4a69c;
 /** Frames in a crop spritesheet: seeded, sprout, young, grown, ready. */
 const CROP_FRAMES = 5;
 const DRY_SOIL_TINT = 0xffffff;
-const SAFE_ZONE_NOTE = 'Đây là khu an toàn (phố, địa danh): không được cuốc đất hay xây dựng';
+const SAFE_ZONE_NOTE = 'Khu an toàn (phố, địa danh, nhà người khác): không được cuốc đất hay xây dựng — trong tường rơm nhà mình thì được';
 
 /**
  * Farming on any world map (big world, phase 2): till, plant, water, harvest,
@@ -145,7 +145,7 @@ export abstract class FieldScene extends MapScene {
       if (stack.itemId === 'hoe') {
         const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
         const blocked = !!this.decorLayer.getTileAt(tile.x, tile.y);
-        const tillable = gid !== undefined && TILLABLE_GIDS.includes(gid) && !blocked && !this.inSafeZone(tile.x, tile.y) && canTill(gameState.farmPlots, key);
+        const tillable = gid !== undefined && TILLABLE_GIDS.includes(gid) && !blocked && !this.buildBlocked(tile.x, tile.y) && canTill(gameState.farmPlots, key);
         return tillable ? 'valid' : 'invalid';
       }
       if (stack.itemId === 'watering_can') {
@@ -157,7 +157,7 @@ export abstract class FieldScene extends MapScene {
       if (stack.itemId === 'sleeping_mat') return this.canSpreadMat(tile) ? 'valid' : 'invalid';
       if (def.category === 'furniture') {
         const objKey = placedObjectKey(this.mapKey, tile.x, tile.y);
-        if (isOccupied(gameState.placedObjects, objKey) || this.decorLayer.getTileAt(tile.x, tile.y) || this.inSafeZone(tile.x, tile.y)) return 'invalid';
+        if (isOccupied(gameState.placedObjects, objKey) || this.decorLayer.getTileAt(tile.x, tile.y) || this.buildBlocked(tile.x, tile.y)) return 'invalid';
         const groundGid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
         const allowedGids: readonly number[] =
           stack.itemId === 'sprinkler' ? [...TILLABLE_GIDS, TILE_GID.SOIL] : TILLABLE_GIDS;
@@ -172,7 +172,7 @@ export abstract class FieldScene extends MapScene {
     if ((itemId === 'hoe' || itemId === 'axe' || itemId === 'pickaxe') && this.tryRollUpMat(tile)) return;
     if (itemId === 'hoe') {
       if (!canTill(gameState.farmPlots, key)) return;
-      if (this.inSafeZone(tile.x, tile.y)) {
+      if (this.buildBlocked(tile.x, tile.y)) {
         this.say(SAFE_ZONE_NOTE);
         return;
       }
@@ -291,7 +291,7 @@ export abstract class FieldScene extends MapScene {
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
     if (isOccupied(gameState.placedObjects, key)) return;
     if (this.decorLayer.getTileAt(tile.x, tile.y)) return; // no tree/rock/bush in the way
-    if (this.inSafeZone(tile.x, tile.y)) {
+    if (this.buildBlocked(tile.x, tile.y)) {
       this.say(SAFE_ZONE_NOTE);
       return;
     }

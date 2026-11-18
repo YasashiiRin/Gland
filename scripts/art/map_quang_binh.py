@@ -226,7 +226,7 @@ def _zones(m: Province) -> None:
 
 
 def build_quang_binh() -> Province:
-    m = Province(seed=301, w=SIZE, h=SIZE)
+    m = Province(seed=301, w=SIZE, h=SIZE, home_prefix="qb")
     shore = coast(m, 396, amp=4)
     _rivers(m, shore)
     regions = _regions(m)

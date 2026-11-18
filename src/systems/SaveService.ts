@@ -47,6 +47,7 @@ export function load(): GameState | null {
       return null;
     }
     parsed.hunger ??= { current: 150, max: 150 };
+    parsed.homes ??= {};
     parsed.fishPonds ??= {}; // landmark ponds (big world 2b)
     parsed.wildFields ??= {}; // added after save version 11 shipped; older saves just lack it
     parsed.rodBait ??= 0; // fishing bait, farm animals and boats came later still

@@ -19,7 +19,7 @@ from .tiles import BLOCK
 
 
 def build_hue() -> Province:
-    m = Province(seed=303, w=SIZE, h=SIZE)
+    m = Province(seed=303, w=SIZE, h=SIZE, home_prefix="hue")
     shore = coast(m, 398, amp=4)
     river(m, meander(338, 0, 350, 330, 8, 1.2, seed=5), 20)                              # phá Tam Giang
     river(m, [(350, 200), (shore[200] + 3, 200)], 8)                                     # cửa Thuận An

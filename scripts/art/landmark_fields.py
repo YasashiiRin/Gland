@@ -26,8 +26,8 @@ def _covered(m: Province) -> set[tuple[int, int]]:
     """Tiles under any object other than the zones themselves."""
     out: set[tuple[int, int]] = set()
     for o in m.objects:
-        if o["name"] == "zone" or o.get("point"):
-            continue
+        if (o["name"] == "zone" and _kind(o) == "landmark") or o.get("point"):
+            continue                                                     # homesteads (kind "home") do count
         x0, y0 = int(o["x"] // T), int(o["y"] // T)
         x1, y1 = int((o["x"] + max(o["width"], 1) - 1) // T), int((o["y"] + max(o["height"], 1) - 1) // T)
         out.update((x, y) for y in range(y0, y1 + 1) for x in range(x0, x1 + 1))
@@ -106,7 +106,11 @@ BELT_GROUND = GRASSY | {ROCKY, DRY_GRASS}
 
 def _zone_rects(m: Province) -> list[Area]:
     return [(int(o["x"] // T), int(o["y"] // T), int((o["x"] + o["width"]) // T) - 1, int((o["y"] + o["height"]) // T) - 1)
-            for o in m.objects if o["name"] == "zone"]
+            for o in m.objects if o["name"] == "zone" and _kind(o) == "landmark"]
+
+
+def _kind(o: dict) -> str:
+    return next((p["value"] for p in o.get("properties", []) if p["name"] == "kind"), "")
 
 
 def _in_any(rects: list[Area], x: int, y: int, margin: int = 0) -> bool:

@@ -102,7 +102,7 @@ export class TitleScene extends Phaser.Scene {
       this.button(cx, y, p.name, () => onPick(p.id), true, 260);
       this.note(cx, y + 30, p.blurb);
     });
-    this.caption(cx, 400, 'Bạn ra đời ngoài đồng, chỉ có một chiếc chiếu để ngủ');
+    this.caption(cx, 400, 'Bạn được cấp một căn nhà tranh trống trong làng');
     this.button(cx, 440, '‹ Quay lại', () => this.showPage(back), true, 160);
   }
 

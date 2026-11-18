@@ -485,6 +485,13 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
   3c. [x] **Thanh đói** (kiểu Don't Starve): bụng 150, mỗi ngày game hụt 75 (cả lúc ngủ); ăn để no lại (cơm nắm, bánh mì,
       trứng, và ăn sống được nông sản như củ cải, khoai, súp lơ, đậu, dâu); đói về 0 thì mất 20 máu/giờ game. Mỗi thanh có chữ
       cái ở đầu: N năng lượng, H máu, T tinh thần, Đ đói (`HungerSystem`, `hunger.json`, `state/hungerClock.ts`).
+  3d. Nhà và dân làng (yêu cầu người chơi 2026-11-18):
+      - [x] A. **Khu nhà tường rơm**: mỗi nhà làng có khu đất 11x10 bọc tường rơm (cổng trước), vườn chuối sau, cây to,
+        đống rơm, sân đất (`scripts/art/homesteads.py`); phố chật thì nhà không có tường. Mỗi khu là khu an toàn; người chơi
+        mới được cấp một **nhà tranh trống** trong làng của tỉnh đã chọn (bắt đầu ở sân nhà), trong tường rơm nhà mình được
+        cuốc/xây tuỳ ý (`HomeSystem`, `scenes/homesteads.ts`, `gameState.homes` dùng chung khi chơi nhiều người).
+      - [ ] B. Dân trong mỗi nhà (1 người, hoặc vợ chồng + con đi học): sáng ra đồng cuốc đất, 3 tiếng nghỉ 30', chiều về.
+      - [ ] C. Nâng cấp nhà tranh → nhà ngói, chuyển sang nhà trống khác.
   4. [~] Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại:
       - [x] Điện thoại: bỏ cảnh báo xoay ngang, **chơi được cả màn hình dọc** (khung 720 x cao theo máy); khung game vừa phần
         thật sự nhìn thấy (visualViewport, vùng tai thỏ), chạm lần đầu xin toàn màn hình (Android ẩn thanh trình duyệt).

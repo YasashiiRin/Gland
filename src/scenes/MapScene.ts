@@ -54,6 +54,9 @@ import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
+import { inRect, landmarkZones, readHomesteads, yardSpot, type Homestead } from './homesteads';
+import { claimHome, homeOf } from '../systems/HomeSystem';
+import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
 import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
@@ -142,6 +145,8 @@ export abstract class MapScene extends Phaser.Scene {
   private bedZones: Phaser.GameObjects.Zone[] = [];
   /** Safe zones of this map, in tiles (read from its "zone" objects). */
   protected safeZones: TileRect[] = [];
+  private landmarks: TileRect[] = [];
+  protected homesteads: Homestead[] = [];
   private benchZones: Phaser.GameObjects.Zone[] = [];
   private rain?: Phaser.GameObjects.Particles.ParticleEmitter;
   /** Last time (scene clock, ms) the mouse moved / a movement key went down; decides who aims tools. */
@@ -197,7 +202,12 @@ export abstract class MapScene extends Phaser.Scene {
     const { w, h } = this.worldSize;
     this.physics.world.setBounds(0, 0, w, h);
 
-    const spawn = data.x !== undefined && data.y !== undefined ? { x: data.x, y: data.y } : this.findSpawn(data.spawn ?? 'default');
+    this.landmarks = landmarkZones(this.map);
+    this.homesteads = readHomesteads(this.map, this.mapKey);
+    const spawn =
+      data.x !== undefined && data.y !== undefined
+        ? { x: data.x, y: data.y }
+        : (data.spawn === 'home' ? this.homeSpawn() : null) ?? this.findSpawn(data.spawn ?? 'default');
     this.player = new Player(this, spawn.x, spawn.y, data.facing ?? this.defaultFacing(data.spawn));
     // While rowing a boat, water stops blocking (Boats keeps the boat off dry land).
     this.physics.add.collider(this.player, ground, undefined, (_p, t) => !this.boats?.passesWater(t as Phaser.Tilemaps.Tile));
@@ -226,7 +236,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
     this.safeZones = this.zoneRects();
-    this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.safeZones) : null;
+    this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.landmarks) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());
     this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
     this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
@@ -435,16 +445,41 @@ export abstract class MapScene extends Phaser.Scene {
     return this.inSafeZone(Math.floor(this.player.x / TILE), Math.floor((this.player.y - 1) / TILE));
   }
 
-  /** The map's safe landmark zones ("zone" objects), in tiles. */
+  /** Safe zones: the landmarks and towns, plus every walled homestead. */
   private zoneRects(): TileRect[] {
-    return (this.map.getObjectLayer('objects')?.objects ?? [])
-      .filter((o) => o.name === 'zone')
-      .map((o) => ({
-        x0: Math.floor((o.x ?? 0) / TILE),
-        y0: Math.floor((o.y ?? 0) / TILE),
-        x1: Math.floor(((o.x ?? 0) + (o.width ?? 0)) / TILE) - 1,
-        y1: Math.floor(((o.y ?? 0) + (o.height ?? 0)) / TILE) - 1,
-      }));
+    return [...this.landmarks, ...this.homesteads];
+  }
+
+  /** The homestead this player owns on this map, if any. */
+  protected myHomestead(): Homestead | undefined {
+    const key = homeOf(gameState.homes, ownerName());
+    return key ? this.homesteads.find((h) => h.key === key) : undefined;
+  }
+
+  /**
+   * May this player till or build here? Not in a landmark/town or someone
+   * else's homestead; anywhere inside their own homestead's straw wall.
+   */
+  protected buildBlocked(tx: number, ty: number): boolean {
+    const mine = this.myHomestead();
+    if (mine && inRect(mine, tx, ty)) return false;
+    return this.inSafeZone(tx, ty);
+  }
+
+  /**
+   * Arriving "home": a player without a home is given a free thatched one on
+   * this map (village ones first); the spawn is its yard. Null if there is none.
+   */
+  private homeSpawn(): { x: number; y: number } | null {
+    if (!homeOf(gameState.homes, ownerName())) {
+      const choices = this.homesteads
+        .filter((h) => h.vacant)
+        .map((h) => ({ key: h.key, rural: !this.landmarks.some((z) => inRect(z, h.gate.x, h.gate.y)) }));
+      const claimed = claimHome(gameState.homes, choices, ownerName());
+      if (claimed) gameState.homes = claimed.homes;
+    }
+    const mine = this.myHomestead();
+    return mine ? yardSpot(mine) : null;
   }
 
   /** Extension points for farmable maps (overridden by FieldScene). Harmless no-ops elsewhere. */
@@ -726,7 +761,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.beginTransition();
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       // Found and carried to the safety of town (the map's default spawn).
-      this.scene.restart({ spawn: 'default', facing: 'down' } satisfies MapSceneData);
+      this.scene.restart({ spawn: this.myHomestead() ? 'home' : 'default', facing: 'down' } satisfies MapSceneData);
       EventBus.emit(GameEvents.HorrorScreen, { kind: 'caption', text: `Bạn ngất đi… tỉnh dậy giữa phố (mất ${penalty.toLocaleString('vi-VN')} ₫)` });
     });
   }

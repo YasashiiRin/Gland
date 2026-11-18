@@ -1,3 +1,4 @@
+import type { Homes } from '../systems/HomeSystem';
 import { createInitialHunger } from '../systems/HungerSystem';
 import { pickStart } from '../data/startPoints';
 import type { FishPonds } from '../systems/FishPondSystem';
@@ -51,6 +52,8 @@ export interface GameState {
   wildFields: WildFields;
   /** Fingerlings stocked in the landmark ponds, by pond. */
   fishPonds: FishPonds;
+  /** Who lives in which homestead (shared): "QuangBinh:qb12" -> player name. */
+  homes: Homes;
   /** Chests, scarecrows and sprinklers the player has placed, keyed by "mapKey:x,y". */
   placedObjects: PlacedObjects;
   relationships: Relationships;
@@ -136,6 +139,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     resourceNodes: {},
     wildFields: {},
     fishPonds: {},
+    homes: {},
     placedObjects: {},
     relationships: {},
     playerHealth: createInitialHealth(),
