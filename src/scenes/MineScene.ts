@@ -1,3 +1,4 @@
+import { swingTool } from './toolSwing';
 import Phaser from 'phaser';
 import { FADE_MS, TILE } from '../config/constants';
 import { setupWorldCamera } from './cameraFit';
@@ -248,6 +249,7 @@ export class MineScene extends Phaser.Scene {
       gameState.inventory = addItem(gameState.inventory, itemId, qty).state;
       gameState.skills = addXp(gameState.skills, 'mining', XP_REWARDS.mineOre).skills;
       this.player.playUseToolFeedback();
+      swingTool(this, this.player, 'pickaxe', this.player.direction);
       playPickup(gameState.settings);
     }
   }

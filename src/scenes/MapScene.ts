@@ -57,6 +57,7 @@ import { FishPondsView } from './fishPonds';
 import { inRect, landmarkZones, readHomesteads, yardSpot, type Homestead } from './homesteads';
 import { claimHome, homeOf, houseOn } from '../systems/HomeSystem';
 import { HomeDoor } from './homeDoor';
+import { swingTool } from './toolSwing';
 import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
 import { Villagers } from './villagers';
@@ -941,6 +942,7 @@ export abstract class MapScene extends Phaser.Scene {
 
     gameState.energy = consume(gameState.energy, cost);
     this.player.playUseToolFeedback();
+    swingTool(this, this.player, stack.itemId, this.player.direction);
     playUseTool(gameState.settings);
     const tile = this.actionTile();
     this.applyToolEffect(stack.itemId, tile);
