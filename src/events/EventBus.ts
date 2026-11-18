@@ -24,6 +24,9 @@ export const GameEvents = {
   WorldPatched: 'world:patched',
   /** Multiplayer: the player lay down in bed and waits for everyone else. */
   SleepWaitRequested: 'sleep:waitRequested',
+  /** A map asks the player to choose (payload: ChoiceRequest); the answer comes back as ChoiceMade ({ id }). */
+  ChoiceRequested: 'choice:requested',
+  ChoiceMade: 'choice:made',
   /** A screen-wide horror effect for the UI (payload: HorrorScreenPayload). */
   HorrorScreen: 'horror:screen',
   /** Open the crafting screen for a bench (payload: { station }). */

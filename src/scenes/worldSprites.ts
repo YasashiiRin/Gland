@@ -36,21 +36,26 @@ function tileHash(x: number, y: number): number {
  * near the camera only (call update() each frame).
  */
 /** Every oil-lamp spot of the map's buildings (see houseLights.json). */
-export function lampSpotsOnMap(map: Phaser.Tilemaps.Tilemap): LampSpot[] {
+/** Lets a map swap a prop's sprite (a player's rebuilt house). */
+export type PropOverride = (o: Phaser.Types.Tilemaps.TiledObject, sprite: string) => string;
+
+export function lampSpotsOnMap(map: Phaser.Tilemaps.Tilemap, override?: PropOverride): LampSpot[] {
   const spots: LampSpot[] = [];
   for (const o of map.getObjectLayer('objects')?.objects ?? []) {
     if (o.name !== 'prop') continue;
-    const sprite = readProp(o, 'sprite') ?? '';
+    const base = readProp(o, 'sprite') ?? '';
+    const sprite = override ? override(o, base) : base;
     spots.push(...lampSpotsFor(sprite, (o.x ?? 0) + (o.width ?? 0) / 2, (o.y ?? 0) + (o.height ?? 0)));
   }
   return spots;
 }
 
-export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap): ChunkedImages {
+export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap, override?: PropOverride): ChunkedImages {
   const images = new ChunkedImages(scene);
   for (const o of map.getObjectLayer('objects')?.objects ?? []) {
     if (o.name !== 'prop') continue;
-    const key = `prop_${readProp(o, 'sprite') ?? ''}`;
+    const base = readProp(o, 'sprite') ?? '';
+    const key = `prop_${override ? override(o, base) : base}`;
     if (!scene.textures.exists(key)) {
       console.warn(`Missing prop sprite "${key}"`);
       continue;

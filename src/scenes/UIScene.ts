@@ -15,6 +15,7 @@ import { Minimap } from '../ui/Minimap';
 import { WorldMap } from '../ui/WorldMap';
 import { worldView } from '../state/worldView';
 import { NightLights } from '../ui/NightLights';
+import { ChoiceMenu, type ChoiceRequest } from '../ui/ChoiceMenu';
 import { resetHungerClock, tickHunger } from '../state/hungerClock';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
@@ -86,6 +87,7 @@ export class UIScene extends Phaser.Scene {
   private settingsMenu!: SettingsMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
   private nightLights!: NightLights;
+  private choiceMenu!: ChoiceMenu;
   private minimap!: Minimap;
   private worldMap!: WorldMap;
   private dayBanner!: Phaser.GameObjects.Text;
@@ -116,6 +118,14 @@ export class UIScene extends Phaser.Scene {
       .setDepth(DEPTH_ABOVE - 1)
       .setAlpha(0);
     this.nightLights = new NightLights(this, DEPTH_ABOVE - 0.5);
+    this.choiceMenu = new ChoiceMenu(this, DEPTH_ABOVE + 3);
+    this.choiceMenu.onPick = (id) => EventBus.emit(GameEvents.ChoiceMade, { id });
+    const onChoice = (req: ChoiceRequest) => this.choiceMenu.open(req);
+    EventBus.on(GameEvents.ChoiceRequested, onChoice);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      EventBus.off(GameEvents.ChoiceRequested, onChoice);
+      this.choiceMenu.close();
+    });
 
     this.hud = new Hud(this, DEPTH_ABOVE);
     this.minimap = new Minimap(this, DEPTH_ABOVE);
@@ -629,7 +639,8 @@ export class UIScene extends Phaser.Scene {
 
   /** Esc (or the on-screen close button): closes whichever menu is on top. */
   private closeTopMenu(): void {
-    if (uiState.worldMapOpen) this.worldMap.close();
+    if (this.choiceMenu.isOpen) this.choiceMenu.close();
+    else if (uiState.worldMapOpen) this.worldMap.close();
     else if (uiState.settingsOpen) this.closeSettings();
     else if (uiState.dialogueOpen) this.closeDialogue();
     else if (uiState.shopOpen) this.closeShop();

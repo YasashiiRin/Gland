@@ -496,7 +496,9 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       - [x] B. **Dân trong mỗi nhà** (nhà phố: 1 người bán hàng; nhà làng: 1 người, hoặc vợ chồng + con đi học): 5h30 ra
         đồng, cuốc từng đợt 3 tiếng, nghỉ ngồi 30', 15h về nhà, quanh sân tới 18h rồi vào nhà; con 6h30 đi trường làng, 11h
         về. Mỗi nhà có mảnh ruộng riêng, tìm đường thật (`VillagerSchedule`, `gridPath`, `scenes/villagers.ts`).
-      - [ ] C. Nâng cấp nhà tranh → nhà ngói, chuyển sang nhà trống khác.
+      - [x] C. **Cửa nhà** (đứng trước cửa bấm E): nhà mình → Đi ngủ / làm lại nhà (nhà tranh → nhà tranh vách đất 1.500 ₫
+        → nhà ngói ba gian 4.000 ₫, `homes.json`) / Đóng; nhà trống → chuyển về ở (nhà cũ để trống cho người khác). Bảng chọn
+        dùng chung `ui/ChoiceMenu.ts`; nhà đã làm lại lưu trong `gameState.homeHouses` (chung khi chơi nhiều người).
   4. [~] Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại:
       - [x] Điện thoại: bỏ cảnh báo xoay ngang, **chơi được cả màn hình dọc** (khung 720 x cao theo máy); khung game vừa phần
         thật sự nhìn thấy (visualViewport, vùng tai thỏ), chạm lần đầu xin toàn màn hình (Android ẩn thanh trình duyệt).

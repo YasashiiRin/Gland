@@ -1,4 +1,4 @@
-import type { Homes } from '../systems/HomeSystem';
+import type { HomeHouses, Homes } from '../systems/HomeSystem';
 import { createInitialHunger } from '../systems/HungerSystem';
 import { pickStart } from '../data/startPoints';
 import type { FishPonds } from '../systems/FishPondSystem';
@@ -54,6 +54,8 @@ export interface GameState {
   fishPonds: FishPonds;
   /** Who lives in which homestead (shared): "QuangBinh:qb12" -> player name. */
   homes: Homes;
+  /** Houses players have rebuilt (shared): home key -> house sprite. */
+  homeHouses: HomeHouses;
   /** Chests, scarecrows and sprinklers the player has placed, keyed by "mapKey:x,y". */
   placedObjects: PlacedObjects;
   relationships: Relationships;
@@ -140,6 +142,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     wildFields: {},
     fishPonds: {},
     homes: {},
+    homeHouses: {},
     placedObjects: {},
     relationships: {},
     playerHealth: createInitialHealth(),

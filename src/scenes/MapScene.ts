@@ -55,7 +55,8 @@ import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
 import { inRect, landmarkZones, readHomesteads, yardSpot, type Homestead } from './homesteads';
-import { claimHome, homeOf } from '../systems/HomeSystem';
+import { claimHome, homeOf, houseOn } from '../systems/HomeSystem';
+import { HomeDoor } from './homeDoor';
 import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
 import { Villagers } from './villagers';
@@ -139,6 +140,7 @@ export abstract class MapScene extends Phaser.Scene {
   private ponds!: FishPondsView;
   private ambient: AmbientLife | null = null;
   private villagers: Villagers | null = null;
+  private homeDoor!: HomeDoor;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -227,8 +229,25 @@ export abstract class MapScene extends Phaser.Scene {
       .setDepth(1)
       .setVisible(false);
     this.applyResourceNodeVisuals();
-    this.props = createProps(this, this.map);
-    nightLights.spots = this.isOutdoor ? lampSpotsOnMap(this.map) : [];
+    // A player's rebuilt house replaces the map's thatched one.
+    const houseAt = new Map(this.homesteads.map((h) => [`${h.x0 + 3},${h.y0 + 3}`, h.key]));
+    const override = (o: Phaser.Types.Tilemaps.TiledObject, sprite: string): string => {
+      const key = houseAt.get(`${Math.floor((o.x ?? 0) / TILE)},${Math.floor((o.y ?? 0) / TILE)}`);
+      return key ? houseOn(gameState.homeHouses, key, sprite) : sprite;
+    };
+    this.props = createProps(this, this.map, override);
+    nightLights.spots = this.isOutdoor ? lampSpotsOnMap(this.map, override) : [];
+    this.homeDoor = new HomeDoor({
+      homesteads: () => this.homesteads,
+      mine: () => this.myHomestead(),
+      player: () => ({ x: this.player.x, y: this.player.y }),
+      sleep: () => (net.online ? EventBus.emit(GameEvents.SleepWaitRequested) : this.sleepSequence()),
+      redraw: () => this.redrawInPlace(),
+      say: (text) => this.say(text),
+    });
+    const onChoice = (p: { id: string }) => this.homeDoor.onChoice(p.id);
+    EventBus.on(GameEvents.ChoiceMade, onChoice);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.ChoiceMade, onChoice));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => (nightLights.spots = []));
     this.trees = new TreeSprites(this, decor, info);
     this.wildRice = new WildRice(this.mapKey, decor);
@@ -381,6 +400,7 @@ export abstract class MapScene extends Phaser.Scene {
       !this.tryTalkToNpc() &&
       !this.tryEnterMine() &&
       !this.tryUseCoop() &&
+      !this.homeDoor.tryOpen() &&
       !this.tryUseQuestBoard()
     ) {
       if (this.isNearBed()) {
@@ -739,6 +759,12 @@ export abstract class MapScene extends Phaser.Scene {
     if (gameState.riding) this.ride.dismount();
     SaveService.save(gameState);
     this.newDayInPlace(payload);
+  }
+
+  /** Redraw this map around the player (a house was rebuilt, they moved house). */
+  private redrawInPlace(): void {
+    const at = { x: Math.round(this.player.x), y: Math.round(this.player.y), facing: this.player.direction };
+    this.scene.restart({ spawn: gameState.spawnId, ...at } satisfies MapSceneData);
   }
 
   /** Redraw this map for the new morning (crops grew…) without moving the player. */

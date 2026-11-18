@@ -24,6 +24,7 @@ export const SHARED_KEYS = [
   'wildFields',
   'fishPonds',
   'homes',
+  'homeHouses',
   'placedObjects',
   'relationships',
   'deepestFloor',

@@ -1,0 +1,7 @@
+{
+  "_comment": "House upgrades for a player's home: from sprite -> to sprite, price in đồng.",
+  "upgrades": {
+    "thatched_house": { "to": "house_c", "cost": 1500, "name": "nhà tranh vách đất" },
+    "house_c": { "to": "house_a", "cost": 4000, "name": "nhà ngói ba gian" }
+  }
+}

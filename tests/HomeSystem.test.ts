@@ -20,3 +20,24 @@ describe('HomeSystem', () => {
     expect(claimHome(c.homes, choices, 'Dũng')).toBeNull();
   });
 });
+
+import { houseOn, moveHome, nextUpgrade, upgradeHouse } from '../src/systems/HomeSystem';
+
+describe('upgrading and moving house', () => {
+  it('rebuilds a thatched house step by step, for money', () => {
+    expect(nextUpgrade('thatched_house')?.to).toBe('house_c');
+    expect(upgradeHouse({}, 100, 'Hue:hue1', 'thatched_house')).toBeNull();
+    const a = upgradeHouse({}, 10000, 'Hue:hue1', 'thatched_house')!;
+    expect(houseOn(a.houses, 'Hue:hue1', 'thatched_house')).toBe('house_c');
+    const b = upgradeHouse(a.houses, a.money, 'Hue:hue1', 'house_c')!;
+    expect(b.houses['Hue:hue1']).toBe('house_a');
+    expect(b.money).toBe(10000 - 1500 - 4000);
+    expect(nextUpgrade('house_a')).toBeUndefined();
+  });
+
+  it('moves to a free house only', () => {
+    const homes = { 'Hue:hue1': 'An', 'Hue:hue2': 'Bình' };
+    expect(moveHome(homes, 'An', 'Hue:hue3')).toEqual({ 'Hue:hue2': 'Bình', 'Hue:hue3': 'An' });
+    expect(moveHome(homes, 'An', 'Hue:hue2')).toBeNull();
+  });
+});
