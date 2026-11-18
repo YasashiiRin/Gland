@@ -54,6 +54,7 @@ import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
+import { AmbientLife } from './ambientLife';
 import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { HUNGER } from '../systems/HungerSystem';
@@ -132,6 +133,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected horror!: HorrorDirector;
   private wildRice!: WildRice;
   private ponds!: FishPondsView;
+  private ambient: AmbientLife | null = null;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -224,6 +226,8 @@ export abstract class MapScene extends Phaser.Scene {
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
     this.safeZones = this.zoneRects();
+    this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.safeZones) : null;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());
     this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
     this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
       ? new Tigers(this, this.player, decor, this.safeZones, (text) => this.say(text))
@@ -285,6 +289,7 @@ export abstract class MapScene extends Phaser.Scene {
     const view = this.cameras.main.worldView;
     this.props.update(view);
     this.trees.update(view, this.player.x, this.player.y);
+    this.ambient?.update(time, this.game.loop.delta, view);
     this.ride.update(this.time.now);
     this.boats.update();
     this.herd.update(time);

@@ -52,6 +52,31 @@ def bike_front(im: Image.Image, back: bool) -> None:
         disc(im, 15.5, 16, 2, (250, 230, 150))
 
 
+# ------------------------------------------------------------------ bicycle (an old black "xe đạp")
+FRAME = (40, 44, 48)
+
+
+def bicycle_side(im: Image.Image) -> None:
+    wheel(im, 7, 26, 5); wheel(im, 25, 26, 5)
+    for i in range(10):                                    # top tube and down tube
+        put(im, 9 + i, 19, FRAME); put(im, 9 + i, 20 + i // 3, FRAME)
+    rect(im, 8, 18, 9, 26, FRAME)                          # seat tube
+    rect(im, 5, 17, 11, 18, (60, 40, 30))                  # saddle
+    rect(im, 21, 14, 22, 26, FRAME)                        # fork
+    rect(im, 19, 13, 25, 14, (60, 56, 56))                 # handlebar
+    rect(im, 2, 21, 8, 22, (110, 80, 50))                  # rear rack
+
+
+def bicycle_front(im: Image.Image, back: bool) -> None:
+    wheel_front(im, 16, 22, 31, 2)
+    rect(im, 15, 16, 16, 24, FRAME)
+    rect(im, 9, 13, 22, 14, (60, 56, 56))
+    if back:
+        rect(im, 13, 17, 18, 18, (60, 40, 30)); rect(im, 13, 20, 18, 21, (110, 80, 50))
+    else:
+        put(im, 15, 16, (240, 230, 180)); put(im, 16, 16, (240, 230, 180))
+
+
 # ------------------------------------------------------------------ tractor
 TRACTOR = (196, 92, 40)
 
@@ -178,6 +203,7 @@ def oxcart_front(im: Image.Image, back: bool) -> None:
 
 VEHICLES: dict[str, tuple[Frame, Callable[[Image.Image, bool], None]]] = {
     "motorbike": (bike_side, bike_front),
+    "bicycle": (bicycle_side, bicycle_front),
     "tractor": (tractor_side, tractor_front),
     "harvester": (harvester_side, harvester_front),
     "water_truck": (watertruck_side, watertruck_front),

@@ -849,6 +849,16 @@
    },
    {
     "type": "spritesheet",
+    "key": "vehicle_bicycle",
+    "url": "sprites/vehicles/bicycle.png",
+    "frameConfig": {
+     "frameWidth": 64,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
     "key": "vehicle_tractor",
     "url": "sprites/vehicles/tractor.png",
     "frameConfig": {
@@ -935,6 +945,72 @@
      "frameWidth": 80,
      "frameHeight": 48
     },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_0",
+    "url": "sprites/npcs/folk_0.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_1",
+    "url": "sprites/npcs/folk_1.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_2",
+    "url": "sprites/npcs/folk_2.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_3",
+    "url": "sprites/npcs/folk_3.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_4",
+    "url": "sprites/npcs/folk_4.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_5",
+    "url": "sprites/npcs/folk_5.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_plough",
+    "url": "sprites/props/plough.png",
     "hd": true
    }
   ]
