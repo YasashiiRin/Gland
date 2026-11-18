@@ -1,120 +1,123 @@
 import type Phaser from 'phaser';
 import { TILE } from '../config/constants';
-import { TILE_GID } from '../config/tileGids';
+import { DAY_LENGTH_MINUTES } from '../config/time';
 import { gameState } from '../state/GameState';
 import { findPath, type TilePath } from '../systems/gridPath';
+import { currentJob, type FieldJob } from '../systems/NpcFarmSystem';
+import { absoluteMinute } from '../systems/StatsSystem';
 import { clockMinuteOfDay } from '../systems/TimeSystem';
-import { householdRoles, isTravel, phaseAt, type Activity, type Role } from '../systems/VillagerSchedule';
+import { adultDoing, phaseAt, type Doing } from '../systems/VillagerSchedule';
 import { FOLK_KEYS, createFolkAnims } from './ambientLife';
-import { artScale } from './hd';
-import { inRect, type Homestead } from './homesteads';
-import { readProp } from './worldSprites';
+import { artScale, hdScale } from './hd';
+import type { Homestead } from './homesteads';
+import { swingTool } from './toolSwing';
+import { HouseAnimals } from './villageAnimals';
+import type { PaddyWork, VillageFields } from './villageFields';
 
-const HOUSES = new Set(['house_a', 'house_b', 'house_c', 'thatched_house', 'stilt_house']);
-const SHOPS = /^shophouse_\d$/;
-/** Households this close to the camera (tiles) live on screen; their fields are looked up a little further out. */
-const ACTIVE_TILES = 40;
-const PLAN_TILES = 60;
+const ACTIVE_TILES = 46;
 const WALK = 22;
-/** A game minute lasts 0.7 s, so this is how far a villager walks in one (px). */
+/** A game minute lasts 0.7 s: how far a villager walks in one (px). */
 const PX_PER_GAME_MINUTE = WALK * 0.7;
+const TOOL: Partial<Record<FieldJob, 'hoe' | 'watering_can' | 'scythe'>> = { hoe: 'hoe', water: 'watering_can', harvest: 'scythe' };
+const DIRS = ['down', 'left', 'right', 'up'];
 
-interface Member {
-  role: Role;
+interface Person {
   key: string;
   child: boolean;
-  activity?: Activity;
+  index: number;
+  doing?: string;
   progress: number;
   sprite?: Phaser.GameObjects.Sprite;
-  nextPuff: number;
+  load?: Phaser.GameObjects.Image;
+  nextMove: number;
 }
 
 interface Household {
-  door: { x: number; y: number };
-  yard?: { x0: number; x1: number; y0: number; y1: number };
-  members: Member[];
-  planned: boolean;
-  field?: TilePath;
-  school?: TilePath;
+  home: Homestead;
+  work?: PaddyWork;
+  people: Person[];
+  animals: HouseAnimals;
+  route?: TilePath | null;
 }
 
 /**
- * The people living in the village houses (part B of the homesteads): a
- * shopkeeper in each shophouse, someone living alone or a couple with a child
- * in each house. Farmers walk to the nearest paddy at dawn, hoe it in
- * three-hour spells with a half-hour sit down, and come home in the
- * afternoon; children walk to the village school. Their day follows the
- * clock (VillagerSchedule); paths are found when the camera comes near.
+ * The people of the village homesteads (rules: VillagerSchedule.adultDoing and
+ * NpcFarmSystem). Out to the household's own paddy at 5:30 to do whatever it
+ * needs - hoe, sow, water, fertilise, harvest, carry the sheaves home one by
+ * one - resting by the road between spells. Once it's done, one minds the
+ * buffalo or cow while the other goes to market; or they rest and walk home.
+ * Tea at the yard table till dusk. Children go to school, then play.
  */
 export class Villagers {
   private readonly households: Household[] = [];
-  private readonly schools: { x: number; y: number }[] = [];
-  /** Paddy tiles some household already works (so each family has its own patch, spread over the fields). */
-  private readonly claimed = new Set<string>();
 
   constructor(
     private readonly scene: Phaser.Scene,
-    map: Phaser.Tilemaps.Tilemap,
     private readonly ground: Phaser.Tilemaps.TilemapLayer,
     private readonly decor: Phaser.Tilemaps.TilemapLayer,
     homesteads: Homestead[],
+    private readonly fields: VillageFields,
     taken: (h: Homestead) => boolean,
   ) {
     createFolkAnims(scene);
-    let seed = 0;
-    for (const o of map.getObjectLayer('objects')?.objects ?? []) {
-      if (o.name !== 'prop') continue;
-      const sprite = readProp(o, 'sprite') ?? '';
-      const front = { x: Math.floor(((o.x ?? 0) + (o.width ?? 0) / 2) / TILE), y: Math.floor(((o.y ?? 0) + (o.height ?? 0)) / TILE) };
-      if (sprite === 'school') this.schools.push(front);
-      const shop = SHOPS.test(sprite);
-      if (!shop && !HOUSES.has(sprite)) continue;
-      const home = homesteads.find((h) => inRect(h, front.x, front.y));
-      if (home && (home.vacant || taken(home))) continue; // empty, or a player's house
-      const yard = home ? { x0: home.x0 + 1, x1: home.x1 - 1, y0: home.y1 - 2, y1: home.y1 - 1 } : undefined;
-      seed++;
-      const members = householdRoles(seed, shop).map((role, i) => ({
-        role,
-        key: FOLK_KEYS[(seed * 7 + i * 3 + (i === 1 ? 1 : 0)) % FOLK_KEYS.length],
-        child: role === 'child',
-        progress: 0,
-        nextPuff: 0,
-      }));
-      this.households.push({ door: front, yard, members, planned: false });
-    }
+    homesteads.forEach((home, n) => {
+      if (home.vacant || home.members < 1 || taken(home)) return;
+      const people: Person[] = [];
+      const adults = home.members >= 3 ? 2 : 1;
+      for (let i = 0; i < adults; i++) people.push({ key: FOLK_KEYS[((n * 2) % 3) + (i ? 3 : 0)], child: false, index: i, progress: 0, nextMove: 0 });
+      if (home.members >= 3) people.push({ key: FOLK_KEYS[4], child: true, index: 2, progress: 0, nextMove: 0 });
+      this.households.push({ home, work: fields.works.find((w) => w.paddy.key === home.key), people, animals: new HouseAnimals(scene, home) });
+    });
   }
 
   update(time: number, delta: number, view: Phaser.Geom.Rectangle): void {
-    const minute = clockMinuteOfDay(gameState.time);
-    const cx = view.centerX / TILE;
-    const cy = view.centerY / TILE;
+    const clock = clockMinuteOfDay(gameState.time);
+    const now = absoluteMinute(gameState.time);
+    const today = Math.floor(now / DAY_LENGTH_MINUTES);
+    const near = (x: number, y: number) => Math.max(Math.abs(x - view.centerX / TILE), Math.abs(y - view.centerY / TILE)) < ACTIVE_TILES;
     for (const h of this.households) {
-      const d = Math.max(Math.abs(h.door.x - cx), Math.abs(h.door.y - cy));
-      const fieldEnd = h.field?.[h.field.length - 1];
-      const fd = fieldEnd ? Math.max(Math.abs(fieldEnd.x - cx), Math.abs(fieldEnd.y - cy)) : Infinity;
-      if (d > PLAN_TILES && fd > ACTIVE_TILES) {
+      const pad = h.work?.paddy;
+      if (!near(h.home.gate.x, h.home.gate.y) && !(pad && near(pad.bridgeX, pad.roadY))) {
         this.sleep(h);
         continue;
       }
-      if (!h.planned) this.plan(h);
-      if (d > ACTIVE_TILES && fd > ACTIVE_TILES) {
-        this.sleep(h);
-        continue;
+      if (h.route === undefined && pad) {
+        h.route = findPath(h.home.gate, this.walkable, (x, y) => x === pad.bridgeX && y === pad.roadY, 80000);
       }
-      h.members.forEach((m, i) => this.live(h, m, i, minute, time, delta));
+      const f = pad ? this.fields.state(pad.key) : null;
+      const job = f ? currentJob(f, today) : null;
+      let idleFor: number | null = null;
+      if (f && !job) idleFor = f.doneAt >= 0 && Math.floor(f.doneAt / DAY_LENGTH_MINUTES) === today ? now - f.doneAt : Math.max(0, clock - 6 * 60);
+      let grazing: { x: number; y: number; flip: boolean } | null = null;
+      for (const p of h.people) {
+        if (p.child) {
+          this.child(h, p, clock, delta, time);
+          continue;
+        }
+        const plan = pad
+          ? adultDoing({ index: p.index, clock, hasJob: !!job, idleFor, livestock: !!h.home.livestock, chickens: h.home.feature === 'chickens' })
+          : { doing: (clock >= 330 && clock < 18 * 60 ? 'tea' : 'indoors') as Doing, since: 330 };
+        this.adult(h, p, plan.doing, plan.since, clock, delta, time, job, f?.haulProgress ?? 0);
+        if (plan.doing === 'herd' && p.sprite) grazing = { x: p.sprite.x + 18, y: p.sprite.y, flip: Math.sin(time / 9000) < 0 };
+      }
+      h.animals.update(time, clock >= 330 && clock < 18 * 60, grazing);
     }
   }
 
   destroy(): void {
-    for (const h of this.households) this.sleep(h);
+    this.households.forEach((h) => this.sleep(h));
   }
 
   private sleep(h: Household): void {
-    for (const m of h.members) {
-      m.sprite?.destroy();
-      m.sprite = undefined;
-      m.activity = undefined;
-    }
+    h.people.forEach((p) => this.hide(p));
+    h.animals.hide();
+  }
+
+  private hide(p: Person): void {
+    p.sprite?.destroy();
+    p.load?.destroy();
+    p.sprite = undefined;
+    p.load = undefined;
   }
 
   private walkable = (x: number, y: number): boolean => {
@@ -124,127 +127,146 @@ export class Villagers {
     return !d || !d.collides;
   };
 
-  /** Finds this household's way to the nearest paddy and to the school. */
-  private plan(h: Household): void {
-    h.planned = true;
-    if (h.members.some((m) => m.role === 'farmer')) {
-      const free = (x: number, y: number) => this.ground.getTileAt(x, y)?.index === TILE_GID.PADDY && !this.claimed.has(`${x},${y}`);
-      // A patch well inside the paddy (not at its edge), with room for two side by side.
-      const inside = (x: number, y: number) => free(x, y) && free(x + 1, y) && free(x, y - 2) && free(x, y + 2);
-      h.field = findPath(h.door, this.walkable, inside) ?? undefined;
-      const end = h.field?.[h.field.length - 1];
-      if (end) for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 3; dx++) this.claimed.add(`${end.x + dx},${end.y + dy}`);
-    }
-    if (h.members.some((m) => m.child) && this.schools.length) {
-      const school = this.schools.reduce((a, b) => (dist(a, h.door) < dist(b, h.door) ? a : b));
-      if (dist(school, h.door) < 120) {
-        h.school = findPath(h.door, this.walkable, (x, y) => x === school.x && y === school.y, 30000) ?? undefined;
-      }
+  /** How far along a walk the person is (they may already be under way when first seen). */
+  private advance(p: Person, doing: string, since: number, clock: number, delta: number): void {
+    if (p.doing !== doing) {
+      p.progress = Math.max(0, clock - since) * PX_PER_GAME_MINUTE;
+      p.doing = doing;
+    } else {
+      p.progress += WALK * (delta / 1000);
     }
   }
 
-  private live(h: Household, m: Member, index: number, minute: number, time: number, delta: number): void {
-    const phase = phaseAt(m.role, minute);
-    if (m.activity !== phase.activity) {
-      // Joining mid-way (the camera just arrived): they have been walking since the phase began.
-      m.progress = m.activity === undefined ? Math.max(0, minute - phase.since) * PX_PER_GAME_MINUTE : 0;
-      m.activity = phase.activity;
-    } else if (isTravel(m.activity)) {
-      m.progress += WALK * (delta / 1000);
+  private adult(h: Household, p: Person, doing: Doing, since: number, clock: number, delta: number, time: number, job: FieldJob | null, haul: number): void {
+    this.advance(p, doing, since, clock, delta);
+    if (doing === 'indoors' || doing === 'market') return this.hide(p);
+    const s = this.spriteOf(p);
+    s.setCrop();
+    this.carry(p, false);
+    const { home } = h;
+    const route = h.route ?? null;
+    const pad = h.work?.paddy;
+    const teaX = (home.x0 + 11) * TILE + (p.index ? 13 : -13);
+    const teaY = (home.y0 + 12) * TILE - 2;
+    if (doing === 'feedChickens') return this.stand(s, (home.x0 + 13) * TILE, (home.y0 + 14) * TILE, 'right', time, true);
+    if (doing === 'tea') return this.sit(s, p, teaX, teaY, p.index ? 'left' : 'right');
+    if (!route || !pad) return this.stand(s, home.gate.x * TILE + 8, (home.gate.y - 3) * TILE, 'down', time, false);
+    const road = (n: number): TilePath => Array.from({ length: n }, (_, i) => ({ x: pad.bridgeX + i + 1, y: pad.roadY }));
+    if (doing === 'toField' && !this.walk(s, p, route, p.progress)) return;
+    if (doing === 'toMarket') {
+      if (!this.walk(s, p, [...route, ...road(30)], p.progress)) return;
+      return this.hide(p); // gone off to market
     }
-    const route = m.child ? h.school : h.field;
-    let a = m.activity;
-    if (!route && (a === 'toField' || a === 'toSchool' || a === 'toHome' || a === 'work' || a === 'rest' || a === 'school')) {
-      a = a === 'work' ? 'work' : a === 'school' ? 'indoors' : 'yard'; // no field or school: do it at home
+    if (doing === 'fromMarket') {
+      if (!this.walk(s, p, [...road(30)].reverse().concat([...route].reverse()), p.progress)) return;
+      return this.sit(s, p, teaX, teaY, p.index ? 'left' : 'right');
     }
-    if (a === 'indoors' || a === 'school') {
-      m.sprite?.destroy();
-      m.sprite = undefined;
-      return;
+    if (doing === 'toHome') {
+      if (!this.walk(s, p, [...route].reverse(), p.progress)) return;
+      return this.sit(s, p, teaX, teaY, p.index ? 'left' : 'right');
     }
-    const sprite = this.spriteOf(m);
-    sprite.setCrop();
-    if ((a === 'toField' || a === 'toSchool' || a === 'toHome') && route) {
-      const path = a === 'toHome' ? [...route].reverse() : route;
-      const done = this.walkAlong(sprite, m, path, m.progress);
-      if (!done) return;
+    if (doing === 'restRoad') {
+      // Sitting on their own side of the road, by their bridge.
+      const side = pad.side === 'north' ? -1 : 1;
+      return this.sit(s, p, (pad.bridgeX + (p.index ? 2 : -2)) * TILE + 8, (pad.roadY + side) * TILE + (side < 0 ? TILE - 2 : TILE - 2), side < 0 ? 'up' : 'down');
     }
-    if (a === 'work' || a === 'rest' || ((a === 'toField' || a === 'toSchool') && route)) {
-      const end = route ? route[route.length - 1] : h.door;
-      const spot = { x: end.x + (index === 1 ? 1 : 0), y: end.y };
-      sprite.setPosition(spot.x * TILE + TILE / 2, spot.y * TILE + TILE - 2).setDepth(spot.y * TILE + TILE);
-      if (a === 'rest') this.sit(sprite, m);
-      else if (a === 'work') this.hoe(sprite, m, time);
-      return;
+    if (doing === 'herd') {
+      const span = pad.x1 - pad.x0;
+      const x = (pad.x0 + span * (0.5 + 0.4 * Math.sin(time / 9000))) * TILE;
+      const y = (pad.side === 'north' ? pad.y0 - 2 : pad.y1 + 3) * TILE;
+      return this.stand(s, x, y, Math.cos(time / 9000) > 0 ? 'right' : 'left', time, false);
     }
-    if (a === 'shop') {
-      sprite.anims.stop();
-      sprite.setFrame(0).setPosition(h.door.x * TILE + TILE / 2, h.door.y * TILE + TILE - 2).setDepth(h.door.y * TILE + TILE);
-      return;
+    if (job === 'haul') {
+      // To and fro between the sheaves on the roadside and home, one sheaf a trip.
+      const phase = (haul + p.index * 0.5) % 1;
+      const loaded = phase < 0.5;
+      const len = (route.length - 1) * TILE;
+      this.walk(s, p, loaded ? [...route].reverse() : route, (loaded ? phase : phase - 0.5) * 2 * len);
+      return this.carry(p, loaded);
     }
-    this.potter(sprite, h, m, index, time);
+    this.work(s, p, pad, job, time);
   }
 
-  private spriteOf(m: Member): Phaser.GameObjects.Sprite {
-    if (m.sprite) return m.sprite;
-    const k = artScale(this.scene, m.key);
-    m.sprite = this.scene.add.sprite(0, 0, m.key, 0).setOrigin(0.5, 1).setScale((m.child ? 0.72 : 1) / k);
-    return m.sprite;
+  /** At the work front of the paddy (the row the job has got to), with the right tool. */
+  private work(s: Phaser.GameObjects.Sprite, p: Person, pad: PaddyWork['paddy'], job: FieldJob | null, time: number): void {
+    const rows = pad.y1 - pad.y0 + 1;
+    const f = this.fields.state(pad.key);
+    const done = job === 'water' ? f.waterProgress : job === 'fertilize' ? f.fertProgress : f.progress;
+    const r = Math.min(rows - 1, Math.floor(done * rows));
+    const x = (pad.x0 + Math.round((pad.x1 - pad.x0) * (0.3 + 0.4 * p.index))) * TILE + 8;
+    const y = (pad.side === 'north' ? pad.y1 - r : pad.y0 + r) * TILE + TILE - 2;
+    const facing = pad.side === 'north' ? 'up' : 'down';
+    this.stand(s, x, y, facing, time, false);
+    if (time < p.nextMove) return;
+    p.nextMove = time + 1300 + p.index * 200;
+    const tool = job ? TOOL[job] : undefined;
+    if (tool) swingTool(this.scene, s, tool, facing);
+    else this.toss(s, job === 'fertilize' ? 0x6a5a40 : 0x8fd16a);
+  }
+
+  private child(h: Household, p: Person, clock: number, delta: number, time: number): void {
+    const phase = phaseAt('child', clock);
+    const doing = phase.activity === 'toSchool' || phase.activity === 'school' ? 'school' : phase.activity === 'indoors' ? 'indoors' : 'yard';
+    this.advance(p, doing, phase.since, clock, delta);
+    if (doing !== 'yard') return this.hide(p);
+    const s = this.spriteOf(p);
+    const t = time / 1000 / 5;
+    const x = (h.home.x0 + 6 + Math.sin(t) * 3) * TILE;
+    const y = (h.home.y0 + 14) * TILE;
+    s.setPosition(x, y).setDepth(y);
+    const anim = `${p.key}-walk-${Math.cos(t) > 0 ? 'right' : 'left'}`;
+    if (s.anims.currentAnim?.key !== anim || !s.anims.isPlaying) s.play(anim);
+  }
+
+  private spriteOf(p: Person): Phaser.GameObjects.Sprite {
+    if (p.sprite) return p.sprite;
+    const k = artScale(this.scene, p.key);
+    p.sprite = this.scene.add.sprite(0, 0, p.key, 0).setOrigin(0.5, 1).setScale((p.child ? 0.72 : 1) / k);
+    return p.sprite;
   }
 
   /** Places the walker `progress` px along the path; true once they have arrived. */
-  private walkAlong(sprite: Phaser.GameObjects.Sprite, m: Member, path: TilePath, progress: number): boolean {
-    const step = Math.floor(progress / TILE);
-    if (step >= path.length - 1) return true;
+  private walk(s: Phaser.GameObjects.Sprite, p: Person, path: TilePath, progress: number): boolean {
+    const step = Math.floor(Math.max(0, progress) / TILE);
+    if (path.length < 2 || step >= path.length - 1) return true;
     const a = path[step];
     const b = path[step + 1];
-    const f = (progress % TILE) / TILE;
+    const f = (Math.max(0, progress) % TILE) / TILE;
     const x = (a.x + (b.x - a.x) * f) * TILE + TILE / 2;
     const y = (a.y + (b.y - a.y) * f) * TILE + TILE - 2;
-    const dir = b.x > a.x ? 'right' : b.x < a.x ? 'left' : b.y > a.y ? 'down' : 'up';
-    sprite.setPosition(x, y).setDepth(y);
-    const anim = `${m.key}-walk-${dir}`;
-    if (sprite.anims.currentAnim?.key !== anim || !sprite.anims.isPlaying) sprite.play(anim);
+    s.setPosition(x, y).setDepth(y);
+    const anim = `${p.key}-walk-${b.x > a.x ? 'right' : b.x < a.x ? 'left' : b.y > a.y ? 'down' : 'up'}`;
+    if (s.anims.currentAnim?.key !== anim || !s.anims.isPlaying) s.play(anim);
     return false;
   }
 
-  /** Hoeing: bent over the ground, rising and striking, a puff of earth now and then. */
-  private hoe(sprite: Phaser.GameObjects.Sprite, m: Member, time: number): void {
-    sprite.anims.stop();
-    sprite.setFrame(4 + (Math.floor(time / 450) % 2) * 2); // facing left, two poses
-    if (time < m.nextPuff) return;
-    m.nextPuff = time + 1300;
-    const puff = this.scene.add.circle(sprite.x - 8, sprite.y - 1, 2.5, 0x7a5636, 0.8).setDepth(sprite.depth + 1);
-    this.scene.tweens.add({ targets: puff, y: puff.y - 5, alpha: 0, scale: 2, duration: 500, onComplete: () => puff.destroy() });
+  private stand(s: Phaser.GameObjects.Sprite, x: number, y: number, dir: string, time: number, busy: boolean): void {
+    s.anims.stop();
+    s.setFrame(DIRS.indexOf(dir) * 4 + (busy ? Math.floor(time / 400) % 2 : 0)).setPosition(x, y).setDepth(y);
   }
 
-  /** Sitting down for a rest: legs folded out of sight. */
-  private sit(sprite: Phaser.GameObjects.Sprite, m: Member): void {
-    const k = artScale(this.scene, m.key);
-    sprite.anims.stop();
-    sprite.setFrame(0).setCrop(0, 0, 16 * k, 22 * k).setPosition(sprite.x, sprite.y + 9);
+  private sit(s: Phaser.GameObjects.Sprite, p: Person, x: number, y: number, dir: string): void {
+    const k = artScale(this.scene, p.key);
+    s.anims.stop();
+    s.setFrame(DIRS.indexOf(dir) * 4).setCrop(0, 0, 16 * k, 22 * k).setPosition(x, y + 9).setDepth(y);
   }
 
-  /** At home in the afternoon: strolls between spots of the yard. */
-  private potter(sprite: Phaser.GameObjects.Sprite, h: Household, m: Member, index: number, time: number): void {
-    const y = h.yard ?? { x0: h.door.x - 1, x1: h.door.x + 1, y0: h.door.y, y1: h.door.y };
-    const span = y.x1 - y.x0;
-    const t = time / 1000 / (6 + index * 2) + index * 1.7;
-    const x = (y.x0 + (Math.sin(t) * 0.5 + 0.5) * span) * TILE + TILE / 2;
-    const yy = (index % 2 ? y.y1 : y.y0) * TILE + TILE - 2;
-    const moving = Math.abs(Math.cos(t)) > 0.2;
-    const dir = Math.cos(t) > 0 ? 'right' : 'left';
-    sprite.setPosition(x, yy).setDepth(yy);
-    if (moving) {
-      const anim = `${m.key}-walk-${dir}`;
-      if (sprite.anims.currentAnim?.key !== anim || !sprite.anims.isPlaying) sprite.play(anim);
-    } else {
-      sprite.anims.stop();
-      sprite.setFrame(0);
+  /** A sheaf of rice over the shoulder while hauling it home. */
+  private carry(p: Person, on: boolean): void {
+    if (!on) {
+      p.load?.destroy();
+      p.load = undefined;
+      return;
+    }
+    if (!p.load) p.load = this.scene.add.image(0, 0, 'prop_haystack').setScale(hdScale(this.scene, 'prop_haystack') * 0.32);
+    if (p.sprite) p.load.setPosition(p.sprite.x, p.sprite.y - 30).setDepth(p.sprite.depth + 1);
+  }
+
+  /** Sowing or spreading manure: a handful thrown ahead. */
+  private toss(s: Phaser.GameObjects.Sprite, color: number): void {
+    for (let i = 0; i < 5; i++) {
+      const d = this.scene.add.circle(s.x, s.y - 14, 1.2, color).setDepth(s.depth + 1);
+      this.scene.tweens.add({ targets: d, x: s.x + (Math.random() - 0.5) * 22, y: s.y - 2 + Math.random() * 6, alpha: 0.2, duration: 450, onComplete: () => d.destroy() });
     }
   }
-}
-
-function dist(a: { x: number; y: number }, b: { x: number; y: number }): number {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }

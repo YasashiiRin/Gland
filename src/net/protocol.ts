@@ -25,6 +25,7 @@ export const SHARED_KEYS = [
   'fishPonds',
   'homes',
   'homeHouses',
+  'npcFields',
   'placedObjects',
   'relationships',
   'deepestFloor',

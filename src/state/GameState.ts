@@ -1,3 +1,4 @@
+import type { FieldState } from '../systems/NpcFarmSystem';
 import type { HomeHouses, Homes } from '../systems/HomeSystem';
 import { createInitialHunger } from '../systems/HungerSystem';
 import { pickStart } from '../data/startPoints';
@@ -56,6 +57,8 @@ export interface GameState {
   homes: Homes;
   /** Houses players have rebuilt (shared): home key -> house sprite. */
   homeHouses: HomeHouses;
+  /** The village paddies worked by the households (shared): home key -> paddy state. */
+  npcFields: Record<string, FieldState>;
   /** Chests, scarecrows and sprinklers the player has placed, keyed by "mapKey:x,y". */
   placedObjects: PlacedObjects;
   relationships: Relationships;
@@ -143,6 +146,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     fishPonds: {},
     homes: {},
     homeHouses: {},
+    npcFields: {},
     placedObjects: {},
     relationships: {},
     playerHealth: createInitialHealth(),

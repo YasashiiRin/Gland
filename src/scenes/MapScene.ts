@@ -54,13 +54,14 @@ import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
-import { inRect, landmarkZones, readHomesteads, yardSpot, type Homestead } from './homesteads';
+import { inRect, landmarkZones, readHomesteads, readPaddies, yardSpot, type Homestead } from './homesteads';
 import { claimHome, homeOf, houseOn } from '../systems/HomeSystem';
 import { HomeDoor } from './homeDoor';
 import { swingTool } from './toolSwing';
 import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
 import { Villagers } from './villagers';
+import { VillageFields } from './villageFields';
 import { Hawkers } from './hawkers';
 import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
@@ -142,6 +143,9 @@ export abstract class MapScene extends Phaser.Scene {
   private ponds!: FishPondsView;
   private ambient: AmbientLife | null = null;
   private villagers: Villagers | null = null;
+  /** The village households' paddies (worked by the villagers; hands off for the player). */
+  protected paddies: VillageFields | null = null;
+  private lastPaddyUpdate = 0;
   private homeDoor!: HomeDoor;
   private hawkers: Hawkers | null = null;
   private lastPoseSent = 0;
@@ -262,8 +266,10 @@ export abstract class MapScene extends Phaser.Scene {
     this.safeZones = this.zoneRects();
     this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.landmarks) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());
-    this.villagers = this.isOutdoor
-      ? new Villagers(this, this.map, ground, decor, this.homesteads, (h) => h.key in gameState.homes)
+    this.paddies = this.isOutdoor ? new VillageFields(this, ground, decor, readPaddies(this.map, this.mapKey), this.homesteads) : null;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.paddies?.destroy());
+    this.villagers = this.paddies
+      ? new Villagers(this, ground, decor, this.homesteads, this.paddies, (h) => h.key in gameState.homes)
       : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.villagers?.destroy());
     this.hawkers = this.isOutdoor ? new Hawkers(this, this.map, ground, decor, this.homesteads) : null;
@@ -330,6 +336,10 @@ export abstract class MapScene extends Phaser.Scene {
     this.props.update(view);
     this.trees.update(view, this.player.x, this.player.y);
     this.ambient?.update(time, this.game.loop.delta, view);
+    if (this.paddies && time - this.lastPaddyUpdate > 500) {
+      this.lastPaddyUpdate = time;
+      this.paddies.update(view);
+    }
     this.villagers?.update(time, this.game.loop.delta, view);
     this.hawkers?.update(time, this.game.loop.delta, view, this.player);
     this.ride.update(this.time.now);
@@ -404,7 +414,7 @@ export abstract class MapScene extends Phaser.Scene {
       return;
     }
     if (this.say(this.ponds.collect(this.actionTile()))) return;
-    if (this.say(this.wildRice.tryReap(this.actionTile()))) return;
+    if (!this.onVillagePaddy(this.actionTile()) && this.say(this.wildRice.tryReap(this.actionTile()))) return;
     if (
       !this.tryHarvestFacingTile() &&
       !this.tryOpenChest() &&
@@ -501,7 +511,12 @@ export abstract class MapScene extends Phaser.Scene {
   protected buildBlocked(tx: number, ty: number): boolean {
     const mine = this.myHomestead();
     if (mine && inRect(mine, tx, ty)) return false;
-    return this.inSafeZone(tx, ty);
+    return this.inSafeZone(tx, ty) || this.onVillagePaddy({ x: tx, y: ty });
+  }
+
+  /** A village household's paddy: theirs to work, not the player's. */
+  protected onVillagePaddy(tile: { x: number; y: number }): boolean {
+    return !!this.paddies?.paddyAt(tile.x, tile.y);
   }
 
   /**
@@ -530,6 +545,10 @@ export abstract class MapScene extends Phaser.Scene {
     if (itemId === 'whip') {
       const n = this.herd.crack(this.player.x, this.player.y);
       this.say(n > 0 ? 'Chát! Gia súc chạy tán loạn' : 'Chát!');
+      return;
+    }
+    if (itemId === 'scythe' && this.onVillagePaddy(tile)) {
+      this.say('Ruộng của nhà người ta — đừng gặt trộm');
       return;
     }
     if (itemId === 'scythe' && this.say(this.wildRice.tryReap(tile))) return;

@@ -67,3 +67,69 @@ export function householdRoles(seed: number, shop: boolean): Role[] {
   if (shop) return ['shopkeeper'];
   return seed % 3 === 0 ? ['farmer'] : ['farmer', 'farmer', 'child'];
 }
+
+/** What a farming adult is doing (clock minute; see NpcFarmSystem for the paddy's jobs). */
+export type Doing =
+  | 'indoors'
+  | 'toField'
+  | 'work'
+  | 'restRoad'
+  | 'toHome'
+  | 'tea'
+  | 'herd'
+  | 'toMarket'
+  | 'market'
+  | 'fromMarket'
+  | 'feedChickens';
+
+export interface AdultDay {
+  /** 0 or 1: the first and second adult of the household. */
+  index: number;
+  /** Clock minute of the day (0 = midnight). */
+  clock: number;
+  /** Does the paddy still need work today? */
+  hasJob: boolean;
+  /** Minutes since today's paddy work was finished (null if not finished today). */
+  idleFor: number | null;
+  livestock: boolean;
+  chickens: boolean;
+}
+
+const WALK_MIN = 40;
+const MARKET_AWAY = 240;
+export const TO_FIELD = 5 * 60 + 30;
+export const HOME_TIME = 16 * 60;
+export const BED_TIME = 18 * 60;
+
+/**
+ * The day of a farming adult, a closed loop:
+ *   5:30 the chickens are fed, then out to the paddy; while it needs work they
+ *   work it (3-hour spells, half-hour rest sitting by the road); at 16:00 home.
+ *   Once today's work is done: with a buffalo or cow, the first adult takes it
+ *   to graze and minds it until 16:00, the second goes to market and back;
+ *   without animals they rest by the road half an hour, then walk home.
+ *   At home: tea at the table in the yard; indoors from 18:00.
+ */
+export function adultDoing(a: AdultDay): { doing: Doing; since: number } {
+  const c = a.clock;
+  if (c < TO_FIELD || c >= BED_TIME) return { doing: 'indoors', since: 0 };
+  if (a.chickens && a.index === 0 && c < TO_FIELD + 10) return { doing: 'feedChickens', since: TO_FIELD };
+  if (c >= HOME_TIME) return c < HOME_TIME + WALK_MIN ? { doing: 'toHome', since: HOME_TIME } : { doing: 'tea', since: HOME_TIME + WALK_MIN };
+  if (a.hasJob || a.idleFor === null) {
+    if (c < 6 * 60) return { doing: 'toField', since: TO_FIELD };
+    const resting = (c >= 9 * 60 && c < 9 * 60 + 30) || (c >= 12 * 60 + 30 && c < 13 * 60);
+    return { doing: resting ? 'restRoad' : 'work', since: 6 * 60 };
+  }
+  const t = a.idleFor;
+  const done = c - t; // clock minute the work was finished
+  if (a.livestock && a.index === 0) return { doing: 'herd', since: done };
+  if (a.livestock && a.index === 1) {
+    if (t < WALK_MIN) return { doing: 'toMarket', since: done };
+    if (t < WALK_MIN + MARKET_AWAY) return { doing: 'market', since: done + WALK_MIN };
+    if (t < 2 * WALK_MIN + MARKET_AWAY) return { doing: 'fromMarket', since: done + WALK_MIN + MARKET_AWAY };
+    return { doing: 'tea', since: done + 2 * WALK_MIN + MARKET_AWAY };
+  }
+  if (t < 30) return { doing: 'restRoad', since: done };
+  if (t < 30 + WALK_MIN) return { doing: 'toHome', since: done + 30 };
+  return { doing: 'tea', since: done + 30 + WALK_MIN };
+}

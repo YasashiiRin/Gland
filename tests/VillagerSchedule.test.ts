@@ -34,3 +34,34 @@ describe('village day', () => {
     expect(findPath({ x: 0, y: 0 }, () => false, () => true)).toBeNull();
   });
 });
+
+import { adultDoing } from '../src/systems/VillagerSchedule';
+
+describe('a farming adult’s day', () => {
+  const base = { index: 0, hasJob: true, idleFor: null, livestock: false, chickens: false };
+  it('works the paddy in spells while it needs work', () => {
+    expect(adultDoing({ ...base, clock: 5 * 60 }).doing).toBe('indoors');
+    expect(adultDoing({ ...base, clock: 5 * 60 + 40 }).doing).toBe('toField');
+    expect(adultDoing({ ...base, clock: 7 * 60 }).doing).toBe('work');
+    expect(adultDoing({ ...base, clock: 9 * 60 + 10 }).doing).toBe('restRoad');
+    expect(adultDoing({ ...base, clock: 16 * 60 + 10 }).doing).toBe('toHome');
+    expect(adultDoing({ ...base, clock: 17 * 60 }).doing).toBe('tea');
+    expect(adultDoing({ ...base, clock: 19 * 60 }).doing).toBe('indoors');
+  });
+
+  it('with the work done: rest, walk home, tea — or mind the buffalo and go to market', () => {
+    const idle = { ...base, hasJob: false, clock: 10 * 60 };
+    expect(adultDoing({ ...idle, idleFor: 10 }).doing).toBe('restRoad');
+    expect(adultDoing({ ...idle, idleFor: 40 }).doing).toBe('toHome');
+    expect(adultDoing({ ...idle, idleFor: 90 }).doing).toBe('tea');
+    expect(adultDoing({ ...idle, idleFor: 90, livestock: true }).doing).toBe('herd');
+    expect(adultDoing({ ...idle, idleFor: 10, livestock: true, index: 1 }).doing).toBe('toMarket');
+    expect(adultDoing({ ...idle, idleFor: 100, livestock: true, index: 1 }).doing).toBe('market');
+    expect(adultDoing({ ...idle, idleFor: 300, livestock: true, index: 1 }).doing).toBe('fromMarket');
+    expect(adultDoing({ ...idle, idleFor: 400, livestock: true, index: 1 }).doing).toBe('tea');
+  });
+
+  it('feeds the chickens first thing', () => {
+    expect(adultDoing({ ...base, chickens: true, clock: 5 * 60 + 32 }).doing).toBe('feedChickens');
+  });
+});
