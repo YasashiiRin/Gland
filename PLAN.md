@@ -518,7 +518,10 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       - [x] Điện thoại: bỏ cảnh báo xoay ngang, **chơi được cả màn hình dọc** (khung 720 x cao theo máy); khung game vừa phần
         thật sự nhìn thấy (visualViewport, vùng tai thỏ), chạm lần đầu xin toàn màn hình (Android ẩn thanh trình duyệt).
       - [x] Bản đồ thế giới hiện tên các danh lam / khu phố khi phóng to.
-      - [ ] Thử chơi nhiều người thật (2 máy) và thử trên điện thoại thật (iPhone Safari, Android Chrome).
+      - [x] Thử chơi nhiều người tự động (2 trình duyệt trên cùng máy, `scripts/dev/two-players.mjs`): khách vào phòng,
+        được cấp nhà riêng, danh sách nhà / ô đất cuốc / ruộng dân làng đồng bộ đúng giữa hai bên.
+      - [ ] Thử qua mạng thật giữa 2 máy khác nhau, và trên điện thoại thật (iPhone Safari, Android Chrome) — cần máy của người chơi.
+      - [x] Hình hầm mỏ HD (vách đá xếp lớp, sỏi, quặng lấp lánh, thang gỗ) — `make_mine_tileset_hd` trong `scripts/art/mine.py`.
 
 ### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)
 Ý tưởng của người chơi (tóm tắt):

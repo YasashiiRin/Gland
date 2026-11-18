@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from art.common import ASSETS  # noqa: E402
 from art.maps import make_maps  # noqa: E402
-from art.mine import make_mine_tileset  # noqa: E402
+from art.mine import make_mine_tileset, make_mine_tileset_hd  # noqa: E402
 from art.tiles import make_tileset  # noqa: E402
 from art.trees_hd import make_trees_hd  # noqa: E402
 from art.characters_hd import make_characters_hd  # noqa: E402
@@ -31,6 +31,7 @@ from art.folk import make_folk_hd  # noqa: E402
 def main() -> None:
     make_tileset()
     make_mine_tileset()
+    make_mine_tileset_hd()
     files = make_characters_hd() + make_buildings_hd() + make_nature_hd() + make_vehicles_hd() + make_animals_hd() + make_folk_hd()
     # Banana trees in the homesteads' back gardens reuse the banana tree sprite as a prop.
     files.append({"type": "image", "key": "prop_banana", "url": "sprites/trees/banana.png", "hd": True})

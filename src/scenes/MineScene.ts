@@ -1,3 +1,4 @@
+import { HD_TILE } from './hd';
 import { swingTool } from './toolSwing';
 import Phaser from 'phaser';
 import { FADE_MS, TILE } from '../config/constants';
@@ -95,15 +96,15 @@ export class MineScene extends Phaser.Scene {
         return TILE_GID_FOR[t];
       }),
     );
-    const map = this.make.tilemap({ data, tileWidth: TILE, tileHeight: TILE });
-    const tileset = map.addTilesetImage(MINE_TILESET, MINE_TILESET, TILE, TILE, 0, 0, 1);
+    const map = this.make.tilemap({ data, tileWidth: HD_TILE, tileHeight: HD_TILE });
+    const tileset = map.addTilesetImage(MINE_TILESET, MINE_TILESET, HD_TILE, HD_TILE, 0, 0, 1);
     if (!tileset) throw new Error('Mine tileset missing');
     const layer = map.createLayer(0, tileset, 0, 0);
     if (!layer) throw new Error('Could not create mine layer');
     this.layer = layer;
-    layer.setDepth(-2);
+    layer.setDepth(-2).setScale(0.5); // HD tiles: 32 px art on a 16 px grid
 
-    this.physics.world.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.physics.world.setBounds(0, 0, this.floor.width * TILE, this.floor.height * TILE);
     for (let y = 0; y < this.floor.height; y++) {
       for (let x = 0; x < this.floor.width; x++) {
         const t = this.floor.tiles[y][x];

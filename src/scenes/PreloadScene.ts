@@ -35,7 +35,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image(TILESET_TEXTURE, 'tilesets/farm_tiles.png');
     this.load.image(TILESET_HD_TEXTURE, 'tilesets/farm_tiles_hd.png');
     this.load.json('pack_meta', 'sprites/pack.json');
-    this.load.image('mine_tiles', 'tilesets/mine_tiles.png');
+    this.load.image('mine_tiles', 'tilesets/mine_tiles_hd.png'); // graphics x2: 32 px tiles on the 16 px grid
     // Every generated sprite (trees, buildings, furniture, crops, villagers) is
     // listed in this pack, so swapping in real art only means replacing PNGs.
     this.load.pack('generated', 'sprites/pack.json');
