@@ -490,7 +490,12 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
         đống rơm, sân đất (`scripts/art/homesteads.py`); phố chật thì nhà không có tường. Mỗi khu là khu an toàn; người chơi
         mới được cấp một **nhà tranh trống** trong làng của tỉnh đã chọn (bắt đầu ở sân nhà), trong tường rơm nhà mình được
         cuốc/xây tuỳ ý (`HomeSystem`, `scenes/homesteads.ts`, `gameState.homes` dùng chung khi chơi nhiều người).
-      - [ ] B. Dân trong mỗi nhà (1 người, hoặc vợ chồng + con đi học): sáng ra đồng cuốc đất, 3 tiếng nghỉ 30', chiều về.
+      - [x] **Bố cục mới**: mỗi tỉnh chỉ 2 làng (Quảng Bình: Võ Ninh, Quảng Hòa; Huế: Kim Long, Vỹ Dạ), mỗi làng 10 khu nhà
+        trên lưới ngõ, có ruộng lúa riêng sát làng, xa danh lam và tách khỏi rừng; không còn nhà rải rác ngoài đồng (nhà phố
+        chỉ trong các khu phố). Rừng rậm chỉ ở rìa bản đồ, rừng giữa bản đồ thưa (`scripts/art/villages.py`).
+      - [x] B. **Dân trong mỗi nhà** (nhà phố: 1 người bán hàng; nhà làng: 1 người, hoặc vợ chồng + con đi học): 5h30 ra
+        đồng, cuốc từng đợt 3 tiếng, nghỉ ngồi 30', 15h về nhà, quanh sân tới 18h rồi vào nhà; con 6h30 đi trường làng, 11h
+        về. Mỗi nhà có mảnh ruộng riêng, tìm đường thật (`VillagerSchedule`, `gridPath`, `scenes/villagers.ts`).
       - [ ] C. Nâng cấp nhà tranh → nhà ngói, chuyển sang nhà trống khác.
   4. [~] Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại:
       - [x] Điện thoại: bỏ cảnh báo xoay ngang, **chơi được cả màn hình dọc** (khung 720 x cao theo máy); khung game vừa phần

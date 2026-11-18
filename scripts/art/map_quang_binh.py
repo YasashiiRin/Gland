@@ -28,6 +28,7 @@ run north-south along the east, so places keep their real order and sides:
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
+from .villages import deep_forest, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_services import services
 from .map_helpers import (HOUSES, KARST, SIZE, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
@@ -214,12 +215,15 @@ FIELDS = [  # (zone, area, pond near, rice field near) - see landmark_fields.py
 ]
 
 
+ZONES = [("Ba Đồn", (284, 22, 372, 52)), ("Phong Nha – Kẻ Bàng", (104, 80, 252, 190)),
+         ("Đồng Hới", (272, 160, 402, 262)), ("Quán Hàu", (220, 270, 380, 330)),
+         ("Núi Thần Đinh", (180, 324, 202, 346)), ("Thác Tam Lu", (34, 292, 50, 308)),
+         ("Lệ Thủy", (270, 360, 340, 404)), ("Suối Bang", (138, 360, 160, 380))]
+
+
 def _zones(m: Province) -> None:
     landmark_fields(m, FIELDS)
-    for name, area in [("Ba Đồn", (284, 22, 372, 52)), ("Phong Nha – Kẻ Bàng", (104, 80, 252, 190)),
-                       ("Đồng Hới", (272, 160, 402, 262)), ("Quán Hàu", (220, 270, 380, 330)),
-                       ("Núi Thần Đinh", (180, 324, 202, 346)), ("Thác Tam Lu", (34, 292, 50, 308)),
-                       ("Lệ Thủy", (270, 360, 340, 404)), ("Suối Bang", (138, 360, 160, 380))]:
+    for name, area in ZONES:
         zone(m, name, area)
     zone_belts(m)
     start_points(m, "qb", [(240, 212), (200, 250), (330, 140), (120, 330), (230, 352), (80, 230)])
@@ -230,6 +234,7 @@ def build_quang_binh() -> Province:
     shore = coast(m, 396, amp=4)
     _rivers(m, shore)
     regions = _regions(m)
+    m.town_areas = [area for _, area in ZONES]
     exit_south(m, 30, "Hue", "fromQuangBinh", "fromHue")
     _roads(m)
     _phong_nha(m)
@@ -239,6 +244,10 @@ def build_quang_binh() -> Province:
     _ba_don(m)
     connect(m, regions, [(30, SIZE - 8), (170, 104), (150, 182), (146, 370), (290, 396), (44, 304)])
     fill_contents(m, regions, KARST, HOUSES)
+    avoid = [area for _, area in ZONES]
+    village(m, "Làng Võ Ninh", (200, 240), avoid)                                       # Quảng Ninh plain
+    village(m, "Làng Quảng Hòa", (240, 110), avoid)                                     # between Phong Nha and Ba Đồn
+    deep_forest(m)
     herd(m, regions, ("rice", "meadow"), 14)
     for x, y in water_spots(m, 3, 30, range(30, 60), range(20, 380)):
         m.prop("sampan", x, y, 3, 1)

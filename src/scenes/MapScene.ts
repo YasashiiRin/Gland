@@ -58,6 +58,7 @@ import { inRect, landmarkZones, readHomesteads, yardSpot, type Homestead } from 
 import { claimHome, homeOf } from '../systems/HomeSystem';
 import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
+import { Villagers } from './villagers';
 import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { HUNGER } from '../systems/HungerSystem';
@@ -137,6 +138,7 @@ export abstract class MapScene extends Phaser.Scene {
   private wildRice!: WildRice;
   private ponds!: FishPondsView;
   private ambient: AmbientLife | null = null;
+  private villagers: Villagers | null = null;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -238,6 +240,10 @@ export abstract class MapScene extends Phaser.Scene {
     this.safeZones = this.zoneRects();
     this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.landmarks) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());
+    this.villagers = this.isOutdoor
+      ? new Villagers(this, this.map, ground, decor, this.homesteads, (h) => h.key in gameState.homes)
+      : null;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.villagers?.destroy());
     this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
     this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
       ? new Tigers(this, this.player, decor, this.safeZones, (text) => this.say(text))
@@ -300,6 +306,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.props.update(view);
     this.trees.update(view, this.player.x, this.player.y);
     this.ambient?.update(time, this.game.loop.delta, view);
+    this.villagers?.update(time, this.game.loop.delta, view);
     this.ride.update(this.time.now);
     this.boats.update();
     this.herd.update(time);

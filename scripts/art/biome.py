@@ -13,7 +13,6 @@ from typing import Callable
 
 import numpy as np
 
-from .homesteads import homestead
 from .province_tiles import (BAMBOO_TREE, DRY_GRASS, LOTUS, MANGROVE_TREE, MARSH, ORCHARD, PADDY, PINE_TREE, REEDS,
                              RICE, ROCKY, SAND, SAND2, SEA, SURF)
 from .region import Province, _pave, place
@@ -215,12 +214,12 @@ def fill_contents(m: Province, regions: Regions, mountains: list[tuple[str, int,
             stony = {ROCKY, GRASS, GRASS2, GRASS3, FLOWERS}
             picks = [(PINE_TREE, 0.05), (ROCK, 0.03), (BUSH, 0.02)] if biome == "mountain" else [(FOREST, 0.16), (ROCK, 0.02), (BUSH, 0.02)]
             _sprinkle(m, tiles, picks, grounds=stony)
-        elif biome == "forest":
-            _sprinkle(m, tiles, [(FOREST, 0.34), (TRUNK, 0.02), (BUSH, 0.04)])
+        elif biome == "forest":   # open woodland: the deep forest is only at the map's edges (villages.py)
+            _sprinkle(m, tiles, [(FOREST, 0.08), (TRUNK, 0.03), (BUSH, 0.04)])
         elif biome == "pine":
-            _sprinkle(m, tiles, [(PINE_TREE, 0.3), (ROCK, 0.01)], grounds={GRASS, GRASS2, GRASS3, FLOWERS, DRY_GRASS})
+            _sprinkle(m, tiles, [(PINE_TREE, 0.12), (ROCK, 0.01)], grounds={GRASS, GRASS2, GRASS3, FLOWERS, DRY_GRASS})
         elif biome == "bamboo":
-            _sprinkle(m, tiles, [(BAMBOO_TREE, 0.4), (BUSH, 0.03)])
+            _sprinkle(m, tiles, [(BAMBOO_TREE, 0.14), (BUSH, 0.03)])
         elif biome == "mangrove":
             _sprinkle(m, tiles, [(MANGROVE_TREE, 0.35), (REEDS, 0.1)], grounds={MARSH})
         elif biome == "marsh":
@@ -239,8 +238,10 @@ def fill_contents(m: Province, regions: Regions, mountains: list[tuple[str, int,
                     m.put(x, y, ORCHARD)
         elif biome == "rice":
             rice(m, tiles)
-        elif biome in ("village", "hamlet"):
+        elif biome in ("village", "hamlet") and _in_town(m, regions.centers[r]):
             settlement(m, regions, r, houses, dense=biome == "village")
+        elif biome in ("village", "hamlet"):   # no scattered hamlets any more: open meadow (villages.py builds the villages)
+            _sprinkle(m, tiles, [(BUSH, 0.012), (TRUNK, 0.006), (ORCHARD, 0.004)])
         elif biome != "none":  # grass / meadow
             _sprinkle(m, tiles, [(BUSH, 0.012), (TRUNK, 0.006), (FOREST, 0.004)])
 
@@ -257,13 +258,17 @@ def rice(m: Province, tiles: list[tuple[int, int]]) -> None:
         m.taken.add((x, y))
 
 
+def _in_town(m: Province, at: tuple[int, int]) -> bool:
+    return any(x0 <= at[0] <= x1 and y0 <= at[1] <= y1 for x0, y0, x1, y1 in m.town_areas)
+
+
 def settlement(m: Province, regions: Regions, r: int, houses: list[tuple[str, int, int]], dense: bool) -> None:
     """Houses on lots along a grid of lanes, inside the region; yards with haystacks, jars, wells, fruit trees."""
     tiles = regions.tiles(r)
     xs = [x for x, _ in tiles]
     ys = [y for _, y in tiles]
     x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
-    lot_w, lot_h = 13, 11                     # a walled homestead (11 x 10, homesteads.py) plus lanes
+    lot_w, lot_h = 9, 8
     inside = lambda x, y: 0 <= x < m.w and 0 <= y < m.h and regions.at(x, y) == r  # noqa: E731
     for ly in range(y0 - y0 % lot_h, y1, lot_h):
         for x in range(x0, x1 + 1):  # lane along the bottom of each row of lots
@@ -278,11 +283,9 @@ def settlement(m: Province, regions: Regions, r: int, houses: list[tuple[str, in
             if not dense and m.rnd.random() < 0.45:
                 continue
             s, w, h = houses[m.rnd.randrange(len(houses))]
-            if all(inside(x, y) for x in (lx + 2, lx + lot_w - 1) for y in (ly, ly + lot_h - 2)):
-                vacant = m.rnd.random() < 0.3               # an empty thatched house a player can move into
-                if homestead(m, lx + 2, ly, s, vacant, m.home_prefix):
-                    continue
-            # Crowded town streets: no room for a walled plot, just the house and a little yard.
+            # Houses only stand in the towns now (villages are laid out in villages.py): none scattered in the fields.
+            if not any(ax0 <= lx + 6 <= ax1 and ay0 <= ly + 5 <= ay1 for ax0, ay0, ax1, ay1 in m.town_areas):
+                continue
             hx, hy = lx + 2 + m.rnd.randint(0, lot_w - w - 2), ly + lot_h - 1 - h
             if all(inside(x, y) for x in (hx, hx + w) for y in (hy - 2, hy + h)) and place(m, s, hx, hy, w, h):
                 _yard(m, lx + 2, max(ly, hy - 3), lot_w - 2, 2)

@@ -10,6 +10,7 @@ Giang lagoon with Rú Chá mangroves, the Thuận An mouth and the dunes.
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
+from .villages import deep_forest, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, crossing, herd, market, mooring, street_row, water_spots, zone
 from .map_quang_binh import build_quang_binh
@@ -26,6 +27,7 @@ def build_hue() -> Province:
     river(m, meander(56, 424, 132, 300, 6, 1, seed=6) + meander(132, 300, 200, 222, 5, 1, seed=7)
           + meander(200, 222, 348, 210, 5, 1, seed=8), 8)                                # sông Hương
     regions = Regions(m, 64)
+    m.town_areas = [area for _, area, _, _ in HUE_ZONES]
     regions.force(195, 150, "none")                                                       # the citadel
     regions.force(215, 268, "village")                                                    # Phú Xuân
     regions.force_area((176, 236, 290, 300), "village")
@@ -76,6 +78,10 @@ def build_hue() -> Province:
         for dx in (0, 5):
             place(m, "hat_stall", cx + dx, cy + 4, 3, 2)
     fill_contents(m, regions, MOUNTAINS, GARDEN_HOUSES)
+    avoid = [area for _, area, _, _ in HUE_ZONES]
+    village(m, "Làng Kim Long", (110, 200), avoid)                                      # upstream, west of the citadel
+    village(m, "Làng Vỹ Dạ", (300, 240), avoid)                                         # east, towards the lagoon
+    deep_forest(m)
     herd(m, regions, ("rice", "meadow"), 10)
     for x, y in water_spots(m, 4, 30, range(210, 330), range(20, 330)):
         m.prop("dragon_boat", x, y, 4, 2)

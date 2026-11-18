@@ -27,6 +27,7 @@ class Province(MapBuilder):
     def __init__(self, seed: int, w: int = W, h: int = H, home_prefix: str = "h"):
         super().__init__(w, h, seed)
         self.home_prefix = home_prefix            # homestead ids ("qb12"), see homesteads.py
+        self.town_areas: list[tuple[int, int, int, int]] = []   # landmark/town zones: where houses may stand in streets
         self.grass_variation()
         self.taken: set[tuple[int, int]] = set()
         self.exits: list[tuple[str, int]] = []
