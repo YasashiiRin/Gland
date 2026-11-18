@@ -186,9 +186,12 @@ def warehouse() -> Image.Image:
 BUILDINGS = {
     "farmhouse": Style(w=7, h=6, door=3, windows=(1, 5), wall_h=46),
     "shop": Style(w=6, h=5, door=2, windows=(4,), wall=(230, 204, 140), roof=(156, 74, 50), sign="seed"),
-    "house_a": Style(w=5, h=5, door=2, windows=(1, 3), wall=(214, 172, 92), roof=(170, 82, 52), sign="bowl"),
-    "house_b": Style(w=5, h=5, door=2, windows=(1, 3), wall=(204, 196, 176), roof=(134, 74, 54), sign="wheel"),
-    "house_c": Style(w=5, h=5, door=2, windows=(1, 3), wall=(224, 194, 124), roof=(162, 78, 58)),
+    # Old tile-roofed village houses (nhà ngói): aged lime wash and weathered tiles, no signboard.
+    "house_a": Style(w=5, h=5, door=2, windows=(1, 3), wall=(204, 170, 110), roof=(134, 72, 54)),
+    "house_b": Style(w=5, h=5, door=2, windows=(1, 3), wall=(168, 112, 84), roof=(116, 66, 52)),  # bare brick
+    # The two shops in Đồng Hới keep a signboard (house_c is the thatched cottage, old_village.py).
+    "grocery_house": Style(w=5, h=5, door=2, windows=(1, 3), wall=(204, 170, 110), roof=(134, 72, 54), sign="bowl"),
+    "vehicle_house": Style(w=5, h=5, door=2, windows=(1, 3), wall=(168, 112, 84), roof=(116, 66, 52), sign="wheel"),
 }
 
 

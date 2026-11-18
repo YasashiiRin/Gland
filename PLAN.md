@@ -476,6 +476,10 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       spawn `start_qb_*` / `start_hue_*`); người vào phòng xuất hiện ở nơi chủ phòng bắt đầu. Mỗi khu an toàn (danh lam,
       phố NPC) được **dải rừng rậm** dày 3 ô bao quanh, chừa lối ở đường đi, sông và cổng giữa mỗi cạnh (`zone_belts`). Có sẵn 1 **chiếu**: cầm bấm dùng để trải (được trải cả trong khu an toàn), đứng
       cạnh bấm E để ngủ, bổ cuốc/rìu/cuốc chim lên chiếu để cuộn lại; chiếu của ai người nấy cuộn. Bản lưu lên phiên bản 12.
+  3b. [x] **Không khí Việt Nam thời xưa**: mọi nhà thường (trừ danh lam) vẽ lại kiểu xưa — nhà ngói ba gian (vôi ố, ngói
+      rêu, gạch trần), nhà tranh vách đất, phố cổ một tầng treo đèn lồng, đình làng (thay UBND), quán nước (thay bưu điện),
+      trường làng lợp tranh, cột đèn dầu (`old_village.py`). **Đèn dầu** sáng ở cửa sổ/cửa từ 18h, tắt lúc 21h
+      (`houseLights.json`, `ui/NightLights.ts`, vẽ trên lớp màn đêm).
   4. Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại.
 
 ### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)

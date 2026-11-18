@@ -72,8 +72,8 @@ def _mine(m: Province) -> None:
 
 def services(m: Province) -> None:
     _shop(m, "shop", 290, 238, 6, "seed_shop")
-    _shop(m, "house_a", 300, 240, 5, "grocery")
-    _shop(m, "house_b", 312, 240, 5, "vehicle_shop")
+    _shop(m, "grocery_house", 300, 240, 5, "grocery")
+    _shop(m, "vehicle_house", 312, 240, 5, "vehicle_shop")
     _stalls(m)
     _shop(m, "house_c", 326, 240, 5, "", name="bed")                   # the guesthouse (nhà nghỉ): sleep here
     at = place_near(m, "signpost", 313, 209, 1, 2, radius=8)          # the quest board by the park gate

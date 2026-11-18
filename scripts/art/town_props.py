@@ -117,7 +117,7 @@ def street_lamp() -> Image.Image:
 def make_town_props() -> list[dict]:
     files = []
     sprites = [(f"umbrella_{k}", lambda k=k: umbrella_stall(k)) for k in GOODS]
-    sprites += [("pagoda_gate", pagoda_gate), ("ferry_shelter", ferry_shelter), ("bench", bench), ("street_lamp", street_lamp)]
+    sprites += [("pagoda_gate", pagoda_gate), ("ferry_shelter", ferry_shelter), ("bench", bench)]  # street_lamp: old_village.py
     for key, draw in sprites:
         rel = f"sprites/props/{key}.png"
         save(draw(), rel)

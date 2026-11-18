@@ -1,3 +1,4 @@
+import { lampSpotsFor, type LampSpot } from '../state/nightLights';
 import Phaser from 'phaser';
 import { TILE } from '../config/constants';
 import { BIOME_TREE_TEXTURES, isTreeGid, TILE_GID } from '../config/tileGids';
@@ -34,6 +35,17 @@ function tileHash(x: number, y: number): number {
  * footprint and depth-sorted by that bottom edge, like the player. Drawn
  * near the camera only (call update() each frame).
  */
+/** Every oil-lamp spot of the map's buildings (see houseLights.json). */
+export function lampSpotsOnMap(map: Phaser.Tilemaps.Tilemap): LampSpot[] {
+  const spots: LampSpot[] = [];
+  for (const o of map.getObjectLayer('objects')?.objects ?? []) {
+    if (o.name !== 'prop') continue;
+    const sprite = readProp(o, 'sprite') ?? '';
+    spots.push(...lampSpotsFor(sprite, (o.x ?? 0) + (o.width ?? 0) / 2, (o.y ?? 0) + (o.height ?? 0)));
+  }
+  return spots;
+}
+
 export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap): ChunkedImages {
   const images = new ChunkedImages(scene);
   for (const o of map.getObjectLayer('objects')?.objects ?? []) {

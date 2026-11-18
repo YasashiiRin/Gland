@@ -23,6 +23,7 @@ import { currentSpeedMultiplier, eatHeldFood } from '../state/playerStats';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { worldView } from '../state/worldView';
+import { nightLights } from '../state/nightLights';
 import { buildMinimap } from '../systems/MinimapSystem';
 import { consume, isExhausted } from '../systems/EnergySystem';
 import { DAY_LENGTH_MINUTES } from '../config/time';
@@ -53,6 +54,7 @@ import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
+import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { net, NetEvents } from '../net/NetSession';
 import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
@@ -211,6 +213,8 @@ export abstract class MapScene extends Phaser.Scene {
       .setVisible(false);
     this.applyResourceNodeVisuals();
     this.props = createProps(this, this.map);
+    nightLights.spots = this.isOutdoor ? lampSpotsOnMap(this.map) : [];
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => (nightLights.spots = []));
     this.trees = new TreeSprites(this, decor, info);
     this.wildRice = new WildRice(this.mapKey, decor);
     this.wildRice.refresh();
@@ -286,6 +290,9 @@ export abstract class MapScene extends Phaser.Scene {
     this.tigers?.update(time, this.game.loop.delta);
     worldView.playerTileX = Math.floor(this.player.x / TILE);
     worldView.playerTileY = Math.floor(this.player.y / TILE);
+    nightLights.viewX = view.x;
+    nightLights.viewY = view.y;
+    nightLights.zoom = this.cameras.main.zoom;
 
     if (isWorldInputBlocked()) {
       this.player.updateMovement({ up: false, down: false, left: false, right: false });

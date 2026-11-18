@@ -77,8 +77,14 @@
    },
    {
     "type": "image",
-    "key": "prop_house_c",
-    "url": "sprites/props/house_c.png",
+    "key": "prop_grocery_house",
+    "url": "sprites/props/grocery_house.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_vehicle_house",
+    "url": "sprites/props/vehicle_house.png",
     "hd": true
    },
    {
@@ -479,60 +485,6 @@
    },
    {
     "type": "image",
-    "key": "prop_shophouse_0",
-    "url": "sprites/props/shophouse_0.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_1",
-    "url": "sprites/props/shophouse_1.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_2",
-    "url": "sprites/props/shophouse_2.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_3",
-    "url": "sprites/props/shophouse_3.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_4",
-    "url": "sprites/props/shophouse_4.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_shophouse_5",
-    "url": "sprites/props/shophouse_5.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_ubnd",
-    "url": "sprites/props/ubnd.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_post_office",
-    "url": "sprites/props/post_office.png",
-    "hd": true
-   },
-   {
-    "type": "image",
-    "key": "prop_school",
-    "url": "sprites/props/school.png",
-    "hd": true
-   },
-   {
-    "type": "image",
     "key": "prop_umbrella_fruit",
     "url": "sprites/props/umbrella_fruit.png",
     "hd": true
@@ -575,8 +527,68 @@
    },
    {
     "type": "image",
+    "key": "prop_house_c",
+    "url": "sprites/props/house_c.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_ubnd",
+    "url": "sprites/props/ubnd.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_post_office",
+    "url": "sprites/props/post_office.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_school",
+    "url": "sprites/props/school.png",
+    "hd": true
+   },
+   {
+    "type": "image",
     "key": "prop_street_lamp",
     "url": "sprites/props/street_lamp.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_0",
+    "url": "sprites/props/shophouse_0.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_1",
+    "url": "sprites/props/shophouse_1.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_2",
+    "url": "sprites/props/shophouse_2.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_3",
+    "url": "sprites/props/shophouse_3.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_4",
+    "url": "sprites/props/shophouse_4.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shophouse_5",
+    "url": "sprites/props/shophouse_5.png",
     "hd": true
    },
    {

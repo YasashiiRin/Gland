@@ -201,8 +201,9 @@ def school() -> Image.Image:
 
 def make_town_buildings() -> list[dict]:
     files = []
-    sprites = [(f"shophouse_{v}", lambda v=v: shophouse(v)) for v in range(6)]
-    sprites += [("ubnd", ubnd), ("post_office", post_office), ("school", school)]
+    # The modern shophouses, UBND, post office and school were replaced by
+    # old-village buildings (old_village.py); kept here only as references.
+    sprites: list = []
     for key, draw in sprites:
         rel = f"sprites/props/{key}.png"
         save(draw(), rel)

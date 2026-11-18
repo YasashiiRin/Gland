@@ -14,6 +14,7 @@ import { net, NetEvents } from '../net/NetSession';
 import { Minimap } from '../ui/Minimap';
 import { WorldMap } from '../ui/WorldMap';
 import { worldView } from '../state/worldView';
+import { NightLights } from '../ui/NightLights';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
 import { DEPTH_ABOVE } from '../config/constants';
@@ -83,6 +84,7 @@ export class UIScene extends Phaser.Scene {
   private fishingPointerWasDown = true;
   private settingsMenu!: SettingsMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
+  private nightLights!: NightLights;
   private minimap!: Minimap;
   private worldMap!: WorldMap;
   private dayBanner!: Phaser.GameObjects.Text;
@@ -112,6 +114,7 @@ export class UIScene extends Phaser.Scene {
       .setOrigin(0, 0)
       .setDepth(DEPTH_ABOVE - 1)
       .setAlpha(0);
+    this.nightLights = new NightLights(this, DEPTH_ABOVE - 0.5);
 
     this.hud = new Hud(this, DEPTH_ABOVE);
     this.minimap = new Minimap(this, DEPTH_ABOVE);
@@ -413,6 +416,7 @@ export class UIScene extends Phaser.Scene {
     this.hud.setSanity(gameState.sanity);
     this.hud.setMoney(gameState.money);
     this.minimap.setPlayerTile(worldView.playerTileX, worldView.playerTileY);
+    this.nightLights.update(time);
 
     if (this.fishing.active) {
       const pointer = this.input.manager.pointers.some((p) => p.isDown);
