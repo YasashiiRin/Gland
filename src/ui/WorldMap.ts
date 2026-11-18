@@ -23,7 +23,23 @@ const ZOOM_STEP = 1.35;
 interface TmjJson {
   width: number;
   height: number;
-  layers: { name: string; data?: number[] }[];
+  layers: { name: string; data?: number[]; objects?: TmjObject[] }[];
+}
+
+interface TmjObject {
+  name: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  properties?: { name: string; value: unknown }[];
+}
+
+/** A landmark or town (safe zone) named on the map, in world tiles. */
+interface PlaceLabel {
+  text: Phaser.GameObjects.Text;
+  x: number;
+  y: number;
 }
 
 /**
@@ -35,6 +51,7 @@ export class WorldMap {
   private readonly root: Phaser.GameObjects.Container;
   private readonly image: Phaser.GameObjects.Image;
   private readonly labels: Phaser.GameObjects.Text[] = [];
+  private places: PlaceLabel[] = [];
   private readonly marker: Phaser.GameObjects.Arc;
   private readonly hereText: Phaser.GameObjects.Text;
   private readonly loading: Phaser.GameObjects.Text;
@@ -192,6 +209,18 @@ export class WorldMap {
       this.labels.push(label);
       this.root.addAt(label, this.root.getIndex(this.marker));
     }
+    this.places.forEach((l) => l.text.destroy());
+    this.places = [];
+    for (const p of this.placements) {
+      const objects = this.tmj(p.key)?.layers.find((l) => l.name === 'objects')?.objects ?? [];
+      for (const o of objects) {
+        const name = o.name === 'zone' ? o.properties?.find((q) => q.name === 'zoneName')?.value : undefined;
+        if (typeof name !== 'string') continue;
+        const text = inkText(this.scene, 0, 0, `◆ ${name}`, 11, '#ffe6a8').setOrigin(0.5).setStroke('#2b1a10', 3);
+        this.root.addAt(text, this.root.getIndex(this.marker));
+        this.places.push({ text, x: p.x + (o.x + o.width / 2) / 16, y: p.y + (o.y + o.height / 2) / 16 });
+      }
+    }
   }
 
   private tmj(key: MapKey): TmjJson | undefined {
@@ -255,6 +284,12 @@ export class WorldMap {
       const at = this.toScreen(p.x + p.width / 2, p.y + p.height / 2);
       this.labels[i]?.setPosition(at.x, at.y).setVisible(this.inView(at.x, at.y));
     });
+    // Landmark names once zoomed in enough for them not to pile up on each other.
+    const showPlaces = this.zoom >= this.fitZoom * 1.6;
+    for (const l of this.places) {
+      const at = this.toScreen(l.x, l.y);
+      l.text.setPosition(at.x, at.y).setVisible(showPlaces && this.inView(at.x, at.y));
+    }
     const here = this.player ? this.toScreen(this.player.x + 0.5, this.player.y + 0.5) : null;
     const show = !!here && this.inView(here.x, here.y);
     this.marker.setVisible(show);

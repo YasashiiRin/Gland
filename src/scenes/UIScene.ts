@@ -93,7 +93,6 @@ export class UIScene extends Phaser.Scene {
   private marketMenu!: MarketMenu;
   private marketShopId: ShopId = 'market_veg';
   private horrorOverlay!: HorrorOverlay;
-  private rotateHint!: Phaser.GameObjects.Text;
   private toastText!: Phaser.GameObjects.Text;
   private lastProfileSent = 0;
   private knownPlayers = new Map<string, string>();
@@ -372,18 +371,6 @@ export class UIScene extends Phaser.Scene {
       onCrafting: () => this.toggleCrafting(),
       onClose: () => this.closeTopMenu(),
     });
-    this.rotateHint = this.add
-      .text(this.scale.width / 2, this.scale.height / 2, '↻ Hãy xoay ngang điện thoại để chơi', {
-        fontFamily: UI_FONT,
-        fontSize: '28px',
-        color: '#fff6e0',
-        backgroundColor: '#2b1a10ee',
-        align: 'center',
-      })
-      .setPadding(20, 14, 20, 14)
-      .setOrigin(0.5)
-      .setDepth(DEPTH_ABOVE + 20)
-      .setVisible(false);
     const onDay = (p: DayStartedPayload) => {
       this.leaveSleepWait(false);
       this.showDayBanner(p);
@@ -620,7 +607,6 @@ export class UIScene extends Phaser.Scene {
       uiState.settingsOpen ||
       uiState.worldMapOpen;
     this.touchControls.update(on, menuOpen);
-    this.rotateHint.setVisible(on && window.innerHeight > window.innerWidth);
   }
 
   /** C key / touch button: crafting only works standing at a bench. */

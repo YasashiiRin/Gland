@@ -18,7 +18,31 @@ export function fitGameWidth(viewW: number, viewH: number): number {
   return Math.min(MAX_GAME_WIDTH, Math.max(MIN_GAME_WIDTH, w));
 }
 
-export const GAME_WIDTH = typeof window === 'undefined' ? 960 : fitGameWidth(window.innerWidth, window.innerHeight);
+/** In portrait the canvas is this wide (the hotbar needs ~720px) and as tall as the screen's shape asks. */
+export const PORTRAIT_GAME_WIDTH = 720;
+export const MAX_GAME_HEIGHT = 1600;
+
+/**
+ * Canvas size for a viewport: landscape screens get the usual 540px-high
+ * canvas, phones held upright a 720px-wide one as tall as their screen (so
+ * the game can be played in portrait too, no "turn your phone" prompt).
+ */
+export function fitGameSize(viewW: number, viewH: number): { width: number; height: number } {
+  if (viewW <= 0 || viewH <= 0 || viewW >= viewH) return { width: fitGameWidth(viewW, viewH), height: GAME_HEIGHT };
+  const h = Math.round((PORTRAIT_GAME_WIDTH * viewH) / viewW / 2) * 2;
+  return { width: PORTRAIT_GAME_WIDTH, height: Math.min(MAX_GAME_HEIGHT, Math.max(GAME_HEIGHT, h)) };
+}
+
+/** The part of the window really visible (phone browsers' toolbars excluded). */
+export function visibleViewport(): { width: number; height: number } {
+  const vv = typeof window === 'undefined' ? undefined : window.visualViewport;
+  if (vv) return { width: vv.width, height: vv.height };
+  return typeof window === 'undefined' ? { width: 960, height: GAME_HEIGHT } : { width: window.innerWidth, height: window.innerHeight };
+}
+
+const START_SIZE = fitGameSize(visibleViewport().width, visibleViewport().height);
+export const GAME_WIDTH = START_SIZE.width;
+export const START_GAME_HEIGHT = START_SIZE.height;
 
 /** Player movement speed in pixels per second. */
 export const PLAYER_SPEED = 72;

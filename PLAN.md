@@ -480,7 +480,11 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       rêu, gạch trần), nhà tranh vách đất, phố cổ một tầng treo đèn lồng, đình làng (thay UBND), quán nước (thay bưu điện),
       trường làng lợp tranh, cột đèn dầu (`old_village.py`). **Đèn dầu** sáng ở cửa sổ/cửa từ 18h, tắt lúc 21h
       (`houseLights.json`, `ui/NightLights.ts`, vẽ trên lớp màn đêm).
-  4. Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại.
+  4. [~] Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại:
+      - [x] Điện thoại: bỏ cảnh báo xoay ngang, **chơi được cả màn hình dọc** (khung 720 x cao theo máy); khung game vừa phần
+        thật sự nhìn thấy (visualViewport, vùng tai thỏ), chạm lần đầu xin toàn màn hình (Android ẩn thanh trình duyệt).
+      - [x] Bản đồ thế giới hiện tên các danh lam / khu phố khi phóng to.
+      - [ ] Thử chơi nhiều người thật (2 máy) và thử trên điện thoại thật (iPhone Safari, Android Chrome).
 
 ### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)
 Ý tưởng của người chơi (tóm tắt):
