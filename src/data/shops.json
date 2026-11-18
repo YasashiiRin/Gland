@@ -18,10 +18,10 @@
     ]
   },
   "grocery": {
-    "name": "Quán tạp hoá Cô Hạnh",
-    "openHour": 7,
-    "closeHour": 21,
-    "closedWeekday": 3,
+    "name": "Gánh hàng rong: cơm nắm, bánh, đồ lặt vặt",
+    "openHour": 6,
+    "closeHour": 17,
+    "closedWeekday": -1,
     "stock": [
       "com_nam",
       "banh_mi",
@@ -49,7 +49,7 @@
     "kind": "market",
     "vendor": "Cô Hoa",
     "openHour": 6,
-    "closeHour": 14,
+    "closeHour": 17,
     "closedWeekday": -1,
     "greeting": "Cá tươi rói mới vớt sáng nay nè con!",
     "stock": [
@@ -72,7 +72,7 @@
     "kind": "market",
     "vendor": "Bà Sáu",
     "openHour": 6,
-    "closeHour": 14,
+    "closeHour": 17,
     "closedWeekday": -1,
     "greeting": "Rau nhà trồng đó, mua đi con, bà bớt cho!",
     "stock": [
@@ -94,7 +94,7 @@
     "kind": "market",
     "vendor": "Chú Bảy",
     "openHour": 6,
-    "closeHour": 14,
+    "closeHour": 17,
     "closedWeekday": -1,
     "greeting": "Gạo mới, nấu dẻo thơm. Có lúa thì đem chú mua giá cao!",
     "stock": [

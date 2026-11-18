@@ -1,9 +1,9 @@
 """Village services in Quảng Bình (big world, phase 2): what used to live on
 the separate Farm and Town maps now sits in the world itself.
 
-* Đồng Hới: the seed shop, grocery and vehicle shop (doors with a "shop"
-  object in front), three market stalls with their vendors, the quest board,
-  and a guesthouse to sleep in (until the player gets a sleeping mat).
+* Đồng Hới: the seed shop and the vehicle shop (doors with a "shop" object in
+  front) and the quest board. There is no grocery, market stall or guesthouse:
+  food is sold by hawkers walking between the villages (src/scenes/hawkers.ts).
 * The farming co-operative (hợp tác xã) on the edge of Đồng Hới: warehouse with
   five vehicle bays in front (keep in sync with src/data/garage.ts) and the
   shipping bin; its meadow is where bought farm animals arrive.
@@ -72,10 +72,7 @@ def _mine(m: Province) -> None:
 
 def services(m: Province) -> None:
     _shop(m, "shop", 290, 238, 6, "seed_shop")
-    _shop(m, "grocery_house", 300, 240, 5, "grocery")
     _shop(m, "vehicle_house", 312, 240, 5, "vehicle_shop")
-    _stalls(m)
-    _shop(m, "house_c", 326, 240, 5, "", name="bed")                   # the guesthouse (nhà nghỉ): sleep here
     at = place_near(m, "signpost", 313, 209, 1, 2, radius=8)          # the quest board by the park gate
     if at:
         m.obj("quest_board", at[0] * T, (at[1] + 2) * T, T, T)

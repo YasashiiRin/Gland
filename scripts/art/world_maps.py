@@ -10,7 +10,7 @@ Giang lagoon with Rú Chá mangroves, the Thuận An mouth and the dunes.
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
-from .villages import deep_forest, village
+from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, crossing, herd, market, mooring, street_row, water_spots, zone
 from .map_quang_binh import build_quang_binh
@@ -52,7 +52,6 @@ def build_hue() -> Province:
     exit_north(m, 10, "QuangBinh", "fromHue", "fromQuangBinh")
     road(m, [(10, 8), (10, 40), (195, 40), (195, 300)], tile=PAVING)                     # through the citadel, over the river
     road(m, [(195, 250), (300, 250), (300, 200)], tile=PAVING)
-    street_row(m, 198, 298, 250)                                                          # Phú Xuân shophouses
     place(m, "ngo_mon", 192, 186, 8, 5, solid_from=None, force=True)
     for y in range(188, 191):
         for x in range(192, 200):
@@ -79,8 +78,9 @@ def build_hue() -> Province:
             place(m, "hat_stall", cx + dx, cy + 4, 3, 2)
     fill_contents(m, regions, MOUNTAINS, GARDEN_HOUSES)
     avoid = [area for _, area, _, _ in HUE_ZONES]
-    village(m, "Làng Kim Long", (110, 200), avoid)                                      # upstream, west of the citadel
-    village(m, "Làng Vỹ Dạ", (300, 240), avoid)                                         # east, towards the lagoon
+    villages = [v for v in (village(m, "Làng Kim Long", (110, 200), avoid),                # upstream, west of the citadel
+                            village(m, "Làng Vỹ Dạ", (300, 240), avoid)) if v]           # east, towards the lagoon
+    lone_houses(m, 4, avoid + villages)
     deep_forest(m)
     herd(m, regions, ("rice", "meadow"), 10)
     for x, y in water_spots(m, 4, 30, range(210, 330), range(20, 330)):
@@ -92,6 +92,7 @@ def build_hue() -> Province:
     for i, (x, y) in enumerate([(190, 222), (120, 270), (300, 212)]):
         mooring(m, f"hue_boat_{i}", x, y)                                                # rowing boats on the Hương
     _hue_zones(m)
+    strip_roads(m, villages, [area for _, area, _, _ in HUE_ZONES])
     return finish(m, "fromQuangBinh")
 
 

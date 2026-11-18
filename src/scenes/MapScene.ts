@@ -60,6 +60,7 @@ import { HomeDoor } from './homeDoor';
 import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
 import { Villagers } from './villagers';
+import { Hawkers } from './hawkers';
 import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { HUNGER } from '../systems/HungerSystem';
@@ -141,6 +142,7 @@ export abstract class MapScene extends Phaser.Scene {
   private ambient: AmbientLife | null = null;
   private villagers: Villagers | null = null;
   private homeDoor!: HomeDoor;
+  private hawkers: Hawkers | null = null;
   private lastPoseSent = 0;
   private keys!: Keys;
   private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
@@ -263,6 +265,8 @@ export abstract class MapScene extends Phaser.Scene {
       ? new Villagers(this, this.map, ground, decor, this.homesteads, (h) => h.key in gameState.homes)
       : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.villagers?.destroy());
+    this.hawkers = this.isOutdoor ? new Hawkers(this, this.map, ground, decor, this.homesteads) : null;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.hawkers?.destroy());
     this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
     this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
       ? new Tigers(this, this.player, decor, this.safeZones, (text) => this.say(text))
@@ -326,6 +330,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.trees.update(view, this.player.x, this.player.y);
     this.ambient?.update(time, this.game.loop.delta, view);
     this.villagers?.update(time, this.game.loop.delta, view);
+    this.hawkers?.update(time, this.game.loop.delta, view, this.player);
     this.ride.update(this.time.now);
     this.boats.update();
     this.herd.update(time);
@@ -390,6 +395,11 @@ export abstract class MapScene extends Phaser.Scene {
     if (this.say(this.ride.tryMount())) return;
     if (craftingState.nearStation) {
       EventBus.emit(GameEvents.CraftingOpenRequested, { station: craftingState.nearStation });
+      return;
+    }
+    const hawkerShop = this.hawkers?.shopNear(this.player);
+    if (hawkerShop) {
+      EventBus.emit(GameEvents.ShopOpenRequested, { shopId: hawkerShop });
       return;
     }
     if (this.say(this.ponds.collect(this.actionTile()))) return;

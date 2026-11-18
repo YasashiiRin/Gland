@@ -1,26 +1,26 @@
 """Villages and the deep forest (layout asked for by the player, 2026-11-18).
 
 * Each province has one or two villages, far from the landmarks and towns and
-  away from the deep forest: a compact block of 10 walled homesteads (2 rows of
-  5, homesteads.py) on a grid of lanes, linked by a trail to the nearest road.
-  Houses no longer stand scattered over the countryside.
+  away from the deep forest: 10 homesteads (homesteads.py) scattered either
+  side of a crooked lane, footpaths to each yard, a village school and the
+  village paddies. Besides them only a few lonely huts stand in the wilds.
+* Outside the villages the country is wild: no roads (bridges remain).
 * The deep forest (tall trees, thick) only grows along the edges of the map;
   the woods in the middle are open. (Later the player may chop a way through.)
 """
 from __future__ import annotations
 
-from .biome import trail
 from .homesteads import H as PLOT_H, W as PLOT_W, homestead
-from .province_tiles import BAMBOO_TREE, BRIDGE, DRY_GRASS, PADDY, PAVING, PINE_TREE, RICE, ROCKY
-from .region import GRASSY, Province, _pave
+from .province_tiles import SAND, SAND2, BAMBOO_TREE, BRIDGE, DRY_GRASS, PADDY, PAVING, PINE_TREE, RICE, ROCKY
+from .region import GRASSY, Province, _pave, place
 from .tiles import BUSH, DIRT, FOREST, GRASS, PATH, TRUNK, WATER
 
 T = 16
-COLS, ROWS, LANE = 5, 2, 2
-VW = LANE + COLS * (PLOT_W + LANE)
-VH = LANE + ROWS * (PLOT_H + LANE)
+HOUSES = 10
+VW, VH = 70, 44                      # the village's area (tiles); houses are scattered inside it
 OPEN = GRASSY | {DRY_GRASS, ROCKY}
-VACANT = {1, 4, 7}                     # plots left empty for players (thatched houses)
+VILLAGE_LAND = OPEN | {SAND, SAND2}          # coastal villages stand on the sandy plain
+VACANT = {2, 5, 8}                     # plots left empty for players (thatched houses)
 
 
 def _covered(m: Province) -> set[tuple[int, int]]:
@@ -40,19 +40,24 @@ def _site_ok(m: Province, x0: int, y0: int, covered: set[tuple[int, int]], avoid
         return False
     if any(x0 - gap < ax1 and x0 + VW + gap > ax0 and y0 - gap < ay1 and y0 + VH + gap > ay0 for ax0, ay0, ax1, ay1 in avoid):
         return False
+    bad = 0
     for y in range(y0, y0 + VH):
         for x in range(x0, x0 + VW):
             g = m.ground[y][x]
-            if (x, y) in covered or not (g in OPEN or g in (PATH, DIRT)):
-                return False                                         # water, fields, buildings
-            if (x, y) in m.taken and g not in (PATH, DIRT):
-                return False
+            if (x, y) in covered:
+                return False                                         # buildings and props
+            if not (g in VILLAGE_LAND or g in (PATH, DIRT)) or ((x, y) in m.taken and g not in (PATH, DIRT)):
+                bad += 1                                             # a pond, a corner of a field...
+                if bad > VW * VH // 25:
+                    return False
     return True
 
 
 def village(m: Province, name: str, near: tuple[int, int], avoid: list[tuple[int, int, int, int]],
-            radius: int = 130, edge: int = 40, gap: int = 16) -> bool:
-    """Lays out a village of 10 homesteads on open land as close to `near` as it can, `gap` tiles clear of `avoid`."""
+            radius: int = 170, edge: int = 36, gap: int = 16) -> tuple[int, int, int, int] | None:
+    """A village of 10 homesteads scattered over open land near `near` (not in rows: each one
+    set down where it falls, with footpaths to a lane through the middle), its school and its
+    paddies. Returns the village's area, or None if there is no room."""
     covered = _covered(m)
     site = None
     for r in range(0, radius, 3):
@@ -67,34 +72,93 @@ def village(m: Province, name: str, near: tuple[int, int], avoid: list[tuple[int
             break
     if not site:
         print(f"  no room for the village {name}")
-        return False
+        return None
     x0, y0 = site
-    for y in range(y0, y0 + VH):                                     # clear the land
+    for y in range(y0, y0 + VH):                                     # clear the land (ponds and fields stay)
         for x in range(x0, x0 + VW):
-            m.decor[y][x] = None
-            m.ground[y][x] = GRASS
-            m.taken.discard((x, y))                                  # roads crossing it join the lanes
-    for r in range(ROWS + 1):                                        # lanes between the rows of plots
-        for x in range(x0, x0 + VW):
-            for d in range(LANE):
-                _pave(m, x, y0 + r * (PLOT_H + LANE) + d, PATH)
-    for c in range(COLS + 1):
-        for y in range(y0, y0 + VH):
-            for d in range(LANE):
-                _pave(m, x0 + c * (PLOT_W + LANE) + d, y, PATH)
-    n = 0
-    for r in range(ROWS):
-        for c in range(COLS):
-            px, py = x0 + LANE + c * (PLOT_W + LANE), y0 + LANE + r * (PLOT_H + LANE)
-            sprite = ("house_a", "house_c", "house_b", "thatched_house")[(r * COLS + c) % 4]
-            if homestead(m, px, py, sprite, n in VACANT, m.home_prefix):
-                n += 1
+            if m.ground[y][x] in VILLAGE_LAND or m.ground[y][x] in (PATH, DIRT):
+                m.decor[y][x] = None
+                m.ground[y][x] = GRASS
+                m.taken.discard((x, y))
+    mid = y0 + VH // 2
+    for x in range(x0 + 2, x0 + VW - 2):                             # the village lane, a little crooked
+        bend = 1 if (x // 9) % 2 else 0
+        _pave(m, x, mid + bend, PATH)
+        if x % 9 == 0:
+            _pave(m, x, mid + 1 - bend, PATH)                       # where it bends, both rows: no gap
+    plots: list[tuple[int, int]] = []
+    for _ in range(4000):                                            # houses scattered either side of the lane
+        if len(plots) >= HOUSES:
+            break
+        px = m.rnd.randint(x0 + 1, x0 + VW - PLOT_W - 1)
+        py = m.rnd.choice([m.rnd.randint(y0 + 1, mid - PLOT_H - 2), m.rnd.randint(mid + 3, y0 + VH - PLOT_H - 1)])
+        if any(abs(px - qx) < PLOT_W + 1 and abs(py - qy) < PLOT_H + 1 for qx, qy in plots):
+            continue
+        sprite = ("house_a", "house_c", "thatched_house", "house_b", "house_c")[len(plots) % 5]
+        if homestead(m, px, py, sprite, len(plots) in VACANT, m.home_prefix):
+            plots.append((px, py))
+            gx, gy = px + 5, py + PLOT_H                             # footpath from the yard to the lane
+            for y in range(min(gy, mid), max(gy, mid) + 1):
+                if (gx, y) not in m.taken or m.ground[y][gx] == PATH:
+                    _pave(m, gx, y, PATH)
+    for py in range(y0 + 1, y0 + VH - PLOT_H):                       # any room left: fill it, still off the grid
+        for px in range(x0 + 1, x0 + VW - PLOT_W, 2):
+            if len(plots) >= HOUSES or mid - PLOT_H - 1 < py < mid + 3:
+                continue
+            if any(abs(px - qx) < PLOT_W + 1 and abs(py - qy) < PLOT_H + 1 for qx, qy in plots):
+                continue
+            if homestead(m, px, py, "house_c", len(plots) in VACANT, m.home_prefix):
+                plots.append((px, py))
+                for y in range(min(py + PLOT_H, mid), max(py + PLOT_H, mid) + 1):
+                    if (px + 5, y) not in m.taken or m.ground[y][px + 5] == PATH:
+                        _pave(m, px + 5, y, PATH)
+    _school(m, x0, y0, mid)
     _clear_round(m, x0, y0, 7)
     _fields(m, x0, y0)
-    _link(m, (x0 + VW // 2, y0 + VH - 1), (x0, y0, x0 + VW, y0 + VH))
     m.obj("village", x0 * T, y0 * T, VW * T, VH * T, {"villageName": name})
-    print(f"  village {name} at {site}: {n} homesteads")
-    return True
+    print(f"  village {name} at {site}: {len(plots)} homesteads")
+    return (x0, y0, x0 + VW - 1, y0 + VH - 1)
+
+
+def _school(m: Province, x0: int, y0: int, mid: int) -> None:
+    """The village school (trường làng), on the lane where there is room."""
+    for _ in range(200):
+        x = m.rnd.randint(x0 + 1, x0 + VW - 10)
+        y = m.rnd.choice([mid - 4, mid + 3])
+        if place(m, "school", x, y, 9, 3, solid_from=0):
+            return
+
+
+def lone_houses(m: Province, count: int, avoid: list[tuple[int, int, int, int]], edge: int = 45) -> None:
+    """A few lonely thatched huts out in the wilds, far from everything (someone lives there)."""
+    placed = 0
+    for _ in range(4000):
+        if placed >= count:
+            return
+        x, y = m.rnd.randint(edge, m.w - edge - PLOT_W), m.rnd.randint(edge, m.h - edge - PLOT_H)
+        if any(x - 25 < ax1 and x + PLOT_W + 25 > ax0 and y - 25 < ay1 and y + PLOT_H + 25 > ay0 for ax0, ay0, ax1, ay1 in avoid):
+            continue
+        if not all(m.ground[yy][xx] in OPEN and (xx, yy) not in m.taken for yy in range(y, y + PLOT_H) for xx in range(x, x + PLOT_W)):
+            continue
+        for yy in range(y, y + PLOT_H):
+            for xx in range(x, x + PLOT_W):
+                m.decor[yy][xx] = None
+        if homestead(m, x, y, "thatched_house", False, m.home_prefix):
+            avoid.append((x, y, x + PLOT_W, y + PLOT_H))
+            placed += 1
+
+
+def strip_roads(m: Province, keep: list[tuple[int, int, int, int]], landmarks: list[tuple[int, int, int, int]]) -> None:
+    """Wild country: no roads outside the villages. Dirt roads go back to grass everywhere else;
+    old stone paving survives only inside the landmarks; bridges stay so rivers can be crossed."""
+    inside = lambda x, y, rects: any(x0 <= x <= x1 and y0 <= y <= y1 for x0, y0, x1, y1 in rects)  # noqa: E731
+    for y in range(m.h):
+        for x in range(m.w):
+            g = m.ground[y][x]
+            if g == PATH and not inside(x, y, keep):
+                m.ground[y][x] = GRASS
+            elif g == PAVING and not inside(x, y, landmarks):
+                m.ground[y][x] = GRASS
 
 
 TREE_TILES = {FOREST, TRUNK, PINE_TREE, BAMBOO_TREE, BUSH}
@@ -125,22 +189,6 @@ def _fields(m: Province, x0: int, y0: int, rows: int = 12) -> None:
             m.decor[y][x] = None if dike else RICE
             m.taken.add((x, y))
         return
-
-
-def _link(m: Province, start: tuple[int, int], box: tuple[int, int, int, int]) -> None:
-    """A trail from the village to the nearest road outside it."""
-    bx0, by0, bx1, by1 = box
-    best, best_d = None, 10 ** 9
-    for y in range(max(0, start[1] - 120), min(m.h, start[1] + 120), 2):
-        for x in range(max(0, start[0] - 120), min(m.w, start[0] + 120), 2):
-            if bx0 <= x < bx1 and by0 <= y < by1:
-                continue
-            if m.ground[y][x] in (PATH, PAVING, BRIDGE):
-                d = abs(x - start[0]) + abs(y - start[1])
-                if d < best_d:
-                    best, best_d = (x, y), d
-    if best:
-        trail(m, start, best)
 
 
 def deep_forest(m: Province, depth: int = 34) -> None:

@@ -1,0 +1,5 @@
+[
+  { "id": "ganh_com", "name": "Gánh cơm nắm, bánh", "shopId": "grocery", "folk": "folk_1" },
+  { "id": "ganh_ca", "name": "Gánh cá", "shopId": "market_fish", "folk": "folk_3" },
+  { "id": "ganh_rau", "name": "Gánh rau củ", "shopId": "market_veg", "folk": "folk_5" }
+]

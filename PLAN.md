@@ -499,6 +499,12 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       - [x] C. **Cửa nhà** (đứng trước cửa bấm E): nhà mình → Đi ngủ / làm lại nhà (nhà tranh → nhà tranh vách đất 1.500 ₫
         → nhà ngói ba gian 4.000 ₫, `homes.json`) / Đóng; nhà trống → chuyển về ở (nhà cũ để trống cho người khác). Bảng chọn
         dùng chung `ui/ChoiceMenu.ts`; nhà đã làm lại lưu trong `gameState.homeHouses` (chung khi chơi nhiều người).
+  3e. [x] **Làng quê nghèo thời xưa** (yêu cầu 2026-11-18): nhà trong làng đặt rải rác hai bên một con ngõ cong, lối mòn
+      ra từng sân, không tường rơm (góc vườn có bụi tre / cây chuối), mỗi làng có trường làng. Xoá mọi nhà ngoài làng (dãy
+      phố, nhà sàn, bưu điện/quán nước, trường trong phố, dù bãi biển), chỉ còn 4 nhà tranh lẻ ngoài hoang mỗi bản đồ. Ngoài
+      làng không có đường (chỉ giữ cầu và sân đá cổ trong danh lam). Số người theo số nhà: bỏ người đi dạo và đội trâu cày
+      ngẫu nhiên. Không có tiệm ăn: bỏ tạp hoá, sạp chợ, nhà nghỉ — thay bằng **gánh hàng rong** (cơm nắm/bánh/đồ lặt vặt,
+      cá, rau củ) đi quanh làng 6h–17h, bấm E để mua bán (`scenes/hawkers.ts`, `hawkers.json`). Xe cộ không cấp sẵn.
   4. [~] Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại:
       - [x] Điện thoại: bỏ cảnh báo xoay ngang, **chơi được cả màn hình dọc** (khung 720 x cao theo máy); khung game vừa phần
         thật sự nhìn thấy (visualViewport, vùng tai thỏ), chạm lần đầu xin toàn màn hình (Android ẩn thanh trình duyệt).

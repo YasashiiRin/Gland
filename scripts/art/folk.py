@@ -41,6 +41,20 @@ def plough() -> Image.Image:
     return im
 
 
+def ganh() -> Image.Image:
+    """A hawker's shoulder pole (đòn gánh) with a round flat basket hanging at each end."""
+    im = new(40, 22)
+    rect(im, 1, 4, 38, 5, (150, 112, 60)); rect(im, 1, 4, 38, 4, (186, 146, 86))      # the bamboo pole
+    for cx in (5, 34):
+        rect(im, cx - 3, 6, cx - 3, 13, (110, 90, 60)); rect(im, cx + 3, 6, cx + 3, 13, (110, 90, 60))
+        rect(im, cx - 5, 14, cx + 5, 19, (176, 140, 80)); rect(im, cx - 5, 14, cx + 5, 14, (206, 172, 106))  # basket
+        for x in range(cx - 4, cx + 5, 2):
+            put(im, x, 16, (140, 106, 56))
+        rect(im, cx - 4, 12, cx + 4, 13, (230, 220, 190) if cx < 20 else (120, 160, 80))   # goods on top
+    outline(im, 0.45)
+    return im
+
+
 def make_folk_hd() -> list[dict]:
     files = []
     for i, look in enumerate(FOLK):
@@ -51,5 +65,7 @@ def make_folk_hd() -> list[dict]:
     import sys
     with hd_modules(sys.modules[__name__]):
         save(plough(), "sprites/props/plough.png")
-    files += mark_hd([{"type": "image", "key": "prop_plough", "url": "sprites/props/plough.png"}])
+        save(ganh(), "sprites/props/ganh.png")
+    files += mark_hd([{"type": "image", "key": "prop_plough", "url": "sprites/props/plough.png"},
+                      {"type": "image", "key": "prop_ganh", "url": "sprites/props/ganh.png"}])
     return files

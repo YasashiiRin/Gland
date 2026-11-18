@@ -5,7 +5,8 @@ import { FOLK_KEYS } from './ambientLife';
 import { artScale, hdScale } from './hd';
 
 const ACTIVE_RADIUS = 34 * TILE;
-const MAX_PLOUGHS = 3;
+/** No random ploughmen: everyone on the map lives in one of its houses. */
+const MAX_PLOUGHS = 0;
 const MAX_BOATS = 3;
 const PLOUGH_SPEED = 10;
 const BOAT_SPEED = 9;

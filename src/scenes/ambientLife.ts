@@ -19,9 +19,6 @@ const SPAWN_RADIUS = 20 * TILE;
 const MAX_WALKERS = 12;
 const WALK_SPEED = 22;
 const BIKE_SPEED = 52;
-/** Villagers are out from 5:00 until the lamps go out at 21:00. */
-const OUT_FROM = 5 * 60;
-const HOME_AT = 21 * 60;
 const STEPS: Record<Direction, [number, number]> = { down: [0, 1], up: [0, -1], left: [-1, 0], right: [1, 0] };
 
 function isRoad(gid: number | undefined): boolean {
@@ -83,7 +80,8 @@ export class AmbientLife {
     const minute = clockMinuteOfDay(gameState.time);
     if (time >= this.nextCheck) {
       this.nextCheck = time + 1000;
-      this.populate(view, minute >= OUT_FROM && minute < HOME_AT);
+      // Only people who live in the houses walk about now (villagers.ts, hawkers.ts): no random strollers.
+      this.populate(view, false);
       this.fields.populate(view, minute);
     }
     for (const z of this.zones) for (const w of z.walkers) this.step(w, delta);

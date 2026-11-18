@@ -28,7 +28,7 @@ run north-south along the east, so places keep their real order and sides:
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
-from .villages import deep_forest, village
+from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_services import services
 from .map_helpers import (HOUSES, KARST, SIZE, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
@@ -97,16 +97,11 @@ def _phong_nha(m: Province) -> None:
             m.ground[y][x] = WATER
     jetty(m, 208, 102, 109)                                                               # the boat wharf
     clearing(m, (180, 108, 238, 126))                                                     # tourist centre, south bank
-    place(m, "thatched_house", 202, 112, 5, 4, force=True)                               # Trung tâm du lịch
     for i, (s, w, h) in enumerate((("stall_veg", 3, 3), ("hat_stall", 3, 2), ("stall_rice", 3, 3))):
         place(m, s, 198 + i * 6, 120, w, h, solid_from=1, force=True)                    # bánh khoái, nón lá, snacks
-    place(m, "stilt_house", 184, 110, 5, 4, force=True)                                   # nhà sàn
-    place(m, "stilt_house", 226, 110, 5, 4, force=True)
     place(m, "signpost", 236, 116, 1, 2, solid_from=1, force=True)                       # đi Ba Đồn / đi Đồng Hới
     place(m, "buffalo", 190, 122, 2, 1, solid_from=0, force=True)
     clearing(m, (178, 84, 206, 94), palms=0.03)                                           # stilt houses north bank
-    place(m, "stilt_house", 182, 86, 5, 4, force=True)
-    place(m, "stilt_house", 194, 86, 5, 4, force=True)
     clearing(m, (112, 134, 134, 162), palms=0.01)                                         # Thiên Đường
     walk_under(m, "paradise_cave", 118, 136, 5, 6, solid_rows=4)
     road(m, [(120, 142), (120, 160)], 2, BRIDGE)                                          # wooden walkway
@@ -138,9 +133,6 @@ def _dong_hoi(m: Province, shore: list[int]) -> None:
     y = crossing(m, 326, range(236, 300))                                                 # Cầu Dài
     if y:
         place(m, "river_bridge", 325, y - 1, 3, 7, solid_from=None, layer="floor", force=True)
-    for y in range(190, 262, 7):                                                          # Bảo Ninh beach parasols
-        if y not in range(178, 184) and y not in range(224, 230):
-            place(m, "beach_parasol", shore[y] + 1, y, 2, 2, solid_from=None, force=True)
     for x, y in water_spots(m, 3, 9, range(172, 240), range(346, 360))[:6]:             # fishing boats on the river
         m.prop("sampan", x, y, 3, 1)
     boats(m, "basket_boat", 2, [(shore[y] + 9, y) for y in range(196, 256, 12)])
@@ -149,12 +141,7 @@ def _dong_hoi(m: Province, shore: list[int]) -> None:
         place(m, "bench", x, y, 2, 1, solid_from=0, force=True)
     for x, y in ((311, 196), (316, 196), (311, 202), (316, 202)):
         place(m, "street_lamp", x, y, 1, 1, solid_from=0, force=True)
-    street_row(m, 298, 345, 180)                                                          # shophouse streets
-    street_row(m, 362, 392, 180, seed=3)
-    street_row(m, 298, 345, 226, seed=1)
     place_near(m, "ubnd", 300, 212, 8, 4)
-    place_near(m, "post_office", 318, 212, 4, 3)
-    place_near(m, "school", 276, 212, 9, 3)
 
 
 def _quan_hau(m: Province) -> None:
@@ -164,11 +151,9 @@ def _quan_hau(m: Province) -> None:
     clearing(m, (268, 288, 294, 300), palms=0.0, flowers=0.0)
     market(m, 272, 290, rows=1, cols=4)                                                   # chợ Quán Hàu
     place(m, "ubnd", 298, 300, 8, 4, force=True)                                          # UBND huyện
-    place(m, "post_office", 307, 300, 4, 3, force=True)                                   # bưu điện
     place(m, "warehouse", 270, 302, 6, 4, force=True)                                     # farming co-operative
     for i in range(10):                                                                   # Võ Xá wine village: jars
         place_near(m, "jar", 332 + (i % 5) * 2, 304 + (i // 5) * 2, 1, 1, radius=3)
-    place_near(m, "thatched_house", 338, 316, 5, 4)
     place_near(m, "memorial", 236, 290, 3, 3, radius=10)                                 # Long Đại ferry memorial
     place_near(m, "signpost", 372, 308, 1, 2)                                            # đi Hải Ninh
     for i in range(0, 64):                                                                # Lũy Đào Duy Từ rampart
@@ -189,11 +174,7 @@ def _quan_hau(m: Province) -> None:
 def _ba_don(m: Province) -> None:
     market(m, 304, 38, rows=1, cols=3)                                                    # chợ Ba Đồn
     road(m, [(298, 48), (352, 48)], tile=PAVING)
-    street_row(m, 322, 352, 48, seed=2)
-    street_row(m, 300, 352, 34, seed=4)
     place_near(m, "ubnd", 330, 22, 8, 4)
-    place_near(m, "school", 306, 20, 9, 3)
-    place_near(m, "post_office", 344, 24, 4, 3)
     place_near(m, "ferry_shelter", 354, 49, 3, 3)                                        # bến phà on the Gianh
     quay(m, 296, 50, 372, 64)                                                             # riverside embankment
     clearing(m, (298, 12, 372, 50), palms=0.01, flowers=0.03)
@@ -245,8 +226,9 @@ def build_quang_binh() -> Province:
     connect(m, regions, [(30, SIZE - 8), (170, 104), (150, 182), (146, 370), (290, 396), (44, 304)])
     fill_contents(m, regions, KARST, HOUSES)
     avoid = [area for _, area in ZONES]
-    village(m, "Làng Võ Ninh", (200, 240), avoid)                                       # Quảng Ninh plain
-    village(m, "Làng Quảng Hòa", (240, 110), avoid)                                     # between Phong Nha and Ba Đồn
+    villages = [v for v in (village(m, "Làng Võ Ninh", (200, 240), avoid),                 # Quảng Ninh plain
+                            village(m, "Làng Quang Phú", (340, 130), avoid)) if v]          # on the sandy plain north of Đồng Hới
+    lone_houses(m, 4, avoid + villages)
     deep_forest(m)
     herd(m, regions, ("rice", "meadow"), 14)
     for x, y in water_spots(m, 3, 30, range(30, 60), range(20, 380)):
@@ -260,4 +242,5 @@ def build_quang_binh() -> Province:
         mooring(m, f"qb_boat_{i}", x, y)                                                 # rowing boats
     services(m)
     _zones(m)
+    strip_roads(m, villages, [area for _, area in ZONES])
     return finish(m, "start")

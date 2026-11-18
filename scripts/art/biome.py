@@ -238,9 +238,7 @@ def fill_contents(m: Province, regions: Regions, mountains: list[tuple[str, int,
                     m.put(x, y, ORCHARD)
         elif biome == "rice":
             rice(m, tiles)
-        elif biome in ("village", "hamlet") and _in_town(m, regions.centers[r]):
-            settlement(m, regions, r, houses, dense=biome == "village")
-        elif biome in ("village", "hamlet"):   # no scattered hamlets any more: open meadow (villages.py builds the villages)
+        elif biome in ("village", "hamlet"):   # houses only stand in the villages now (villages.py)   # no scattered hamlets any more: open meadow (villages.py builds the villages)
             _sprinkle(m, tiles, [(BUSH, 0.012), (TRUNK, 0.006), (ORCHARD, 0.004)])
         elif biome != "none":  # grass / meadow
             _sprinkle(m, tiles, [(BUSH, 0.012), (TRUNK, 0.006), (FOREST, 0.004)])

@@ -1015,6 +1015,12 @@
    },
    {
     "type": "image",
+    "key": "prop_ganh",
+    "url": "sprites/props/ganh.png",
+    "hd": true
+   },
+   {
+    "type": "image",
     "key": "prop_banana",
     "url": "sprites/trees/banana.png",
     "hd": true
