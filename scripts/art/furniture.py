@@ -229,11 +229,44 @@ def sleeping_mat() -> Image.Image:
     return im
 
 
+def tea_table() -> Image.Image:
+    """A low bamboo table in the yard with a teapot, two cups and two little stools (32x24)."""
+    im = new(32, 24)
+    soft_shadow(im, 16, 21, 14, 2)
+    bam, bam_d = (182, 160, 96), (140, 120, 64)
+    rect(im, 8, 9, 23, 12, bam); rect(im, 8, 9, 23, 9, (210, 190, 126))                # table top
+    for x in range(9, 23, 3):
+        put(im, x, 11, bam_d)
+    rect(im, 9, 13, 10, 19, bam_d); rect(im, 21, 13, 22, 19, bam_d)                     # legs
+    disc(im, 13, 7, 2.5, (96, 120, 128)); rect(im, 15, 6, 16, 6, (96, 120, 128))         # teapot
+    rect(im, 12, 4, 14, 4, (70, 90, 96))
+    rect(im, 18, 7, 19, 8, (236, 232, 220)); rect(im, 20, 8, 21, 8, (236, 232, 220))    # cups
+    for x in (1, 26):                                                                   # stools
+        rect(im, x, 15, x + 4, 16, bam); rect(im, x, 17, x, 20, bam_d); rect(im, x + 4, 17, x + 4, 20, bam_d)
+    outline(im, 0.45)
+    return im
+
+
+def chicken_coop() -> Image.Image:
+    """A small bamboo chicken coop with a thatched lid (chuồng gà), 32x28."""
+    im = new(32, 28)
+    soft_shadow(im, 16, 26, 14, 2)
+    rect(im, 3, 12, 28, 25, (150, 118, 66))
+    for x in range(4, 28, 3):
+        rect(im, x, 12, x, 25, (110, 84, 44))                                            # slats
+    rect(im, 12, 18, 18, 25, (60, 44, 30))                                              # little door
+    for y in range(3, 13):                                                              # thatched lid
+        inset = (12 - y) // 2
+        rect(im, 1 + inset, y, 30 - inset, y, (200, 170, 100) if y % 2 else (168, 136, 76))
+    outline(im, 0.45)
+    return im
+
+
 PIECES = {"bed": bed, "table": table, "chair": chair, "dish_cabinet": dish_cabinet,
           "kitchen_stove": kitchen_stove, "tea_cabinet": tea_cabinet, "bookshelf": bookshelf,
           "plant": plant, "rug": rug, "window": window, "painting": painting,
           "rough_bench": rough_bench, "carpenter_bench": carpenter_bench,
-          "sleeping_mat": sleeping_mat}
+          "sleeping_mat": sleeping_mat, "tea_table": tea_table, "chicken_coop": chicken_coop}
 
 
 def make_furniture() -> list[dict]:

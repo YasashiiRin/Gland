@@ -22,7 +22,7 @@ describe('world map', () => {
   });
 
   it('puts the player on the world map, in the mine at its entrance', () => {
-    expect(playerWorldTile('Hue', 10, 2)).toEqual({ x: 30, y: 427 });
+    expect(playerWorldTile('Hue', 10, 2)).toEqual({ x: 30, y: 642 });
     expect(playerWorldTile('Mine', 3, 5)).toEqual({ x: 149, y: 182 });
     expect(playerWorldTile('Nowhere', 1, 1)).toBeNull();
   });

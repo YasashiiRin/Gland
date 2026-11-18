@@ -9,6 +9,9 @@ from .tiles import BLOCK, DIRT, GRASS, WATER
 from .water_tiles import FLOWERBED, QUAY_EDGE
 
 SIZE = 425
+# The maps grew 50% (the player asked, 2026-11-18): the same 425 wide, 640 tall; the new
+# southern plain holds the village and its fields (villages.py).
+TALL = 640
 HOUSES = [("house_a", 5, 4), ("house_b", 5, 4), ("house_c", 5, 4), ("thatched_house", 5, 4)]
 GARDEN_HOUSES = [("house_a", 5, 4), ("house_c", 5, 4), ("house_b", 5, 4)]
 MOUNTAINS = [("mountain", 8, 6)]

@@ -31,7 +31,7 @@ from .biome import Regions, connect, fill_contents, paint_ground, trail
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_services import services
-from .map_helpers import (HOUSES, KARST, SIZE, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
+from .map_helpers import (HOUSES, KARST, SIZE, TALL, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
                           walk_under, water_spots, zone)
 from .province_tiles import BRIDGE, CITADEL, PAVING
 from .region import (Province, beach_trees, boats, coast, exit_south, finish, meander, place, river, road, walls)
@@ -59,13 +59,14 @@ def _regions(m: Province) -> Regions:
     regions.force(378, 210, "hamlet")                                                     # Bảo Ninh
     regions.force(306, 384, "hamlet")                                                     # Lệ Thủy
     regions.force(150, 372, "meadow")                                                     # Bang hot spring
-    regions.force_area((0, 0, 72, SIZE), "mountain")                                     # Trường Sơn
+    regions.force_area((0, 0, 72, TALL), "mountain")                                     # Trường Sơn
     regions.force_area((300, 112, 396, 162), "dunes")                                    # Quang Phú dunes
     regions.force_area((350, 262, 396, 420), "dunes")                                    # Quảng Ninh – Lệ Thủy dunes
     regions.force_area((72, 60, 262, 200), "karst")                                      # Phong Nha – Kẻ Bàng
     regions.force_area((120, 280, 262, 336), "rice")                                     # Quảng Ninh fields
     regions.force_area((96, 336, 340, 420), "rice")                                      # Lệ Thủy fields
-    regions.force_area((72, 200, 120, SIZE), "forest")                                   # foothills
+    regions.force_area((90, 440, 380, 610), "grass")                                     # the southern plain (village)
+    regions.force_area((72, 200, 120, 430), "forest")                                   # foothills
     regions.assign([
         ("bamboo", 3, lambda x, y: -abs(x - 270) - abs(y - 90)),
         ("pine", 2, lambda x, y: -abs(x - 160) - abs(y - 230)),
@@ -77,7 +78,7 @@ def _regions(m: Province) -> Regions:
 
 
 def _roads(m: Province) -> None:
-    road(m, [(296, 6), (296, SIZE - 6)], tile=PAVING)                                    # QL1, north to south
+    road(m, [(296, 6), (296, TALL - 6)], tile=PAVING)                                    # QL1, north to south
     road(m, [(296, 180), (390, 180)], tile=PAVING)                                       # Nhật Lệ bridge to Bảo Ninh
     road(m, [(296, 226), (390, 226)], tile=PAVING)                                       # Nhật Lệ 2 bridge
     road(m, [(326, 226), (326, 296)], tile=PAVING)                                       # Cầu Dài, south to Quảng Ninh
@@ -211,7 +212,7 @@ def _zones(m: Province) -> None:
 
 
 def build_quang_binh() -> Province:
-    m = Province(seed=301, w=SIZE, h=SIZE, home_prefix="qb")
+    m = Province(seed=301, w=SIZE, h=TALL, home_prefix="qb")
     shore = coast(m, 396, amp=4)
     _rivers(m, shore)
     regions = _regions(m)
@@ -223,11 +224,10 @@ def build_quang_binh() -> Province:
     _quan_hau(m)
     _south(m)
     _ba_don(m)
-    connect(m, regions, [(30, SIZE - 8), (170, 104), (150, 182), (146, 370), (290, 396), (44, 304)])
+    connect(m, regions, [(30, TALL - 8), (170, 104), (150, 182), (146, 370), (290, 396), (44, 304)])
     fill_contents(m, regions, KARST, HOUSES)
     avoid = [area for _, area in ZONES]
-    villages = [v for v in (village(m, "Làng Võ Ninh", (200, 240), avoid),                 # Quảng Ninh plain
-                            village(m, "Làng Quang Phú", (340, 130), avoid)) if v]          # on the sandy plain north of Đồng Hới
+    villages = [v for v in (village(m, "Làng Võ Ninh", avoid),) if v]                # where the map has most room
     lone_houses(m, 4, avoid + villages)
     deep_forest(m)
     herd(m, regions, ("rice", "meadow"), 14)
@@ -237,7 +237,7 @@ def build_quang_binh() -> Province:
         m.prop("sampan", x, y, 3, 1)
     town_beach = set(range(186, 262))
     beach_trees(m, shore, "casuarina", every=4, skip=town_beach | set(range(160, 186)))
-    beach_trees(m, shore, "coconut", every=3, skip=set(range(SIZE)) - town_beach | set(range(222, 230)))
+    beach_trees(m, shore, "coconut", every=3, skip=set(range(TALL)) - town_beach | set(range(222, 230)))
     for i, (x, y) in enumerate([(210, 100), (348, 196), (356, 52), (244, 282), (324, 360), (330, 290)]):
         mooring(m, f"qb_boat_{i}", x, y)                                                 # rowing boats
     services(m)

@@ -706,6 +706,18 @@
     "hd": true
    },
    {
+    "type": "image",
+    "key": "prop_tea_table",
+    "url": "sprites/furniture/tea_table.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_chicken_coop",
+    "url": "sprites/furniture/chicken_coop.png",
+    "hd": true
+   },
+   {
     "type": "spritesheet",
     "key": "crop_parsnip",
     "url": "sprites/crops/parsnip.png",

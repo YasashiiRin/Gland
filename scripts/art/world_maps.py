@@ -12,7 +12,7 @@ from __future__ import annotations
 from .biome import Regions, connect, fill_contents, paint_ground, trail
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
-from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, crossing, herd, market, mooring, street_row, water_spots, zone
+from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, TALL, crossing, herd, market, mooring, street_row, water_spots, zone
 from .map_quang_binh import build_quang_binh
 from .province_tiles import LOTUS, PAVING
 from .region import Province, beach_trees, coast, ellipse, exit_north, finish, meander, place, river, road, walls
@@ -20,11 +20,11 @@ from .tiles import BLOCK
 
 
 def build_hue() -> Province:
-    m = Province(seed=303, w=SIZE, h=SIZE, home_prefix="hue")
+    m = Province(seed=303, w=SIZE, h=TALL, home_prefix="hue")
     shore = coast(m, 398, amp=4)
     river(m, meander(338, 0, 350, 330, 8, 1.2, seed=5), 20)                              # phá Tam Giang
     river(m, [(350, 200), (shore[200] + 3, 200)], 8)                                     # cửa Thuận An
-    river(m, meander(56, 424, 132, 300, 6, 1, seed=6) + meander(132, 300, 200, 222, 5, 1, seed=7)
+    river(m, meander(48, TALL - 1, 56, 424, 6, 1, seed=9) + meander(56, 424, 132, 300, 6, 1, seed=6) + meander(132, 300, 200, 222, 5, 1, seed=7)
           + meander(200, 222, 348, 210, 5, 1, seed=8), 8)                                # sông Hương
     regions = Regions(m, 64)
     m.town_areas = [area for _, area, _, _ in HUE_ZONES]
@@ -35,11 +35,12 @@ def build_hue() -> Province:
     regions.force(290, 124, "hamlet")
     regions.force(318, 60, "mangrove")                                                    # Rú Chá
     regions.force(118, 258, "meadow")                                                     # Thiên Mụ hill
-    regions.force_area((0, 0, 70, SIZE), "mountain")                                     # Trường Sơn
-    regions.force_area((370, 0, SIZE, SIZE), "dunes")
+    regions.force_area((0, 0, 70, TALL), "mountain")                                     # Trường Sơn
+    regions.force_area((370, 0, SIZE, TALL), "dunes")
     regions.force_area((70, 0, 330, 96), "rice")
     regions.force_area((70, 320, 170, 420), "rice")
     regions.force_area((180, 316, 330, 420), "pine")                                     # Ngự Bình and the tombs
+    regions.force_area((90, 440, 360, 610), "grass")                                     # the southern plain (village)
     regions.assign([
         ("marsh", 3, lambda x, y: -abs(x - 300) - 0.3 * abs(y - 170)),
         ("orchard", 2, lambda x, y: -abs(x - 280) - abs(y - 270)),                        # thanh trà
@@ -78,8 +79,7 @@ def build_hue() -> Province:
             place(m, "hat_stall", cx + dx, cy + 4, 3, 2)
     fill_contents(m, regions, MOUNTAINS, GARDEN_HOUSES)
     avoid = [area for _, area, _, _ in HUE_ZONES]
-    villages = [v for v in (village(m, "Làng Kim Long", (110, 200), avoid),                # upstream, west of the citadel
-                            village(m, "Làng Vỹ Dạ", (300, 240), avoid)) if v]           # east, towards the lagoon
+    villages = [v for v in (village(m, "Làng An Hòa", avoid),) if v]                  # where the map has most room
     lone_houses(m, 4, avoid + villages)
     deep_forest(m)
     herd(m, regions, ("rice", "meadow"), 10)
