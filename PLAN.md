@@ -523,7 +523,7 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       - [ ] Thử qua mạng thật giữa 2 máy khác nhau, và trên điện thoại thật (iPhone Safari, Android Chrome) — cần máy của người chơi.
       - [x] Hình hầm mỏ HD (vách đá xếp lớp, sỏi, quặng lấp lánh, thang gỗ) — `make_mine_tileset_hd` trong `scripts/art/mine.py`.
 
-### Nghề Thầy pháp — phần A và B xong (2026-11-18); còn chờ người chơi nghĩ nội dung 10 kỹ năng bị động
+### Nghề Thầy pháp — phần A và B xong (2026-11-18); TẠM GÁC theo người chơi, nhắc lại khi làm nghề Thầy thuốc
 - [x] **Bùa khai đạo** rơi ngẫu nhiên ngoài hoang (35%/ngày/bản đồ nếu chưa có); dùng → thành Thầy pháp (`professionActions.ts`).
 - [x] **Linh lực**: khởi đầu 5, +1/ngày (khi thức dậy), tối đa 100; thanh cam "L" + hình đại diện ☯ trên các thanh (`ui/ProfessionHud.ts`).
 - [x] **Bảng Thầy pháp** (bấm hình đại diện): 4 thanh chỉ số, tổng linh lực, 10 ô bị động mốc 10…100 (khoá), phép đã học, thanh phép kéo thả đổi thứ tự (`ui/ProfessionMenu.ts`); ngoài bảng là cột phép bên phải màn hình, phím Q dùng ô đầu.
