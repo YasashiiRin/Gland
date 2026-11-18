@@ -28,7 +28,7 @@ run north-south along the east, so places keep their real order and sides:
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
-from .landmark_fields import landmark_fields, start_point
+from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_services import services
 from .map_helpers import (HOUSES, KARST, SIZE, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
                           walk_under, water_spots, zone)
@@ -216,13 +216,13 @@ FIELDS = [  # (zone, area, pond near, rice field near) - see landmark_fields.py
 
 def _zones(m: Province) -> None:
     landmark_fields(m, FIELDS)
-    for sid, near in (("phong_nha", (198, 122)), ("ba_don", (330, 36)), ("le_thuy", (306, 394))):
-        start_point(m, sid, near)                                                       # where a new game may begin
     for name, area in [("Ba Đồn", (284, 22, 372, 52)), ("Phong Nha – Kẻ Bàng", (104, 80, 252, 190)),
                        ("Đồng Hới", (272, 160, 402, 262)), ("Quán Hàu", (220, 270, 380, 330)),
                        ("Núi Thần Đinh", (180, 324, 202, 346)), ("Thác Tam Lu", (34, 292, 50, 308)),
                        ("Lệ Thủy", (270, 360, 340, 404)), ("Suối Bang", (138, 360, 160, 380))]:
         zone(m, name, area)
+    zone_belts(m)
+    start_points(m, "qb", [(240, 212), (200, 250), (330, 140), (120, 330), (230, 352), (80, 230)])
 
 
 def build_quang_binh() -> Province:

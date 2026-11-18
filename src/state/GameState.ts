@@ -1,4 +1,4 @@
-import { startPoint } from '../data/startPoints';
+import { pickStart } from '../data/startPoints';
 import type { FishPonds } from '../systems/FishPondSystem';
 import type { WildFields } from '../systems/WildFieldSystem';
 import type { ItemId } from '../data/items';
@@ -195,10 +195,10 @@ function grantAllVehicles(owned: OwnedVehicles): OwnedVehicles {
   return VEHICLE_IDS.reduce((acc, id) => addVehicle(acc, id, vehicleHome(id)), owned);
 }
 
-/** A fresh game, beginning at the chosen start point (Đồng Hới by default). */
-export function resetToNewGame(playerName?: string, farmName?: string, startId?: string): void {
+/** A fresh game, beginning somewhere in the open country of the chosen province (Quảng Bình by default). */
+export function resetToNewGame(playerName?: string, farmName?: string, provinceId?: string): void {
   Object.assign(gameState, createInitialState(playerName, farmName));
-  const start = startPoint(startId);
+  const start = pickStart(provinceId);
   gameState.currentMap = start.mapKey;
   gameState.spawnId = start.spawn;
 }

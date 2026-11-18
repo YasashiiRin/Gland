@@ -10,7 +10,7 @@ Giang lagoon with Rú Chá mangroves, the Thuận An mouth and the dunes.
 from __future__ import annotations
 
 from .biome import Regions, connect, fill_contents, paint_ground, trail
-from .landmark_fields import landmark_fields, start_point
+from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, crossing, herd, market, mooring, street_row, water_spots, zone
 from .map_quang_binh import build_quang_binh
 from .province_tiles import LOTUS, PAVING
@@ -100,10 +100,10 @@ HUE_ZONES = [  # (zone, area, pond near, rice field near) - see landmark_fields.
 
 def _hue_zones(m: Province) -> None:
     landmark_fields(m, HUE_ZONES)
-    for sid, near in (("phu_xuan", (262, 290)), ("thien_mu", (120, 264))):
-        start_point(m, sid, near)                                                       # where a new game may begin
     for name, area, _, _ in HUE_ZONES:
         zone(m, name, area)
+    zone_belts(m)
+    start_points(m, "hue", [(140, 222), (262, 150), (100, 180), (316, 270), (160, 318), (230, 90)])
 
 
 WORLD_MAPS = (("quang_binh", build_quang_binh), ("hue", build_hue))

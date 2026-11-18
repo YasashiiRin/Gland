@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { normalizeRoomCode } from '../net/protocol';
-import { START_POINTS } from '../data/startPoints';
+import { START_PROVINCES } from '../data/startPoints';
 import { applyLoadedState, resetToNewGame } from '../state/GameState';
 import * as SaveService from '../systems/SaveService';
 import { createHtmlInput } from '../ui/htmlInput';
@@ -92,17 +92,23 @@ export class TitleScene extends Phaser.Scene {
     }
   }
 
-  /** "Bắt đầu ở đâu?": one button per start point, two columns. */
-  private showStartPicker(onPick: (startId: string) => void, back: Page): void {
+  /** "Bắt đầu ở tỉnh nào?": one button per province; the exact spot is a random one in the open country. */
+  private showStartPicker(onPick: (provinceId: string) => void, back: Page): void {
     this.showPage('start');
     const cx = this.scale.width / 2;
-    this.caption(cx, 210, 'Bắt đầu ở đâu? (bạn có một chiếc chiếu để ngủ)');
-    START_POINTS.forEach((p, i) => {
-      const x = cx + (i % 2 === 0 ? -82 : 82);
-      const y = 256 + Math.floor(i / 2) * 58;
-      this.button(x, y, p.name, () => onPick(p.id), true, 156, 15);
+    this.caption(cx, 212, 'Bắt đầu ở tỉnh nào?');
+    START_PROVINCES.forEach((p, i) => {
+      const y = 262 + i * 76;
+      this.button(cx, y, p.name, () => onPick(p.id), true, 260);
+      this.note(cx, y + 30, p.blurb);
     });
-    this.button(cx, 438, '‹ Quay lại', () => this.showPage(back), true, 160);
+    this.caption(cx, 400, 'Bạn ra đời ngoài đồng, chỉ có một chiếc chiếu để ngủ');
+    this.button(cx, 440, '‹ Quay lại', () => this.showPage(back), true, 160);
+  }
+
+  private note(x: number, y: number, text: string): void {
+    const t = this.add.text(x, y, text, { fontFamily: UI_FONT, fontSize: '11px', color: '#f0e0c0' }).setOrigin(0.5);
+    this.menu?.add(t);
   }
 
   private openRoom(rawName: string, world: 'new' | 'saved', startId?: string): void {

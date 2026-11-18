@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from .province_tiles import DRY_GRASS, PADDY, PALM_TREE, PAVING, RICE, ROCKY, SAND
 from .region import GRASSY, Province, ellipse
-from .tiles import BUSH, DIRT, WATER
+from .tiles import BUSH, DIRT, FOREST, WATER
 from .water_tiles import FLOWERBED
 
 T = 16
@@ -101,20 +101,65 @@ def landmark_fields(m: Province, plans: list[tuple[str, Area, tuple[int, int] | 
 
 
 WALKABLE = LAND | {DIRT, PAVING}
+BELT_GROUND = GRASSY | {ROCKY, DRY_GRASS}
 
 
-def start_point(m: Province, sid: str, near: tuple[int, int], radius: int = 12) -> None:
-    """A "spawn_start_<sid>" on open walkable ground near `near`: a place a new game can begin."""
+def _zone_rects(m: Province) -> list[Area]:
+    return [(int(o["x"] // T), int(o["y"] // T), int((o["x"] + o["width"]) // T) - 1, int((o["y"] + o["height"]) // T) - 1)
+            for o in m.objects if o["name"] == "zone"]
+
+
+def _in_any(rects: list[Area], x: int, y: int, margin: int = 0) -> bool:
+    return any(x0 - margin <= x <= x1 + margin and y0 - margin <= y <= y1 + margin for x0, y0, x1, y1 in rects)
+
+
+def zone_belts(m: Province, depth: int = 3, gate: int = 2) -> None:
+    """A belt of dense forest just outside every safe zone, so each landmark or
+    town sits in its own clearing. Roads, rivers, fields and buildings break
+    the belt where they cross it (only open grass is planted), and every side
+    keeps a gate in its middle so no zone is ever sealed off."""
+    rects = _zone_rects(m)
     covered = _covered(m)
+    for x0, y0, x1, y1 in rects:
+        mx, my = (x0 + x1) // 2, (y0 + y1) // 2
+        for y in range(y0 - depth, y1 + depth + 1):
+            for x in range(x0 - depth, x1 + depth + 1):
+                if not (0 < x < m.w - 1 and 0 < y < m.h - 1) or _in_any(rects, x, y):
+                    continue
+                if abs(x - mx) <= gate or abs(y - my) <= gate:                  # gates in the middle of each side
+                    continue
+                if (x, y) in covered or m.decor[y][x] is not None or m.ground[y][x] not in BELT_GROUND:
+                    continue
+                ring = max(x0 - x, x - x1, y0 - y, y - y1)                       # 1 = right next to the zone
+                if ring == depth and m.rnd.random() < 0.35:
+                    continue                                                    # a ragged outer edge
+                m.put(x, y, FOREST)
+                m.taken.add((x, y))
+
+
+def start_points(m: Province, prefix: str, nears: list[tuple[int, int]]) -> list[str]:
+    """New-game start spots ("spawn_start_<prefix>_<i>"), outside every safe zone and its belt."""
+    rects = _zone_rects(m)
+    covered = _covered(m)
+    names = []
+    for i, near in enumerate(nears):
+        at = _walkable_near(m, covered, rects, near)
+        if at:
+            names.append(f"start_{prefix}_{i}")
+            m.spawn(names[-1], *at)
+            print(f"  start point {names[-1]} at {at}")
+    return names
+
+
+def _walkable_near(m: Province, covered: set[tuple[int, int]], rects: list[Area], near: tuple[int, int],
+                   radius: int = 20) -> tuple[int, int] | None:
     for r in range(radius + 1):
         for dy in range(-r, r + 1):
             for dx in range(-r, r + 1):
                 x, y = near[0] + dx, near[1] + dy
-                if max(abs(dx), abs(dy)) != r or not (0 <= x < m.w and 0 <= y < m.h):
+                if max(abs(dx), abs(dy)) != r or not (2 <= x < m.w - 2 and 2 <= y < m.h - 2) or _in_any(rects, x, y, 6):
                     continue
                 if all(m.decor[yy][xx] is None and m.ground[yy][xx] in WALKABLE and (xx, yy) not in covered
                        for yy in (y - 1, y, y + 1) for xx in (x - 1, x, x + 1)):
-                    m.spawn(f"start_{sid}", x, y)
-                    print(f"  start point {sid} at {(x, y)}")
-                    return
-    raise RuntimeError(f"no room for start point {sid}")
+                    return x, y
+    return None

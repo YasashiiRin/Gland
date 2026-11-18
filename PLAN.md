@@ -471,9 +471,10 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       đó thu (khi chơi chung); đầu mùa lúa mọc lại thay cây chưa gặt, ao làm lại từ đầu (`FishPondSystem`, `landmark_fields.py`).
       Thêm **máy tưới nước** ở tiệm xe (bật chế độ tưới: tưới ô đất dưới xe), chỗ đậu thứ 5 ở hợp tác xã.
   (Ghi chú cũ) 2. Bỏ Farm/House/Town: khu làng NPC trong map Quảng Bình nhận cửa hàng, chợ, bảng nhiệm vụ, lịch NPC; trồng trọt được ở mọi map (cuốc đất bất kỳ đâu); thùng bán hàng, bàn chế tác, nhà kho xe, chuồng gà, lối vào hầm mỏ chuyển vào thế giới mới.
-  3. [x] Màn chọn vị trí bắt đầu + vật phẩm **chiếu** (xong): chơi mới (và tạo phòng mới) chọn 1 trong 6 nơi — Đồng Hới,
-      Phong Nha, Ba Đồn, Lệ Thủy, Huế – Phú Xuân, Huế – Thiên Mụ (`startPoints.json`, spawn `start_*`); người vào phòng
-      xuất hiện ở nơi chủ phòng bắt đầu. Có sẵn 1 **chiếu**: cầm bấm dùng để trải (được trải cả trong khu an toàn), đứng
+  3. [x] Màn chọn vị trí bắt đầu + vật phẩm **chiếu** (xong): chơi mới (và tạo phòng mới) chỉ chọn **tỉnh** (Quảng Bình
+      hoặc Huế); chỗ xuất phát là ngẫu nhiên một trong các điểm ngoài đồng, luôn **ngoài khu an toàn** (`startPoints.json`,
+      spawn `start_qb_*` / `start_hue_*`); người vào phòng xuất hiện ở nơi chủ phòng bắt đầu. Mỗi khu an toàn (danh lam,
+      phố NPC) được **dải rừng rậm** dày 3 ô bao quanh, chừa lối ở đường đi, sông và cổng giữa mỗi cạnh (`zone_belts`). Có sẵn 1 **chiếu**: cầm bấm dùng để trải (được trải cả trong khu an toàn), đứng
       cạnh bấm E để ngủ, bổ cuốc/rìu/cuốc chim lên chiếu để cuộn lại; chiếu của ai người nấy cuộn. Bản lưu lên phiên bản 12.
   4. Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại.
 
