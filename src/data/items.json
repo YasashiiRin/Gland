@@ -367,6 +367,13 @@
     "stackable": false,
     "description": "Đặt xuống đất để chế tạo được đồ cao cấp hơn (ba lô lớn, vòi tưới, chuồng gà)."
   },
+  "sleeping_mat": {
+    "name": "Chiếu",
+    "category": "furniture",
+    "stackable": false,
+    "sellPrice": 40,
+    "description": "Chiếu cói để ngả lưng ở bất cứ đâu. Cầm chiếu bấm dùng để trải ra (được trải cả trong phố); đứng cạnh chiếu bấm E/chuột phải để ngủ. Bổ cuốc, rìu hay cuốc chim lên chiếu để cuộn lại cất vào túi."
+  },
   "worm": {
     "name": "Giun (mồi câu)",
     "category": "bait",

@@ -70,6 +70,12 @@ export interface LobbyPlayer {
 }
 
 /** A player's position, sent ~10 times a second. */
+/** Where a guest appears when the game starts: the host's map and start point. */
+export interface MeetingPoint {
+  map: string;
+  spawn: string;
+}
+
 export interface PlayerPose {
   id: string;
   map: string;
@@ -86,7 +92,7 @@ export type NetMessage =
   | { t: 'hello'; name: string }
   | { t: 'full' }
   | { t: 'lobby'; players: LobbyPlayer[] }
-  | { t: 'start'; you: string; world: SharedWorld; profile?: PlayerProfile }
+  | { t: 'start'; you: string; world: SharedWorld; profile?: PlayerProfile; at?: MeetingPoint }
   | { t: 'world'; world: SharedWorld; newDay?: NewDayInfo }
   | { t: 'sleep'; ready: boolean }
   | { t: 'sleepers'; ids: string[] }

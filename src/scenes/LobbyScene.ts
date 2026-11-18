@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { net, NetEvents } from '../net/NetSession';
 import { MAX_PLAYERS, pickShared, type LobbyPlayer, type SharedWorld } from '../net/protocol';
+import { isMapKey } from '../data/maps';
 import { applySharedWorld, gameState, resetToNewGame } from '../state/GameState';
 import { drawTitleBackground } from '../ui/titleBackground';
 import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from '../ui/uiStyle';
@@ -83,6 +84,7 @@ export class LobbyScene extends Phaser.Scene {
     net.startGame(
       () => pickShared(gameState),
       (name) => gameState.guestProfiles[name],
+      () => ({ map: gameState.currentMap, spawn: gameState.spawnId }),
     );
     this.scene.start('Preload');
   }
@@ -93,8 +95,12 @@ export class LobbyScene extends Phaser.Scene {
     applySharedWorld(world);
     // Coming back to a farm we've played on: the host kept our bag, energy and skills.
     if (net.receivedProfile) Object.assign(gameState, structuredClone(net.receivedProfile));
-    gameState.currentMap = 'QuangBinh';
-    gameState.spawnId = 'fromHouse';
+    // Appear where the host started (their map and start point), else in Đồng Hới.
+    const at = net.meetingPoint;
+    if (at && isMapKey(at.map)) {
+      gameState.currentMap = at.map;
+      gameState.spawnId = at.spawn;
+    }
     gameState.riding = null;
     this.scene.start('Preload');
   }

@@ -688,6 +688,12 @@
     "hd": true
    },
    {
+    "type": "image",
+    "key": "prop_sleeping_mat",
+    "url": "sprites/furniture/sleeping_mat.png",
+    "hd": true
+   },
+   {
     "type": "spritesheet",
     "key": "crop_parsnip",
     "url": "sprites/crops/parsnip.png",

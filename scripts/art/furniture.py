@@ -213,10 +213,27 @@ def carpenter_bench() -> Image.Image:
     return im
 
 
+def sleeping_mat() -> Image.Image:
+    """A woven sedge mat (chiếu cói) rolled out on the ground, a small pillow at the head."""
+    im = new(16, 28)
+    straw, dark = (222, 196, 132), (196, 166, 100)
+    rect(im, 1, 4, 14, 27, straw)
+    for y in range(4, 28):
+        for x in range(1, 15):
+            if (x + y) % 2 == 0:
+                put(im, x, y, dark)                                                # the weave
+    for y, c in ((7, (176, 52, 48)), (8, (176, 52, 48)), (23, (60, 120, 80)), (24, (60, 120, 80))):
+        rect(im, 1, y, 14, y, c)                                                   # dyed bands
+    rect(im, 3, 1, 12, 5, (236, 232, 220)); rect(im, 3, 1, 12, 1, (250, 248, 240))  # pillow
+    outline(im, 0.5)
+    return im
+
+
 PIECES = {"bed": bed, "table": table, "chair": chair, "dish_cabinet": dish_cabinet,
           "kitchen_stove": kitchen_stove, "tea_cabinet": tea_cabinet, "bookshelf": bookshelf,
           "plant": plant, "rug": rug, "window": window, "painting": painting,
-          "rough_bench": rough_bench, "carpenter_bench": carpenter_bench}
+          "rough_bench": rough_bench, "carpenter_bench": carpenter_bench,
+          "sleeping_mat": sleeping_mat}
 
 
 def make_furniture() -> list[dict]:

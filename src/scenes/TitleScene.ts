@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { normalizeRoomCode } from '../net/protocol';
+import { START_POINTS } from '../data/startPoints';
 import { applyLoadedState, resetToNewGame } from '../state/GameState';
 import * as SaveService from '../systems/SaveService';
 import { createHtmlInput } from '../ui/htmlInput';
@@ -7,7 +8,7 @@ import { drawTitleBackground } from '../ui/titleBackground';
 import { UI_COLORS, UI_FONT } from '../ui/uiStyle';
 import type { LobbySceneData } from './LobbyScene';
 
-type Page = 'main' | 'solo' | 'host' | 'join';
+type Page = 'main' | 'solo' | 'host' | 'join' | 'start';
 const NAME_KEY = 'farm-game-player-name';
 
 /** First screen: play alone, open a room for friends, or join one by code. */
@@ -40,8 +41,8 @@ export class TitleScene extends Phaser.Scene {
   }
 
   /** Kept public: also used by automated browser checks. */
-  startNewGame(): void {
-    resetToNewGame(this.savedName());
+  startNewGame(startId?: string): void {
+    resetToNewGame(this.savedName(), undefined, startId);
     this.scene.start('Preload');
   }
 
@@ -69,16 +70,19 @@ export class TitleScene extends Phaser.Scene {
       this.button(cx, 380, 'Vào phòng', () => this.showPage('join'));
       this.caption(cx, 440, 'Chơi cùng tối đa 2 người bạn qua mã phòng');
     } else if (page === 'solo') {
-      this.button(cx, 240, 'Chơi mới', () => this.startNewGame());
+      this.button(cx, 240, 'Chơi mới', () => this.showStartPicker((id) => this.startNewGame(id), 'solo'));
       this.button(cx, 310, 'Tiếp tục', () => this.continueGame(), hasSave);
       this.button(cx, 400, '‹ Quay lại', () => this.showPage('main'), true, 160);
     } else if (page === 'host') {
       this.caption(cx, 214, 'Tên của bạn');
       const name = this.textField(cx, 244, { value: this.savedName(), maxLength: 16 });
-      this.button(cx, 306, 'Nông trại mới', () => this.openRoom(name.value, 'new'));
+      this.button(cx, 306, 'Nông trại mới', () => {
+        const typed = name.value;
+        this.showStartPicker((id) => this.openRoom(typed, 'new', id), 'host');
+      });
       this.button(cx, 366, 'Nông trại đã lưu', () => this.openRoom(name.value, 'saved'), hasSave);
       this.button(cx, 432, '‹ Quay lại', () => this.showPage('main'), true, 160);
-    } else {
+    } else if (page === 'join') {
       this.caption(cx, 214, 'Tên của bạn');
       const name = this.textField(cx, 244, { value: this.savedName(), maxLength: 16 });
       this.caption(cx, 286, 'Mã phòng (6 ký tự)');
@@ -88,14 +92,27 @@ export class TitleScene extends Phaser.Scene {
     }
   }
 
-  private openRoom(rawName: string, world: 'new' | 'saved'): void {
+  /** "Bắt đầu ở đâu?": one button per start point, two columns. */
+  private showStartPicker(onPick: (startId: string) => void, back: Page): void {
+    this.showPage('start');
+    const cx = this.scale.width / 2;
+    this.caption(cx, 210, 'Bắt đầu ở đâu? (bạn có một chiếc chiếu để ngủ)');
+    START_POINTS.forEach((p, i) => {
+      const x = cx + (i % 2 === 0 ? -82 : 82);
+      const y = 256 + Math.floor(i / 2) * 58;
+      this.button(x, y, p.name, () => onPick(p.id), true, 156, 15);
+    });
+    this.button(cx, 438, '‹ Quay lại', () => this.showPage(back), true, 160);
+  }
+
+  private openRoom(rawName: string, world: 'new' | 'saved', startId?: string): void {
     const name = this.rememberName(rawName);
     if (world === 'saved') {
       const saved = SaveService.load();
       if (saved) applyLoadedState(saved);
       else resetToNewGame(name);
     } else {
-      resetToNewGame(name);
+      resetToNewGame(name, undefined, startId);
     }
     this.scene.start('Lobby', { mode: 'host', name } satisfies LobbySceneData);
   }
@@ -145,12 +162,12 @@ export class TitleScene extends Phaser.Scene {
     return el;
   }
 
-  private button(x: number, y: number, label: string, onClick: () => void, enabled = true, width = 240): void {
+  private button(x: number, y: number, label: string, onClick: () => void, enabled = true, width = 240, fontSize = 20): void {
     const box = this.add
       .rectangle(x, y, width, 46, enabled ? UI_COLORS.wood : 0x5a4a3a)
       .setStrokeStyle(3, UI_COLORS.edge);
     const text = this.add
-      .text(x, y, label, { fontFamily: UI_FONT, fontSize: '20px', fontStyle: 'bold', color: enabled ? '#fff2d0' : '#a89880' })
+      .text(x, y, label, { fontFamily: UI_FONT, fontSize: `${fontSize}px`, fontStyle: 'bold', color: enabled ? '#fff2d0' : '#a89880' })
       .setOrigin(0.5);
     this.menu?.add([box, text]);
     if (!enabled) return;

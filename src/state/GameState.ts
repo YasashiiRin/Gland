@@ -1,3 +1,4 @@
+import { startPoint } from '../data/startPoints';
 import type { FishPonds } from '../systems/FishPondSystem';
 import type { WildFields } from '../systems/WildFieldSystem';
 import type { ItemId } from '../data/items';
@@ -89,7 +90,8 @@ export interface GameState {
 
 export const WAREHOUSE_SLOT_COUNT = 36;
 
-export const STATE_VERSION = 11;
+/** 12: big world (no farm/town maps, start point, sleeping mat); older saves start over. */
+export const STATE_VERSION = 12;
 
 /** Default camera zoom (world pixels are drawn this many times larger). */
 export const DEFAULT_ZOOM = 2;
@@ -102,6 +104,7 @@ const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'pickaxe', quantity: 1 },
   { itemId: 'scythe', quantity: 1 },
   { itemId: 'sword', quantity: 1 },
+  { itemId: 'sleeping_mat', quantity: 1 },
   { itemId: 'parsnip_seeds', quantity: 15 },
   { itemId: 'potato_seeds', quantity: 10 },
   { itemId: 'cauliflower_seeds', quantity: 5 },
@@ -192,8 +195,12 @@ function grantAllVehicles(owned: OwnedVehicles): OwnedVehicles {
   return VEHICLE_IDS.reduce((acc, id) => addVehicle(acc, id, vehicleHome(id)), owned);
 }
 
-export function resetToNewGame(playerName?: string, farmName?: string): void {
+/** A fresh game, beginning at the chosen start point (Đồng Hới by default). */
+export function resetToNewGame(playerName?: string, farmName?: string, startId?: string): void {
   Object.assign(gameState, createInitialState(playerName, farmName));
+  const start = startPoint(startId);
+  gameState.currentMap = start.mapKey;
+  gameState.spawnId = start.spawn;
 }
 
 /** Multiplayer: replaces the shared (farm-wide) parts of the state with the host's copy. */

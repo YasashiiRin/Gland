@@ -53,6 +53,7 @@ import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
+import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { net, NetEvents } from '../net/NetSession';
 import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
@@ -585,8 +586,13 @@ export abstract class MapScene extends Phaser.Scene {
     this.bedZones = this.createZonesNamed('bed');
   }
 
+  /** Next to a bed (the guesthouse) or a sleeping mat spread out on this map. */
   private isNearBed(): boolean {
-    return this.isNearAnyZone(this.bedZones);
+    if (this.isNearAnyZone(this.bedZones)) return true;
+    return matTileKeysOnMap(gameState.placedObjects, this.mapKey).some((k) => {
+      const [x, y] = k.split(',').map(Number);
+      return Math.hypot(x * TILE + TILE / 2 - this.player.x, y * TILE + TILE / 2 - this.player.y) < 26;
+    });
   }
 
   protected isNearAnyZone(zones: Phaser.GameObjects.Zone[]): boolean {

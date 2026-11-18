@@ -98,3 +98,23 @@ def landmark_fields(m: Province, plans: list[tuple[str, Area, tuple[int, int] | 
             pond(m, name, area, pond_near)
         if paddy_near:
             paddy(m, name, area, paddy_near)
+
+
+WALKABLE = LAND | {DIRT, PAVING}
+
+
+def start_point(m: Province, sid: str, near: tuple[int, int], radius: int = 12) -> None:
+    """A "spawn_start_<sid>" on open walkable ground near `near`: a place a new game can begin."""
+    covered = _covered(m)
+    for r in range(radius + 1):
+        for dy in range(-r, r + 1):
+            for dx in range(-r, r + 1):
+                x, y = near[0] + dx, near[1] + dy
+                if max(abs(dx), abs(dy)) != r or not (0 <= x < m.w and 0 <= y < m.h):
+                    continue
+                if all(m.decor[yy][xx] is None and m.ground[yy][xx] in WALKABLE and (xx, yy) not in covered
+                       for yy in (y - 1, y, y + 1) for xx in (x - 1, x, x + 1)):
+                    m.spawn(f"start_{sid}", x, y)
+                    print(f"  start point {sid} at {(x, y)}")
+                    return
+    raise RuntimeError(f"no room for start point {sid}")

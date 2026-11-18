@@ -439,7 +439,7 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
 - [x] Đợt 3 + làm giàu map cũ (bản 224×140, sẽ được thay bằng bản 425×425 bên dưới): đủ 10 tỉnh — thêm **Phong Nha – Kẻ Bàng** (Quảng Bình, đi từ mép tây nông trại), **Thanh Hóa** (ruộng bậc thang Pù Luông, nhà sàn, Thành nhà Hồ, sông Mã, Sầm Sơn – Hòn Trống Mái), **Nghệ An** (rừng Pù Mát, sông Lam, làng Sen – Kim Liên, Cửa Lò), **Quảng Ngãi** (núi Thiên Ấn, sông Trà Khúc với guồng nước, ruộng muối Sa Huỳnh, đảo Lý Sơn với tỏi, miệng núi lửa, vòm đá), **Bình Định** (võ đường Tây Sơn, tháp Bánh Ít, Tháp Đôi, Ghềnh Ráng, dừa Tam Quan). Quảng Trị có Thành cổ + đài tưởng niệm, Huế có lăng vua, Đà Nẵng có Cầu Vàng Bà Nà.
 - [x] **Đồng lúa làng** gặt được (phím E hoặc liềm): mỗi ô cho lúa theo tỉ lệ trong `src/data/wildFields.json`, gặt xong còn gốc rạ, **đầu mùa sau chín lại**; chơi chung thì mọi người thấy như nhau.
 
-### Thế giới lớn 425×425 kiểu Don't Starve (đang làm — xong giai đoạn 1, 2a và 2b)
+### Thế giới lớn 425×425 kiểu Don't Starve (đang làm — xong giai đoạn 1, 2 và 3)
 - Người chơi đổi ý: **chỉ 2 map tỉnh — Quảng Bình và Huế**, mỗi map **425×425 ô** (các tỉnh khác bỏ khỏi game; hình vẽ vẫn giữ trong `scripts/art`).
 - Mỗi map có nhiều **vùng địa hình hình dạng tự nhiên** (không vuông vức), thảm thực vật khác nhau: đồng cỏ, rừng rậm, rừng thông, núi đá, đầm lầy/đồng sen, đồng lúa, bãi biển, sông ngòi… theo đặc trưng tỉnh; đường mòn nối các vùng; địa danh đặt trong vùng hợp với nó.
 - Mỗi map có **một khu làng NPC** tập trung nhiều nhà.
@@ -471,7 +471,10 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
       đó thu (khi chơi chung); đầu mùa lúa mọc lại thay cây chưa gặt, ao làm lại từ đầu (`FishPondSystem`, `landmark_fields.py`).
       Thêm **máy tưới nước** ở tiệm xe (bật chế độ tưới: tưới ô đất dưới xe), chỗ đậu thứ 5 ở hợp tác xã.
   (Ghi chú cũ) 2. Bỏ Farm/House/Town: khu làng NPC trong map Quảng Bình nhận cửa hàng, chợ, bảng nhiệm vụ, lịch NPC; trồng trọt được ở mọi map (cuốc đất bất kỳ đâu); thùng bán hàng, bàn chế tác, nhà kho xe, chuồng gà, lối vào hầm mỏ chuyển vào thế giới mới.
-  3. Màn chọn vị trí bắt đầu + vật phẩm **chiếu** (trải ra để ngủ, cất lại được); đổi phiên bản lưu (bản lưu cũ sẽ bắt đầu lại).
+  3. [x] Màn chọn vị trí bắt đầu + vật phẩm **chiếu** (xong): chơi mới (và tạo phòng mới) chọn 1 trong 6 nơi — Đồng Hới,
+      Phong Nha, Ba Đồn, Lệ Thủy, Huế – Phú Xuân, Huế – Thiên Mụ (`startPoints.json`, spawn `start_*`); người vào phòng
+      xuất hiện ở nơi chủ phòng bắt đầu. Có sẵn 1 **chiếu**: cầm bấm dùng để trải (được trải cả trong khu an toàn), đứng
+      cạnh bấm E để ngủ, bổ cuốc/rìu/cuốc chim lên chiếu để cuộn lại; chiếu của ai người nấy cuộn. Bản lưu lên phiên bản 12.
   4. Bản đồ thế giới, minimap, chơi nhiều người, kiểm tra trên điện thoại.
 
 ### Việc chờ làm: nghề Thầy pháp (chưa bắt đầu — còn câu hỏi mở)

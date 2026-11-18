@@ -100,6 +100,20 @@ export const EXTRA_ICONS: Partial<Record<ItemId, Draw>> = {
     g.fillCircle(6, 7.5, 0.8);
     g.fillCircle(9, 8, 0.8);
   }),
+  sleeping_mat: (g) => {
+    // A rolled sedge mat tied with two red bands.
+    g.fillStyle(0xdec484, 1);
+    g.fillRect(2, 5, 12, 7);
+    g.fillStyle(0xc4a664, 1);
+    for (const x of [4, 7, 10]) g.fillRect(x, 5, 1, 7);
+    g.fillStyle(0xb03430, 1);
+    g.fillRect(5, 5, 1, 7);
+    g.fillRect(11, 5, 1, 7);
+    g.fillStyle(0xf0e2b0, 1);
+    g.fillEllipse(13.5, 8.5, 3, 7);
+    g.lineStyle(1, INK, 1);
+    g.strokeRect(2.5, 5.5, 11, 6);
+  },
   fish_fry: (g) => {
     // A clear bag of water with three little fish.
     g.fillStyle(0xbfe3f2, 0.9);

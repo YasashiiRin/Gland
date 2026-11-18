@@ -4,7 +4,7 @@ import { digsWorm } from '../systems/FishSpawnSystem';
 import { FADE_MS, TILE } from '../config/constants';
 import type { MineSceneData } from './MineScene';
 import { timeControl } from '../state/timeControl';
-import { TILE_GID, TILLABLE_GIDS } from '../config/tileGids';
+import { isWaterGid, TILE_GID, TILLABLE_GIDS } from '../config/tileGids';
 import { cropForSeed } from '../data/crops';
 import { ITEMS, type ItemId, type VehicleAbility } from '../data/items';
 import { consume, isExhausted } from '../systems/EnergySystem';
@@ -31,6 +31,8 @@ import {
   isOccupied,
   placedObjectKey,
   placeObject,
+  rollUpMat,
+  spreadMat,
   type PlacedObjectKind,
 } from '../systems/PlacedObjectSystem';
 import { EventBus, GameEvents, type ChestOpenRequestedPayload } from '../events/EventBus';
@@ -104,7 +106,8 @@ export abstract class FieldScene extends MapScene {
       const sprite = this.textures.exists(propKey)
         ? this.add.image(x * TILE + TILE / 2, y * TILE + TILE, propKey).setOrigin(0.5, 1).setScale(hdScale(this, propKey))
         : this.add.image(x * TILE + TILE / 2, y * TILE + TILE / 2, iconTextureKey(obj.kind as ItemId));
-      sprite.setDepth(y * TILE + TILE / 2 - 1);
+      // A mat lies flat on the ground: under everyone standing or lying on it.
+      sprite.setDepth(obj.kind === 'sleeping_mat' ? 0.5 : y * TILE + TILE / 2 - 1);
       this.furnitureSprites.set(key, sprite);
     }
   }
@@ -151,6 +154,7 @@ export abstract class FieldScene extends MapScene {
       if (def.category === 'seed') {
         return canPlant(gameState.farmPlots, key) || this.isOpenField(tile) ? 'valid' : 'invalid';
       }
+      if (stack.itemId === 'sleeping_mat') return this.canSpreadMat(tile) ? 'valid' : 'invalid';
       if (def.category === 'furniture') {
         const objKey = placedObjectKey(this.mapKey, tile.x, tile.y);
         if (isOccupied(gameState.placedObjects, objKey) || this.decorLayer.getTileAt(tile.x, tile.y) || this.inSafeZone(tile.x, tile.y)) return 'invalid';
@@ -165,6 +169,7 @@ export abstract class FieldScene extends MapScene {
 
   protected override applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
     const key = this.plotKey(tile.x, tile.y);
+    if ((itemId === 'hoe' || itemId === 'axe' || itemId === 'pickaxe') && this.tryRollUpMat(tile)) return;
     if (itemId === 'hoe') {
       if (!canTill(gameState.farmPlots, key)) return;
       if (this.inSafeZone(tile.x, tile.y)) {
@@ -277,6 +282,10 @@ export abstract class FieldScene extends MapScene {
   }
 
   protected override tryPlaceFurniture(itemId: ItemId): void {
+    if (itemId === 'sleeping_mat') {
+      this.say(this.spreadMatAt(this.actionTile()));
+      return;
+    }
     if (itemId !== 'chest' && itemId !== 'scarecrow' && itemId !== 'sprinkler' && itemId !== 'chicken_coop' && itemId !== 'carpenter_bench') return;
     const tile = this.actionTile();
     const key = placedObjectKey(this.mapKey, tile.x, tile.y);
@@ -298,6 +307,44 @@ export abstract class FieldScene extends MapScene {
     gameState.inventory = removeOneFromInventory(gameState, itemId);
 
     this.renderPlacedObjects();
+  }
+
+  /** Rolls the sleeping mat out on `tile`: anywhere on open ground, safe zones included (it isn't building). */
+  private spreadMatAt(tile: { x: number; y: number }): string | null {
+    const key = placedObjectKey(this.mapKey, tile.x, tile.y);
+    if (!this.canSpreadMat(tile)) return 'Không trải chiếu ở đây được (vướng đồ hoặc dưới nước)';
+    gameState.placedObjects = spreadMat(gameState.placedObjects, key, ownerName());
+    gameState.inventory = removeOneFromInventory(gameState, 'sleeping_mat');
+    this.renderPlacedObjects();
+    return 'Trải chiếu ra — đứng cạnh chiếu bấm E để ngủ';
+  }
+
+  private canSpreadMat(tile: { x: number; y: number }): boolean {
+    const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
+    return !isOccupied(gameState.placedObjects, placedObjectKey(this.mapKey, tile.x, tile.y))
+      && !this.decorLayer.getTileAt(tile.x, tile.y)
+      && gid !== undefined && !isWaterGid(gid);
+  }
+
+  /** A hoe, axe or pickaxe on your mat rolls it back up into your bag. True if there was a mat. */
+  private tryRollUpMat(tile: { x: number; y: number }): boolean {
+    const key = placedObjectKey(this.mapKey, tile.x, tile.y);
+    if (gameState.placedObjects[key]?.kind !== 'sleeping_mat') return false;
+    const next = rollUpMat(gameState.placedObjects, key, ownerName());
+    if (!next) {
+      this.say('Chiếu của người khác — để họ tự cuộn');
+      return true;
+    }
+    const added = addItem(gameState.inventory, 'sleeping_mat', 1);
+    if (added.leftover > 0) {
+      this.say('Túi đồ đầy, không cất chiếu được');
+      return true;
+    }
+    gameState.placedObjects = next;
+    gameState.inventory = added.state;
+    this.renderPlacedObjects();
+    this.say('Cuộn chiếu lại, cất vào túi');
+    return true;
   }
 
   /** Also counts carpenter benches the player has built and placed on the farm. */

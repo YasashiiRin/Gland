@@ -1,0 +1,8 @@
+[
+  { "id": "dong_hoi", "name": "Đồng Hới", "mapKey": "QuangBinh", "spawn": "start", "blurb": "Phố lớn: cửa hàng, chợ, hợp tác xã, nhà nghỉ" },
+  { "id": "phong_nha", "name": "Phong Nha", "mapKey": "QuangBinh", "spawn": "start_phong_nha", "blurb": "Bến sông Son, động Sơn Đoòng, rừng núi" },
+  { "id": "ba_don", "name": "Ba Đồn", "mapKey": "QuangBinh", "spawn": "start_ba_don", "blurb": "Chợ ven sông Gianh, bến phà" },
+  { "id": "le_thuy", "name": "Lệ Thủy", "mapKey": "QuangBinh", "spawn": "start_le_thuy", "blurb": "Đồng lúa, sông Kiến Giang" },
+  { "id": "phu_xuan", "name": "Huế – Phú Xuân", "mapKey": "Hue", "spawn": "start_phu_xuan", "blurb": "Phố cổ bên sông Hương, gần chợ Đông Ba" },
+  { "id": "thien_mu", "name": "Huế – Thiên Mụ", "mapKey": "Hue", "spawn": "start_thien_mu", "blurb": "Chùa trên đồi, thượng nguồn sông Hương" }
+]

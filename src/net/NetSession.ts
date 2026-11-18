@@ -6,6 +6,7 @@ import {
   MAX_PLAYERS,
   PEER_PREFIX,
   type LobbyPlayer,
+  type MeetingPoint,
   type NetMessage,
   type NewDayInfo,
   type PlayerProfile,
@@ -55,6 +56,9 @@ class NetSession {
   readonly sleepers = new Set<string>();
   /** Guest: a profile the host handed back when we joined (consumed by the lobby). */
   receivedProfile?: PlayerProfile;
+  /** Guest: where the host asked us to appear (their map and start point). */
+  meetingPoint?: MeetingPoint;
+  private meetingProvider?: () => MeetingPoint;
 
   private peer?: Peer;
   private hostConn?: DataConnection;
@@ -121,15 +125,16 @@ class NetSession {
   }
 
   /** Host: start the game for everyone in the lobby. */
-  startGame(world: () => SharedWorld, profileOf: (name: string) => PlayerProfile | undefined): void {
+  startGame(world: () => SharedWorld, profileOf: (name: string) => PlayerProfile | undefined, meetAt?: () => MeetingPoint): void {
     this.worldProvider = world;
     this.profileProvider = profileOf;
+    this.meetingProvider = meetAt;
     for (const [id, conn] of this.guests) conn.send(this.startMessage(id));
   }
 
   private startMessage(id: string): NetMessage {
     const world = this.worldProvider?.() as SharedWorld;
-    return { t: 'start', you: id, world, profile: this.profileProvider?.(this.nameOf(id)) };
+    return { t: 'start', you: id, world, profile: this.profileProvider?.(this.nameOf(id)), at: this.meetingProvider?.() };
   }
 
   /** Host: push the whole shared world (e.g. after a new day starts). */
@@ -247,6 +252,7 @@ class NetSession {
       case 'start':
         this.myId = data.you;
         this.receivedProfile = data.profile;
+        this.meetingPoint = data.at;
         this.events.emit(NetEvents.Start, data.world);
         break;
       case 'world':
