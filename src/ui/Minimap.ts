@@ -18,6 +18,8 @@ export class Minimap {
   private readonly frame: Phaser.GameObjects.Graphics;
   private readonly image: Phaser.GameObjects.Image;
   private readonly dot: Phaser.GameObjects.Rectangle;
+  /** A little house where the player's own home is. */
+  private readonly home: Phaser.GameObjects.Graphics;
   private readonly label: Phaser.GameObjects.Text;
   private scale = 1;
   private hasMap = false;
@@ -31,7 +33,13 @@ export class Minimap {
     this.image = scene.add.image(PAD, PAD, '__DEFAULT').setOrigin(0, 0);
     this.dot = scene.add.rectangle(0, 0, 3, 3, 0xe8402a).setStrokeStyle(1, 0xffffff);
     this.label = inkText(scene, 0, 0, '', 11).setOrigin(0.5, 0.5);
-    this.container.add([this.frame, this.image, this.dot, this.label]);
+    this.home = scene.add.graphics().setVisible(false);
+    // Drawn round (0, 0): a white-edged roof over a wall, readable on any ground colour.
+    this.home.fillStyle(0xffffff, 1).fillTriangle(-5, -1, 0, -6, 5, -1).fillRect(-4, -1, 8, 6);
+    this.home.fillStyle(0xd9822b, 1).fillTriangle(-4, -1, 0, -5, 4, -1);
+    this.home.fillStyle(0xf4e4c1, 1).fillRect(-3, -1, 6, 5);
+    this.home.fillStyle(0x6b3e1f, 1).fillRect(-1, 1, 2, 3);
+    this.container.add([this.frame, this.image, this.home, this.dot, this.label]);
     scene.tweens.add({ targets: this.dot, alpha: 0.35, duration: 450, yoyo: true, repeat: -1 });
     for (const target of [this.image, this.label]) {
       target.setInteractive({ useHandCursor: true }).on('pointerdown', () => this.onClick?.());
@@ -82,6 +90,13 @@ export class Minimap {
   setPlayerTile(x: number, y: number): void {
     if (!this.hasMap) return;
     this.dot.setPosition(PAD + (x + 0.5) * this.scale, PAD + (y + 0.5) * this.scale);
+  }
+
+  /** The player's own house on this map (-1: none here). */
+  setHomeTile(x: number, y: number): void {
+    const show = this.hasMap && x >= 0;
+    if (this.home.visible !== show) this.home.setVisible(show);
+    if (show) this.home.setPosition(PAD + (x + 0.5) * this.scale, PAD + (y + 0.5) * this.scale);
   }
 
   toggle(): void {

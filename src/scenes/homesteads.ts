@@ -67,6 +67,9 @@ export function readHomesteads(map: Phaser.Tilemaps.Tilemap, mapKey: string): Ho
   }));
 }
 
+/** The middle of the house, from the plot's top-left corner (house 5 x 4 at +7, +5: scripts/art/homesteads.py). */
+export const HOUSE_MIDDLE = { x: 9, y: 7 } as const;
+
 export function inRect(r: TileRect, tx: number, ty: number): boolean {
   return tx >= r.x0 && tx <= r.x1 && ty >= r.y0 && ty <= r.y1;
 }

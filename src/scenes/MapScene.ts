@@ -51,11 +51,12 @@ import { mapCacheKey, RAIN_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
 import type { ChunkedImages } from './chunkedImages';
 import { RideController } from './rideController';
+import { WaterLife } from './waterLife';
 import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
-import { inRect, landmarkZones, readHomesteads, readPaddies, yardSpot, type Homestead } from './homesteads';
+import { HOUSE_MIDDLE, inRect, landmarkZones, readHomesteads, readPaddies, yardSpot, type Homestead } from './homesteads';
 import { claimHome, homeOf, houseOn } from '../systems/HomeSystem';
 import { HomeDoor } from './homeDoor';
 import { GroundItems } from './groundItems';
@@ -149,6 +150,7 @@ export abstract class MapScene extends Phaser.Scene {
   private wildRice!: WildRice;
   private ponds!: FishPondsView;
   private ambient: AmbientLife | null = null;
+  private water: WaterLife | null = null;
   private villagers: Villagers | null = null;
   /** The village households' paddies (worked by the villagers; hands off for the player). */
   protected paddies: VillageFields | null = null;
@@ -277,6 +279,8 @@ export abstract class MapScene extends Phaser.Scene {
     this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
     this.safeZones = this.zoneRects();
     this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.landmarks) : null;
+    this.water = this.isOutdoor ? new WaterLife(this, ground) : null;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.water?.destroy());
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());
     this.paddies = this.isOutdoor ? new VillageFields(this, this.groundLook, ground, decor, readPaddies(this.map, this.mapKey), this.homesteads) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.paddies?.destroy());
@@ -351,8 +355,9 @@ export abstract class MapScene extends Phaser.Scene {
     this.player.setExhausted(isExhausted(gameState.energy));
     const view = this.cameras.main.worldView;
     this.props.update(view);
-    this.trees.update(view, this.player.x, this.player.y);
+    this.trees.update(view, this.player.x, this.player.y, time);
     this.ambient?.update(time, this.game.loop.delta, view);
+    this.water?.update(time, view);
     if (this.paddies && time - this.lastPaddyUpdate > 500) {
       this.lastPaddyUpdate = time;
       this.paddies.update(view);
@@ -366,6 +371,9 @@ export abstract class MapScene extends Phaser.Scene {
     this.tigers?.update(time, this.game.loop.delta);
     worldView.playerTileX = Math.floor(this.player.x / TILE);
     worldView.playerTileY = Math.floor(this.player.y / TILE);
+    const home = this.myHomestead();
+    worldView.homeTileX = home ? home.x0 + HOUSE_MIDDLE.x : -1;
+    worldView.homeTileY = home ? home.y0 + HOUSE_MIDDLE.y : -1;
     nightLights.viewX = view.x;
     nightLights.viewY = view.y;
     nightLights.zoom = this.cameras.main.zoom;

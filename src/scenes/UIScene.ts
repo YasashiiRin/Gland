@@ -440,6 +440,7 @@ export class UIScene extends Phaser.Scene {
     this.professionHud.update(gameState.profession, this.professionMenu.isOpen);
     this.hud.setMoney(gameState.money);
     this.minimap.setPlayerTile(worldView.playerTileX, worldView.playerTileY);
+    this.minimap.setHomeTile(worldView.homeTileX, worldView.homeTileY);
     this.nightLights.update(time);
 
     if (this.fishing.active) {

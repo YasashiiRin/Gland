@@ -40,6 +40,7 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 - **Hầm mỏ:** cắt một ô ở đúng cỡ điểm ảnh gốc. Vách và quặng tối hơn nền để dễ phân biệt.
 - **Cây trồng** để ở `assets/crops/` hoặc `assets/trees/` đều được.
 - **Nhân vật, động vật, xe, nhà** (`scripts/art/import_sheets.py`): ảnh được tách thành từng hình theo khoảng trống giữa chúng, rồi bảng trong script chọn hình nào vào khung nào. Hàng nhìn ngang chỉ cần một phía, script tự lật ra phía kia. Nhà lấy hình đầu tiên (góc trên trái) của tấm.
+- **Công trình lớn** (chùa, tháp Thiên Mụ, điện, lăng, đài tưởng niệm, Quảng Bình Quan, Ngọ Môn) được vẽ to hơn nhà dân (`BIG`, `GROW` trong `import_sheets.py`), chỗ đứng trên bản đồ to tương ứng.
 - **Hướng nhà:** lúc tạo bản đồ, mỗi nhà được ghi hướng ra con đường gần nhất (`scripts/art/facing.py`). Nhà trong sân vườn luôn quay ra cổng sân và con đường trước cổng. Từ tấm 2 x 2: hàng trên là mặt trước, hàng dưới là mặt sau. Script làm ra 4 hình `<tên>`, `_left`, `_right`, `_up`, và mọi nhà dùng chung một kiểu: cửa ở tường bên trái.
 - **Nhân vật đi bộ:** các khung đi của Gemini hay lệch góc (nửa quay về người xem, ngoái lại), nên mỗi hướng chỉ dùng **một hình**: nhìn trước, nhìn nghiêng rõ nhất (lật ra để có hướng phải), quay lưng. Khi đi, hình nhún lên xuống.
 - Tên file lỡ gõ đuôi hai lần (`x.png.png`) vẫn được nhận.
@@ -424,7 +425,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ### Quảng Bình Quan (cổng thành cổ)
 
-- **File:** `assets/buildings/quang_binh_quan.png`  ·  **Kích thước file:** 160 x 160 px  ·  **Trong game:** chân đế 5 x 3 ô
+- **File:** `assets/buildings/quang_binh_quan.png`  ·  **Kích thước file:** 320 x 320 px  ·  **Trong game:** chân đế 10 x 6, vòm cổng ở giữa đi xuyên được ô (công trình lớn, to hơn nhà dân)
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/quang_binh_quan.png`
 ```
@@ -433,7 +434,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ### Chùa
 
-- **File:** `assets/buildings/pagoda.png`  ·  **Kích thước file:** 128 x 128 px  ·  **Trong game:** chân đế 4 x 4 ô
+- **File:** `assets/buildings/pagoda.png`  ·  **Kích thước file:** 256 x 224 px  ·  **Trong game:** chân đế 7 x 5 ô (công trình lớn, to hơn nhà dân)
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/pagoda.png`
 ```
@@ -469,7 +470,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ### Đài tưởng niệm
 
-- **File:** `assets/buildings/memorial.png`  ·  **Kích thước file:** 96 x 192 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **File:** `assets/buildings/memorial.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** chân đế 4 x 3 ô (công trình lớn, to hơn nhà dân)
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/memorial.png`
 ```
@@ -541,7 +542,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ### Ngọ Môn (Huế)
 
-- **File:** `assets/buildings/ngo_mon.png`  ·  **Kích thước file:** 256 x 160 px  ·  **Trong game:** chân đế 8 x 5 ô
+- **File:** `assets/buildings/ngo_mon.png`  ·  **Kích thước file:** 512 x 320 px  ·  **Trong game:** chân đế 16 x 10, vòm giữa đi xuyên được ô (công trình lớn, to hơn nhà dân)
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/ngo_mon.png`
 ```
@@ -550,7 +551,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ### Điện trong Đại Nội
 
-- **File:** `assets/buildings/royal_hall.png`  ·  **Kích thước file:** 224 x 128 px  ·  **Trong game:** chân đế 7 x 4 ô
+- **File:** `assets/buildings/royal_hall.png`  ·  **Kích thước file:** 320 x 384 px  ·  **Trong game:** chân đế 10 x 5 ô (công trình lớn, to hơn nhà dân)
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/royal_hall.png`
 ```
@@ -559,7 +560,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ### Lăng vua
 
-- **File:** `assets/buildings/royal_tomb.png`  ·  **Kích thước file:** 192 x 160 px  ·  **Trong game:** chân đế 6 x 4 ô
+- **File:** `assets/buildings/royal_tomb.png`  ·  **Kích thước file:** 256 x 384 px  ·  **Trong game:** chân đế 8 x 6 ô (công trình lớn, to hơn nhà dân)
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/royal_tomb.png`
 ```
@@ -568,7 +569,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ### Tháp chùa Thiên Mụ
 
-- **File:** `assets/buildings/thien_mu.png`  ·  **Kích thước file:** 64 x 224 px  ·  **Trong game:** chân đế 2 x 2 ô
+- **File:** `assets/buildings/thien_mu.png`  ·  **Kích thước file:** 128 x 384 px  ·  **Trong game:** chân đế 3 x 3 ô (công trình lớn, to hơn nhà dân)
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/thien_mu.png`
 ```

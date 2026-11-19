@@ -199,6 +199,25 @@ BUILDINGS: dict[str, tuple[str, int, int]] = {  # picture: (target in sprites/pr
     # Not used: the bridges and the gates you walk through (ngo_mon, quang_binh_quan, pagoda_gate)
     # came as slanted corner views, so their way through cannot line up with a straight road.
 }
+# The great buildings, drawn bigger than a house (HD px; a tile is 32): the footprints in the
+# maps match (map_quang_binh.py, world_maps.py). A village house is 160 x 160.
+BIG = {"pagoda": (256, 224), "thien_mu": (128, 384), "royal_hall": (320, 384), "royal_tomb": (256, 384),
+       "memorial": (128, 256)}
+# Gates still drawn by code: shown at twice their first size (only once, from the size they are drawn at).
+GROW = {"quang_binh_quan": (160, 160), "ngo_mon": (256, 160)}  # the pagoda gate stays: in front of the pagoda it would hide it
+
+
+def grow_gates() -> list[str]:
+    done = []
+    for name, base in GROW.items():
+        path = PUB / "props" / f"{name}.png"
+        im = Image.open(path)
+        if im.size == base:
+            im.resize((base[0] * 2, base[1] * 2), Image.NEAREST).save(path)
+            done.append(f"bigger/{name}")
+    return done
+
+
 # 2 x 2 sheets: top row the front (with the door) seen from a corner, bottom row the back.
 # Which wall of the top-left drawing holds the door: L(eft), R(ight) or F(acing us).
 # The game picks <target>_<facing>.png from the map's "facing" (scripts/art/facing.py):
@@ -216,7 +235,7 @@ def import_buildings() -> list[str]:
         if not p:
             continue
         out = PUB / "props" / f"{target}.png"
-        size = Image.open(out).size
+        size = BIG.get(target) or Image.open(out).size
         cells = grid(p, rows, cols, keep_shadow=True, pockets=True)
         wall = DOOR_WALL.get(name)
         if not wall:
@@ -247,4 +266,4 @@ def _register(keys: list[str]) -> None:
 
 
 def import_sheets() -> list[str]:
-    return import_characters() + import_animals() + import_vehicles() + import_buildings()
+    return import_characters() + import_animals() + import_vehicles() + import_buildings() + grow_gates()

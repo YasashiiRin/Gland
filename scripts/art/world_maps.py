@@ -12,7 +12,8 @@ from __future__ import annotations
 from .biome import Regions, connect, fill_contents, paint_ground, trail
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
-from .map_helpers import GARDEN_HOUSES, MOUNTAINS, SIZE, TALL, crossing, herd, market, mooring, street_row, water_spots, zone
+from .map_helpers import (GARDEN_HOUSES, MOUNTAINS, SIZE, TALL, crossing, herd, market, mooring, place_near, street_row,
+                          water_spots, zone)
 from .map_quang_binh import build_quang_binh
 from .province_tiles import LOTUS, PAVING
 from .region import Province, beach_trees, coast, ellipse, exit_north, finish, meander, place, river, road, walls
@@ -53,26 +54,25 @@ def build_hue() -> Province:
     exit_north(m, 10, "QuangBinh", "fromHue", "fromQuangBinh")
     road(m, [(10, 8), (10, 40), (195, 40), (195, 300)], tile=PAVING)                     # through the citadel, over the river
     road(m, [(195, 250), (300, 250), (300, 200)], tile=PAVING)
-    place(m, "ngo_mon", 192, 186, 8, 5, solid_from=None, force=True)
-    for y in range(188, 191):
-        for x in range(192, 200):
+    place(m, "ngo_mon", 188, 181, 16, 10, solid_from=None, force=True)                  # 16 x 10 tiles: the grandest gate
+    for y in range(185, 191):
+        for x in range(188, 204):
             if x not in (195, 196):
                 m.put(x, y, BLOCK)
-    place(m, "royal_hall", 181, 130, 7, 4, force=True)
+    place(m, "royal_hall", 180, 128, 10, 5, force=True)
     ellipse(m, 222, 152, 9, 5, LOTUS)
     m.obj("fish_pond", 213 * 16, 147 * 16, 19 * 16, 11 * 16, {"pondName": "Hồ sen Đại Nội"})
     bridge_y = crossing(m, 195, range(196, 290))
     if bridge_y:
         place(m, "truong_tien", 193, bridge_y, 5, 7, solid_from=None, layer="floor", force=True)
-    place(m, "thien_mu", 114, 262, 2, 2, force=True)
-    place(m, "pagoda", 118, 260, 4, 4, force=True)
+    place(m, "thien_mu", 112, 261, 3, 3, force=True)                                     # the 7-storey tower, 12 tiles tall
+    place(m, "pagoda", 116, 259, 7, 5, force=True)
     place(m, "mountain", 210, 336, 8, 6, solid_from=2, force=True)                       # Ngự Bình
     market(m, 250, 196, rows=2, cols=3)                                                  # chợ Đông Ba
     connect(m, regions, [(10, 40), (195, 300), (116, 268)])
     for r in regions.regions_of("pine")[:5]:                                             # royal tombs among the pines
         cx, cy = regions.centers[r]
-        if not place(m, "royal_tomb", cx + 3, cy - 6, 6, 4):
-            place(m, "royal_tomb", cx - 9, cy + 3, 6, 4)
+        place_near(m, "royal_tomb", cx - 4, cy - 3, 8, 6, radius=16)
     for r in regions.regions_of("hamlet"):                                               # nón lá stalls
         cx, cy = regions.centers[r]
         for dx in (0, 5):

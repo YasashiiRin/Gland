@@ -84,6 +84,10 @@ export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap, o
  * provides collision; the sprite fades out while the player walks behind its
  * canopy. Only trees near the camera exist at any time (see ChunkedImages).
  */
+/** How far (degrees) and how slowly a tree sways in the breeze. */
+const SWAY_DEGREES = 1.1;
+const SWAY_PERIOD_MS = 520;
+
 export class TreeSprites {
   private readonly images: ChunkedImages;
 
@@ -148,12 +152,19 @@ export class TreeSprites {
    * Each frame: keeps the trees around the camera alive, and makes them
    * see-through while the player (feet at px,py) is behind their canopy.
    */
-  update(view: Phaser.Geom.Rectangle, px: number, py: number): void {
+  update(view: Phaser.Geom.Rectangle, px: number, py: number, time = 0): void {
     this.images.update(view);
+    // A light breeze: every tree leans a little about its trunk foot, each on its own beat,
+    // with a slow gust that comes and goes over the whole wood.
+    const gust = 0.6 + 0.4 * Math.sin(time / 7000);
     for (const sprite of this.images.images()) {
       const behind = Math.abs(sprite.x - px) < 20 && py < sprite.y - 4 && py > sprite.y - 56;
       const alpha = behind ? 0.45 : 1;
       if (sprite.alpha !== alpha) sprite.setAlpha(alpha);
+      if (!this.scene.tweens.isTweening(sprite)) {
+        const beat = (sprite.x * 0.071 + sprite.y * 0.043) % (Math.PI * 2);
+        sprite.setAngle(SWAY_DEGREES * gust * Math.sin(time / SWAY_PERIOD_MS + beat));
+      }
     }
   }
 }

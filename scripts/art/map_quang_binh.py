@@ -35,7 +35,7 @@ from .map_helpers import (HOUSES, KARST, SIZE, TALL, clearing, crossing, fish_po
                           walk_under, water_spots, zone)
 from .province_tiles import BRIDGE, CITADEL, PAVING
 from .region import (Province, beach_trees, boats, coast, exit_south, finish, meander, place, river, road, walls)
-from .tiles import WATER
+from .tiles import BLOCK, WATER
 
 
 def _rivers(m: Province, shore: list[int]) -> None:
@@ -124,7 +124,15 @@ def _dong_hoi(m: Province, shore: list[int]) -> None:
     clearing(m, (303, 187, 323, 205), palms=0.04, flowers=0.08)
     for x, y in [(313, 206), (314, 206), (324, 195), (324, 196), (302, 199), (302, 200)]:  # gates
         m.ground[y][x] = PAVING
-    place(m, "quang_binh_quan", 311, 184, 5, 3, solid_from=1, force=True)
+    # Quảng Bình Quan, the citadel's north gate (10 x 10 tiles, twice a house): walk through its arch.
+    place(m, "quang_binh_quan", 309, 181, 10, 6, solid_from=None, force=True)
+    for y in range(183, 187):
+        for x in range(309, 319):
+            if x in (313, 314):
+                m.put(x, y, None)
+                m.ground[y][x] = PAVING
+            else:
+                m.put(x, y, BLOCK)
     market(m, 330, 190, rows=2, cols=3)                                                   # chợ Đồng Hới
     place(m, "station", 286, 194, 7, 4, solid_from=1, force=True)                        # ga Đồng Hới
     quay(m, 340, 170, 362, 236)                                                           # stone river walls in town
@@ -155,19 +163,19 @@ def _quan_hau(m: Province) -> None:
     place(m, "warehouse", 270, 302, 6, 4, force=True)                                     # farming co-operative
     for i in range(10):                                                                   # Võ Xá wine village: jars
         place_near(m, "jar", 332 + (i % 5) * 2, 304 + (i // 5) * 2, 1, 1, radius=3)
-    place_near(m, "memorial", 236, 290, 3, 3, radius=10)                                 # Long Đại ferry memorial
+    place_near(m, "memorial", 236, 290, 4, 3, radius=10)                                 # Long Đại ferry memorial
     place_near(m, "signpost", 372, 308, 1, 2)                                            # đi Hải Ninh
     for i in range(0, 64):                                                                # Lũy Đào Duy Từ rampart
         x, y = round(200 + i), round(338 - i * 0.5)
         if i % 22 not in (10, 11) and m.ground[y][x] != WATER and (x, y) not in m.taken:
             m.ground[y][x] = CITADEL
             m.taken.add((x, y))
-    at = place_near(m, "pagoda", 262, 316, 4, 4)                                         # Chùa Ông
-    if at:
-        place_near(m, "pagoda_gate", at[0] - 1, at[1] + 5, 5, 2, solid_from=None)
+    at = place_near(m, "pagoda", 262, 316, 7, 5)                                         # Chùa Ông
+    if at:  # its gate out in front, clear of the pagoda
+        place_near(m, "pagoda_gate", at[0] + 1, at[1] + 9, 5, 2, solid_from=None)
     place_near(m, "ferry_shelter", 244, 290, 3, 3)                                       # bến phà Long Đại
     place(m, "mountain", 186, 330, 8, 6, solid_from=2, force=True)                       # núi Thần Đinh
-    place_near(m, "pagoda", 194, 338, 4, 4)
+    place_near(m, "pagoda", 194, 338, 7, 5)
     walk_under(m, "waterfall", 40, 298, 4, 5, solid_rows=3)                               # thác Tam Lu
     fish_ponds(m, 222, 296, 262, 320, "Quán Hàu")                                                     # ao cá
 
