@@ -44,7 +44,8 @@ def _even(n: int, length: int) -> list[tuple[int, int]]:
 def grid(path: Path, rows: int, cols: int, keep_shadow: bool = False,
          labelled: bool = False, pockets: bool = False) -> list[list[tuple[np.ndarray, np.ndarray]]]:
     """The drawings of a picture laid out in `rows` x `cols`, each cut out on its own.
-    `labelled`: equal cells, each holding one drawing and a written label to drop;
+    `labelled`: equal cells (perhaps ruled with lines, cut just inside them), each holding one
+    drawing and maybe a written label to drop;
     `pockets`: shut-in pure white is background too (sky under a porch; not white clothes)."""
     a = load(path)
     fg = ~background(a, pockets=False)
@@ -52,7 +53,8 @@ def grid(path: Path, rows: int, cols: int, keep_shadow: bool = False,
     for y0, y1 in _even(rows, a.shape[0]) if labelled else _runs(fg.any(axis=1), rows):
         line = []
         for x0, x1 in _even(cols, a.shape[1]) if labelled else _runs(fg[y0:y1].any(axis=0), cols):
-            cy0, cy1, cx0, cx1 = max(0, y0 - 3), min(a.shape[0], y1 + 3), max(0, x0 - 3), min(a.shape[1], x1 + 3)
+            k = -6 if labelled else 3
+            cy0, cy1, cx0, cx1 = max(0, y0 - k), min(a.shape[0], y1 + k), max(0, x0 - k), min(a.shape[1], x1 + k)
             line.append(cut_out(a[cy0:cy1, cx0:cx1], keep_shadow, pockets=pockets, solo=labelled))
         out.append(line)
     return out
@@ -94,6 +96,17 @@ WALKERS = {  # picture -> (target under sprites/, grid rows, the row with the cl
     "folk_4": ("npcs/folk_4", 4, 2),
 }
 # folk_5 came as a hawker with the carrying pole drawn in: the game draws the pole itself, so not used.
+# Full walk cycles (4 drawings at one angle per row), ruled into equal cells:
+# picture -> (target, rows of the sheet, {direction: [(row, column, mirror) x 4]}). Drawings
+# used twice (the back view has only two good ones) get a small step up the second time.
+CYCLE = [0, 1, 2, 3]
+WALK_CYCLES: dict[str, tuple[str, int, dict[str, list[Cell]]]] = {
+    # The young farmer (2026-11-19): both side rows face right, and the back row's 2nd and 4th
+    # drawings are side views, so left = the side row mirrored and the back uses its 1st and 3rd.
+    "character": ("player", 4, {"down": [(0, c, False) for c in CYCLE], "left": [(1, c, True) for c in CYCLE],
+                                "right": [(1, c, False) for c in CYCLE],
+                                "up": [(3, 0, False), (3, 0, False), (3, 2, False), (3, 2, False)]}),
+}
 PORTRAITS = ["vendor_fish", "vendor_veg", "vendor_rice"]  # front view of a 2 x 2 sheet, 32 x 64
 CHAR = dict(fit=(30, 58), canvas=(32, 64), bottom_pad=3)
 
@@ -110,6 +123,17 @@ def import_characters() -> list[str]:
         picks = [(STD["down"], 0, False), (side, 0, False), (side, 0, True), (UP_ROW.get(name, STD["up"]), 0, False)]
         one = frames(grid(p, rows, 4), picks, **CHAR)
         sheet([im if k % 2 == 0 else bob(im) for im in one for k in range(4)], 4).save(PUB / f"{target}.png")
+        done.append(f"characters/{name}")
+    for name, (target, rows, dirs) in WALK_CYCLES.items():
+        p = find(f"characters/{name}.png")
+        if not p:
+            continue
+        picks = [pick for d in ("down", "left", "right", "up") for pick in dirs[d]]
+        out = frames(grid(p, rows, 4, labelled=True), picks, **CHAR)
+        for i in range(1, len(picks)):
+            if picks[i] == picks[i - 1]:
+                out[i] = bob(out[i])
+        sheet(out, 4).save(PUB / f"{target}.png")
         done.append(f"characters/{name}")
     for name in PORTRAITS:
         p = find(f"characters/{name}.png")

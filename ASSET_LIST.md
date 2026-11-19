@@ -48,6 +48,8 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 
 **Đợt 2 (đã nạp):** 9 nhân vật (người chơi, Chú Tư, Cô Hạnh, Linh, Minh, dân làng 1, 2, 4, người bán rau, người bán gạo), 5 con vật, 6 xe và 24 nhà, công trình.
 
+**Đợt 3 (đã nạp):** `characters/character.png` (người chơi mới: áo bà ba chàm, nón lá), có bước chân thật. Hàng nhìn trước dùng đủ 4 khung, hàng quay trái là hàng nghiêng lật lại, hàng quay lưng chỉ dùng ô 1 và ô 3 (ô 2 và ô 4 bị vẽ nghiêng). Hình này thay cho `player.png` cũ.
+
 **Chưa dùng:**
 - `folk_5.png`: vẽ người gánh hàng có sẵn đòn gánh, nhưng game tự vẽ đòn gánh lên người bán rong (sẽ thành hai đòn). Cần tấm 4 x 4 người đi bộ không cầm gì.
 - `ngo_mon.png`, `quang_binh_quan.png`, `pagoda_gate.png`: cổng vẽ nghiêng chéo, nên lối đi qua cổng không thẳng hàng với đường. Đang giữ hình cũ nhìn thẳng. Cần vẽ lại cổng **nhìn thẳng từ phía trước**, lối đi qua cổng chạy dọc từ dưới lên trên.
