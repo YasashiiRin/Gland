@@ -650,3 +650,14 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
       (hoặc tới kênh, có cầu ván sang đường cái). Cầu ván dời vào giữa mỗi thửa.
 - Sửa thẳng 2 file bản đồ bằng `scripts/art/shrink_paddies.py` (không tạo lại bản đồ, nhà cửa giữ nguyên);
   `scripts/art/maps.py` tự chạy bước này sau khi tạo bản đồ. Cỡ lấy từ `src/data/npcFarm.json`.
+
+## Cập nhật: tự làm đường đất, cỏ mọc lại, lát đá (yêu cầu 2026-11-19)
+- [x] Cuốc lên cỏ: mất cỏ, thành ô đường đất (tự nối liền với đường bên cạnh, cả đường có sẵn trên bản đồ).
+      Cuốc thêm nhát nữa lên đường đất: thành đất tơi để gieo hạt. Đất trống (nền đất, không có cỏ) thì cuốc thẳng ra đất trồng.
+- [x] Cỏ mọc lại: đường đất và đất trồng bỏ không (cuốc từ cỏ ra), sau 3 ngày có cỏ mờ mờ phủ lên, sau 5 ngày thành cỏ
+      như cũ. Cuốc lên chỗ đang mờ cỏ thì dọn sạch (đường vẫn là đường, đếm lại từ đầu). Đang có cây thì không mọc cỏ.
+      Đất trồng từ save cũ và ruộng dựng sẵn ở danh lam không mọc cỏ lại.
+- [x] Lát đá: cầm Đá bấm lên đường đất → tốn 1 viên, thành ô lát đá, cỏ không mọc. Đập bằng cuốc chim → trả lại viên
+      đá, ô về đường đất và cỏ bắt đầu mọc lại từ hôm đó.
+- Logic thuần trong `systems/GroundSystem.ts` (có test), số ngày trong `src/data/ground.json`; vẽ ở `scenes/groundPaths.ts`;
+  lưu ở `gameState.groundEdits` (lưu game + đồng bộ khi chơi nhiều người).

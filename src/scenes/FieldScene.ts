@@ -11,21 +11,24 @@ import { consume, isExhausted } from '../systems/EnergySystem';
 import { gameState } from '../state/GameState';
 import {
   canPlant,
-  canTill,
   canWater,
   growthFraction,
   harvestPlot,
   isReadyToHarvest,
   plantSeed,
   sowField,
+  plotGrass,
   tillPlot,
   waterPlot,
+  weedPlot,
   type FarmPlot,
 } from '../systems/FarmingSystem';
 import { feed as feedAnimal, pet as petAnimal } from '../systems/AnimalSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { playPickup } from '../systems/SfxSystem';
-import { addItem } from '../systems/InventorySystem';
+import { addItem, removeItem } from '../systems/InventorySystem';
+import { clearEdit, digPath, hoeAction, PAVE_ITEM, pave, unpave, type HoeAction } from '../systems/GroundSystem';
+import { GroundPaths } from './groundPaths';
 import { absoluteDayNumber } from '../systems/TimeSystem';
 import {
   isOccupied,
@@ -67,6 +70,8 @@ const SAFE_ZONE_NOTE = 'Khu an toàn (phố, địa danh, nhà người khác): 
  */
 export abstract class FieldScene extends MapScene {
   private cropSprites = new Map<string, Phaser.GameObjects.Image>();
+  /** The dirt paths and paving the player made in the grass. */
+  private paths!: GroundPaths;
   private binZones: Phaser.GameObjects.Zone[] = [];
   private mineZones: Phaser.GameObjects.Zone[] = [];
   private warehouseZones: Phaser.GameObjects.Zone[] = [];
@@ -82,6 +87,7 @@ export abstract class FieldScene extends MapScene {
     this.warehouseZones = this.createZonesNamed('warehouse', 6);
 
     this.dropPlacementsInvalidOnThisMap();
+    this.paths = new GroundPaths(this.mapKey, this.groundLook, this.groundLayer, this.decorLayer);
     this.cropSprites.forEach((sprite) => sprite.destroy());
     this.cropSprites.clear();
     for (const [key, plot] of Object.entries(gameState.farmPlots)) {
@@ -90,7 +96,9 @@ export abstract class FieldScene extends MapScene {
       const { x, y } = at;
       this.showSoil(x, y, plot.wateredToday);
       if (plot.cropId) this.spawnOrUpdateCrop(key, x, y, plot);
+      if (plotGrass(plot, this.today()) === 'faint') this.paths.setFaint(x, y, true);
     }
+    this.paths.drawAll(this.today());
 
     this.renderPlacedObjects();
   }
@@ -116,6 +124,10 @@ export abstract class FieldScene extends MapScene {
   /** Another player tilled/planted/watered/harvested or placed something: redraw those tiles. */
   protected override onWorldPatched(patch: WorldPatch): void {
     super.onWorldPatched(patch);
+    for (const key of touchedKeys(patch, 'groundEdits')) {
+      const at = this.tileOfKey(key);
+      if (at) this.paths.redraw(at.x, at.y, this.today());
+    }
     for (const key of touchedKeys(patch, 'farmPlots')) {
       const at = this.tileOfKey(key);
       if (!at) continue;
@@ -144,11 +156,11 @@ export abstract class FieldScene extends MapScene {
       const def = ITEMS[stack.itemId];
 
       if (stack.itemId === 'hoe') {
-        const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
-        const blocked = !!this.decorLayer.getTileAt(tile.x, tile.y);
-        const tillable = gid !== undefined && TILLABLE_GIDS.includes(gid) && !blocked && !this.buildBlocked(tile.x, tile.y) && canTill(gameState.farmPlots, key);
-        return tillable ? 'valid' : 'invalid';
+        const act = this.hoeActionAt(tile, key);
+        return act === 'none' || act === 'paved' ? 'invalid' : 'valid';
       }
+      if (stack.itemId === PAVE_ITEM) return this.paths.edit(tile.x, tile.y)?.kind === 'path' ? 'valid' : 'invalid';
+      if (stack.itemId === 'pickaxe' && this.paths.edit(tile.x, tile.y)?.kind === 'stone') return 'valid';
       if (stack.itemId === 'watering_can') {
         const act = this.canActionAt(tile);
         return act === 'water' || act === 'fill' ? 'valid' : 'invalid';
@@ -172,27 +184,75 @@ export abstract class FieldScene extends MapScene {
   protected override applyToolEffect(itemId: ItemId, tile: { x: number; y: number }): void {
     const key = this.plotKey(tile.x, tile.y);
     if ((itemId === 'hoe' || itemId === 'axe' || itemId === 'pickaxe') && this.tryRollUpMat(tile)) return;
+    if (itemId === 'pickaxe' && this.paths.edit(tile.x, tile.y)?.kind === 'stone') {
+      // Prise the paving up: the stone back in the bag, a bare path (grass creeps back from today).
+      gameState.groundEdits = unpave(gameState.groundEdits, key, this.today()) ?? gameState.groundEdits;
+      gameState.inventory = addItem(gameState.inventory, PAVE_ITEM, 1).state;
+      this.paths.redraw(tile.x, tile.y, this.today());
+      return;
+    }
     if (itemId === 'hoe') {
-      if (!canTill(gameState.farmPlots, key)) return;
-      if (this.buildBlocked(tile.x, tile.y)) {
-        this.say(SAFE_ZONE_NOTE);
-        return;
-      }
-      const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
-      if (gid === undefined || !TILLABLE_GIDS.includes(gid)) return;
-      if (this.decorLayer.getTileAt(tile.x, tile.y)) return; // something (tree/rock/bush) is in the way
-      gameState.farmPlots = tillPlot(gameState.farmPlots, key);
-      this.groundLook.put(TILE_GID.SOIL, tile.x, tile.y);
-      this.setSoilTint(tile.x, tile.y, false);
-      if (digsWorm()) {
-        gameState.inventory = addItem(gameState.inventory, 'worm', 1).state;
-        this.say('Đào được 1 con giun! (mồi câu cá)');
-      }
+      this.hoe(tile, key);
     } else if (itemId === 'watering_can') {
       this.useCan(tile);
     } else {
       super.applyToolEffect(itemId, tile);
     }
+  }
+
+  private today(): number {
+    return absoluteDayNumber(gameState.time);
+  }
+
+  /** What the hoe would do here: grass -> dirt path -> plot, clearing grass growing back (GroundSystem). */
+  private hoeActionAt(tile: { x: number; y: number }, key: string): HoeAction {
+    const gid = this.groundLayer.getTileAt(tile.x, tile.y)?.index;
+    const plot = gameState.farmPlots[key];
+    const ground = gid === TILE_GID.DIRT ? 'dirt' : gid !== undefined && TILLABLE_GIDS.includes(gid) ? 'grass' : 'other';
+    const blocked = !!this.decorLayer.getTileAt(tile.x, tile.y) && !this.paths.isFaint(tile.x, tile.y);
+    const act = hoeAction({ edit: this.paths.edit(tile.x, tile.y), plot: plot ? { faint: plotGrass(plot, this.today()) === 'faint' } : undefined, ground, blocked }, this.today());
+    return (act === 'dig' || act === 'tillDirt') && this.buildBlocked(tile.x, tile.y) ? 'none' : act;
+  }
+
+  private hoe(tile: { x: number; y: number }, key: string): void {
+    const today = this.today();
+    const act = this.hoeActionAt(tile, key);
+    if (act === 'none' && this.buildBlocked(tile.x, tile.y) && !gameState.farmPlots[key]) return void this.say(SAFE_ZONE_NOTE);
+    if (act === 'paved') return void this.say('Ô này lát đá rồi — cạy lên bằng cuốc chim.');
+    if (act === 'weedPath' || act === 'dig') {
+      gameState.groundEdits = digPath(gameState.groundEdits, key, today);
+      this.paths.redraw(tile.x, tile.y, today);
+      return;
+    }
+    if (act === 'weedPlot') {
+      gameState.farmPlots = weedPlot(gameState.farmPlots, key, today);
+      this.paths.setFaint(tile.x, tile.y, false);
+      return;
+    }
+    if (act !== 'tillPath' && act !== 'tillDirt') return;
+    gameState.groundEdits = clearEdit(gameState.groundEdits, key);
+    gameState.farmPlots = tillPlot(gameState.farmPlots, key, act === 'tillPath' ? today : undefined);
+    this.groundLook.put(TILE_GID.SOIL, tile.x, tile.y);
+    this.setSoilTint(tile.x, tile.y, false);
+    this.paths.redraw(tile.x, tile.y, today);
+    if (digsWorm()) {
+      gameState.inventory = addItem(gameState.inventory, 'worm', 1).state;
+      this.say('Đào được 1 con giun! (mồi câu cá)');
+    }
+  }
+
+  /** Holding stone: lay it on a dirt path (paving stops the grass coming back). */
+  protected override tryPave(tile: { x: number; y: number }): boolean {
+    const key = this.plotKey(tile.x, tile.y);
+    const next = pave(gameState.groundEdits, key);
+    if (!next) {
+      this.say('Lát đá lên đường đất (cuốc lên cỏ để làm đường trước).');
+      return true;
+    }
+    gameState.groundEdits = next;
+    gameState.inventory = removeItem(gameState.inventory, PAVE_ITEM, 1);
+    this.paths.redraw(tile.x, tile.y, this.today());
+    return true;
   }
 
   /** What a stroke of the watering can would do on this tile (water it, fill up, or the can is empty). */

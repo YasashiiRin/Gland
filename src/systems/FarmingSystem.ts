@@ -1,4 +1,5 @@
 import { CROPS, totalGrowthDays, type CropId } from '../data/crops';
+import { grassAfter } from './GroundSystem';
 import type { Season } from './TimeSystem';
 
 export interface FarmPlot {
@@ -11,6 +12,10 @@ export interface FarmPlot {
    * world only they may harvest it. Plots on your own tilled land have none.
    */
   owner?: string;
+  /** Hoed out of grass: left without a crop, grass grows back over it (GroundSystem). */
+  fromGrass?: boolean;
+  /** Day it last stood without a crop (or was weeded), for grass growing back. */
+  bareSince?: number;
 }
 
 export type FarmPlots = Record<string, FarmPlot>;
@@ -28,9 +33,24 @@ export function canTill(plots: FarmPlots, key: string): boolean {
   return !plots[key]?.tilled;
 }
 
-export function tillPlot(plots: FarmPlots, key: string): FarmPlots {
+export function tillPlot(plots: FarmPlots, key: string, fromGrassOn?: number): FarmPlots {
   if (!canTill(plots, key)) return plots;
-  return { ...plots, [key]: { tilled: true, growthDay: 0, wateredToday: false } };
+  const plot: FarmPlot = { tilled: true, growthDay: 0, wateredToday: false };
+  if (fromGrassOn !== undefined) Object.assign(plot, { fromGrass: true, bareSince: fromGrassOn });
+  return { ...plots, [key]: plot };
+}
+
+/** How grown over an empty plot hoed out of grass is (crops keep the weeds down). */
+export function plotGrass(plot: FarmPlot | undefined, today: number): 'bare' | 'faint' {
+  if (!plot?.fromGrass || plot.cropId || plot.bareSince === undefined) return 'bare';
+  return grassAfter(today - plot.bareSince) === 'bare' ? 'bare' : 'faint';
+}
+
+/** A stroke of the hoe on an empty plot going back to grass: weeded, it stays bare a while longer. */
+export function weedPlot(plots: FarmPlots, key: string, today: number): FarmPlots {
+  const plot = plots[key];
+  if (!plot?.fromGrass || plot.cropId) return plots;
+  return { ...plots, [key]: { ...plot, bareSince: today } };
 }
 
 export function canWater(plots: FarmPlots, key: string): boolean {
@@ -113,9 +133,11 @@ export function harvestPlot(plots: FarmPlots, key: string, random: () => number 
 /**
  * Advances every tilled plot by one day: watered (or rained-on) crops grow;
  * crops whose season has ended wither away, leaving bare tilled soil behind.
- * Every plot's watered flag resets for the new day regardless.
+ * Every plot's watered flag resets for the new day regardless. A plot hoed
+ * out of grass that stands empty grows grass back and is gone after a few
+ * days (`today`: the new day's number; without it plots never go back).
  */
-export function advanceDay(plots: FarmPlots, season: Season, isRaining: boolean): FarmPlots {
+export function advanceDay(plots: FarmPlots, season: Season, isRaining: boolean, today?: number): FarmPlots {
   const next: FarmPlots = {};
   for (const [key, plot] of Object.entries(plots)) {
     let { cropId, growthDay } = plot;
@@ -133,6 +155,16 @@ export function advanceDay(plots: FarmPlots, season: Season, isRaining: boolean)
 
     next[key] = { tilled: true, cropId, growthDay, wateredToday: false };
     if (plot.owner) next[key].owner = plot.owner;
+    if (plot.fromGrass && today !== undefined) {
+      // Without a crop, grass creeps back: after a while the plot is grass again (gone).
+      const bareSince = cropId ? undefined : plot.bareSince ?? today;
+      if (bareSince !== undefined && grassAfter(today - bareSince) === 'grass') {
+        delete next[key];
+        continue;
+      }
+      next[key].fromGrass = true;
+      if (bareSince !== undefined) next[key].bareSince = bareSince;
+    }
   }
   return next;
 }

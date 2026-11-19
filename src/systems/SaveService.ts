@@ -51,6 +51,7 @@ export function load(): GameState | null {
     parsed.homes ??= {};
     parsed.homeHouses ??= {};
     parsed.npcFamilies ??= {};
+    parsed.groundEdits ??= {}; // paths in the grass came later
     delete (parsed as { npcFields?: unknown }).npcFields; // the old one-state-per-paddy farms (replaced by systems/npc)
     parsed.profession ??= null;
     parsed.groundItems ??= {};
