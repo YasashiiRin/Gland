@@ -162,10 +162,29 @@ def place(a: np.ndarray, shadow: np.ndarray, box: tuple[int, int, int, int], sca
     return out
 
 
+def drop_ground_shadow(a: np.ndarray) -> np.ndarray:
+    """Removes loose pieces lying below the object (a dark ground shadow drawn under an icon)."""
+    fg = a[..., 3] > 0
+    lab, n = ndimage.label(fg)
+    if n < 2:
+        return a
+    sizes = ndimage.sum(fg, lab, range(1, n + 1))
+    main = int(np.argmax(sizes)) + 1
+    bottom = np.nonzero(lab == main)[0].max()
+    out = a.copy()
+    for i in range(1, n + 1):
+        ys = np.nonzero(lab == i)[0]
+        if i != main and ys.mean() > bottom - 2:
+            out[lab == i, 3] = 0
+    return out
+
+
 def sprite(path: Path, canvas: tuple[int, int], margin: int = 0, anchor: str = "bottom",
-           keep_shadow: bool = False, bottom_pad: int = 1) -> Image.Image:
-    """One object picture -> a sprite of size `canvas`."""
+           keep_shadow: bool = False, bottom_pad: int = 1, no_ground: bool = False) -> Image.Image:
+    """One object picture -> a sprite of size `canvas` (`no_ground`: drop a shadow lying under it)."""
     a, sh = cut_out(load(path), keep_shadow)
+    if no_ground:
+        a = drop_ground_shadow(a)
     box = bbox(a)
     s = fit_scale([box], canvas[0] - 2 * margin, canvas[1] - margin - bottom_pad)
     return place(a, sh, box, s, canvas, anchor, bottom_pad)

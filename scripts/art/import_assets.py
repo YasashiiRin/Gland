@@ -162,7 +162,7 @@ def import_icons() -> list[str]:
     files = [f for f in pack["generated"]["files"] if not f["key"].startswith("item_icon_")]
     done = []
     for p in sorted((SRC / "icons").glob("*.png")) if (SRC / "icons").exists() else []:
-        sprite(p, (S, S), margin=1, anchor="center", bottom_pad=1).save(out_dir / p.name)
+        sprite(p, (S, S), margin=1, anchor="center", bottom_pad=1, no_ground=True).save(out_dir / p.name)
         files.append({"type": "image", "key": f"item_icon_{p.stem}", "url": f"sprites/icons/{p.name}"})
         done.append(f"icons/{p.stem}")
     pack["generated"]["files"] = files
