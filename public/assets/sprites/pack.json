@@ -1237,8 +1237,78 @@
    },
    {
     "type": "image",
+    "key": "item_icon_anchovy",
+    "url": "sprites/icons/anchovy.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_animal_buffalo",
+    "url": "sprites/icons/animal_buffalo.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_animal_chicken",
+    "url": "sprites/icons/animal_chicken.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_animal_cow",
+    "url": "sprites/icons/animal_cow.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_animal_pig",
+    "url": "sprites/icons/animal_pig.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_axe",
     "url": "sprites/icons/axe.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_backpack_cloth",
+    "url": "sprites/icons/backpack_cloth.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_backpack_large",
+    "url": "sprites/icons/backpack_large.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_banh_mi",
+    "url": "sprites/icons/banh_mi.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_bua_khai_dao",
+    "url": "sprites/icons/bua_khai_dao.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_ca_phe_sua_da",
+    "url": "sprites/icons/ca_phe_sua_da.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_carp",
+    "url": "sprites/icons/carp.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_carpenter_bench",
+    "url": "sprites/icons/carpenter_bench.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_catfish",
+    "url": "sprites/icons/catfish.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_cauliflower",
+    "url": "sprites/icons/cauliflower.png"
    },
    {
     "type": "image",
@@ -1247,8 +1317,43 @@
    },
    {
     "type": "image",
+    "key": "item_icon_chest",
+    "url": "sprites/icons/chest.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_chicken_coop",
+    "url": "sprites/icons/chicken_coop.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_com_nam",
+    "url": "sprites/icons/com_nam.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_copper_ore",
     "url": "sprites/icons/copper_ore.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_crucian",
+    "url": "sprites/icons/crucian.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_egg",
+    "url": "sprites/icons/egg.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_fiber",
+    "url": "sprites/icons/fiber.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_fish_fry",
+    "url": "sprites/icons/fish_fry.png"
    },
    {
     "type": "image",
@@ -1257,8 +1362,48 @@
    },
    {
     "type": "image",
+    "key": "item_icon_gao",
+    "url": "sprites/icons/gao.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_goby",
+    "url": "sprites/icons/goby.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_gold_ore",
     "url": "sprites/icons/gold_ore.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_golden_loach",
+    "url": "sprites/icons/golden_loach.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_grass_carp",
+    "url": "sprites/icons/grass_carp.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_green_bean",
+    "url": "sprites/icons/green_bean.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_green_bean_seeds",
+    "url": "sprites/icons/green_bean_seeds.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_grouper",
+    "url": "sprites/icons/grouper.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_harvester",
+    "url": "sprites/icons/harvester.png"
    },
    {
     "type": "image",
@@ -1272,6 +1417,21 @@
    },
    {
     "type": "image",
+    "key": "item_icon_mackerel",
+    "url": "sprites/icons/mackerel.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_motorbike",
+    "url": "sprites/icons/motorbike.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_ox_cart",
+    "url": "sprites/icons/ox_cart.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_parsnip",
     "url": "sprites/icons/parsnip.png"
    },
@@ -1279,6 +1439,11 @@
     "type": "image",
     "key": "item_icon_parsnip_seeds",
     "url": "sprites/icons/parsnip_seeds.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_perch",
+    "url": "sprites/icons/perch.png"
    },
    {
     "type": "image",
@@ -1297,8 +1462,58 @@
    },
    {
     "type": "image",
+    "key": "item_icon_rice",
+    "url": "sprites/icons/rice.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_rice_seeds",
+    "url": "sprites/icons/rice_seeds.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_sach_co",
+    "url": "sprites/icons/sach_co.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_scarecrow",
+    "url": "sprites/icons/scarecrow.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_scythe",
     "url": "sprites/icons/scythe.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_sleeping_mat",
+    "url": "sprites/icons/sleeping_mat.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_snakehead",
+    "url": "sprites/icons/snakehead.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_sprinkler",
+    "url": "sprites/icons/sprinkler.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_stone",
+    "url": "sprites/icons/stone.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_strawberry",
+    "url": "sprites/icons/strawberry.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_strawberry_seeds",
+    "url": "sprites/icons/strawberry_seeds.png"
    },
    {
     "type": "image",
@@ -1307,8 +1522,168 @@
    },
    {
     "type": "image",
+    "key": "item_icon_tractor",
+    "url": "sprites/icons/tractor.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_water_truck",
+    "url": "sprites/icons/water_truck.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_watering_can",
     "url": "sprites/icons/watering_can.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_whip",
+    "url": "sprites/icons/whip.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_wood",
+    "url": "sprites/icons/wood.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_worm",
+    "url": "sprites/icons/worm.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_panel_wood",
+    "url": "ui/panel_wood.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_button",
+    "url": "ui/button.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_button_hover",
+    "url": "ui/button_hover.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_slot",
+    "url": "ui/slot.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_slot_selected",
+    "url": "ui/slot_selected.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_day_dial",
+    "url": "ui/day_dial.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_bar_frame",
+    "url": "ui/bar_frame.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_touch_button",
+    "url": "ui/touch_button.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_joystick_base",
+    "url": "ui/joystick_base.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_joystick_knob",
+    "url": "ui/joystick_knob.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_minimap_frame",
+    "url": "ui/minimap_frame.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_gear",
+    "url": "ui/gear.png"
+   },
+   {
+    "type": "image",
+    "key": "ui_title_background",
+    "url": "ui/title_background.png"
+   },
+   {
+    "type": "image",
+    "key": "prop_rice_sheaf",
+    "url": "sprites/props/rice_sheaf.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_produce_baskets",
+    "url": "sprites/props/produce_baskets.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_hat_drying_rack",
+    "url": "sprites/props/hat_drying_rack.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_drying_leaves",
+    "url": "sprites/props/drying_leaves.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_ferry_boat",
+    "url": "sprites/props/ferry_boat.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_wooden_jetty",
+    "url": "sprites/props/wooden_jetty.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_bamboo_fence",
+    "url": "sprites/props/bamboo_fence.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_flower_bush",
+    "url": "sprites/props/flower_bush.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_garden_house",
+    "url": "sprites/props/garden_house.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_drying_rice",
+    "url": "sprites/props/drying_rice.png",
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "animal_buffalo_plough",
+    "url": "sprites/animals/buffalo_plough.png",
+    "frameConfig": {
+     "frameWidth": 96,
+     "frameHeight": 64
+    },
+    "hd": true
    }
   ]
  }

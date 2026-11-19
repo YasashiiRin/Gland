@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { uiState } from '../state/uiState';
-import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { woodPanel, skinButton } from './uiSkin';
 
 export interface ChoiceOption {
   id: string;
@@ -43,8 +44,7 @@ export class ChoiceMenu {
     const root = this.scene.add.container(0, 0).setDepth(this.depth);
     const dim = this.scene.add.rectangle(0, 0, width, height, 0x0a1232, 0.35).setOrigin(0, 0).setInteractive();
     dim.on('pointerdown', () => this.close());
-    const g = this.scene.add.graphics();
-    drawWoodPanel(g, x, y, w, h);
+    const g = woodPanel(this.scene, x, y, w, h);
     root.add([dim, g, inkText(this.scene, width / 2, y + 24, req.title, 17).setOrigin(0.5)]);
     if (req.note) {
       root.add(
@@ -59,7 +59,8 @@ export class ChoiceMenu {
       const box = this.scene.add.rectangle(width / 2, by, w - 60, 32, enabled ? UI_COLORS.wood : 0x8a7a68).setStrokeStyle(2, UI_COLORS.edge);
       const label = this.scene.add
         .text(width / 2, by, opt.label, { fontFamily: UI_FONT, fontSize: '14px', fontStyle: 'bold', color: enabled ? '#fff2d0' : '#d8ccb8' })
-        .setOrigin(0.5);
+        .setOrigin(0.5)
+        .setStroke('#2b1a10', 3);
       if (enabled) {
         box.setInteractive({ useHandCursor: true });
         box.on('pointerover', () => box.setFillStyle(UI_COLORS.woodLight));
@@ -69,7 +70,8 @@ export class ChoiceMenu {
           this.onPick?.(opt.id);
         });
       }
-      root.add([box, label]);
+      const art = skinButton(box, enabled);
+      root.add([box, ...(art ? [art] : []), label]);
     });
     this.root = root;
     uiState.dialogueOpen = true;

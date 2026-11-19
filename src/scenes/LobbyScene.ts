@@ -4,7 +4,8 @@ import { MAX_PLAYERS, pickShared, type LobbyPlayer, type SharedWorld } from '../
 import { isMapKey } from '../data/maps';
 import { applySharedWorld, gameState, resetToNewGame } from '../state/GameState';
 import { drawTitleBackground } from '../ui/titleBackground';
-import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from '../ui/uiStyle';
+import { inkText, UI_COLORS, UI_FONT } from '../ui/uiStyle';
+import { woodPanel, skinButton } from '../ui/uiSkin';
 
 export interface LobbySceneData {
   mode: 'host' | 'guest';
@@ -30,8 +31,7 @@ export class LobbyScene extends Phaser.Scene {
     this.data_ = data;
     drawTitleBackground(this);
     const cx = this.scale.width / 2;
-    const g = this.add.graphics();
-    drawWoodPanel(g, cx - 200, 110, 400, 330);
+    woodPanel(this, cx - 200, 110, 400, 330);
     inkText(this, cx, 140, data.mode === 'host' ? 'Phòng của bạn' : 'Vào phòng', 22).setOrigin(0.5);
     this.codeText = inkText(this, cx, 190, '', 40, '#a8402c').setOrigin(0.5);
     this.status = this.add
@@ -107,7 +107,8 @@ export class LobbyScene extends Phaser.Scene {
 
   private button(x: number, y: number, label: string, onClick: () => void): void {
     const box = this.add.rectangle(x, y, 140, 40, UI_COLORS.wood).setStrokeStyle(3, UI_COLORS.edge).setInteractive({ useHandCursor: true });
-    this.add.text(x, y, label, { fontFamily: UI_FONT, fontSize: '17px', fontStyle: 'bold', color: '#fff2d0' }).setOrigin(0.5);
+    skinButton(box);
+    this.add.text(x, y, label, { fontFamily: UI_FONT, fontSize: '17px', fontStyle: 'bold', color: '#fff2d0' }).setOrigin(0.5).setStroke('#2b1a10', 3);
     box.on('pointerover', () => box.setFillStyle(UI_COLORS.woodLight));
     box.on('pointerout', () => box.setFillStyle(UI_COLORS.wood));
     box.on('pointerdown', onClick);

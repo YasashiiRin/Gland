@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { HOTBAR_SIZE, itemAt, type InventoryState } from '../systems/InventorySystem';
 import { iconTextureKey } from './itemIcons';
-import { drawWoodPanel, UI_COLORS } from './uiStyle';
+import { UI_COLORS } from './uiStyle';
+import { skinSlot, woodPanel, type SkinSlot } from './uiSkin';
 
 const SLOT_SIZE = 40;
 const GAP = 4;
@@ -9,6 +10,8 @@ const GAP = 4;
 /** The always-visible 12-slot hotbar along the bottom of the screen. */
 export class Hotbar {
   private readonly boxes: Phaser.GameObjects.Rectangle[] = [];
+  /** The painted slots, when the UI skin is there. */
+  private readonly arts: (SkinSlot | null)[] = [];
   private readonly icons: Phaser.GameObjects.Image[] = [];
   private readonly counts: Phaser.GameObjects.Text[] = [];
   private readonly container: Phaser.GameObjects.Container;
@@ -22,8 +25,7 @@ export class Hotbar {
 
     this.container = scene.add.container(0, 0).setDepth(depth);
     // One wooden tray along the bottom edge holding all slots.
-    const tray = scene.add.graphics();
-    drawWoodPanel(tray, startX - 10, y - SLOT_SIZE / 2 - 8, totalWidth + 20, SLOT_SIZE + 16, false);
+    const tray = woodPanel(scene, startX - 10, y - SLOT_SIZE / 2 - 8, totalWidth + 20, SLOT_SIZE + 16, false);
     this.container.add(tray);
 
     for (let i = 0; i < HOTBAR_SIZE; i++) {
@@ -50,7 +52,9 @@ export class Hotbar {
           color: '#8a6440',
         })
         .setOrigin(0, 0);
-      this.container.add([box, icon, count, keyLabel]);
+      const art = skinSlot(scene, x, y, SLOT_SIZE);
+      this.container.add([box, ...(art ? [art.group] : []), icon, count, keyLabel]);
+      this.arts.push(art);
       this.boxes.push(box);
       this.icons.push(icon);
       this.counts.push(count);
@@ -74,6 +78,7 @@ export class Hotbar {
         count.setText('');
       }
       const selected = i === equippedSlot;
+      this.arts[i]?.setSelected(selected);
       this.boxes[i].setStrokeStyle(selected ? 3 : 2, selected ? 0xd0402c : UI_COLORS.edge);
       this.boxes[i].setFillStyle(selected ? 0xfff0c8 : UI_COLORS.parchment, 1);
     }

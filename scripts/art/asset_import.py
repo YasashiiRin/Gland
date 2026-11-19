@@ -61,7 +61,8 @@ def shadow_like(rgb: np.ndarray) -> np.ndarray:
     return (rgb.max(axis=2) - rgb.min(axis=2) <= 34) & (rgb.min(axis=2) >= 150)
 
 
-def cut_out(a: np.ndarray, keep_shadow: bool, pockets: bool = True, solo: bool = False) -> tuple[np.ndarray, np.ndarray]:
+def cut_out(a: np.ndarray, keep_shadow: bool, pockets: bool = True, solo: bool = False,
+            pale_ok: bool = False) -> tuple[np.ndarray, np.ndarray]:
     """(picture with alpha, shadow mask): background removed, specks and loose shadows dropped
     (`solo`: everything but the biggest piece, e.g. a written label beside the drawing)."""
     fg = ~background(a, pockets) & (a[..., 3] > 0)
@@ -74,7 +75,8 @@ def cut_out(a: np.ndarray, keep_shadow: bool, pockets: bool = True, solo: bool =
         pale = shadow_like(rgb)
         for i, s in enumerate(sizes, start=1):
             comp = lab == i
-            if s < big * (0.999 if solo else 0.02) or pale[comp].mean() > 0.8:  # specks, or a shadow on its own
+            if s < big * (0.999 if solo else 0.02) or (s < big and pale[comp].mean() > 0.8) or (not pale_ok and pale[comp].mean() > 0.8):
+                # specks, or a shadow on its own (`pale_ok`: the biggest piece may be pale, like whitish leaves)
                 fg[comp] = False
         if keep_shadow:  # a shadow joined to the object: only near the bottom of it
             ys = np.nonzero(fg)[0]
@@ -180,9 +182,9 @@ def drop_ground_shadow(a: np.ndarray) -> np.ndarray:
 
 
 def sprite(path: Path, canvas: tuple[int, int], margin: int = 0, anchor: str = "bottom",
-           keep_shadow: bool = False, bottom_pad: int = 1, no_ground: bool = False) -> Image.Image:
+           keep_shadow: bool = False, bottom_pad: int = 1, no_ground: bool = False, pale_ok: bool = False) -> Image.Image:
     """One object picture -> a sprite of size `canvas` (`no_ground`: drop a shadow lying under it)."""
-    a, sh = cut_out(load(path), keep_shadow)
+    a, sh = cut_out(load(path), keep_shadow, pale_ok=pale_ok)
     if no_ground:
         a = drop_ground_shadow(a)
     box = bbox(a)

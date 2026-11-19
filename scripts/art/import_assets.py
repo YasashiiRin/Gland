@@ -13,7 +13,8 @@ Run:  python3 scripts/art/import_assets.py   (gen_placeholders.py runs it too)
   * mine tiles -> mine_tiles_hd.png;
   * trees, crops, ghosts -> public/assets/sprites/...;
   * item icons -> public/assets/sprites/icons/<item>.png (32 x 32, in pack.json);
-  * characters, animals, vehicles, buildings -> their sprite sheets (import_sheets.py).
+  * characters, animals, vehicles, buildings -> their sprite sheets (import_sheets.py);
+  * the UI skin and the new village things -> import_extras.py.
 """
 import json
 import sys
@@ -29,6 +30,7 @@ from art import water_tiles as wt  # noqa: E402
 from art.asset_import import ROOT, SRC, find, fit_scale, darken, framed_tile, match_tone, native_tile, place, sprite, strip_frames, texture  # noqa: E402
 from art.import_edges import edge_tiles, overlay_tile  # noqa: E402
 from art.import_sheets import import_sheets  # noqa: E402
+from art.import_extras import import_extras  # noqa: E402
 
 PUB = ROOT / "public" / "assets"
 S = 32
@@ -171,7 +173,7 @@ def import_icons() -> list[str]:
 
 
 def main() -> None:
-    done = import_ground() + import_mine() + import_sprites() + import_icons() + import_sheets()
+    done = import_ground() + import_mine() + import_sprites() + import_icons() + import_sheets() + import_extras()
     print(f"Imported {len(done)} pictures from assets/: {', '.join(done)}")
 
 

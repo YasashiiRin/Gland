@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { woodPanel, skinButton } from './uiSkin';
 
 /**
  * Multiplayer: shown while you're in bed waiting for the others. The screen
@@ -14,8 +15,7 @@ export class SleepWaitOverlay {
     const { width, height } = scene.scale;
     this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
     const dim = scene.add.rectangle(0, 0, width, height, 0x0a1232, 0.55).setOrigin(0, 0);
-    const g = scene.add.graphics();
-    drawWoodPanel(g, width / 2 - 170, height / 2 - 70, 340, 140);
+    const g = woodPanel(scene, width / 2 - 170, height / 2 - 70, 340, 140);
     const title = inkText(scene, width / 2, height / 2 - 40, 'Zzz… Bạn đã lên giường', 17).setOrigin(0.5);
     this.countText = scene.add
       .text(width / 2, height / 2 - 8, '', { fontFamily: UI_FONT, fontSize: '14px', color: UI_COLORS.inkSoft, align: 'center' })
@@ -28,7 +28,8 @@ export class SleepWaitOverlay {
       .text(width / 2, height / 2 + 36, 'Dậy', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff2d0', fontStyle: 'bold' })
       .setOrigin(0.5);
     button.on('pointerdown', () => this.onWakeUp?.());
-    this.root.add([dim, g, title, this.countText, button, label]);
+    const art = skinButton(button);
+    this.root.add([dim, g, title, this.countText, button, ...(art ? [art] : []), label]);
   }
 
   show(asleep: number, total: number): void {

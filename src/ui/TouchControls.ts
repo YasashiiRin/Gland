@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { touchInput } from '../state/touchInput';
 import { UI_COLORS, UI_FONT } from './uiStyle';
+import { SKIN, skinButton, skinRound } from './uiSkin';
 
 const STICK_X = 92;
 const STICK_R = 46;
@@ -22,6 +23,8 @@ export interface TouchHandlers {
 export class TouchControls {
   private readonly root: Phaser.GameObjects.Container;
   private readonly knob: Phaser.GameObjects.Arc;
+  /** The painted knob following the drawn one, when the UI skin is there. */
+  private readonly knobArt: Phaser.GameObjects.Image | null;
   private readonly closeButton: Phaser.GameObjects.Container;
   private readonly stickY: number;
   private stickPointer: number | null = null;
@@ -48,7 +51,12 @@ export class TouchControls {
     };
     scene.input.on('pointerup', release);
     scene.input.on('pointerupoutside', release);
-    this.root.add([base, this.knob, pad]);
+    // Painted stick: the drawn circles stay (nearly invisible) underneath.
+    const baseArt = skinRound(scene, SKIN.joystickBase, STICK_X, this.stickY, STICK_R * 2 + 8);
+    this.knobArt = skinRound(scene, SKIN.joystickKnob, STICK_X, this.stickY, KNOB_R * 2 + 4);
+    if (baseArt) base.setAlpha(0.01);
+    if (this.knobArt) this.knob.setAlpha(0.01);
+    this.root.add([base, ...(baseArt ? [baseArt] : []), this.knob, ...(this.knobArt ? [this.knobArt] : []), pad]);
 
     this.button(width - 112, height - 82, 32, 'Dùng', () => (touchInput.useQueued = true));
     this.button(width - 62, height - 148, 26, 'Tương\ntác', () => (touchInput.interactQueued = true));
@@ -58,22 +66,30 @@ export class TouchControls {
     this.closeButton = scene.add.container(width / 2, 26).setDepth(depth + 10).setVisible(false);
     const closeBox = scene.add.rectangle(0, 0, 120, 34, UI_COLORS.wood).setStrokeStyle(3, UI_COLORS.edge).setInteractive();
     closeBox.on('pointerdown', handlers.onClose);
-    this.closeButton.add([closeBox, scene.add.text(0, 0, '✕ Đóng', { fontFamily: UI_FONT, fontSize: '16px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5)]);
+    const closeArt = skinButton(closeBox);
+    this.closeButton.add([closeBox, ...(closeArt ? [closeArt] : []), scene.add.text(0, 0, '✕ Đóng', { fontFamily: UI_FONT, fontSize: '16px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5).setStroke('#2b1a10', 3)]);
   }
 
   private button(x: number, y: number, r: number, label: string, onTap: () => void): void {
     const circle = this.scene.add.circle(x, y, r, UI_COLORS.wood, 0.85).setStrokeStyle(3, UI_COLORS.edge).setInteractive();
     const text = this.scene.add
       .text(x, y, label, { fontFamily: UI_FONT, fontSize: r > 26 ? '15px' : '12px', color: '#fff2d0', fontStyle: 'bold', align: 'center' })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setStroke('#2b1a10', 3);
+    const art = skinRound(this.scene, SKIN.touchButton, x, y, r * 2 + 4);
     circle.on('pointerdown', () => {
-      circle.setFillStyle(UI_COLORS.woodLight, 0.95);
+      circle.setFillStyle(UI_COLORS.woodLight, art ? 0.01 : 0.95);
+      art?.setTint(0xffe0b0);
       onTap();
     });
-    const up = () => circle.setFillStyle(UI_COLORS.wood, 0.85);
+    const up = () => {
+      circle.setFillStyle(UI_COLORS.wood, art ? 0.01 : 0.85);
+      art?.clearTint();
+    };
     circle.on('pointerup', up);
     circle.on('pointerout', up);
-    this.root.add([circle, text]);
+    if (art) circle.setFillStyle(UI_COLORS.wood, 0.01).setStrokeStyle(0);
+    this.root.add([circle, ...(art ? [art] : []), text]);
   }
 
   private moveStick(p: Phaser.Input.Pointer): void {
@@ -82,6 +98,7 @@ export class TouchControls {
     const dist = Math.min(STICK_R, Math.hypot(dx, dy));
     const angle = Math.atan2(dy, dx);
     this.knob.setPosition(STICK_X + Math.cos(angle) * dist, this.stickY + Math.sin(angle) * dist);
+    this.knobArt?.setPosition(this.knob.x, this.knob.y);
     const nx = (Math.cos(angle) * dist) / STICK_R;
     const ny = (Math.sin(angle) * dist) / STICK_R;
     touchInput.left = nx < -DEAD_ZONE;
@@ -93,6 +110,7 @@ export class TouchControls {
   private resetStick(): void {
     this.stickPointer = null;
     this.knob.setPosition(STICK_X, this.stickY);
+    this.knobArt?.setPosition(STICK_X, this.stickY);
     touchInput.up = touchInput.down = touchInput.left = touchInput.right = false;
   }
 

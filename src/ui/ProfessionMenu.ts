@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import type { EnergyState } from '../systems/EnergySystem';
 import { passiveReached, SKILLS, THAY_PHAP, type ProfessionState, type SkillId } from '../systems/ProfessionSystem';
 import { uiState } from '../state/uiState';
-import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { woodPanel, skinButton } from './uiSkin';
 
 export interface PanelStats {
   health: EnergyState;
@@ -40,8 +41,7 @@ export class ProfessionMenu {
     const root = s.add.container(0, 0).setDepth(this.depth);
     const dim = s.add.rectangle(0, 0, width, height, 0x0a1232, 0.4).setOrigin(0, 0).setInteractive();
     dim.on('pointerdown', () => this.close());
-    const g = s.add.graphics();
-    drawWoodPanel(g, x0, y0, w, h);
+    const g = woodPanel(s, x0, y0, w, h);
     root.add([dim, g, inkText(s, width / 2, y0 + 22, THAY_PHAP.name, 20).setOrigin(0.5)]);
     const text = (x: number, y: number, t: string, size = 12, color: string = UI_COLORS.ink) =>
       s.add.text(x, y, t, { fontFamily: UI_FONT, fontSize: `${size}px`, color, wordWrap: { width: w - 40 } });
@@ -82,7 +82,8 @@ export class ProfessionMenu {
       const bx = x0 + w - 80;
       const btn = s.add.rectangle(bx, ay + 28 + i * 30, 130, 22, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
       btn.on('pointerdown', () => this.onTeach?.(k, to));
-      root.add([btn, s.add.text(bx, ay + 28 + i * 30, `Truyền cho ${to.name}`, { fontFamily: UI_FONT, fontSize: '10px', color: '#fff2d0' }).setOrigin(0.5)]);
+      const art = skinButton(btn);
+      root.add([btn, ...(art ? [art] : []), s.add.text(bx, ay + 28 + i * 30, `Truyền cho ${to.name}`, { fontFamily: UI_FONT, fontSize: '10px', color: '#fff2d0' }).setOrigin(0.5).setStroke('#2b1a10', 3)]);
     });
     // The skill bar: drag to reorder
     const by = y0 + h - 56;
@@ -105,7 +106,8 @@ export class ProfessionMenu {
     });
     const close = s.add.rectangle(x0 + w - 24, y0 + 22, 26, 26, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
     close.on('pointerdown', () => this.close());
-    root.add([close, s.add.text(x0 + w - 24, y0 + 22, '✕', { fontFamily: UI_FONT, fontSize: '14px', color: '#fff2d0' }).setOrigin(0.5)]);
+    const closeArt = skinButton(close);
+    root.add([close, ...(closeArt ? [closeArt] : []), s.add.text(x0 + w - 24, y0 + 22, '✕', { fontFamily: UI_FONT, fontSize: '14px', color: '#fff2d0' }).setOrigin(0.5).setStroke('#2b1a10', 3)]);
     this.root = root;
     uiState.dialogueOpen = true;
   }

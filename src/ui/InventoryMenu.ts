@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { ITEMS } from '../data/items';
 import { itemAt, MAX_INVENTORY_SIZE, moveItem, type InventoryState } from '../systems/InventorySystem';
 import { iconTextureKey } from './itemIcons';
+import { hasSkin, SKIN, skinSlot, woodPanel, type SkinSlot } from './uiSkin';
+import { UI_COLORS } from './uiStyle';
 
 const COLS = 12;
 const SLOT_SIZE = 38;
@@ -14,6 +16,8 @@ const GAP = 4;
 export class InventoryMenu {
   private readonly root: Phaser.GameObjects.Container;
   private readonly slotBoxes: Phaser.GameObjects.Rectangle[] = [];
+  /** The painted slots, when the UI skin is there. */
+  private readonly arts: (SkinSlot | null)[] = [];
   private readonly icons: Phaser.GameObjects.Image[] = [];
   private readonly counts: Phaser.GameObjects.Text[] = [];
   private readonly locks: Phaser.GameObjects.Text[] = [];
@@ -33,12 +37,16 @@ export class InventoryMenu {
 
     this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
 
-    const panel = scene.add.rectangle(cx, cy, panelW, panelH, 0x241d17, 0.95).setStrokeStyle(2, 0xc9a66b);
+    // The painted wood-and-parchment panel when there is one (dark ink on it), else the dark board.
+    const painted = hasSkin(scene, SKIN.panel);
+    const panel = painted
+      ? woodPanel(scene, cx - panelW / 2, cy - panelH / 2, panelW, panelH)
+      : scene.add.rectangle(cx, cy, panelW, panelH, 0x241d17, 0.95).setStrokeStyle(2, 0xc9a66b);
     const title = scene.add
-      .text(cx, cy - panelH / 2 + 22, 'Túi đồ', { fontFamily: 'sans-serif', fontSize: '18px', color: '#fff6e0' })
+      .text(cx, cy - panelH / 2 + 22, 'Túi đồ', { fontFamily: 'sans-serif', fontSize: '18px', color: painted ? UI_COLORS.ink : '#fff6e0', fontStyle: painted ? 'bold' : 'normal' })
       .setOrigin(0.5);
     this.nameText = scene.add
-      .text(cx, cy + panelH / 2 - 22, '', { fontFamily: 'sans-serif', fontSize: '14px', color: '#e8d8b8' })
+      .text(cx, cy + panelH / 2 - 22, '', { fontFamily: 'sans-serif', fontSize: '14px', color: painted ? UI_COLORS.inkSoft : '#e8d8b8' })
       .setOrigin(0.5);
     this.root.add([panel, title, this.nameText]);
 
@@ -59,7 +67,9 @@ export class InventoryMenu {
         .setOrigin(1, 1)
         .setShadow(1, 1, '#000000', 2, false, true);
       const lock = scene.add.text(x, y, '🔒', { fontSize: '13px' }).setOrigin(0.5).setAlpha(0.45).setVisible(false);
-      this.root.add([box, icon, count, lock]);
+      const art = skinSlot(scene, x, y, SLOT_SIZE);
+      this.root.add([box, ...(art ? [art.group] : []), icon, count, lock]);
+      this.arts.push(art);
       this.locks.push(lock);
       this.slotBoxes.push(box);
       this.icons.push(icon);
@@ -95,6 +105,7 @@ export class InventoryMenu {
       const locked = i >= inventory.slots.length;
       this.slotBoxes[i].setFillStyle(locked ? 0x1a1612 : 0x3a2f24, locked ? 0.7 : 0.9);
       this.locks[i].setVisible(locked);
+      this.arts[i]?.setDim(locked);
       const stack = itemAt(inventory, i);
       if (stack) {
         this.icons[i].setVisible(true).setTexture(iconTextureKey(stack.itemId));
@@ -104,6 +115,7 @@ export class InventoryMenu {
         this.counts[i].setText('');
       }
       this.slotBoxes[i].setStrokeStyle(2, i === this.selected ? 0xffd480 : 0x6b5a46);
+      this.arts[i]?.setSelected(i === this.selected);
     }
   }
 

@@ -4,7 +4,8 @@ import { RECIPES, STATION_NAMES, type RecipeId, type Station } from '../data/rec
 import { canCraft, ingredientStatus, recipesFor, stationAllows } from '../systems/CraftingSystem';
 import type { InventoryState } from '../systems/InventorySystem';
 import { iconTextureKey } from './itemIcons';
-import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { woodPanel, skinButton } from './uiSkin';
 
 const W = 640;
 const H = 420;
@@ -48,13 +49,14 @@ export class CraftingMenu {
     const left = cx - W / 2;
     const top = cy - H / 2;
     this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
+    const panel = woodPanel(scene, left, top, W, H);
     const g = scene.add.graphics();
-    drawWoodPanel(g, left, top, W, H);
     g.fillStyle(UI_COLORS.parchmentDark, 1).fillRect(left + LIST_W + 10, top + 52, 2, H - 70);
     this.title = inkText(scene, cx, top + 28, '', 19).setOrigin(0.5);
     const close = scene.add.rectangle(left + W - 30, top + 28, 30, 28, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
     close.on('pointerdown', () => this.close());
-    this.root.add([g, this.title, close, scene.add.text(close.x, close.y, '✕', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff2d0' }).setOrigin(0.5)]);
+    const closeArt = skinButton(close);
+    this.root.add([panel, g, this.title, close, ...(closeArt ? [closeArt] : []), scene.add.text(close.x, close.y, '✕', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff2d0' }).setOrigin(0.5)]);
 
     // Recipe list
     for (let i = 0; i < 8; i++) {

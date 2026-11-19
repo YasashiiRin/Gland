@@ -6,6 +6,7 @@ import * as SaveService from '../systems/SaveService';
 import { createHtmlInput } from '../ui/htmlInput';
 import { drawTitleBackground } from '../ui/titleBackground';
 import { UI_COLORS, UI_FONT } from '../ui/uiStyle';
+import { skinButton } from '../ui/uiSkin';
 import type { LobbySceneData } from './LobbyScene';
 
 type Page = 'main' | 'solo' | 'host' | 'join' | 'start';
@@ -174,8 +175,10 @@ export class TitleScene extends Phaser.Scene {
       .setStrokeStyle(3, UI_COLORS.edge);
     const text = this.add
       .text(x, y, label, { fontFamily: UI_FONT, fontSize: `${fontSize}px`, fontStyle: 'bold', color: enabled ? '#fff2d0' : '#a89880' })
-      .setOrigin(0.5);
-    this.menu?.add([box, text]);
+      .setOrigin(0.5)
+      .setStroke('#2b1a10', 3);
+    const art = skinButton(box, enabled);
+    this.menu?.add([box, ...(art ? [art] : []), text]);
     if (!enabled) return;
     box.setInteractive({ useHandCursor: true });
     box.on('pointerover', () => box.setFillStyle(UI_COLORS.woodLight));

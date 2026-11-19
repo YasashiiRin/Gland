@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { woodPanel, skinButton } from './uiSkin';
 
 const PANEL_W = 380;
 const PANEL_H = 410;
@@ -43,8 +44,7 @@ export class SettingsMenu {
     const top = cy - PANEL_H / 2;
     this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
 
-    const g = scene.add.graphics();
-    drawWoodPanel(g, left, top, PANEL_W, PANEL_H);
+    const g = woodPanel(scene, left, top, PANEL_W, PANEL_H);
     const title = inkText(scene, cx, top + 26, 'Cài đặt', 18).setOrigin(0.5);
     const close = this.button(scene, left + PANEL_W - 30, top + 26, 26, '✕', () => this.handlers?.onClose());
     this.root.add([g, title, ...close]);
@@ -62,7 +62,7 @@ export class SettingsMenu {
     // Mute
     y += 40;
     const mute = this.button(scene, barX + 70, y, 140, '', () => this.handlers?.onToggleMute());
-    this.muteText = mute[1] as Phaser.GameObjects.Text;
+    this.muteText = mute[mute.length - 1] as Phaser.GameObjects.Text;
     this.root.add([inkText(scene, rowX, y, 'Âm thanh', 14).setOrigin(0, 0.5), ...mute]);
 
     // Zoom
@@ -80,13 +80,13 @@ export class SettingsMenu {
     // Touch controls (phones)
     y += 40;
     const touch = this.button(scene, barX + 70, y, 140, '', () => this.handlers?.onTouchCycle());
-    this.touchText = touch[1];
+    this.touchText = touch[touch.length - 1] as Phaser.GameObjects.Text;
     this.root.add([inkText(scene, rowX, y, 'Nút cảm ứng', 14).setOrigin(0, 0.5), ...touch]);
 
     // Night horror
     y += 40;
     const horror = this.button(scene, barX + 70, y, 140, '', () => this.handlers?.onHorrorCycle());
-    this.horrorText = horror[1];
+    this.horrorText = horror[horror.length - 1] as Phaser.GameObjects.Text;
     this.root.add([inkText(scene, rowX, y, 'Kinh dị ban đêm', 14).setOrigin(0, 0.5), ...horror]);
 
     // Controls
@@ -107,13 +107,14 @@ export class SettingsMenu {
     w: number,
     label: string,
     onClick: () => void,
-  ): [Phaser.GameObjects.Rectangle, Phaser.GameObjects.Text] {
+  ): [Phaser.GameObjects.Rectangle, ...Phaser.GameObjects.GameObject[], Phaser.GameObjects.Text] {
     const box = scene.add.rectangle(x, y, w, 26, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
-    const text = scene.add.text(x, y, label, { fontFamily: UI_FONT, fontSize: '13px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5);
+    const text = scene.add.text(x, y, label, { fontFamily: UI_FONT, fontSize: '13px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5).setStroke('#2b1a10', 3);
     box.on('pointerdown', onClick);
     box.on('pointerover', () => box.setFillStyle(UI_COLORS.woodLight));
     box.on('pointerout', () => box.setFillStyle(UI_COLORS.wood));
-    return [box, text];
+    const art = skinButton(box);
+    return art ? [box, art, text] : [box, text];
   }
 
   bind(handlers: SettingsHandlers): void {

@@ -6,6 +6,7 @@ import type { EnergyState } from '../systems/EnergySystem';
 import type { TimeState } from '../systems/TimeSystem';
 import { clockLabel } from '../systems/TimeSystem';
 import { UI_COLORS, UI_FONT } from './uiStyle';
+import { hasSkin, SKIN, skinRound } from './uiSkin';
 
 const MARGIN = 10;
 const DIAL_R = 22;
@@ -42,6 +43,9 @@ export class Hud {
   private hunger: EnergyState = { current: 0, max: 0 };
   private hungerFill!: Phaser.GameObjects.Rectangle;
   private hungerFrame!: Phaser.GameObjects.Rectangle;
+  /** The painted frame of a bar (hunger's blinks red), when the UI skin is there. */
+  private lastArt: Phaser.GameObjects.Image | null = null;
+  private hungerArt: Phaser.GameObjects.Image | null = null;
   /** The frame of the bar slimBar() made last. */
   private lastFrame!: Phaser.GameObjects.Rectangle;
   private time?: TimeState;
@@ -59,7 +63,9 @@ export class Hud {
     this.dial = scene.add.graphics();
     this.timeText = this.pill(scene, this.dialCenter.x, this.dialCenter.y + DIAL_R + 12, 15);
     this.moneyText = this.pill(scene, this.dialCenter.x, this.dialCenter.y + DIAL_R + 36, 13, UI_COLORS.gold);
-    this.container.add([this.dial, this.timeText, this.moneyText]);
+    // The carved wooden ring round the dial, when painted.
+    const ring = skinRound(scene, SKIN.dayDial, this.dialCenter.x, this.dialCenter.y, DIAL_R * 2 + 6);
+    this.container.add([this.dial, ...(ring ? [ring] : []), this.timeText, this.moneyText]);
     const dialZone = scene.add
       .zone(this.dialCenter.x, this.dialCenter.y, DIAL_R * 2, DIAL_R * 2)
       .setInteractive();
@@ -70,13 +76,22 @@ export class Hud {
     // --- Gear button (opens settings) ---
     const gx = this.dialCenter.x - DIAL_R - 22;
     const gy = MARGIN + 14;
-    const gear = scene.add.circle(gx, gy, 13, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge);
-    const gearIcon = scene.add.text(gx, gy, '⚙', { fontFamily: UI_FONT, fontSize: '17px', color: '#fff2d0' }).setOrigin(0.5);
-    gear.setInteractive({ useHandCursor: true });
-    gear.on('pointerdown', () => this.onSettings?.());
-    gear.on('pointerover', () => gear.setFillStyle(UI_COLORS.woodLight));
-    gear.on('pointerout', () => gear.setFillStyle(UI_COLORS.wood));
-    this.container.add([gear, gearIcon]);
+    const painted = skinRound(scene, SKIN.gear, gx, gy, 30);
+    if (painted) {
+      painted.setInteractive({ useHandCursor: true });
+      painted.on('pointerdown', () => this.onSettings?.());
+      painted.on('pointerover', () => painted.setTint(0xfff0d8));
+      painted.on('pointerout', () => painted.clearTint());
+      this.container.add(painted);
+    } else {
+      const gear = scene.add.circle(gx, gy, 13, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge);
+      const gearIcon = scene.add.text(gx, gy, '⚙', { fontFamily: UI_FONT, fontSize: '17px', color: '#fff2d0' }).setOrigin(0.5);
+      gear.setInteractive({ useHandCursor: true });
+      gear.on('pointerdown', () => this.onSettings?.());
+      gear.on('pointerover', () => gear.setFillStyle(UI_COLORS.woodLight));
+      gear.on('pointerout', () => gear.setFillStyle(UI_COLORS.wood));
+      this.container.add([gear, gearIcon]);
+    }
 
     // --- Slim energy / health bars (bottom-right) ---
     // Each bar has a letter on top: N năng lượng, H máu, T tinh thần, Đ đói.
@@ -88,6 +103,7 @@ export class Hud {
     this.sanityFill = this.slimBar(scene, bx - step * 2, by, SANITY_COLOR, 'T', () => `Tinh thần ${Math.round(this.sanity.current)}/${this.sanity.max}`);
     this.hungerFill = this.slimBar(scene, bx - step * 3, by, HUNGER_COLOR, 'Đ', () => `No ${Math.round(this.hunger.current)}/${this.hunger.max}${this.hunger.current <= 0 ? ' — đang đói, mất máu!' : ''}`);
     this.hungerFrame = this.lastFrame;
+    this.hungerArt = this.lastArt;
 
     this.tip = scene.add
       .text(0, 0, '', { fontFamily: UI_FONT, fontSize: '12px', color: '#fff6e0', backgroundColor: '#2b1a10dd' })
@@ -116,7 +132,9 @@ export class Hud {
     frame.setInteractive();
     frame.on('pointerover', () => this.showTip(tip(), x - 6, y + BAR_H / 2));
     frame.on('pointerout', () => this.tip.setVisible(false));
-    this.container.add([frame, fill]);
+    const art = hasSkin(scene, SKIN.barFrame) ? scene.add.image(x - 2, y - 2, SKIN.barFrame).setOrigin(0, 0).setDisplaySize(BAR_W + 4, BAR_H + 4) : null;
+    this.lastArt = art;
+    this.container.add([frame, ...(art ? [art] : []), fill]);
     return fill;
   }
 
@@ -200,7 +218,12 @@ export class Hud {
     this.hungerFill.height = Math.max(0, BAR_H * ratio);
     const starving = ratio <= 0.001 || (ratio < 0.15 && Math.floor(performance.now() / 400) % 2 === 0);
     this.hungerFill.setFillStyle(starving ? 0xd02a2a : HUNGER_COLOR);
-    this.hungerFrame.setFillStyle(ratio <= 0.001 && Math.floor(performance.now() / 300) % 2 === 0 ? 0xd02a2a : UI_COLORS.edge, 0.85);
+    const blink = ratio <= 0.001 && Math.floor(performance.now() / 300) % 2 === 0;
+    this.hungerFrame.setFillStyle(blink ? 0xd02a2a : UI_COLORS.edge, 0.85);
+    if (this.hungerArt) {
+      if (blink) this.hungerArt.setTint(0xff4030);
+      else this.hungerArt.clearTint();
+    }
   }
 
   setMoney(amount: number): void {

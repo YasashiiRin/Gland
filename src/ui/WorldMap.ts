@@ -10,7 +10,8 @@ import {
   type WorldPlacement,
   type WorldRect,
 } from '../systems/WorldMapSystem';
-import { drawWoodPanel, inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { woodPanel, skinButton } from './uiSkin';
 
 const TEXTURE_KEY = 'worldmap';
 const MARGIN = 16;
@@ -75,8 +76,7 @@ export class WorldMap {
     this.root = scene.add.container(0, 0).setDepth(depth).setVisible(false);
 
     const shade = scene.add.rectangle(0, 0, w, h, 0x000000, 0.55).setOrigin(0, 0).setInteractive();
-    const frame = scene.add.graphics();
-    drawWoodPanel(frame, MARGIN, MARGIN, w - MARGIN * 2, h - MARGIN * 2);
+    const frame = woodPanel(scene, MARGIN, MARGIN, w - MARGIN * 2, h - MARGIN * 2);
     const v = this.view;
     const sea = scene.add.rectangle(v.x, v.y, v.width, v.height, BACKDROP).setOrigin(0, 0).setInteractive({ draggable: false });
     this.image = scene.add.image(0, 0, '__DEFAULT').setOrigin(0, 0);
@@ -110,7 +110,8 @@ export class WorldMap {
         e.stopPropagation();
         action();
       });
-      this.root.add([box, scene.add.text(x, MARGIN + 22, text, { fontFamily: UI_FONT, fontSize: '17px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5)]);
+      const art = skinButton(box);
+      this.root.add([box, ...(art ? [art] : []), scene.add.text(x, MARGIN + 22, text, { fontFamily: UI_FONT, fontSize: '17px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5).setStroke('#2b1a10', 3)]);
     });
 
     sea.on('pointerdown', (p: Phaser.Input.Pointer) => (this.drag = { x: p.x, y: p.y }));

@@ -7,6 +7,12 @@ import Phaser from 'phaser';
  */
 export function drawTitleBackground(scene: Phaser.Scene): void {
   const { width: W, height: H } = scene.scale;
+  if (scene.textures.exists('ui_title_background')) {
+    // The painted backdrop (assets/ui/title_background.png), covering the screen.
+    const img = scene.add.image(W / 2, H / 2, 'ui_title_background');
+    img.setScale(Math.max(W / img.width, H / img.height));
+    return;
+  }
   const g = scene.add.graphics();
 
   const sky = [0xf3c98b, 0xf0b98a, 0xe6a184, 0xc98b86, 0x9d7f93];

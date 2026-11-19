@@ -6,6 +6,7 @@ import { marketBuyPrice, marketSellPrice, stallBuys } from '../systems/ShopSyste
 import { artScale } from '../scenes/hd';
 import { iconTextureKey } from './itemIcons';
 import { UI_COLORS, UI_FONT } from './uiStyle';
+import { skinButton } from './uiSkin';
 
 const W = 660;
 const H = 430;
@@ -92,14 +93,16 @@ export class MarketMenu {
     // Tabs and close button.
     (['buy', 'sell'] as const).forEach((mode, i) => {
       const box = scene.add.rectangle(left + 250 + i * 130, top + 70, 120, 30, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
-      const label = scene.add.text(box.x, box.y, mode === 'buy' ? 'Mua hàng' : 'Bán hàng', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5);
+      const label = scene.add.text(box.x, box.y, mode === 'buy' ? 'Mua hàng' : 'Bán hàng', { fontFamily: UI_FONT, fontSize: '15px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5).setStroke('#2b1a10', 3);
       box.on('pointerdown', () => this.setMode(mode));
       this.tabs.push({ box, mode });
-      this.root.add([box, label]);
+      const art = skinButton(box);
+      this.root.add([box, ...(art ? [art] : []), label]);
     });
     const close = scene.add.rectangle(left + W - 26, top + 70, 34, 30, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge).setInteractive({ useHandCursor: true });
     close.on('pointerdown', () => this.close());
-    this.root.add([close, scene.add.text(close.x, close.y, '✕', { fontFamily: UI_FONT, fontSize: '16px', color: '#fff2d0' }).setOrigin(0.5)]);
+    const closeArt = skinButton(close);
+    this.root.add([close, ...(closeArt ? [closeArt] : []), scene.add.text(close.x, close.y, '✕', { fontFamily: UI_FONT, fontSize: '16px', color: '#fff2d0' }).setOrigin(0.5).setStroke('#2b1a10', 3)]);
 
     // Goods on round woven trays.
     for (let i = 0; i < TRAYS; i++) {
