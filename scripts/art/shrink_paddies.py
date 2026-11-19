@@ -2,13 +2,16 @@
 (asked for by the player, 2026-11-19), without rebuilding the maps.
 
 Each "field" object becomes just big enough for its family's plots
-(src/data/npcFarm.json: plots one behind the other from the road, a grass strip
-between; a homestead drawn for 3 gets room for 3 plots, one for 1 gets 2 small
-ones), centred on its plank bridge and still touching the canal. The footpaths
-between the paddies are cut back to the new depth (the lane from the village to
-the road stays). The freed ground is plain grass, open to the player.
+(src/data/npcFarm.json: plots one behind the other from the road), centred on
+its plank bridge and still touching the canal. Between two plots: a strip of
+grass, a dirt path, a strip of grass (plotGapTiles = 3), so they are easy to
+tell apart. The family type (and so the number of plots) is worked out exactly
+as the game does (systems/npc/families.ts: FNV-1a hash of the home key, then
+seededRandom). The footpaths between the paddies are cut back to the new depth
+(the lane from the village to the road stays). The freed ground is plain grass.
 
-Run once: python3 -m scripts.art.shrink_paddies  (from the repository root)
+Run it on the maps as villages.py built them (it only shrinks):
+    python3 -m scripts.art.shrink_paddies     (from the repository root)
 """
 from __future__ import annotations
 
@@ -16,12 +19,62 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MAPS = ["quang_binh", "hue"]
+MAPS = {"quang_binh": "QuangBinh", "hue": "Hue"}      # file -> map key (home keys are "<map key>:<homeId>")
 T = 16
 GRASS = 1
 PATH = 4                      # gid of a plain path tile
 PATH_EDGE = 41                # gids 41..56: path variants, 41 + mask (1 north, 2 east, 4 south, 8 west open)
 ROAD, CANAL = 3, 1
+U32 = 0xFFFFFFFF
+
+
+# ---------------------------------------------------------------- the game's family dice (families.ts, clock.ts)
+def _imul(a: int, b: int) -> int:
+    return (a * b) & U32
+
+
+def hash_string(s: str) -> int:
+    h = 0x811C9DC5
+    for ch in s:
+        h ^= ord(ch)
+        h = _imul(h, 0x01000193)
+    return h
+
+
+def seeded_random(seed: int, *parts: int) -> float:
+    h = seed & U32
+    for p in parts:
+        h = _imul(h ^ (p & U32), 0x9E3779B1)
+        h ^= h >> 15
+    t = (h + 0x6D2B79F5) & U32
+    t = _imul(t ^ (t >> 15), t | 1)
+    t = (t ^ ((t + _imul(t ^ (t >> 7), t | 61)) & U32)) & U32
+    return ((t ^ (t >> 14)) & U32) / 4294967296
+
+
+def family_type(home_key: str, members: int, cfg: dict) -> str:
+    if members <= 1:
+        return "1"
+    return "2" if seeded_random(hash_string(home_key), 1) < cfg["families"]["twoPersonShare"] else "3"
+
+
+# ---------------------------------------------------------------- sizes
+def paddy_size(family: str, cfg: dict) -> tuple[int, int]:
+    """(width, depth) in tiles of the paddy of a family type ("1", "2" or "3")."""
+    f = cfg["field"]
+    w, h = f["plotTilesByFamilyType"][family]
+    n = f["plotsByFamilyType"][family]
+    return w, n * h + (n - 1) * f["plotGapTiles"]
+
+
+def gap_paths(family: str, cfg: dict) -> list[int]:
+    """Rows (counted from the road side of the paddy) of the dirt path in each gap between plots."""
+    f = cfg["field"]
+    h = f["plotTilesByFamilyType"][family][1]
+    gap = f["plotGapTiles"]
+    if gap < 3:
+        return []                                                    # no room for grass either side
+    return [k * (h + gap) + h + gap // 2 for k in range(f["plotsByFamilyType"][family] - 1)]
 
 
 def is_path(gid: int) -> bool:
@@ -37,16 +90,7 @@ def props(o: dict) -> dict:
     return {p["name"]: p["value"] for p in o.get("properties", [])}
 
 
-def paddy_size(members: int, cfg: dict) -> tuple[int, int]:
-    """(width, depth) in tiles for a homestead drawn with this many people."""
-    f = cfg["field"]
-    family = "3" if members >= 3 else "2" if members == 2 else "1"
-    w, h = f["plotTilesByFamilyType"][family]
-    n = f["plotsByFamilyType"][family]
-    return w, n * h + (n - 1) * f["plotGapTiles"]
-
-
-def shrink(name: str, cfg: dict) -> None:
+def shrink(name: str, map_key: str, cfg: dict) -> None:
     path = ROOT / "public/assets/maps" / f"{name}.tmj"
     m = json.loads(path.read_text())
     W = m["width"]
@@ -65,24 +109,31 @@ def shrink(name: str, cfg: dict) -> None:
             p = props(o)
             x0, y0 = int(o["x"] // T), int(o["y"] // T)
             w0, h0 = int(o["width"] // T), int(o["height"] // T)
-            w, h = paddy_size(members.get(p["homeId"], 1), cfg)
+            family = family_type(f"{map_key}:{p['homeId']}", members.get(p["homeId"], 1), cfg)
+            w, h = paddy_size(family, cfg)
             w, h = min(w, w0), min(h, h0)
             keep = max(keep, h)
             bridge = int(p["bridgeX"])
             nx = max(x0, min(bridge - w // 2, x0 + w0 - w))
-            if p["side"] == "north":
-                ny = y0 + h0 - h
+            north = p["side"] == "north"
+            ny = y0 + h0 - h if north else y0
+            if north:
                 road_y = y0 + h0 + CANAL                                # the road's first row
-            else:
-                ny = y0
             o["x"], o["y"], o["width"], o["height"] = nx * T, ny * T, w * T, h * T
+            for r in gap_paths(family, cfg):                            # grass | dirt path | grass between plots
+                if r >= h:
+                    continue
+                y = ny + h - 1 - r if north else ny + r
+                for x in range(nx, nx + w):
+                    if ground[y * W + x] == GRASS:
+                        mask = 1 | 4 | (8 if x == nx else 0) | (2 if x == nx + w - 1 else 0)
+                        ground[y * W + x] = PATH_EDGE + mask
         if road_y is None:
             continue
         north_cut = range(by0, road_y - CANAL - keep)                    # rows above the kept band
         south_cut = range(road_y + ROAD + CANAL + keep, by1 + 1)
         for x in range(bx0, bx1 + 1):
-            lane = is_path(ground[(by0 - 1) * W + x])                    # the path up into the village: keep it
-            if lane:
+            if is_path(ground[(by0 - 1) * W + x]):                       # the path up into the village: keep it
                 continue
             for rows, edge_row, bit in ((north_cut, road_y - CANAL - keep, 1), (south_cut, road_y + ROAD + CANAL + keep - 1, 4)):
                 cut = False
@@ -98,8 +149,8 @@ def shrink(name: str, cfg: dict) -> None:
 
 def main() -> None:
     cfg = json.loads((ROOT / "src/data/npcFarm.json").read_text())
-    for name in MAPS:
-        shrink(name, cfg)
+    for name, key in MAPS.items():
+        shrink(name, key, cfg)
 
 
 if __name__ == "__main__":

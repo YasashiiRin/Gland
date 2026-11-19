@@ -230,7 +230,7 @@ def fields_block(m: Province, x0: int, y0: int, homes: list[tuple[str, int]], fw
         m.ground[road_y + ROAD][x] = WATER
     # Each paddy is just the family's plots (src/data/npcFarm.json, see shrink_paddies.py),
     # centred in its column and touching the canal; the paths between are as deep as the deepest.
-    sizes = [paddy_size(members, NPC_CFG) for _, members in homes[: 2 * PER_SIDE]]
+    sizes = [paddy_size("1" if members <= 1 else "3", NPC_CFG) for _, members in homes[: 2 * PER_SIDE]]
     path_d = min(fd, max((d for _, d in sizes), default=fd))
     for i, (home_id, members) in enumerate(homes[: 2 * PER_SIDE]):
         side, col = i % 2, i // 2

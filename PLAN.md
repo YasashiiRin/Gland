@@ -637,8 +637,9 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
       Xe chở nước vẫn tưới như cũ, không tốn nước bình.
 
 ## Cập nhật: thu nhỏ thửa ruộng trên bản đồ (yêu cầu 2026-11-19)
-- [x] Thửa của mỗi nhà trên bản đồ giờ chỉ vừa đúng các mảnh NPC làm (nhà vẽ 3 người: 16×17 ô = 3 thửa 16×5 + 2 hàng
-      bờ; nhà 1 người: 11×9 ô), sát kênh, giữa cột cũ. Lối đi giữa các thửa cắt ngắn bằng độ sâu mới (lối từ làng
+- [x] Thửa của mỗi nhà trên bản đồ giờ chỉ vừa đúng các mảnh NPC làm, sát kênh, giữa cột cũ: nhà 3 người 16×21 ô
+      (3 thửa 16×5), nhà 2 người 16×13 (2 thửa), nhà 1 người 11×11 (2 thửa 11×4). Giữa hai thửa: cỏ, đường đất, cỏ
+      (`plotGapTiles` = 3, đường đất vẽ sẵn trên bản đồ). Loại gia đình tính giống hệt trong game (băm mã nhà). Lối đi giữa các thửa cắt ngắn bằng độ sâu mới (lối từ làng
       xuống đường cái giữ nguyên). Phần đất thửa cũ còn lại là cỏ trống, người chơi dùng được.
 - Sửa thẳng 2 file bản đồ bằng `scripts/art/shrink_paddies.py` (không tạo lại bản đồ, nhà cửa giữ nguyên);
   `scripts/art/villages.py` cũng tạo thửa theo cỡ này nếu sau này tạo lại bản đồ. Cỡ lấy từ `src/data/npcFarm.json`.
