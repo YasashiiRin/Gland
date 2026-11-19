@@ -8,6 +8,7 @@ import { restoreBySleep, type EnergyState } from '../systems/EnergySystem';
 import { advanceDay as advanceFarmDay, waterPlot } from '../systems/FarmingSystem';
 import { addItem } from '../systems/InventorySystem';
 import { coopTileKeysOnMap, placedObjectKey, sprinklerTileKeysOnMap } from '../systems/PlacedObjectSystem';
+import { advanceGroundDay } from '../systems/GroundSystem';
 import { advanceResourceDay } from '../systems/ResourceSystem';
 import { createHauntState } from '../systems/SanitySystem';
 import { absoluteDayNumber, startNewDay, type TimeState } from '../systems/TimeSystem';
@@ -30,7 +31,8 @@ export function endWorldDay(): { time: TimeState; earnings: number } {
   const yesterdayAbsolute = absoluteDayNumber(gameState.time);
   const time = startNewDay(gameState.time);
   gameState.time = time;
-  gameState.farmPlots = advanceFarmDay(gameState.farmPlots, time.season, wasRaining);
+  gameState.farmPlots = advanceFarmDay(gameState.farmPlots, time.season, wasRaining, absoluteDayNumber(time));
+  gameState.groundEdits = advanceGroundDay(gameState.groundEdits, absoluteDayNumber(time));
   gameState.resourceNodes = advanceResourceDay(gameState.resourceNodes, absoluteDayNumber(time));
   const regrown = regrowFields(gameState.wildFields, gameState.farmPlots, seasonStamp(time));
   gameState.wildFields = regrown.fields;

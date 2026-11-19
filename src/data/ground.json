@@ -1,0 +1,6 @@
+{
+  "_comment": "Paths the player makes (systems/GroundSystem.ts). Hoeing grass leaves a dirt path; a second stroke tills it. Bare paths and empty tilled plots grow faint grass after grassFaintAfterDays and are grass again after grassBackAfterDays. A path paved with the paving item never grows grass; breaking the paving with the pickaxe gives the item back.",
+  "grassFaintAfterDays": 3,
+  "grassBackAfterDays": 5,
+  "paveItem": "stone"
+}

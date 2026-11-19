@@ -65,12 +65,12 @@
   "field": {
     "_cellTiles": "One NPC field cell = this many map tiles square (1: a stroke per tile).",
     "cellTiles": 1,
-    "_plots": "Each family works a few plots one behind the other from the road (columns x rows of map tiles each, a strip of grass between); the rest of the paddy stays grass. Each plot has its own crop and season.",
-    "plotTilesByFamilyType": { "1": [11, 4], "2": [16, 5], "3": [16, 5] },
+    "_plots": "Each family works a few plots one behind the other from the road (columns x rows of map tiles each); between two plots a 1-tile dirt path (drawn on the map by scripts/art/shrink_paddies.py; a gap of 3 or more gets grass either side); the rest of the paddy stays grass. Each plot has its own crop and season.",
+    "plotTilesByFamilyType": { "1": [12, 6], "2": [16, 8], "3": [16, 8] },
     "plotsByFamilyType": { "1": 2, "2": 2, "3": 3 },
     "plotGapTiles": 1,
     "_minutes": "Game minutes per cell (1 game minute = 0.7 s): one stroke, then a rest before the next.",
-    "minutes": { "hoe": 2, "sow": 2, "water": 2, "fertilize": 2, "harvest": 2 },
+    "minutes": { "hoe": 2, "sow": 2, "water": 1, "fertilize": 2, "harvest": 2 },
     "fertilizeEveryDays": 7,
     "deathAfterMissedDays": 1,
     "pileFraction": 0.2

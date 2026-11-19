@@ -608,8 +608,8 @@ Tiêu chí hoàn thành:
       (tối đa 30 ngày). Ruộng, nhà, gia súc của NPC là vùng khoá.
 
 Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
-- **1 ô ruộng NPC = 1 ô đất, mỗi nhát 2 phút game (≈1,4 giây: vung cuốc xuống, nghỉ ~1 giây)** cho cả cuốc, gieo,
-  tưới, bón, thu hoạch (người chơi yêu cầu 2026-11-19, spec gốc: gieo/tưới/bón 1 phút). Thửa trên bản đồ ~1.300–2.000
+- **1 ô ruộng NPC = 1 ô đất, mỗi nhát 2 phút game (≈1,4 giây: vung cuốc xuống, nghỉ ~1 giây)** cho cuốc, gieo,
+  bón, thu hoạch; tưới 1 phút như spec (người chơi yêu cầu 2026-11-19, spec gốc: gieo/tưới/bón 1 phút). Thửa trên bản đồ ~1.300–2.000
   ô, làm từng nhát thì không kịp tưới, nên mỗi nhà chỉ canh tác **vài thửa nhỏ** sát đường quanh cầu ván, nối tiếp
   nhau từ đường vào, cách nhau 1 hàng bờ cỏ (người chơi yêu cầu 2026-11-19): nhà 3 người 3 thửa, nhà 1–2 người 2 thửa;
   mỗi thửa 16×5 ô (nhà 1 người 11×4) (`field.plotTilesByFamilyType`, `plotsByFamilyType`, `plotGapTiles`). Phần còn
@@ -635,3 +635,29 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
       bình tưới trên thanh công cụ, lưu trong save (`gameState.wateringCanWater`). Hết nước thì đứng sát ao/sông/kênh
       (ô nước cạnh chỗ đứng, hoặc nhắm vào ô nước) bấm bình để múc đầy lại (`systems/WateringCanSystem.ts`, có test).
       Xe chở nước vẫn tưới như cũ, không tốn nước bình.
+
+## Cập nhật: thu nhỏ thửa ruộng trên bản đồ (yêu cầu 2026-11-19)
+- [x] Thửa của mỗi nhà trên bản đồ giờ chỉ vừa đúng các mảnh NPC làm, sát kênh, giữa cột cũ. Mỗi thửa to thêm ~60%
+      (người chơi yêu cầu): nhà 2–3 người 16×8 ô, nhà 1 người 12×6. Khung trên bản đồ: nhà 3 người 16×26 (3 thửa), nhà
+      2 người 16×17 (2 thửa), nhà 1 người 12×13 (2 thửa). Giữa hai thửa: 1 ô đường đất (`plotGapTiles` = 1, vẽ sẵn
+      trên bản đồ). Loại gia đình tính giống hệt trong game (băm mã nhà).
+- Để NPC vẫn tưới kịp ruộng to hơn, tưới trở lại 1 phút/ô như spec gốc (cuốc, gieo, bón, thu hoạch vẫn 2 phút);
+      đã chạy thử 40 ngày, nhà ở xa ruộng tới 90 phút đi bộ cũng không có ô nào chết. Lối đi giữa các thửa cắt ngắn bằng độ sâu mới (lối từ làng
+      xuống đường cái giữ nguyên). Phần đất thửa cũ còn lại là cỏ trống, người chơi dùng được.
+- [x] Bố cục gọn (người chơi yêu cầu): mỗi bên đường cái các thửa xếp sát nhau dựa vào kênh, giữa hai thửa và ở hai
+      đầu là 1 ô đường đất; mỗi thửa có đường đất chạy dọc mép trên; đường giữa các thửa nhỏ chạy ngang nối vào hai
+      đường bên — mọi đầu đường đều nối vào nhau, không còn dải đất thừa. Lối từ làng chạy xuống tới đường gặp đầu tiên
+      (hoặc tới kênh, có cầu ván sang đường cái). Cầu ván dời vào giữa mỗi thửa.
+- Sửa thẳng 2 file bản đồ bằng `scripts/art/shrink_paddies.py` (không tạo lại bản đồ, nhà cửa giữ nguyên);
+  `scripts/art/maps.py` tự chạy bước này sau khi tạo bản đồ. Cỡ lấy từ `src/data/npcFarm.json`.
+
+## Cập nhật: tự làm đường đất, cỏ mọc lại, lát đá (yêu cầu 2026-11-19)
+- [x] Cuốc lên cỏ: mất cỏ, thành ô đường đất (tự nối liền với đường bên cạnh, cả đường có sẵn trên bản đồ).
+      Cuốc thêm nhát nữa lên đường đất: thành đất tơi để gieo hạt. Đất trống (nền đất, không có cỏ) thì cuốc thẳng ra đất trồng.
+- [x] Cỏ mọc lại: đường đất và đất trồng bỏ không (cuốc từ cỏ ra), sau 3 ngày có cỏ mờ mờ phủ lên, sau 5 ngày thành cỏ
+      như cũ. Cuốc lên chỗ đang mờ cỏ thì dọn sạch (đường vẫn là đường, đếm lại từ đầu). Đang có cây thì không mọc cỏ.
+      Đất trồng từ save cũ và ruộng dựng sẵn ở danh lam không mọc cỏ lại.
+- [x] Lát đá: cầm Đá bấm lên đường đất → tốn 1 viên, thành ô lát đá, cỏ không mọc. Đập bằng cuốc chim → trả lại viên
+      đá, ô về đường đất và cỏ bắt đầu mọc lại từ hôm đó.
+- Logic thuần trong `systems/GroundSystem.ts` (có test), số ngày trong `src/data/ground.json`; vẽ ở `scenes/groundPaths.ts`;
+  lưu ở `gameState.groundEdits` (lưu game + đồng bộ khi chơi nhiều người).

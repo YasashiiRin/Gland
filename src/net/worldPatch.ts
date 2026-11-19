@@ -12,7 +12,7 @@ import type { GameState } from '../state/GameState';
  *   spending at the same time both count.
  * - The clock is not here: it has its own message from the host.
  */
-export const RECORD_SLICES = ['farmPlots', 'resourceNodes', 'wildFields', 'fishPonds', 'homes', 'homeHouses', 'npcFamilies', 'groundItems', 'groundRolls', 'placedObjects', 'vehicles', 'relationships', 'vehicleStorage'] as const;
+export const RECORD_SLICES = ['farmPlots', 'resourceNodes', 'wildFields', 'fishPonds', 'homes', 'homeHouses', 'npcFamilies', 'groundEdits', 'groundItems', 'groundRolls', 'placedObjects', 'vehicles', 'relationships', 'vehicleStorage'] as const;
 export const WHOLE_SLICES = ['warehouse', 'communityFund', 'deepestFloor', 'farmName'] as const;
 
 type RecordSlice = (typeof RECORD_SLICES)[number];

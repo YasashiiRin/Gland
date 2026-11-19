@@ -85,6 +85,7 @@ const NO_INPUT = { up: false, down: false, left: false, right: false };
 /** How often (ms) this player's position is sent to the others in a room. */
 const POSE_SEND_MS = 100;
 import type { VehicleAbility } from '../data/items';
+import { PAVE_ITEM } from '../systems/GroundSystem';
 
 /** Fainting (ghost attack): you wake with this share of health and sanity back. */
 const FAINT_RESTORE_RATIO = 0.3;
@@ -643,6 +644,11 @@ export abstract class MapScene extends Phaser.Scene {
   protected tryOpenChest(): boolean {
     return false;
   }
+  /** Holding stone: pave a dirt path (FieldScene). True if the press was used up. */
+  protected tryPave(_tile: { x: number; y: number }): boolean {
+    return false;
+  }
+
   /** A village farmer close by stops for a chat (systems/npc). */
   protected tryTalkToNpc(): boolean {
     return this.villagers?.talkNear(this.player) ?? false;
@@ -1019,6 +1025,7 @@ export abstract class MapScene extends Phaser.Scene {
       return;
     }
 
+    if (stack.itemId === PAVE_ITEM && this.tryPave(this.actionTile())) return;
     const cost = TOOL_ENERGY_COST[stack.itemId];
     if (cost === undefined) return; // not a tool; nothing to do
     if (isExhausted(gameState.energy)) return;

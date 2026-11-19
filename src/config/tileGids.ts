@@ -8,6 +8,8 @@ export const TILE_GID = {
   GRASS2: 2,
   FLOWERS: 3,
   PATH: 4,
+  /** First of the 16 path edge variants (41 + mask: 1 north, 2 east, 4 south, 8 west open). */
+  PATH_EDGE_FIRST: 41,
   WATER: 5,
   FENCE: 6,
   TRUNK: 7,

@@ -28,6 +28,7 @@ import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 import type { Livestock } from '../systems/LivestockSystem';
 import type { BoatSpot } from '../systems/BoatSystem';
 import { CAN_CAPACITY } from '../systems/WateringCanSystem';
+import type { GroundEdits } from '../systems/GroundSystem';
 
 /**
  * Single source of truth for everything that will be saved.
@@ -63,6 +64,8 @@ export interface GameState {
   homeHouses: HomeHouses;
   /** The village farm families (shared): home key -> people, field cells, buffalo, piles (systems/npc). */
   npcFamilies: Record<string, FamilyState>;
+  /** Dirt paths and paving the player made in the grass (shared): "Map:x,y" -> path (GroundSystem). */
+  groundEdits: GroundEdits;
   /** The player's profession (personal): null until a talisman is used. */
   profession: ProfessionState | null;
   /** Things lying on the ground to pick up (shared): "Map:x,y" -> item. */
@@ -151,6 +154,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     homes: {},
     homeHouses: {},
     npcFamilies: {},
+    groundEdits: {},
     profession: null,
     groundItems: {},
     groundRolls: {},
