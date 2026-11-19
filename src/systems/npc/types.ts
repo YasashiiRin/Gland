@@ -128,6 +128,15 @@ export interface FamilyState {
   simMinute: number;
 }
 
+/** A rectangle of map tiles; `side`: which side of its road it lies on (row 0 of the field is next to the road). */
+export interface PlotRect {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+  side: 'north' | 'south';
+}
+
 /** Walking minutes between this family's places (from the map, see layout in the scene). */
 export interface FamilyLayout {
   minutes(from: Place, to: Place): number;

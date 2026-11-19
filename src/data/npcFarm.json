@@ -63,8 +63,12 @@
     "pigChance": 0.4
   },
   "field": {
-    "cellTiles": 4,
-    "minutes": { "hoe": 2, "sow": 1, "water": 1, "fertilize": 1, "harvest": 2 },
+    "_cellTiles": "One NPC field cell = this many map tiles square (1: a stroke per tile).",
+    "cellTiles": 1,
+    "_plotTiles": "The part of the paddy each family type works (columns x rows of map tiles, along the road); the rest stays grass.",
+    "plotTilesByFamilyType": { "1": [11, 11], "2": [16, 16], "3": [16, 16] },
+    "_minutes": "Game minutes per cell (1 game minute = 0.7 s): one stroke, then a rest before the next.",
+    "minutes": { "hoe": 2, "sow": 2, "water": 2, "fertilize": 2, "harvest": 2 },
     "fertilizeEveryDays": 7,
     "deathAfterMissedDays": 1,
     "pileFraction": 0.2

@@ -608,8 +608,12 @@ Tiêu chí hoàn thành:
       (tối đa 30 ngày). Ruộng, nhà, gia súc của NPC là vùng khoá.
 
 Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
-- **1 "ô" ruộng = 4×4 ô bản đồ** (`field.cellTiles`). Thửa trên bản đồ rộng ~2.000 ô; nếu mỗi ô bản đồ tưới 1 phút thì
-  một ngày làm không kịp tưới, cây chết hết. Với 4×4, thửa lớn có 128 ô, tưới ~1 tiếng/người/ngày.
+- **1 ô ruộng NPC = 1 ô đất, mỗi nhát 2 phút game (≈1,4 giây: vung cuốc xuống, nghỉ ~1 giây)** cho cả cuốc, gieo,
+  tưới, bón, thu hoạch (người chơi yêu cầu 2026-11-19, spec gốc: gieo/tưới/bón 1 phút). Thửa trên bản đồ ~1.300–2.000
+  ô, làm từng nhát thì không kịp tưới, nên mỗi nhà chỉ canh tác **một mảnh sát đường, quanh cầu ván**: nhà 2–3 người
+  16×16, nhà 1 người 11×11 (`field.plotTilesByFamilyType`); phần còn lại của thửa để cỏ. Save cũ có lưới khác cỡ thì
+  ruộng NPC được làm lại từ đầu.
+- Người chơi: mỗi nhát dụng cụ cách nhau 0,8 giây (`TOOL_STROKE_MS` trong `config/constants.ts`).
 - Đồng hồ NPC theo giờ thật: ngày mới lúc 0h (ngày của game vẫn đổi lúc 6h). Ngày 1 của game là Thứ 2.
 - Bản đồ chỉ có "trâu" hoặc "bò": cả hai đều được dắt đi ăn cỏ như trâu (hình vẫn giữ là bò nếu bản đồ ghi bò).
   Heo được thêm ngẫu nhiên (`families.pigChance`); nhà 2–3 người không có con vật nào thì được thêm gà.
