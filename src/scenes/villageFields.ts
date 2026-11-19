@@ -2,8 +2,9 @@ import type Phaser from 'phaser';
 import { TILE } from '../config/constants';
 import { TILE_GID } from '../config/tileGids';
 import { NPC_CONFIG } from '../systems/npc/config';
-import { cropDays } from '../systems/npc/field';
-import type { FamilyState, FieldCell, FieldGrid } from '../systems/npc/types';
+import { dayOf } from '../systems/npc/clock';
+import { completeTask, cropDays } from '../systems/npc/field';
+import type { FamilyState, FieldCell, FieldGrid, PlotRect } from '../systems/npc/types';
 import type { GroundLook } from './groundLook';
 import { hdScale } from './hd';
 import { inRect, type Paddy } from './homesteads';
@@ -13,9 +14,11 @@ import type { FamilyGeo, NpcWorld } from './npcWorld';
 const DRAW_TILES = 60;
 const SEEDLING = 0x9ad66e;
 const DEAD = 0x8a6a40;
+/** Game minutes into a job when the tool comes down (villagerChores.workCell swings as the job starts). */
+const STRIKE = 0.35;
 
-/** The map tiles of cell `i` of a paddy (row 0 lies along the road). */
-export function cellRect(p: Paddy, grid: Pick<FieldGrid, 'cols'>, i: number): { x0: number; x1: number; y0: number; y1: number } {
+/** The map tiles of cell `i` of a family's plot (row 0 lies along the road). */
+export function cellRect(p: PlotRect, grid: Pick<FieldGrid, 'cols'>, i: number): { x0: number; x1: number; y0: number; y1: number } {
   const k = NPC_CONFIG.field.cellTiles;
   const c = i % grid.cols;
   const r = Math.floor(i / grid.cols);
@@ -26,7 +29,7 @@ export function cellRect(p: Paddy, grid: Pick<FieldGrid, 'cols'>, i: number): { 
 }
 
 /** The middle tile of a cell. */
-export function cellMiddle(p: Paddy, grid: Pick<FieldGrid, 'cols'>, i: number): { x: number; y: number } {
+export function cellMiddle(p: PlotRect, grid: Pick<FieldGrid, 'cols'>, i: number): { x: number; y: number } {
   const r = cellRect(p, grid, i);
   return { x: Math.floor((r.x0 + r.x1) / 2), y: Math.floor((r.y0 + r.y1) / 2) };
 }
@@ -77,7 +80,10 @@ export class VillageFields {
         this.clearPiles(geo.home.key);
         continue;
       }
-      if (geo.paddy && fam.field) this.drawField(geo.paddy, fam.field);
+      geo.plots.forEach((plot, k) => {
+        const grid = fam.fields[k];
+        if (grid) this.drawField(`${geo.home.key}#${k}`, plot, this.shown(fam, k, grid));
+      });
       this.drawPiles(geo, fam);
     }
   }
@@ -86,8 +92,24 @@ export class VillageFields {
     for (const key of this.piles.keys()) this.clearPiles(key);
   }
 
-  private drawField(p: Paddy, grid: FieldGrid): void {
-    const before = this.drawn.get(p.key) ?? [];
+  /**
+   * The field as it looks right now: a job whose stroke has landed already
+   * shows its result (the simulation only marks it done when the job ends).
+   */
+  private shown(fam: FamilyState, plot: number, grid: FieldGrid): FieldGrid {
+    const now = this.world.exactMinute();
+    let g = grid;
+    for (const m of fam.members) {
+      const t = m.currentTask;
+      if (t && t.plot === plot && m.talkUntil < 0 && now - (t.until - NPC_CONFIG.field.minutes[t.kind]) >= STRIKE) {
+        g = completeTask(g, t.cell, t.kind, dayOf(Math.floor(now)), false, NPC_CONFIG);
+      }
+    }
+    return g;
+  }
+
+  private drawField(key: string, p: PlotRect, grid: FieldGrid): void {
+    const before = this.drawn.get(key) ?? [];
     const now = grid.cells.map((c) => `${c.state}|${c.wateredToday}|${c.growthDay}|${c.cropType}`);
     now.forEach((sig, i) => {
       if (before[i] === sig) return;
@@ -102,7 +124,7 @@ export class VillageFields {
         }
       }
     });
-    this.drawn.set(p.key, now);
+    this.drawn.set(key, now);
   }
 
   /** Ground, plant and tint of a cell. */
@@ -129,8 +151,9 @@ export class VillageFields {
   private drawPiles(geo: FamilyGeo, fam: FamilyState): void {
     const want: { x: number; y: number }[] = [];
     const p = geo.paddy;
-    if (p && fam.field) {
-      for (let i = 0; i < fam.field.piles; i++) {
+    const piles = fam.fields.reduce((n, g) => n + g.piles, 0);
+    if (p) {
+      for (let i = 0; i < piles; i++) {
         want.push({ x: (p.bridgeX + (i % 4) - 1.5) * TILE + TILE / 2, y: (p.roadY + (p.side === 'north' ? -1 : 1)) * TILE + TILE - 2 - Math.floor(i / 4) * 3 });
       }
     }

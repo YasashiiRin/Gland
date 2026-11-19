@@ -1,5 +1,6 @@
 import { STATE_VERSION, type GameState } from '../state/GameState';
 import { moveToBigWorld } from '../state/worldMigration';
+import { CAN_CAPACITY } from './WateringCanSystem';
 
 const SAVE_KEY = 'farm-game-save';
 
@@ -56,6 +57,7 @@ export function load(): GameState | null {
     parsed.groundRolls ??= {};
     parsed.fishPonds ??= {}; // landmark ponds (big world 2b)
     parsed.wildFields ??= {}; // added after save version 11 shipped; older saves just lack it
+    parsed.wateringCanWater ??= CAN_CAPACITY; // the can only started holding a measure of water later
     parsed.rodBait ??= 0; // fishing bait, farm animals and boats came later still
     parsed.livestock ??= [];
     parsed.boats ??= {};

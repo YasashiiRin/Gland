@@ -44,6 +44,9 @@ const START_SIZE = fitGameSize(visibleViewport().width, visibleViewport().height
 export const GAME_WIDTH = START_SIZE.width;
 export const START_GAME_HEIGHT = START_SIZE.height;
 
+/** A stroke of a tool (hoe, watering can, axe...): the next one can only start this long after (ms). */
+export const TOOL_STROKE_MS = 800;
+
 /** Player movement speed in pixels per second. */
 export const PLAYER_SPEED = 72;
 

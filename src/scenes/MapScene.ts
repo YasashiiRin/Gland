@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { DEPTH_ABOVE, FADE_MS, TILE } from '../config/constants';
+import { DEPTH_ABOVE, FADE_MS, TILE, TOOL_STROKE_MS } from '../config/constants';
 import { setupWorldCamera } from './cameraFit';
 import { ITEMS, TOOL_ENERGY_COST, type ItemId } from '../data/items';
 import { isTreeGid, isWaterGid, TILE_GID } from '../config/tileGids';
@@ -158,6 +158,8 @@ export abstract class MapScene extends Phaser.Scene {
   private lastPaddyUpdate = 0;
   /** The village farm families of this map (systems/npc). */
   private npcWorld: NpcWorld | null = null;
+  /** When the player can strike with a tool again (TOOL_STROKE_MS after the last stroke). */
+  private nextStrokeAt = 0;
   private homeDoor!: HomeDoor;
   private hawkers: Hawkers | null = null;
   /** Talismans and ancient books lying about (the Thầy pháp's). */
@@ -367,7 +369,8 @@ export abstract class MapScene extends Phaser.Scene {
     this.trees.update(view, this.player.x, this.player.y, time);
     this.ambient?.update(time, this.game.loop.delta, view);
     this.water?.update(time, view);
-    if (this.paddies && time - this.lastPaddyUpdate > 500) {
+    // Often enough that a villager's stroke and the soil it turns line up (each takes ~1.4 s).
+    if (this.paddies && time - this.lastPaddyUpdate > 100) {
       this.lastPaddyUpdate = time;
       this.npcWorld?.update();
       this.paddies.update(view);
@@ -1019,6 +1022,8 @@ export abstract class MapScene extends Phaser.Scene {
     const cost = TOOL_ENERGY_COST[stack.itemId];
     if (cost === undefined) return; // not a tool; nothing to do
     if (isExhausted(gameState.energy)) return;
+    if (this.time.now < this.nextStrokeAt) return; // still bringing the last stroke down
+    this.nextStrokeAt = this.time.now + TOOL_STROKE_MS;
 
     gameState.energy = consume(gameState.energy, cost);
     this.player.playUseToolFeedback();

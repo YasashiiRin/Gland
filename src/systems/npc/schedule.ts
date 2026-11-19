@@ -111,9 +111,9 @@ function adultIntent(npc: Npc, f: FamilyState, ctx: Ctx): Intent {
   if (market) return market;
   if (c >= a.toField && c < a.leaveField) {
     // Back from market: straight home, not to the field.
-    if (restingToday(f.field, ctx.day) || npc.marketDoneDay === ctx.day) return { place: 'home', activity: 'tea', since: at(ctx, a.toField) };
+    if (restingToday(f.fields, ctx.day) || npc.marketDoneDay === ctx.day) return { place: 'home', activity: 'tea', since: at(ctx, a.toField) };
     const lunch = c >= a.lunchStart && c < a.lunchEnd;
-    if (!f.field) return { place: 'home', activity: lunch ? 'eat' : 'garden', since: at(ctx, a.toField) };
+    if (!f.fields.length) return { place: 'home', activity: lunch ? 'eat' : 'garden', since: at(ctx, a.toField) };
     return { place: 'field', activity: lunch ? 'lunch' : 'work', since: at(ctx, a.toField) };
   }
   const home = (activity: Activity, from: number): Intent => ({ place: 'home', activity, since: at(ctx, from) });

@@ -80,16 +80,12 @@ export function cellNeeds(grid: FieldGrid, i: number, day: number, cfg: NpcConfi
 
 const RANK: Record<TaskKind, number> = { harvest: 0, water: 1, fertilize: 2, sow: 3, hoe: 4 };
 
-/**
- * The next job for a worker: the most urgent free cell of their own half
- * (null: the whole field), else of the other half. Cells are taken in working
- * order, row by row from the road, back and forth. Null: nothing to do.
- */
-export function pickTask(grid: FieldGrid, half: 0 | 1 | null, day: number, cfg: NpcConfig): { cell: number; kind: TaskKind } | null {
-  let own = -1;
-  let ownRank = 99;
-  let other = -1;
-  let otherRank = 99;
+type Best = { cell: number; rank: number } | null;
+
+/** The most urgent free cell of the worker's half (null: the whole field) and of the other half, in working order. */
+function bestIn(grid: FieldGrid, half: 0 | 1 | null, day: number, cfg: NpcConfig): { own: Best; other: Best } {
+  let own: Best = null;
+  let other: Best = null;
   const split = Math.ceil(grid.cols / 2);
   for (let r = 0; r < grid.rows; r++) {
     for (let k = 0; k < grid.cols; k++) {
@@ -100,13 +96,40 @@ export function pickTask(grid: FieldGrid, half: 0 | 1 | null, day: number, cfg: 
       if (!need) continue;
       const rank = RANK[need];
       if (half === null || (col < split ? 0 : 1) === half) {
-        if (rank < ownRank) [own, ownRank] = [i, rank];
-      } else if (rank < otherRank) [other, otherRank] = [i, rank];
-      if (ownRank === 0) return { cell: own, kind: 'harvest' };
+        if (!own || rank < own.rank) own = { cell: i, rank };
+        if (rank === 0) return { own, other };
+      } else if (!other || rank < other.rank) other = { cell: i, rank };
     }
   }
-  if (own >= 0) return { cell: own, kind: TASK_PRIORITY[ownRank] };
-  return other >= 0 ? { cell: other, kind: TASK_PRIORITY[otherRank] } : null;
+  return { own, other };
+}
+
+/**
+ * The next job for a worker: the most urgent free cell of their own half
+ * (null: the whole field), else of the other half. Cells are taken in working
+ * order, row by row from the road, back and forth. Null: nothing to do.
+ */
+export function pickTask(grid: FieldGrid, half: 0 | 1 | null, day: number, cfg: NpcConfig): { cell: number; kind: TaskKind } | null {
+  const hit = pickTaskOnPlots([grid], half, day, cfg);
+  return hit ? { cell: hit.cell, kind: hit.kind } : null;
+}
+
+/**
+ * The same over all of a family's plots: the most urgent job of their own
+ * half of any plot (the plot nearer the road first when equal), else of the
+ * other halves.
+ */
+export function pickTaskOnPlots(grids: FieldGrid[], half: 0 | 1 | null, day: number, cfg: NpcConfig): { plot: number; cell: number; kind: TaskKind } | null {
+  type Hit = { plot: number; cell: number; rank: number };
+  let own: Hit | null = null;
+  let other: Hit | null = null;
+  for (let plot = 0; plot < grids.length; plot++) {
+    const b = bestIn(grids[plot], half, day, cfg);
+    if (b.own && (!own || b.own.rank < own.rank)) own = { ...b.own, plot };
+    if (b.other && (!other || b.other.rank < other.rank)) other = { ...b.other, plot };
+  }
+  const hit = own ?? other;
+  return hit ? { plot: hit.plot, cell: hit.cell, kind: TASK_PRIORITY[hit.rank] } : null;
 }
 
 function setCell(grid: FieldGrid, i: number, patch: Partial<FieldCell>): FieldGrid {
@@ -171,9 +194,9 @@ export function checkHaulDone(grid: FieldGrid, day: number, anyoneCarrying: bool
   return { ...grid, phase: 'done', restDay: day };
 }
 
-/** Field work is over for today (the harvest has all been carried home). */
-export function restingToday(grid: FieldGrid | null, day: number): boolean {
-  return !!grid && grid.phase === 'done' && grid.restDay === day;
+/** Field work is over for today: every plot's harvest has just been carried home. */
+export function restingToday(grids: FieldGrid[], day: number): boolean {
+  return grids.length > 0 && grids.every((g) => g.phase === 'done' && g.restDay === day);
 }
 
 /**

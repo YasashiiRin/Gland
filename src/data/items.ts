@@ -24,6 +24,8 @@ export interface ItemDef {
   stats?: ItemStats;
   food?: FoodDef;
   vehicle?: VehicleDef;
+  /** Watering can: how many waterings a full can holds. */
+  capacity?: number;
   /** Equipment: extra inventory slots this backpack gives when worn. */
   backpackSlots?: number;
   /** Relics: using it makes you this profession (a talisman)… */

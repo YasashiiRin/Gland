@@ -47,13 +47,15 @@ export function stepTowards(s: Phaser.GameObjects.Sprite, key: string, x: number
   return false;
 }
 
-/** Working a field cell: standing on it, one stroke of the tool (or a handful thrown) per job. */
-export function workCell(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: Worker, tile: { x: number; y: number }, job: string, kind: TaskKind, time: number): void {
-  const facing: Direction = p.index % 2 ? 'left' : 'right';
-  standAt(s, tile.x * TILE + TILE / 2, tile.y * TILE + TILE - 2, facing, time, kind === 'sow' || kind === 'fertilize');
-  if (p.lastJob === job || time < p.nextMove) return;
+/**
+ * Working a field cell: standing at `tile` facing it, one stroke of the tool
+ * (raised, brought down) or a handful thrown as the job starts, then still
+ * until the next one (each job lasts about 1.4 s: the stroke and a rest).
+ */
+export function workCell(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: Worker, tile: { x: number; y: number }, facing: Direction, job: string, kind: TaskKind, time: number): void {
+  standAt(s.setCrop().setAngle(0), tile.x * TILE + TILE / 2, tile.y * TILE + TILE - 2, facing, time, false);
+  if (p.lastJob === job) return;
   p.lastJob = job;
-  p.nextMove = time + 250;
   const tool = TOOL[kind];
   if (tool) swingTool(scene, s, tool, facing);
   else toss(scene, s, kind === 'fertilize' ? 0x6a5a40 : 0x8fd16a);
