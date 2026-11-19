@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { lampSpotsFor, lampsLit, lampStrength } from '../src/state/nightLights';
+import REAL_SCALE from '../src/data/realScale.json';
 
 describe('oil lamps', () => {
   it('are lit from 18:00 to 21:00 only', () => {
@@ -13,7 +14,10 @@ describe('oil lamps', () => {
   });
 
   it('places the glow at each building’s windows and door', () => {
-    expect(lampSpotsFor('house_a', 100, 200)).toContainEqual({ x: 100, y: 182, r: 12 });
+    // The door lamp sits 18 px up on the old drawing; houses are true size now, so it moves out with them.
+    const k = (REAL_SCALE as Record<string, number>).house_a;
+    expect(lampSpotsFor('house_a', 100, 200)).toContainEqual({ x: 100, y: 200 - 18 * k, r: 12 * Math.sqrt(k) });
+    expect(lampSpotsFor('house_a_left', 100, 200)).toContainEqual({ x: 100, y: 200 - 18 * k, r: 12 * Math.sqrt(k) });
     expect(lampSpotsFor('casuarina', 0, 0)).toEqual([]);
     expect(lampSpotsFor('_comment', 0, 0)).toEqual([]);
   });

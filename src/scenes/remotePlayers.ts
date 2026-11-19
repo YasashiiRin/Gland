@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { PLAYER_TEXTURE } from '../entities/Player';
-import { artScale, hdScale } from './hd';
+import { artScale, hdScale, vehicleDrop } from './hd';
 import { net } from '../net/NetSession';
 import { DIRECTIONS } from '../systems/movement';
 import { UI_FONT } from '../ui/uiStyle';
@@ -81,7 +81,7 @@ export class RemotePlayers {
     }
     r.vehicle
       .setFrame(DIRECTIONS.indexOf(dir))
-      .setPosition(r.sprite.x, r.sprite.y + 4)
+      .setPosition(r.sprite.x, r.sprite.y + vehicleDrop(this.scene, key))
       .setDepth(r.sprite.depth + (dir === 'down' ? 0.5 : -0.5));
     this.cropRider(r.sprite);
   }

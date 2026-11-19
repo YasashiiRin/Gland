@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { hdScale } from './hd';
+import { hdScale, vehicleDrop } from './hd';
 import { TILE } from '../config/constants';
 import { ITEMS, type ItemId, type VehicleAbility } from '../data/items';
 import type { Player } from '../entities/Player';
@@ -18,10 +18,8 @@ import { SMOKE_TEXTURE } from './PreloadScene';
 
 /** The rider's legs are hidden below this row of the 16x32 player frame (they're "in" the seat). */
 const RIDER_CROP_HEIGHT = 23;
-/** How far below the player's feet the vehicle's ground line sits. */
-const VEHICLE_DROP = 4;
 /** How close (px) you must stand to a parked vehicle to get on. */
-const MOUNT_RANGE = 22;
+const MOUNT_RANGE = 40; // vehicles are true size now: a harvester is 5 tiles long
 /** Vehicles that take up 2x2 tiles, work a 2x2 area and need a wider collision body. */
 const BIG_VEHICLES: ReadonlySet<string> = new Set(['tractor', 'harvester', 'water_truck']);
 /** Vehicles with a work mode (Space toggles it), and what it is called. */
@@ -77,7 +75,7 @@ export class RideController {
     gameState.riding = id as ItemId;
     gameState.vehicleWorking = false;
     const spot = gameState.vehicles[id];
-    if (spot) this.player.setPosition(spot.x, spot.y - VEHICLE_DROP);
+    if (spot) this.player.setPosition(spot.x, spot.y - vehicleDrop(this.scene, `vehicle_${id}`));
     this.lastArea = '';
     return `Lên ${ITEMS[id as ItemId].name.toLowerCase()}`;
   }
@@ -113,7 +111,7 @@ export class RideController {
     gameState.vehicles = parkVehicle(gameState.vehicles, id, {
       mapKey: this.mapKey,
       x: Math.round(this.player.x),
-      y: Math.round(this.player.y + VEHICLE_DROP),
+      y: Math.round(this.player.y + vehicleDrop(this.scene, `vehicle_${id}`)),
       facing: this.player.direction,
     });
     gameState.riding = null;
@@ -222,7 +220,7 @@ export class RideController {
     }
     this.image
       .setFrame(DIRECTIONS.indexOf(this.player.direction))
-      .setPosition(this.player.x, this.player.y + VEHICLE_DROP)
+      .setPosition(this.player.x, this.player.y + vehicleDrop(this.scene, textureKey))
       // Facing the viewer, the vehicle's front (handlebars, hood, cart board)
       // is between us and the rider, so it draws on top; otherwise below.
       .setDepth(this.player.depth + (this.player.direction === 'down' ? 0.5 : -0.5));

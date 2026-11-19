@@ -12,6 +12,8 @@ import random
 
 from .common import ASSETS, T
 from .facing import set_facings
+from .real_scale import FRONT_ROWS, LANDMARKS, scale_box
+from .province_tiles import BIOME_TREES, ORCHARD
 from .water_tiles import DEEP, QUAY_EDGE
 from .tiles import (BLOCK, COLLIDES, COLS, DIRT, DOOR, FLOWERS, FOREST, GRASS, GRASS2, GRASS3, PATH, PATH_EDGE, ROWS, TRUNK, WATER, WATER_EDGE)
 
@@ -98,6 +100,7 @@ class MapBuilder:
         """A sprite drawn bottom-aligned on a tw x th footprint. Rows from
         `solid_from` down are blocked (None = walk-through), except `door`.
         `facing`: the way a building fronts (else worked out from the roads, facing.py)."""
+        tx, ty, tw, th = scale_box(sprite, tx, ty, tw, th)  # true size next to a person (real_scale.py)
         props = {"sprite": sprite, "layer": layer}
         if facing:
             props["facing"] = facing
@@ -139,8 +142,23 @@ class MapBuilder:
                     out[y][x] = DEEP
         self.ground = out
 
+    def clear_fronts(self) -> None:
+        """Takes away the trees standing just in front of (below) a landmark, which would hide it."""
+        trees = {TRUNK, FOREST, ORCHARD, *BIOME_TREES}
+        for o in self.objects:
+            props = {p["name"]: p["value"] for p in o.get("properties", [])}
+            if o["name"] != "prop" or props.get("sprite") not in LANDMARKS:
+                continue
+            x0, x1 = int(o["x"] // T) - 2, int((o["x"] + o["width"]) // T) + 2
+            bottom = int((o["y"] + o["height"]) // T)
+            for y in range(bottom, min(self.h, bottom + FRONT_ROWS)):
+                for x in range(max(0, x0), min(self.w, x1)):
+                    if self.decor[y][x] in trees:
+                        self.decor[y][x] = None
+
     def to_tmj(self) -> dict:
         set_facings(self)  # before autotile: it reads the plain road tiles
+        self.clear_fronts()
         self.autotile()
 
         def layer(lid: int, name: str, grid: list) -> dict:

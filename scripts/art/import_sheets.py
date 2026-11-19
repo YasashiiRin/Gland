@@ -11,6 +11,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageOps
 
+from .import_scale import real_frame, resize_drawn, set_frame_size
+from .real_scale import SIZES, canvas
 from .asset_import import background, bbox, cut_out, find, fit_scale, load, place
 
 PUB = Path(__file__).resolve().parents[2] / "public" / "assets" / "sprites"
@@ -197,40 +199,44 @@ def import_characters() -> list[str]:
 
 # --- animals: 2 walk frames side by side, facing right ------------------------------------
 LABELLED = {"chicken", "pig"}  # 2 x 2 views, each with a written label
-ANIMALS: dict[str, tuple[int, int, list[Cell], tuple[int, int], tuple[int, int]]] = {
-    # picture: grid rows, cols, the two drawings (mirrored to face right), size to fit, frame size
-    "chicken": (2, 2, [(0, 1, False), (1, 0, True)], (28, 29), (32, 32)),
-    "pig": (2, 2, [(0, 1, False), (1, 0, True)], (57, 35), (64, 48)),
-    "cow": (4, 4, [(2, 0, False), (2, 2, False)], (57, 41), (64, 48)),
-    "buffalo": (4, 4, [(1, 0, True), (1, 2, True)], (57, 45), (64, 48)),
-    "tiger": (4, 4, [(1, 1, False), (1, 3, False)], (74, 42), (80, 48)),
+ANIMALS: dict[str, tuple[int, int, list[Cell]]] = {
+    # picture: grid rows, cols, the two drawings (mirrored to face right); size: real_scale.py
+    "chicken": (2, 2, [(0, 1, False), (1, 0, True)]),
+    "pig": (2, 2, [(0, 1, False), (1, 0, True)]),
+    "cow": (4, 4, [(2, 0, False), (2, 2, False)]),
+    "buffalo": (4, 4, [(1, 0, True), (1, 2, True)]),
+    "tiger": (4, 4, [(1, 1, False), (1, 3, False)]),
 }
 
 
 def import_animals() -> list[str]:
     done = []
-    for name, (rows, cols, picks, fit, size) in ANIMALS.items():
+    for name, (rows, cols, picks) in ANIMALS.items():
         p = find(f"animals/{name}.png")
         if p:
+            fit, size = real_frame(f"animals/{name}")
             sheet(frames(grid(p, rows, cols, labelled=name in LABELLED), picks, fit, size, 0), 2).save(PUB / "animals" / f"{name}.png")
+            set_frame_size(f"animal_{name}", size)
             done.append(f"animals/{name}")
     return done
 
 
-# --- vehicles: down, left, right, up, 64 x 64 each ----------------------------------------
-VEHICLES = {  # picture: (which of the 4 drawings is the side view, does it face left, size to fit)
-    "bicycle": (1, False, (59, 44)), "motorbike": (1, False, (60, 47)), "ox_cart": (1, True, (63, 60)),
-    "tractor": (1, True, (60, 52)), "harvester": (1, True, (62, 52)), "water_truck": (2, True, (60, 47)),
+# --- vehicles: down, left, right, up; true size (real_scale.py) ---------------------------
+VEHICLES = {  # picture: (which of the 4 drawings is the side view, does it face left)
+    "bicycle": (1, False), "motorbike": (1, False), "ox_cart": (1, True),
+    "tractor": (1, True), "harvester": (1, True), "water_truck": (2, True),
 }
 
 
 def import_vehicles() -> list[str]:
     done = []
-    for name, (side, faces_left, fit) in VEHICLES.items():
+    for name, (side, faces_left) in VEHICLES.items():
         p = find(f"vehicles/{name}.png")
         if p:
             picks = [(0, 0, False), (0, side, not faces_left), (0, side, faces_left), (0, 3, False)]
-            sheet(frames(grid(p, 1, 4), picks, fit, (64, 64), 0), 4).save(PUB / "vehicles" / f"{name}.png")
+            fit, size = real_frame(f"vehicles/{name}")
+            sheet(frames(grid(p, 1, 4), picks, fit, size, 0), 4).save(PUB / "vehicles" / f"{name}.png")
+            set_frame_size(f"vehicle_{name}", size)
             done.append(f"vehicles/{name}")
     return done
 
@@ -251,25 +257,6 @@ BUILDINGS: dict[str, tuple[str, int, int]] = {  # picture: (target in sprites/pr
     # Not used: the bridges and the gates you walk through (ngo_mon, quang_binh_quan, pagoda_gate)
     # came as slanted corner views, so their way through cannot line up with a straight road.
 }
-# The great buildings, drawn bigger than a house (HD px; a tile is 32): the footprints in the
-# maps match (map_quang_binh.py, world_maps.py). A village house is 160 x 160.
-BIG = {"pagoda": (256, 224), "thien_mu": (128, 384), "royal_hall": (320, 384), "royal_tomb": (256, 384),
-       "memorial": (128, 256)}
-# Gates still drawn by code: shown at twice their first size (only once, from the size they are drawn at).
-GROW = {"quang_binh_quan": (160, 160), "ngo_mon": (256, 160)}  # the pagoda gate stays: in front of the pagoda it would hide it
-
-
-def grow_gates() -> list[str]:
-    done = []
-    for name, base in GROW.items():
-        path = PUB / "props" / f"{name}.png"
-        im = Image.open(path)
-        if im.size == base:
-            im.resize((base[0] * 2, base[1] * 2), Image.NEAREST).save(path)
-            done.append(f"bigger/{name}")
-    return done
-
-
 # 2 x 2 sheets: top row the front (with the door) seen from a corner, bottom row the back.
 # Which wall of the top-left drawing holds the door: L(eft), R(ight) or F(acing us).
 # The game picks <target>_<facing>.png from the map's "facing" (scripts/art/facing.py):
@@ -287,7 +274,7 @@ def import_buildings() -> list[str]:
         if not p:
             continue
         out = PUB / "props" / f"{target}.png"
-        size = BIG.get(target) or Image.open(out).size
+        size = canvas(f"props/{target}") if f"props/{target}" in SIZES else Image.open(out).size
         cells = grid(p, rows, cols, keep_shadow=True, pockets=True)
         wall = DOOR_WALL.get(name)
         if not wall:
@@ -318,4 +305,4 @@ def _register(keys: list[str]) -> None:
 
 
 def import_sheets() -> list[str]:
-    return import_characters() + import_animals() + import_vehicles() + import_buildings() + grow_gates()
+    return import_characters() + import_animals() + import_vehicles() + import_buildings() + resize_drawn()

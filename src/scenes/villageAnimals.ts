@@ -22,7 +22,7 @@ export class HouseAnimals {
     if (!daytime) return this.hide();
     const h = this.home;
     if (h.feature === 'chickens' && !this.chickens.length) {
-      for (let i = 0; i < 4; i++) this.chickens.push(this.add('animal_chicken', 0.7));
+      for (let i = 0; i < 4; i++) this.chickens.push(this.add('animal_chicken', 1));
     }
     this.chickens.forEach((c, i) => {
       const t = time / 1000 / (3 + i) + i * 2.1;

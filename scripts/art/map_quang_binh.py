@@ -27,6 +27,7 @@ run north-south along the east, so places keep their real order and sides:
 """
 from __future__ import annotations
 
+from .real_scale import scale_box
 from .biome import Regions, connect, fill_contents, paint_ground, trail
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
@@ -126,8 +127,9 @@ def _dong_hoi(m: Province, shore: list[int]) -> None:
         m.ground[y][x] = PAVING
     # Quảng Bình Quan, the citadel's north gate (10 x 10 tiles, twice a house): walk through its arch.
     place(m, "quang_binh_quan", 309, 181, 10, 6, solid_from=None, force=True)
-    for y in range(183, 187):
-        for x in range(309, 319):
+    gx, gy, gw, gh = scale_box("quang_binh_quan", 309, 181, 10, 6)                        # its true size
+    for y in range(gy + gh - 4, gy + gh):
+        for x in range(gx, gx + gw):
             if x in (313, 314):
                 m.put(x, y, None)
                 m.ground[y][x] = PAVING
@@ -172,7 +174,7 @@ def _quan_hau(m: Province) -> None:
             m.taken.add((x, y))
     at = place_near(m, "pagoda", 262, 316, 7, 5)                                         # Chùa Ông
     if at:  # its gate out in front, clear of the pagoda
-        place_near(m, "pagoda_gate", at[0] + 1, at[1] + 9, 5, 2, solid_from=None)
+        place_near(m, "pagoda_gate", at[0] + 1, at[1] + 16, 5, 2, solid_from=None)  # well in front: it is tall
     place_near(m, "ferry_shelter", 244, 290, 3, 3)                                       # bến phà Long Đại
     place(m, "mountain", 186, 330, 8, 6, solid_from=2, force=True)                       # núi Thần Đinh
     place_near(m, "pagoda", 194, 338, 7, 5)

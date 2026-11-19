@@ -251,10 +251,12 @@ export abstract class MapScene extends Phaser.Scene {
       .setVisible(false);
     this.applyResourceNodeVisuals();
     // A player's rebuilt house replaces the map's thatched one.
-    const houseAt = new Map(this.homesteads.map((h) => [`${h.x0 + 3},${h.y0 + 3}`, h.key]));
+    // The house of a plot is the one whose middle stands in the plot's house rows.
     const override = (o: Phaser.Types.Tilemaps.TiledObject, sprite: string): string => {
-      const key = houseAt.get(`${Math.floor((o.x ?? 0) / TILE)},${Math.floor((o.y ?? 0) / TILE)}`);
-      return key ? houseOn(gameState.homeHouses, key, sprite) : sprite;
+      const tx = Math.floor(((o.x ?? 0) + (o.width ?? 0) / 2) / TILE);
+      const ty = Math.floor(((o.y ?? 0) + (o.height ?? 0)) / TILE) - 1;
+      const home = this.homesteads.find((h) => h.house === sprite && inRect(h, tx, ty) && ty < h.y0 + HOUSE_MIDDLE.y + 3);
+      return home ? houseOn(gameState.homeHouses, home.key, sprite) : sprite;
     };
     this.props = createProps(this, this.map, override);
     nightLights.spots = this.isOutdoor ? lampSpotsOnMap(this.map, override) : [];

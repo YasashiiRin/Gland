@@ -9,6 +9,7 @@ Giang lagoon with Rú Chá mangroves, the Thuận An mouth and the dunes.
 """
 from __future__ import annotations
 
+from .real_scale import scale_box
 from .biome import Regions, connect, fill_contents, paint_ground, trail
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
@@ -54,9 +55,10 @@ def build_hue() -> Province:
     exit_north(m, 10, "QuangBinh", "fromHue", "fromQuangBinh")
     road(m, [(10, 8), (10, 40), (195, 40), (195, 300)], tile=PAVING)                     # through the citadel, over the river
     road(m, [(195, 250), (300, 250), (300, 200)], tile=PAVING)
-    place(m, "ngo_mon", 188, 181, 16, 10, solid_from=None, force=True)                  # 16 x 10 tiles: the grandest gate
-    for y in range(185, 191):
-        for x in range(188, 204):
+    place(m, "ngo_mon", 188, 181, 16, 10, solid_from=None, force=True)                  # the grandest gate (real_scale.py)
+    gx, gy, gw, gh = scale_box("ngo_mon", 188, 181, 16, 10)
+    for y in range(gy, gy + gh):
+        for x in range(gx, gx + gw):
             if x not in (195, 196):
                 m.put(x, y, BLOCK)
     place(m, "royal_hall", 180, 128, 10, 5, force=True)
@@ -66,7 +68,7 @@ def build_hue() -> Province:
     if bridge_y:
         place(m, "truong_tien", 193, bridge_y, 5, 7, solid_from=None, layer="floor", force=True)
     place(m, "thien_mu", 112, 261, 3, 3, force=True)                                     # the 7-storey tower, 12 tiles tall
-    place(m, "pagoda", 116, 259, 7, 5, force=True)
+    place(m, "pagoda", 121, 259, 7, 5, force=True)                                       # beside the tower, not on it
     place(m, "mountain", 210, 336, 8, 6, solid_from=2, force=True)                       # Ngự Bình
     market(m, 250, 196, rows=2, cols=3)                                                  # chợ Đông Ba
     connect(m, regions, [(10, 40), (195, 300), (116, 268)])

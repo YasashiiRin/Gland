@@ -11,7 +11,7 @@ import { ChunkedImages } from './chunkedImages';
  */
 const FOREST_TEXTURES: readonly string[] = ['tree_bamboo', 'tree_bamboo', 'tree_areca', 'tree_bamboo', 'tree_oak_1'];
 const CHOPPABLE_TEXTURES = ['tree_oak_0', 'tree_oak_1', 'tree_banana'] as const;
-/** Where the trunk base sits inside the 48x64 tree sprite. */
+/** Where the trunk base sits in a tree sprite: 1/16 of its height from the bottom (import_assets.py). */
 const TREE_BASE_Y = 60;
 const TREE_HEIGHT = 64;
 
@@ -98,8 +98,17 @@ export class TreeSprites {
     looks: { forestTrees?: readonly string[]; orchardTree?: string } = {},
   ) {
     this.images = new ChunkedImages(scene);
+    // Trees are drawn at their true size (scripts/art/real_scale.py), several tiles across, so
+    // a wood or hedge shows one tree per 2 x 2 tiles (the tiles in between still block the way).
+    // Trees you can chop always show.
+    const shown = new Set<number>();
     decor.forEachTile((tile) => {
       if (!isTreeGid(tile.index)) return;
+      if (tile.index !== TILE_GID.TRUNK) {
+        const cell = Math.floor(tile.y / 2) * 100000 + Math.floor(tile.x / 2);
+        if (shown.has(cell)) return;
+        shown.add(cell);
+      }
       const h = tileHash(tile.x, tile.y);
       const forest = tile.index === TILE_GID.FOREST;
       const pool: readonly string[] =
@@ -158,7 +167,8 @@ export class TreeSprites {
     // with a slow gust that comes and goes over the whole wood.
     const gust = 0.6 + 0.4 * Math.sin(time / 7000);
     for (const sprite of this.images.images()) {
-      const behind = Math.abs(sprite.x - px) < 20 && py < sprite.y - 4 && py > sprite.y - 56;
+      // Behind the trunk and under the crown (trees are tall now: use the picture's own size).
+      const behind = Math.abs(sprite.x - px) < Math.max(20, sprite.displayWidth * 0.3) && py < sprite.y - 4 && py > sprite.y - sprite.displayHeight * 0.85;
       const alpha = behind ? 0.45 : 1;
       if (sprite.alpha !== alpha) sprite.setAlpha(alpha);
       if (!this.scene.tweens.isTweening(sprite)) {

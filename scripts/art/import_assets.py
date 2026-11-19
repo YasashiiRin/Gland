@@ -31,6 +31,7 @@ from art.asset_import import ROOT, SRC, find, fit_scale, darken, framed_tile, ma
 from art.import_edges import edge_tiles, overlay_tile  # noqa: E402
 from art.import_sheets import import_sheets  # noqa: E402
 from art.import_extras import import_extras  # noqa: E402
+from art.real_scale import canvas, write_lamp_scale  # noqa: E402
 
 PUB = ROOT / "public" / "assets"
 S = 32
@@ -133,7 +134,8 @@ def import_sprites() -> list[str]:
         name, _, target = entry.partition(":")
         p = find(f"trees/{name}.png")
         if p:
-            sprite(p, (96, 128), margin=2, keep_shadow=True).save(PUB / "sprites" / "trees" / f"{target or name}.png")
+            size = canvas(f"trees/{target or name}")  # true size next to a person (real_scale.py)
+            sprite(p, size, margin=2, keep_shadow=True, bottom_pad=size[1] // 16).save(PUB / "sprites" / "trees" / f"{target or name}.png")
             done.append(f"trees/{name}")
     for name in CROPS:
         p = find(f"crops/{name}.png", f"trees/{name}.png")
@@ -173,6 +175,7 @@ def import_icons() -> list[str]:
 
 
 def main() -> None:
+    write_lamp_scale(ROOT)
     done = import_ground() + import_mine() + import_sprites() + import_icons() + import_sheets() + import_extras()
     print(f"Imported {len(done)} pictures from assets/: {', '.join(done)}")
 

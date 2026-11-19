@@ -2,8 +2,9 @@
 stands on its own 19 x 18 plot of bare beaten earth (the colour of the lanes),
 unwalled and ringed with trees - bamboo clumps, banana and fruit trees:
 
-    rows 0-4    back garden: banana trees, the edge trees
-    rows 5-8    the house (5 x 4); a big tree on its left, a haystack on its right
+    rows 0-2    back garden: banana trees, the edge trees
+    rows 3-8    the house, true size (about 10 x 6, real_scale.py); a haystack on its right,
+                a big shade tree at the front left; a low hedge along the front edge
     rows 9-16   the yard: a low bamboo tea table with stools; some plots also have
                 a fish pond or a chicken coop
     row 17      the front edge; "gate" is its middle, just below
@@ -18,7 +19,7 @@ from __future__ import annotations
 
 from .province_tiles import BAMBOO_TREE, ORCHARD
 from .region import Province, place
-from .tiles import DIRT, WATER
+from .tiles import BUSH, DIRT, WATER
 
 T = 16
 W, H = 19, 18
@@ -38,20 +39,23 @@ def homestead(m: Province, x0: int, y0: int, sprite: str, vacant: bool, prefix: 
         for x in range(x0, x1 + 1):
             m.ground[y][x] = DIRT
     gate = range(hx + 1, hx + 4)
-    for x in range(x0, x1 + 1):                                       # trees all round the plot
+    for x in range(x0, x1 + 1):                                       # trees round the back, a low hedge in front
         for y in (y0, y1):
             if (y == y1 and x in gate) or m.rnd.random() < 0.35:
                 continue
-            _edge_tree(m, x, y)
+            if y == y1:
+                m.put(x, y, BUSH)  # full-size trees here would hide the whole yard
+            else:
+                _edge_tree(m, x, y)
     for y in range(y0 + 1, y1):
         for x in (x0, x1):
             if m.rnd.random() < 0.6:
                 _edge_tree(m, x, y)
     for bx in range(x0 + 2, x1 - 1, 3):                               # the back garden
         if m.rnd.random() < 0.6:
-            m.prop("banana", bx, y0 + 2 + m.rnd.randint(0, 1), 1, 1)
-    m.put(x0 + 4, y0 + 8, ORCHARD)                                    # the big tree
-    place(m, "haystack", x0 + 13, y0 + 7, 2, 2, solid_from=0, force=True)
+            m.prop("banana", bx, y0 + 1 + m.rnd.randint(0, 1), 1, 1)   # behind the house
+    m.put(x0 + 2, y0 + 10, ORCHARD)                                   # the big shade tree, front left
+    place(m, "haystack", x0 + 16, y0 + 7, 2, 2, solid_from=0, force=True)
     place(m, "tea_table", x0 + 10, y0 + 11, 2, 1, solid_from=0, force=True)
     feature = "" if vacant else m.rnd.choice(["pond", "chickens", "", ""])
     if feature == "pond":

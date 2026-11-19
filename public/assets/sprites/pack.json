@@ -854,8 +854,8 @@
     "key": "vehicle_motorbike",
     "url": "sprites/vehicles/motorbike.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 64
+     "frameWidth": 75,
+     "frameHeight": 46
     },
     "hd": true
    },
@@ -864,8 +864,8 @@
     "key": "vehicle_bicycle",
     "url": "sprites/vehicles/bicycle.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 64
+     "frameWidth": 71,
+     "frameHeight": 45
     },
     "hd": true
    },
@@ -874,8 +874,8 @@
     "key": "vehicle_tractor",
     "url": "sprites/vehicles/tractor.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 64
+     "frameWidth": 119,
+     "frameHeight": 77
     },
     "hd": true
    },
@@ -884,8 +884,8 @@
     "key": "vehicle_harvester",
     "url": "sprites/vehicles/harvester.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 64
+     "frameWidth": 180,
+     "frameHeight": 104
     },
     "hd": true
    },
@@ -894,8 +894,8 @@
     "key": "vehicle_water_truck",
     "url": "sprites/vehicles/water_truck.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 64
+     "frameWidth": 195,
+     "frameHeight": 96
     },
     "hd": true
    },
@@ -904,8 +904,8 @@
     "key": "vehicle_ox_cart",
     "url": "sprites/vehicles/ox_cart.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 64
+     "frameWidth": 157,
+     "frameHeight": 77
     },
     "hd": true
    },
@@ -914,8 +914,8 @@
     "key": "animal_chicken",
     "url": "sprites/animals/chicken.png",
     "frameConfig": {
-     "frameWidth": 32,
-     "frameHeight": 32
+     "frameWidth": 22,
+     "frameHeight": 20
     },
     "hd": true
    },
@@ -924,8 +924,8 @@
     "key": "animal_pig",
     "url": "sprites/animals/pig.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 48
+     "frameWidth": 43,
+     "frameHeight": 29
     },
     "hd": true
    },
@@ -934,8 +934,8 @@
     "key": "animal_cow",
     "url": "sprites/animals/cow.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 48
+     "frameWidth": 77,
+     "frameHeight": 54
     },
     "hd": true
    },
@@ -944,8 +944,8 @@
     "key": "animal_buffalo",
     "url": "sprites/animals/buffalo.png",
     "frameConfig": {
-     "frameWidth": 64,
-     "frameHeight": 48
+     "frameWidth": 104,
+     "frameHeight": 62
     },
     "hd": true
    },
@@ -954,8 +954,8 @@
     "key": "animal_tiger",
     "url": "sprites/animals/tiger.png",
     "frameConfig": {
-     "frameWidth": 80,
-     "frameHeight": 48
+     "frameWidth": 107,
+     "frameHeight": 43
     },
     "hd": true
    },

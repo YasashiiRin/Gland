@@ -1,4 +1,5 @@
 import lights from '../data/houseLights.json';
+import REAL_SCALE from '../data/realScale.json';
 
 /** A spot of oil-lamp light in the world (px). */
 export interface LampSpot {
@@ -25,8 +26,11 @@ const TABLE = lights as unknown as Record<string, [number, number, number][]>;
 
 /** The lamp spots of a building sprite placed with its bottom centre at (x, bottom). */
 export function lampSpotsFor(sprite: string, x: number, bottom: number): LampSpot[] {
-  const list = sprite.startsWith('_') ? undefined : TABLE[sprite];
-  return (list ?? []).map(([dx, dy, r]) => ({ x: x + dx, y: bottom + dy, r }));
+  const base = sprite.replace(/_(left|right|up)$/, ''); // a house facing another way keeps its lamps
+  const list = base.startsWith('_') ? undefined : TABLE[base];
+  // Houses are drawn at true size now (scripts/art/real_scale.py): their lamps move out with them.
+  const k = (REAL_SCALE as Record<string, number>)[base] ?? 1;
+  return (list ?? []).map(([dx, dy, r]) => ({ x: x + dx * k, y: bottom + dy * k, r: r * Math.sqrt(k) }));
 }
 
 /**

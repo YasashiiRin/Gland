@@ -31,6 +31,17 @@ export function hdScale(scene: Phaser.Scene, key: string): number {
   return HD_KEYS.has(key) && scene.textures.exists(key) ? 0.5 : 1;
 }
 
+/**
+ * How far below the rider's feet a vehicle's bottom is drawn (world px), so the
+ * rider sits on its seat: vehicles are drawn at their true size (a harvester is
+ * much taller than a bicycle), and the seat is about 45% of the way up.
+ */
+export function vehicleDrop(scene: Phaser.Scene, key: string): number {
+  if (!scene.textures.exists(key)) return 4;
+  const height = scene.textures.getFrame(key, 0).height * hdScale(scene, key);
+  return Math.round(4 + Math.max(0, 0.45 * (height - 22)));
+}
+
 /** Art pixels per world pixel for a texture: 2 for HD art, 1 otherwise. */
 export function artScale(scene: Phaser.Scene, key: string): number {
   return 1 / hdScale(scene, key);

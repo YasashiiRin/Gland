@@ -10,6 +10,7 @@ from __future__ import annotations
 import math
 
 from .maps import MapBuilder
+from .real_scale import scale_box
 from .water_tiles import SEA_DEEP
 from .province_tiles import BRIDGE, CITADEL, ORCHARD, PADDY, RICE, SALT, SAND, SAND2, SEA, SURF, TEA
 from .tiles import (BLOCK, DIRT, FENCE, FLOWERS, FOREST, GRASS, GRASS2, GRASS3, PATH, ROCK, TRUNK, WATER,
@@ -130,6 +131,7 @@ def _pave(m: Province, x: int, y: int, tile: int) -> None:
 def place(m: Province, sprite: str, x: int, y: int, w: int, h: int, solid_from: int | None = 1,
           force: bool = False, layer: str = "", pad: int = 0, facing: str = "") -> bool:
     """A landmark/house prop, only on free ground unless forced. Returns whether it was placed."""
+    x, y, w, h = scale_box(sprite, x, y, w, h)  # true size next to a person (real_scale.py)
     if not force and not m.area_free(x, y, w, h, pad):
         return False
     m.prop(sprite, x, y, w, h, solid_from=solid_from, layer=layer, facing=facing)
