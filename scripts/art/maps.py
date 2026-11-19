@@ -11,6 +11,7 @@ import json
 import random
 
 from .common import ASSETS, T
+from .facing import set_facings
 from .water_tiles import DEEP, QUAY_EDGE
 from .tiles import (BLOCK, COLLIDES, COLS, DIRT, DOOR, FLOWERS, FOREST, GRASS, GRASS2, GRASS3, PATH, PATH_EDGE, ROWS, TRUNK, WATER, WATER_EDGE)
 
@@ -92,10 +93,15 @@ class MapBuilder:
         self._oid += 1
 
     def prop(self, sprite: str, tx: int, ty: int, tw: int, th: int, solid_from: int | None = 0,
-             layer: str = "", door: tuple[int, int] | None = None, base: int | None = None) -> None:
+             layer: str = "", door: tuple[int, int] | None = None, base: int | None = None,
+             facing: str = "") -> None:
         """A sprite drawn bottom-aligned on a tw x th footprint. Rows from
-        `solid_from` down are blocked (None = walk-through), except `door`."""
-        self.obj("prop", tx * T, ty * T, tw * T, th * T, {"sprite": sprite, "layer": layer})
+        `solid_from` down are blocked (None = walk-through), except `door`.
+        `facing`: the way a building fronts (else worked out from the roads, facing.py)."""
+        props = {"sprite": sprite, "layer": layer}
+        if facing:
+            props["facing"] = facing
+        self.obj("prop", tx * T, ty * T, tw * T, th * T, props)
         for y in range(ty, ty + th):
             for x in range(tx, tx + tw):
                 solid = solid_from is not None and y >= ty + solid_from
@@ -134,6 +140,7 @@ class MapBuilder:
         self.ground = out
 
     def to_tmj(self) -> dict:
+        set_facings(self)  # before autotile: it reads the plain road tiles
         self.autotile()
 
         def layer(lid: int, name: str, grid: list) -> dict:

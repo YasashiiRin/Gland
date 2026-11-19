@@ -40,6 +40,7 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 - **Hầm mỏ:** cắt một ô ở đúng cỡ điểm ảnh gốc. Vách và quặng tối hơn nền để dễ phân biệt.
 - **Cây trồng** để ở `assets/crops/` hoặc `assets/trees/` đều được.
 - **Nhân vật, động vật, xe, nhà** (`scripts/art/import_sheets.py`): ảnh được tách thành từng hình theo khoảng trống giữa chúng, rồi bảng trong script chọn hình nào vào khung nào. Hàng nhìn ngang chỉ cần một phía, script tự lật ra phía kia. Nhà lấy hình đầu tiên (góc trên trái) của tấm.
+- **Hướng nhà:** lúc tạo bản đồ, mỗi nhà được ghi hướng ra con đường gần nhất (`scripts/art/facing.py`). Nhà trong sân vườn luôn quay ra cổng sân và con đường trước cổng. Từ tấm 2 x 2: hàng trên là mặt trước, hàng dưới là mặt sau. Script làm ra 4 hình `<tên>`, `_left`, `_right`, `_up`, và mọi nhà dùng chung một kiểu: cửa ở tường bên trái.
 - **Nhân vật đi bộ:** các khung đi của Gemini hay lệch góc (nửa quay về người xem, ngoái lại), nên mỗi hướng chỉ dùng **một hình**: nhìn trước, nhìn nghiêng rõ nhất (lật ra để có hướng phải), quay lưng. Khi đi, hình nhún lên xuống.
 - Tên file lỡ gõ đuôi hai lần (`x.png.png`) vẫn được nhận.
 
@@ -49,6 +50,7 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 
 **Chưa dùng:**
 - `folk_5.png`: vẽ người gánh hàng có sẵn đòn gánh, nhưng game tự vẽ đòn gánh lên người bán rong (sẽ thành hai đòn). Cần tấm 4 x 4 người đi bộ không cầm gì.
+- `ngo_mon.png`, `quang_binh_quan.png`, `pagoda_gate.png`: cổng vẽ nghiêng chéo, nên lối đi qua cổng không thẳng hàng với đường. Đang giữ hình cũ nhìn thẳng. Cần vẽ lại cổng **nhìn thẳng từ phía trước**, lối đi qua cổng chạy dọc từ dưới lên trên.
 - `cable_bridge.png`, `river_bridge.png`, `truong_tien.png`: cầu vẽ nghiêng chéo, không đặt được lên dòng sông thẳng. Cần cầu nhìn thẳng từ trên xuống (cầu sông và Trường Tiền chạy dọc trên–dưới, cầu dây văng chạy ngang).
 - `stubble.png`: Gemini vẽ thành cả một thửa ruộng chứ không phải 1 ô, nên vẫn giữ hình cũ. Nếu muốn thay thì vẽ lại thành 1 ô gốc rạ phủ kín.
 - `rice_young.png`: game chưa có ô riêng cho lúa non, vẫn dùng lúa chín tô xanh.

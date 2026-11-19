@@ -5,6 +5,7 @@ layout, so each picture is split into its grid of drawings by the empty
 gaps between them, and the tables below say which drawing goes to which
 frame (and whether to mirror it: side views often all face the same way).
 """
+import json
 from pathlib import Path
 
 import numpy as np
@@ -164,28 +165,61 @@ BUILDINGS: dict[str, tuple[str, int, int]] = {  # picture: (target in sprites/pr
     "house_tile_lime": ("house_a", 2, 2), "house_tile_brick": ("house_b", 2, 2),
     "vehicle_shop": ("vehicle_house", 2, 2), "seed_shop": ("shop", 2, 2), "warehouse": ("warehouse", 2, 2),
     "village_school": ("school", 2, 2), "dinh_lang": ("ubnd", 2, 2), "memorial_house": ("memorial_house", 2, 2),
-    "station": ("station", 2, 2), "quang_binh_quan": ("quang_binh_quan", 2, 2), "pagoda": ("pagoda", 2, 2),
-    "pagoda_gate": ("pagoda_gate", 2, 2), "ferry_shelter": ("ferry_shelter", 4, 4), "lookout": ("lookout", 4, 4),
+    "station": ("station", 2, 2), "pagoda": ("pagoda", 2, 2),
+    "ferry_shelter": ("ferry_shelter", 4, 4), "lookout": ("lookout", 4, 4),
     "memorial": ("memorial", 4, 4), "hat_stall": ("hat_stall", 4, 4), "stall_veg": ("stall_veg", 4, 4),
     "stall_rice": ("stall_rice", 4, 4), "umbrella_fruit": ("umbrella_fruit", 4, 4),
     "umbrella_veg": ("umbrella_veg", 4, 4), "umbrella_fish": ("umbrella_fish", 4, 4),
-    "umbrella_flower": ("umbrella_flower", 4, 4), "ngo_mon": ("ngo_mon", 4, 4),
+    "umbrella_flower": ("umbrella_flower", 4, 4),
     "royal_hall": ("royal_hall", 6, 4), "royal_tomb": ("royal_tomb", 4, 4), "thien_mu": ("thien_mu", 4, 4),
-    # The bridges came as slanted views: they cannot lie across a straight river, so not used.
+    # Not used: the bridges and the gates you walk through (ngo_mon, quang_binh_quan, pagoda_gate)
+    # came as slanted corner views, so their way through cannot line up with a straight road.
 }
+# 2 x 2 sheets: top row the front (with the door) seen from a corner, bottom row the back.
+# Which wall of the top-left drawing holds the door: L(eft), R(ight) or F(acing us).
+# The game picks <target>_<facing>.png from the map's "facing" (scripts/art/facing.py):
+# down and left = the door on the left wall (one look for every house), right = mirrored, up = the back.
+DOOR_WALL = {"thatched_house": "R", "house_mud_thatch": "R", "house_tile_lime": "L", "house_tile_brick": "R",
+             "vehicle_shop": "L", "seed_shop": "L", "warehouse": "R", "village_school": "F",
+             "memorial_house": "L", "station": "L", "pagoda": "L"}
 
 
 def import_buildings() -> list[str]:
-    done = []
+    done: list[str] = []
+    facings: list[str] = []
     for name, (target, rows, cols) in BUILDINGS.items():
         p = find(f"buildings/{name}.png")
         if not p:
             continue
         out = PUB / "props" / f"{target}.png"
         size = Image.open(out).size
-        frames(grid(p, rows, cols, keep_shadow=True, pockets=True), [(0, 0, False)], size, size, 0)[0].save(out)
+        cells = grid(p, rows, cols, keep_shadow=True, pockets=True)
+        wall = DOOR_WALL.get(name)
+        if not wall:
+            frames(cells, [(0, 0, False)], size, size, 0)[0].save(out)
+        else:  # one scale for all four, so the house keeps its size whichever way it faces
+            flip = wall == "R"
+            left, right, up = frames(cells, [(0, 0, flip), (0, 0, not flip), (1, 0, False)], size, size, 0)
+            down = left
+            down.save(out)
+            for facing, im in (("left", left), ("right", right), ("up", up)):
+                im.save(PUB / "props" / f"{target}_{facing}.png")
+                facings.append(target + "_" + facing)
         done.append(f"buildings/{name}")
+    _register(facings)
     return done
+
+
+def _register(keys: list[str]) -> None:
+    """Adds the facing pictures to the sprite pack (once each)."""
+    path = PUB / "pack.json"
+    pack = json.loads(path.read_text())
+    files = pack["generated"]["files"]
+    have = {f["key"] for f in files}
+    for k in keys:
+        if f"prop_{k}" not in have:
+            files.append({"type": "image", "key": f"prop_{k}", "url": f"sprites/props/{k}.png", "hd": True})
+    path.write_text(json.dumps(pack, indent=1))
 
 
 def import_sheets() -> list[str]:

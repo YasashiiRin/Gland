@@ -31,7 +31,7 @@ def homestead(m: Province, x0: int, y0: int, sprite: str, vacant: bool, prefix: 
         return False
     hx, hy = x0 + 7, y0 + 5
     house = VACANT_HOUSE if vacant else sprite
-    if not place(m, house, hx, hy, 5, 4):
+    if not place(m, house, hx, hy, 5, 4, facing="down"):  # towards the yard gate and its lane
         return False
     x1, y1 = x0 + W - 1, y0 + H - 1
     for y in range(y0, y1 + 1):                                       # bare earth, like the lanes

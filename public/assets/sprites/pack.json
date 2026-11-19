@@ -1039,6 +1039,204 @@
    },
    {
     "type": "image",
+    "key": "prop_thatched_house_left",
+    "url": "sprites/props/thatched_house_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_thatched_house_right",
+    "url": "sprites/props/thatched_house_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_thatched_house_up",
+    "url": "sprites/props/thatched_house_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_c_left",
+    "url": "sprites/props/house_c_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_c_right",
+    "url": "sprites/props/house_c_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_c_up",
+    "url": "sprites/props/house_c_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_a_left",
+    "url": "sprites/props/house_a_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_a_right",
+    "url": "sprites/props/house_a_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_a_up",
+    "url": "sprites/props/house_a_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_b_left",
+    "url": "sprites/props/house_b_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_b_right",
+    "url": "sprites/props/house_b_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_house_b_up",
+    "url": "sprites/props/house_b_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_vehicle_house_left",
+    "url": "sprites/props/vehicle_house_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_vehicle_house_right",
+    "url": "sprites/props/vehicle_house_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_vehicle_house_up",
+    "url": "sprites/props/vehicle_house_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shop_left",
+    "url": "sprites/props/shop_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shop_right",
+    "url": "sprites/props/shop_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_shop_up",
+    "url": "sprites/props/shop_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_warehouse_left",
+    "url": "sprites/props/warehouse_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_warehouse_right",
+    "url": "sprites/props/warehouse_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_warehouse_up",
+    "url": "sprites/props/warehouse_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_school_left",
+    "url": "sprites/props/school_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_school_right",
+    "url": "sprites/props/school_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_school_up",
+    "url": "sprites/props/school_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_memorial_house_left",
+    "url": "sprites/props/memorial_house_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_memorial_house_right",
+    "url": "sprites/props/memorial_house_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_memorial_house_up",
+    "url": "sprites/props/memorial_house_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_station_left",
+    "url": "sprites/props/station_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_station_right",
+    "url": "sprites/props/station_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_station_up",
+    "url": "sprites/props/station_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_pagoda_left",
+    "url": "sprites/props/pagoda_left.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_pagoda_right",
+    "url": "sprites/props/pagoda_right.png",
+    "hd": true
+   },
+   {
+    "type": "image",
+    "key": "prop_pagoda_up",
+    "url": "sprites/props/pagoda_up.png",
+    "hd": true
+   },
+   {
+    "type": "image",
     "key": "item_icon_axe",
     "url": "sprites/icons/axe.png"
    },

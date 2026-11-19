@@ -50,12 +50,21 @@ export function lampSpotsOnMap(map: Phaser.Tilemaps.Tilemap, override?: PropOver
   return spots;
 }
 
+/**
+ * A building's picture for the way it fronts its road (the map's "facing":
+ * down, left, right, up; see scripts/art/facing.py), when there is one.
+ */
+export function facedKey(scene: Phaser.Scene, key: string, facing: string | undefined): string {
+  const faced = facing && facing !== 'down' ? `${key}_${facing}` : key;
+  return scene.textures.exists(faced) ? faced : key;
+}
+
 export function createProps(scene: Phaser.Scene, map: Phaser.Tilemaps.Tilemap, override?: PropOverride): ChunkedImages {
   const images = new ChunkedImages(scene);
   for (const o of map.getObjectLayer('objects')?.objects ?? []) {
     if (o.name !== 'prop') continue;
     const base = readProp(o, 'sprite') ?? '';
-    const key = `prop_${override ? override(o, base) : base}`;
+    const key = facedKey(scene, `prop_${override ? override(o, base) : base}`, readProp(o, 'facing'));
     if (!scene.textures.exists(key)) {
       console.warn(`Missing prop sprite "${key}"`);
       continue;

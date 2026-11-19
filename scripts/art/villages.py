@@ -1,9 +1,9 @@
 """Villages and the deep forest (layout asked for by the player, 2026-11-18).
 
 * Each province has one or two villages, far from the landmarks and towns and
-  away from the deep forest: 10 homesteads (homesteads.py) scattered either
-  side of a crooked lane, footpaths to each yard, a village school and the
-  village paddies. Besides them only a few lonely huts stand in the wilds.
+  away from the deep forest: 10 homesteads (homesteads.py) in two rows, each
+  row fronting its own crooked lane (houses face their road, 2026-11-19),
+  footpaths to each yard gate, a village school and the village paddies. Besides them only a few lonely huts stand in the wilds.
 * Outside the villages the country is wild: no roads (bridges remain).
 * The deep forest (tall trees, thick) only grows along the edges of the map;
   the woods in the middle are open. (Later the player may chop a way through.)
@@ -138,7 +138,7 @@ def _size(scale: float) -> tuple[int, int]:
 
 
 def village(m: Province, name: str, avoid: list[tuple[int, int, int, int]]) -> tuple[int, int, int, int] | None:
-    """A village where the map has most room: 10 homesteads scattered either side of a crooked
+    """A village where the map has most room: 10 homesteads in two rows, each fronting its own
     lane, its school, and right below them the village fields - one paddy per household along a
     3-wide main road (fields_block). Returns its whole area, or None."""
     found = _best_site(m, avoid)
@@ -151,12 +151,12 @@ def village(m: Province, name: str, avoid: list[tuple[int, int, int, int]]) -> t
     _clear(m, x0, y0, w, h)
     hx0 = x0 + (w - VW) // 2
     homes = _houses(m, hx0, y0)
-    _school(m, hx0, y0, y0 + VH // 2)
     bx0 = x0 + (w - bw) // 2
+    lane_x = bx0 + 2 * (fw + SEP) + fw + 1                           # the path between the 3rd and 4th paddies
+    _school(m, hx0, y0, lane_x)
     fields_block(m, bx0, y0 + VH + 2, homes, fw, fd)
     road_y = y0 + VH + 2 + fd + CANAL
-    lane_x = bx0 + 2 * (fw + SEP) + fw + 1                           # the path between the 3rd and 4th paddies
-    for y in range(y0 + VH // 2, road_y):
+    for y in range(lanes(y0)[1], road_y):
         if m.ground[y][lane_x] != WATER:
             _pave(m, lane_x, y, PATH)
         else:
@@ -168,30 +168,38 @@ def village(m: Province, name: str, avoid: list[tuple[int, int, int, int]]) -> t
     return (x0, y0, x0 + w - 1, y0 + h - 1)
 
 
+def lanes(y0: int) -> tuple[int, int]:
+    """The two village lanes: each row of homesteads stands just north of one, fronting it."""
+    return y0 + 24, y0 + 52
+
+
 def _houses(m: Province, x0: int, y0: int) -> list[tuple[str, int]]:
-    """Scatters the homesteads either side of a crooked lane; returns (homeId, members) of each lived-in one."""
-    mid = y0 + VH // 2
-    for x in range(x0 + 2, x0 + VW - 2):                             # the village lane, a little crooked
-        bend = 1 if (x // 9) % 2 else 0
-        _pave(m, x, mid + bend, PATH)
-        if x % 9 == 0:
-            _pave(m, x, mid + 1 - bend, PATH)
+    """Two rows of homesteads, each along the north side of its own crooked lane so that every
+    house and yard gate fronts a lane (houses face their road); returns (homeId, members) of each
+    lived-in one. The lanes are joined at both ends."""
+    for lane in lanes(y0):
+        for x in range(x0 + 2, x0 + VW - 2):
+            bend = 1 if (x // 9) % 2 else 0
+            _pave(m, x, lane + bend, PATH)
+            if x % 9 == 0:
+                _pave(m, x, lane + 1 - bend, PATH)
+    top, low = lanes(y0)
+    for x in (x0 + 2, x0 + VW - 3):                                  # the lanes joined at both ends
+        for y in range(top, low + 2):
+            _pave(m, x, y, PATH)
     plots: list[tuple[int, int]] = []
     before = getattr(m, "home_count", 0)
-    # Two loose rows either side of the lane, each house nudged at random (not a grid).
-    for top in (True, False):
-        x = x0 + 1 + m.rnd.randint(0, 3)
-        while x + PLOT_W < x0 + VW and len(plots) < HOUSES:
-            py = (mid - PLOT_H - 2 - m.rnd.randint(0, 9)) if top else (mid + 3 + m.rnd.randint(0, 9))
-            py = max(y0 + 1, min(py, y0 + VH - PLOT_H - 1))
+    for lane in lanes(y0):
+        x = x0 + 4 + m.rnd.randint(0, 2)
+        while x + PLOT_W < x0 + VW - 3 and len(plots) < HOUSES:
+            py = lane - PLOT_H - 1 - m.rnd.randint(0, 3)
             sprite = ("house_a", "house_c", "thatched_house", "house_b", "house_c")[len(plots) % 5]
             if homestead(m, x, py, sprite, len(plots) in VACANT, m.home_prefix):
                 plots.append((x, py))
-                gx, gy = x + 9, py + PLOT_H if top else py - 1          # footpath from the yard to the lane
-                for y in range(min(gy, mid), max(gy, mid) + 1):
-                    if (gx, y) not in m.taken or m.ground[y][gx] == PATH:
-                        _pave(m, gx, y, PATH)
-                x += PLOT_W + 1 + m.rnd.randint(1, 5)
+                gx = x + 9                                           # footpath from the yard gate to the lane
+                for y in range(py + PLOT_H, lane + 1):
+                    _pave(m, gx, y, PATH)
+                x += PLOT_W + 1 + m.rnd.randint(1, 3)
             else:
                 x += 2
     homes = []
@@ -240,12 +248,16 @@ def fields_block(m: Province, x0: int, y0: int, homes: list[tuple[str, int]], fw
                 m.ground[y][px + 1] = GRASS
 
 
-def _school(m: Province, x0: int, y0: int, mid: int) -> None:
-    """The village school (trường làng), on the lane where there is room."""
+def _school(m: Province, x0: int, y0: int, lane_x: int) -> None:
+    """The village school (trường làng), fronting a lane where there is room (or just below the lower one)."""
     for _ in range(300):
-        x = m.rnd.randint(x0 + 1, x0 + VW - 10)
-        y = m.rnd.choice([mid - 4, mid + 3])
-        if place(m, "school", x, y, 9, 3, solid_from=0):
+        x = m.rnd.randint(x0 + 4, x0 + VW - 13)
+        lane = m.rnd.choice(lanes(y0))
+        if place(m, "school", x, lane - 4, 9, 3, solid_from=0, facing="down"):
+            return
+    for _ in range(300):
+        x = m.rnd.randint(x0 + 4, x0 + VW - 13)
+        if not x - 1 <= lane_x <= x + 9 and place(m, "school", x, lanes(y0)[1] + 3, 9, 3, solid_from=0, facing="up"):
             return
 
 

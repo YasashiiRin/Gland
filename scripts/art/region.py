@@ -128,11 +128,11 @@ def _pave(m: Province, x: int, y: int, tile: int) -> None:
 
 # ------------------------------------------------------------------ placing things
 def place(m: Province, sprite: str, x: int, y: int, w: int, h: int, solid_from: int | None = 1,
-          force: bool = False, layer: str = "", pad: int = 0) -> bool:
+          force: bool = False, layer: str = "", pad: int = 0, facing: str = "") -> bool:
     """A landmark/house prop, only on free ground unless forced. Returns whether it was placed."""
     if not force and not m.area_free(x, y, w, h, pad):
         return False
-    m.prop(sprite, x, y, w, h, solid_from=solid_from, layer=layer)
+    m.prop(sprite, x, y, w, h, solid_from=solid_from, layer=layer, facing=facing)
     m.claim(x - pad, y - pad, w + 2 * pad, h + 2 * pad)
     return True
 
