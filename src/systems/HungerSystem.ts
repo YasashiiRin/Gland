@@ -11,6 +11,9 @@ export const HUNGER = config;
 /** A game day (6:00 to 2:00 the next night) empties the stomach by `perDay`. */
 const MINUTES_PER_DAY = DAY_LENGTH_MINUTES;
 
+/** How fast the stomach empties while asleep, compared with awake (60% slower). */
+export const SLEEP_HUNGER = 0.4;
+
 export function createInitialHunger(): EnergyState {
   return { current: config.max, max: config.max };
 }

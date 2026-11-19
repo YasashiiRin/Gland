@@ -21,6 +21,7 @@ import { ProfessionMenu } from '../ui/ProfessionMenu';
 import { reorder, SKILLS } from '../systems/ProfessionSystem';
 import { receiveTeaching } from '../state/professionActions';
 import { resetHungerClock, tickHunger } from '../state/hungerClock';
+import { fullyRested, tickSleep } from '../state/sleepClock';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
 import { DEPTH_ABOVE } from '../config/constants';
@@ -412,7 +413,7 @@ export class UIScene extends Phaser.Scene {
     EventBus.on(GameEvents.MapEntered, onMap);
     EventBus.on(GameEvents.DayStarted, onDay);
     if (currentMap) onMap(currentMap);
-    if (uiState.sleepWait) this.sleepOverlay.show(net.sleepers.size, net.players.length);
+    if (uiState.sleepWait) this.showSleep();
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       EventBus.off(GameEvents.MapEntered, onMap);
       EventBus.off(GameEvents.DayStarted, onDay);
@@ -436,6 +437,11 @@ export class UIScene extends Phaser.Scene {
     this.hud.setHealth(gameState.playerHealth);
     this.hud.setSanity(gameState.sanity);
     tickHunger();
+    tickSleep();
+    if (uiState.sleepWait) {
+      if (fullyRested()) this.leaveSleepWait(true); // rested: get up by yourself
+      else this.showSleep();
+    }
     this.hud.setHunger(gameState.hunger);
     this.professionHud.update(gameState.profession, this.professionMenu.isOpen);
     this.hud.setMoney(gameState.money);
@@ -722,11 +728,9 @@ export class UIScene extends Phaser.Scene {
       uiState.sleepWait = true;
       if (sleepState.bedElapsed === null) sleepState.bedElapsed = gameState.time.elapsedMinutes;
       net.setSleepReady(true);
-      this.sleepOverlay.show(net.sleepers.size, net.players.length);
+      this.showSleep();
     };
-    const onSleepers = () => {
-      if (this.sleepOverlay.visible) this.sleepOverlay.show(net.sleepers.size, net.players.length);
-    };
+    const onSleepers = () => {};
     const onLobby = (players: LobbyPlayer[]) => {
       const now = new Map(players.map((p) => [p.id, p.name]));
       for (const [id, name] of now) if (!this.knownPlayers.has(id)) this.toast(`${name} đã vào nông trại`);
@@ -747,6 +751,12 @@ export class UIScene extends Phaser.Scene {
       net.events.off(NetEvents.Lobby, onLobby);
       net.events.off(NetEvents.Profile, onProfile);
     });
+  }
+
+  /** The sleep panel with how rested I am. */
+  private showSleep(): void {
+    const pct = (b: { current: number; max: number }) => (b.max > 0 ? (100 * b.current) / b.max : 0);
+    this.sleepOverlay.show(pct(gameState.energy), pct(gameState.playerHealth));
   }
 
   private leaveSleepWait(tellOthers: boolean): void {

@@ -27,10 +27,8 @@ import { worldView } from '../state/worldView';
 import { nightLights } from '../state/nightLights';
 import { buildMinimap } from '../systems/MinimapSystem';
 import { consume, isExhausted } from '../systems/EnergySystem';
-import { DAY_LENGTH_MINUTES } from '../config/time';
-import { endWorldDay, hoursSlept, sleepState, wakeUp } from '../state/dayCycle';
+import { endWorldDay, wakeUp } from '../state/dayCycle';
 import { homeVisit } from '../state/homeVisit';
-import { sleepThrough } from '../state/hungerClock';
 import { addItem, countItem, expandInventory, HOTBAR_SIZE, INVENTORY_SIZE, itemAt, removeItem } from '../systems/InventorySystem';
 import { craftingState } from '../state/craftingState';
 import type { Station } from '../data/recipes';
@@ -75,7 +73,7 @@ import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
 import { HUNGER } from '../systems/HungerSystem';
 import { net, NetEvents } from '../net/NetSession';
-import { everyoneAsleep, pickShared, type NewDayInfo } from '../net/protocol';
+import { pickShared, type NewDayInfo } from '../net/protocol';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
 import { worldSync } from '../net/worldSync';
 import { rideState } from '../state/rideState';
@@ -266,7 +264,7 @@ export abstract class MapScene extends Phaser.Scene {
       homesteads: () => this.homesteads,
       mine: () => this.myHomestead(),
       player: () => ({ x: this.player.x, y: this.player.y }),
-      sleep: () => (net.online ? EventBus.emit(GameEvents.SleepWaitRequested) : this.sleepSequence()),
+      sleep: () => EventBus.emit(GameEvents.SleepWaitRequested), // lie down: rest, the day goes on
       enter: () => this.enterHome(),
       redraw: () => this.redrawInPlace(),
       say: (text) => this.say(text),
@@ -316,14 +314,6 @@ export abstract class MapScene extends Phaser.Scene {
       if (p.newDay) this.wakeUpAsGuest(p.newDay);
       else if (!this.transitioning) this.scene.restart({ spawn: gameState.spawnId });
     };
-    // Host: once everyone in the room is in bed, the day ends for all.
-    const onSleepers = () => {
-      if (net.role === 'host' && net.sleepers.has(net.myId) && everyoneAsleep(net.players, net.sleepers)) {
-        this.sleepSequence();
-      }
-    };
-    net.events.on(NetEvents.Sleepers, onSleepers);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => net.events.off(NetEvents.Sleepers, onSleepers));
     const onPatched = (patch: WorldPatch) => this.onWorldPatched(patch);
     net.events.on(NetEvents.World, onWorld);
     EventBus.on(GameEvents.WorldPatched, onPatched);
@@ -461,8 +451,7 @@ export abstract class MapScene extends Phaser.Scene {
     ) {
       if (this.isNearBed()) {
         // In a room you lie down and wait; the day ends when everyone is in bed.
-        if (net.online) EventBus.emit(GameEvents.SleepWaitRequested);
-        else this.sleepSequence();
+        EventBus.emit(GameEvents.SleepWaitRequested); // lie down: rest, the day goes on
       }
       else if (!this.tryOpenShop()) this.tryUseShippingBin();
     }
@@ -805,32 +794,15 @@ export abstract class MapScene extends Phaser.Scene {
    */
   private wakeUpAsGuest(newDay: NewDayInfo): void {
     if (this.transitioning) return;
-    const slept = newDay.sleepers.includes(net.myId);
-    wakeUp(slept ? hoursSlept(DAY_LENGTH_MINUTES) : 0);
+    wakeUp(0); // rest comes from the time actually spent asleep (sleepClock), not from the night
     const t = gameState.time;
     const payload: DayStartedPayload = { time: t, day: t.day, season: t.season, year: t.year, weather: t.weather, earnings: newDay.earnings };
-    if (slept) this.goHomeForNewDay(payload);
-    else this.newDayInPlace(payload);
+    this.newDayInPlace(payload);
   }
 
-  /** Lying down in bed: sleep until 6:00. Each hour slept restores 12.5% (see wakeUp). */
-  private sleepSequence(): void {
-    if (this.transitioning) return;
-    if (sleepState.bedElapsed === null) sleepState.bedElapsed = gameState.time.elapsedMinutes;
-    const hours = hoursSlept(DAY_LENGTH_MINUTES);
-    sleepThrough(hours * 60); // asleep, the stomach empties 60% slower
-    const payload = this.startNextDay();
-    wakeUp(hours);
-    this.goHomeForNewDay(payload);
-  }
-
-  /** 6:00 came while I was still up (host/solo): the day turns over where I stand, nothing restored. */
+  /** The night ran out (host/solo): the day turns over where I stand, asleep or not. */
   private dawnArrives(): void {
     if (this.transitioning || net.role === 'guest') return;
-    if (uiState.sleepWait || (net.online && net.sleepers.has(net.myId))) {
-      this.sleepSequence(); // I was lying in bed waiting for the others
-      return;
-    }
     const payload = this.startNextDay();
     wakeUp(0);
     this.newDayInPlace(payload);
@@ -845,13 +817,6 @@ export abstract class MapScene extends Phaser.Scene {
       worldSync.rebase();
     }
     return { time, day: time.day, season: time.season, year: time.year, weather: time.weather, earnings };
-  }
-
-  /** Slept through the night: there is no home to go back to any more, you wake where you lay down. */
-  private goHomeForNewDay(payload: DayStartedPayload): void {
-    if (gameState.riding) this.ride.dismount();
-    SaveService.save(gameState);
-    this.newDayInPlace(payload);
   }
 
   /** The Thầy pháp casts a skill from the bar: pay the linh lực, then its effect. */
