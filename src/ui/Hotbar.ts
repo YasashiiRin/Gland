@@ -65,14 +65,16 @@ export class Hotbar {
     this.container.setVisible(visible);
   }
 
-  refresh(inventory: InventoryState, equippedSlot: number): void {
+  /** `canWater`: waterings left in the watering can, shown on its slot. */
+  refresh(inventory: InventoryState, equippedSlot: number, canWater?: number): void {
     for (let i = 0; i < HOTBAR_SIZE; i++) {
       const stack = itemAt(inventory, i);
       const icon = this.icons[i];
       const count = this.counts[i];
       if (stack) {
         icon.setVisible(true).setTexture(iconTextureKey(stack.itemId));
-        count.setText(stack.quantity > 1 ? String(stack.quantity) : '');
+        const water = stack.itemId === 'watering_can' && canWater !== undefined ? String(canWater) : '';
+        count.setText(stack.quantity > 1 ? String(stack.quantity) : water);
       } else {
         icon.setVisible(false);
         count.setText('');

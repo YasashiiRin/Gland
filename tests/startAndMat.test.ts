@@ -18,11 +18,14 @@ describe('start provinces', () => {
     expect(pickStart('hue')).toEqual({ mapKey: 'Hue', spawn: 'home' });
   });
 
-  it('a new game begins in the chosen province with a sleeping mat', () => {
+  it('a new game begins in the chosen province with just the four basic tools and a full can', () => {
     resetToNewGame('An', undefined, 'hue');
     expect(gameState.currentMap).toBe('Hue');
     expect(gameState.spawnId).toBe('home');
-    expect(hasItem(gameState.inventory, 'sleeping_mat', 1)).toBe(true);
+    const held = gameState.inventory.slots.filter((s) => s).map((s) => s!.itemId);
+    expect(held).toEqual(['hoe', 'axe', 'pickaxe', 'watering_can']);
+    expect(hasItem(gameState.inventory, 'sleeping_mat', 1)).toBe(false);
+    expect(gameState.wateringCanWater).toBe(15);
     resetToNewGame('An');
     expect(gameState.currentMap).toBe('QuangBinh');
   });

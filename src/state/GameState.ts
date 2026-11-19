@@ -27,6 +27,7 @@ import type { HorrorMode } from '../systems/HorrorSystem';
 import { createInitialTime, type TimeState } from '../systems/TimeSystem';
 import type { Livestock } from '../systems/LivestockSystem';
 import type { BoatSpot } from '../systems/BoatSystem';
+import { CAN_CAPACITY } from '../systems/WateringCanSystem';
 
 /**
  * Single source of truth for everything that will be saved.
@@ -39,6 +40,8 @@ export interface GameState {
   time: TimeState;
   money: number;
   inventory: InventoryState;
+  /** Waterings left in my watering can (refilled next to water, see WateringCanSystem). */
+  wateringCanWater: number;
   energy: EnergyState;
   /** Index of the currently selected hotbar slot (0-11). */
   equippedSlot: number;
@@ -115,19 +118,12 @@ export const STATE_VERSION = 12;
 export const DEFAULT_ZOOM = 2;
 export const ZOOM_LEVELS: readonly number[] = [1, 2, 3, 4];
 
+/** A new game starts with just the four basic tools (everything else is bought or made). */
 const STARTING_ITEMS: { itemId: ItemId; quantity: number }[] = [
   { itemId: 'hoe', quantity: 1 },
-  { itemId: 'watering_can', quantity: 1 },
   { itemId: 'axe', quantity: 1 },
   { itemId: 'pickaxe', quantity: 1 },
-  { itemId: 'scythe', quantity: 1 },
-  { itemId: 'sword', quantity: 1 },
-  { itemId: 'sleeping_mat', quantity: 1 },
-  { itemId: 'parsnip_seeds', quantity: 15 },
-  { itemId: 'potato_seeds', quantity: 10 },
-  { itemId: 'cauliflower_seeds', quantity: 5 },
-  { itemId: 'strawberry_seeds', quantity: 5 },
-  { itemId: 'green_bean_seeds', quantity: 10 },
+  { itemId: 'watering_can', quantity: 1 },
 ];
 
 export function createInitialState(playerName = 'Nông dân', farmName = 'Nông trại nhỏ'): GameState {
@@ -142,6 +138,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     time: createInitialTime(),
     money: 500,
     inventory,
+    wateringCanWater: CAN_CAPACITY,
     energy: createInitialEnergy(),
     equippedSlot: 0,
     farmPlots: {},

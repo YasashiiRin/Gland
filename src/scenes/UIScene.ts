@@ -432,7 +432,7 @@ export class UIScene extends Phaser.Scene {
     }
     if (Phaser.Input.Keyboard.JustDown(this.inventoryKey)) this.toggleInventory();
 
-    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot);
+    this.hotbar.refresh(gameState.inventory, gameState.equippedSlot, gameState.wateringCanWater);
     this.hud.setEnergy(gameState.energy);
     this.hud.setHealth(gameState.playerHealth);
     this.hud.setSanity(gameState.sanity);

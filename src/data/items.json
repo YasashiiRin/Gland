@@ -9,7 +9,8 @@
     "name": "Bình tưới",
     "category": "tool",
     "stackable": false,
-    "description": "Tưới nước cho cây trồng."
+    "capacity": 15,
+    "description": "Tưới nước cho cây trồng. Đầy bình tưới được 15 lần; hết thì ra sát ao, sông, kênh để múc."
   },
   "axe": {
     "name": "Rìu",

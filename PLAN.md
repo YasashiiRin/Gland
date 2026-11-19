@@ -627,3 +627,11 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
 - Nhà lẻ ngoài hoang không có ruộng: giờ ra đồng thì làm vườn trong sân.
 - Lúc chạy bù khi vắng mặt lâu, thời tiết của cả khoảng đó lấy theo thời tiết hiện tại (game không lưu lịch sử mưa).
 - Cây trồng tạm dùng hình cây lúa nhuộm màu theo loại cây (màu trong config) — thay hình thật sau.
+
+## Cập nhật: đồ khởi đầu và bình tưới có nước (yêu cầu 2026-11-19)
+- [x] Game mới chỉ cho đúng 4 dụng cụ cơ bản: cuốc, rìu, cuốc chim, bình tưới (bỏ liềm, kiếm, chiếu ngủ, hạt giống;
+      `STARTING_ITEMS` trong `state/GameState.ts`). Ngủ trong nhà mình (game bắt đầu ở nhà), hạt giống phải mua.
+- [x] Bình tưới đầy tưới được 15 lần (`capacity` của `watering_can` trong `items.json`); số lần còn lại hiện ở góc ô
+      bình tưới trên thanh công cụ, lưu trong save (`gameState.wateringCanWater`). Hết nước thì đứng sát ao/sông/kênh
+      (ô nước cạnh chỗ đứng, hoặc nhắm vào ô nước) bấm bình để múc đầy lại (`systems/WateringCanSystem.ts`, có test).
+      Xe chở nước vẫn tưới như cũ, không tốn nước bình.

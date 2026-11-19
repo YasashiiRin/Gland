@@ -45,6 +45,7 @@ import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
 import { recallAll } from '../systems/VehicleSystem';
 import { isSowableField, seasonStamp } from '../systems/WildFieldSystem';
 import { isMine, ownerName } from '../state/owner';
+import { CAN_CAPACITY, canAction, canFillFrom, pourWater, refillCan } from '../systems/WateringCanSystem';
 
 /** Energy the tractor uses per tile it tills (the hand hoe costs 2). */
 const TRACTOR_ENERGY_PER_TILE = 1;
@@ -149,7 +150,8 @@ export abstract class FieldScene extends MapScene {
         return tillable ? 'valid' : 'invalid';
       }
       if (stack.itemId === 'watering_can') {
-        return canWater(gameState.farmPlots, key) ? 'valid' : 'invalid';
+        const act = this.canActionAt(tile);
+        return act === 'water' || act === 'fill' ? 'valid' : 'invalid';
       }
       if (def.category === 'seed') {
         return canPlant(gameState.farmPlots, key) || this.isOpenField(tile) ? 'valid' : 'invalid';
@@ -187,10 +189,36 @@ export abstract class FieldScene extends MapScene {
         this.say('Đào được 1 con giun! (mồi câu cá)');
       }
     } else if (itemId === 'watering_can') {
-      this.waterAt(tile);
+      this.useCan(tile);
     } else {
       super.applyToolEffect(itemId, tile);
     }
+  }
+
+  /** What a stroke of the watering can would do on this tile (water it, fill up, or the can is empty). */
+  private canActionAt(tile: { x: number; y: number }): ReturnType<typeof canAction> {
+    const isWater = (x: number, y: number) => isWaterGid(this.groundLayer.getTileAt(x, y)?.index);
+    const stand = { x: Math.floor(this.player.x / TILE), y: Math.floor(this.player.y / TILE) };
+    const plot = canWater(gameState.farmPlots, this.plotKey(tile.x, tile.y));
+    return canAction(gameState.wateringCanWater, plot, isWater(tile.x, tile.y), canFillFrom(tile, stand, isWater));
+  }
+
+  /** The watering can: waters a tilled tile (15 per can), or fills up next to water. */
+  private useCan(tile: { x: number; y: number }): void {
+    const act = this.canActionAt(tile);
+    if (act === 'fill') {
+      gameState.wateringCanWater = refillCan();
+      this.say(`Đã múc đầy bình (${CAN_CAPACITY}/${CAN_CAPACITY}).`);
+      return;
+    }
+    if (act === 'empty') {
+      this.say('Bình hết nước rồi! Ra sát ao, sông, kênh để múc.');
+      return;
+    }
+    if (act !== 'water') return;
+    gameState.wateringCanWater = pourWater(gameState.wateringCanWater).water;
+    this.waterAt(tile);
+    if (gameState.wateringCanWater === 0) this.say('Bình vừa hết nước.');
   }
 
   /** The watering can or the water truck: dampens a tilled tile, with a splash. */
