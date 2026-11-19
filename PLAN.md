@@ -608,8 +608,8 @@ Tiêu chí hoàn thành:
       (tối đa 30 ngày). Ruộng, nhà, gia súc của NPC là vùng khoá.
 
 Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
-- **1 ô ruộng NPC = 1 ô đất, mỗi nhát 2 phút game (≈1,4 giây: vung cuốc xuống, nghỉ ~1 giây)** cho cả cuốc, gieo,
-  tưới, bón, thu hoạch (người chơi yêu cầu 2026-11-19, spec gốc: gieo/tưới/bón 1 phút). Thửa trên bản đồ ~1.300–2.000
+- **1 ô ruộng NPC = 1 ô đất, mỗi nhát 2 phút game (≈1,4 giây: vung cuốc xuống, nghỉ ~1 giây)** cho cuốc, gieo,
+  bón, thu hoạch; tưới 1 phút như spec (người chơi yêu cầu 2026-11-19, spec gốc: gieo/tưới/bón 1 phút). Thửa trên bản đồ ~1.300–2.000
   ô, làm từng nhát thì không kịp tưới, nên mỗi nhà chỉ canh tác **vài thửa nhỏ** sát đường quanh cầu ván, nối tiếp
   nhau từ đường vào, cách nhau 1 hàng bờ cỏ (người chơi yêu cầu 2026-11-19): nhà 3 người 3 thửa, nhà 1–2 người 2 thửa;
   mỗi thửa 16×5 ô (nhà 1 người 11×4) (`field.plotTilesByFamilyType`, `plotsByFamilyType`, `plotGapTiles`). Phần còn
@@ -637,9 +637,12 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
       Xe chở nước vẫn tưới như cũ, không tốn nước bình.
 
 ## Cập nhật: thu nhỏ thửa ruộng trên bản đồ (yêu cầu 2026-11-19)
-- [x] Thửa của mỗi nhà trên bản đồ giờ chỉ vừa đúng các mảnh NPC làm, sát kênh, giữa cột cũ: nhà 3 người 16×21 ô
-      (3 thửa 16×5), nhà 2 người 16×13 (2 thửa), nhà 1 người 11×11 (2 thửa 11×4). Giữa hai thửa: cỏ, đường đất, cỏ
-      (`plotGapTiles` = 3, đường đất vẽ sẵn trên bản đồ). Loại gia đình tính giống hệt trong game (băm mã nhà). Lối đi giữa các thửa cắt ngắn bằng độ sâu mới (lối từ làng
+- [x] Thửa của mỗi nhà trên bản đồ giờ chỉ vừa đúng các mảnh NPC làm, sát kênh, giữa cột cũ. Mỗi thửa to thêm ~60%
+      (người chơi yêu cầu): nhà 2–3 người 16×8 ô, nhà 1 người 12×6. Khung trên bản đồ: nhà 3 người 16×26 (3 thửa), nhà
+      2 người 16×17 (2 thửa), nhà 1 người 12×13 (2 thửa). Giữa hai thửa: 1 ô đường đất (`plotGapTiles` = 1, vẽ sẵn
+      trên bản đồ). Loại gia đình tính giống hệt trong game (băm mã nhà).
+- Để NPC vẫn tưới kịp ruộng to hơn, tưới trở lại 1 phút/ô như spec gốc (cuốc, gieo, bón, thu hoạch vẫn 2 phút);
+      đã chạy thử 40 ngày, nhà ở xa ruộng tới 90 phút đi bộ cũng không có ô nào chết. Lối đi giữa các thửa cắt ngắn bằng độ sâu mới (lối từ làng
       xuống đường cái giữ nguyên). Phần đất thửa cũ còn lại là cỏ trống, người chơi dùng được.
 - Sửa thẳng 2 file bản đồ bằng `scripts/art/shrink_paddies.py` (không tạo lại bản đồ, nhà cửa giữ nguyên);
   `scripts/art/villages.py` cũng tạo thửa theo cỡ này nếu sau này tạo lại bản đồ. Cỡ lấy từ `src/data/npcFarm.json`.

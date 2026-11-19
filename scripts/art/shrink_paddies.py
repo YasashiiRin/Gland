@@ -3,9 +3,9 @@
 
 Each "field" object becomes just big enough for its family's plots
 (src/data/npcFarm.json: plots one behind the other from the road), centred on
-its plank bridge and still touching the canal. Between two plots: a strip of
-grass, a dirt path, a strip of grass (plotGapTiles = 3), so they are easy to
-tell apart. The family type (and so the number of plots) is worked out exactly
+its plank bridge and still touching the canal. Between two plots a dirt path
+runs along the middle of the gap (plotGapTiles; 1 = just the path, 3 = grass,
+path, grass), so they are easy to tell apart. The family type (and so the number of plots) is worked out exactly
 as the game does (systems/npc/families.ts: FNV-1a hash of the home key, then
 seededRandom). The footpaths between the paddies are cut back to the new depth
 (the lane from the village to the road stays). The freed ground is plain grass.
@@ -72,8 +72,8 @@ def gap_paths(family: str, cfg: dict) -> list[int]:
     f = cfg["field"]
     h = f["plotTilesByFamilyType"][family][1]
     gap = f["plotGapTiles"]
-    if gap < 3:
-        return []                                                    # no room for grass either side
+    if gap < 1:
+        return []
     return [k * (h + gap) + h + gap // 2 for k in range(f["plotsByFamilyType"][family] - 1)]
 
 
