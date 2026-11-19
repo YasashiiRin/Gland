@@ -211,12 +211,16 @@ ZONES = [("Ba Đồn", (284, 22, 372, 52)), ("Phong Nha – Kẻ Bàng", (104, 8
          ("Đồng Hới", (272, 160, 402, 262)), ("Quán Hàu", (220, 270, 380, 330)),
          ("Núi Thần Đinh", (180, 324, 202, 346)), ("Thác Tam Lu", (34, 292, 50, 308)),
          ("Lệ Thủy", (270, 360, 340, 404)), ("Suối Bang", (138, 360, 160, 380))]
+# Towns and districts, not landmarks: named on the map, free land (the player's ruling, 2026-11-20).
+FREE_PLACES = {"Đồng Hới", "Quán Hàu", "Lệ Thủy"}
 
 
 def _zones(m: Province) -> None:
     landmark_fields(m, FIELDS)
     for name, area in ZONES:
-        zone(m, name, area)
+        zone(m, name, area, "place" if name in FREE_PLACES else "landmark")
+    gx, gy, gw, gh = scale_box("quang_binh_quan", 309, 181, 10, 6)                        # the old gate itself stays protected
+    zone(m, "Quảng Bình Quan", (gx - 1, gy - 2, gx + gw, gy + gh))
     zone_belts(m)
     start_points(m, "qb", [(240, 212), (200, 250), (330, 140), (120, 330), (230, 352), (80, 230)])
 

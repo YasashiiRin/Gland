@@ -50,6 +50,11 @@ function zones(map: Phaser.Tilemaps.Tilemap, kind: string): Phaser.Types.Tilemap
 }
 
 /** Landmarks and towns: the big safe zones. */
+/** Towns and districts named on the map but not protected (free land; townsfolk still stroll there). */
+export function placeZones(map: Phaser.Tilemaps.Tilemap): TileRect[] {
+  return zones(map, 'place').map(rectOf);
+}
+
 export function landmarkZones(map: Phaser.Tilemaps.Tilemap): TileRect[] {
   return zones(map, 'landmark').map(rectOf);
 }

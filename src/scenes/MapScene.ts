@@ -58,7 +58,7 @@ import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
 import { WildRice } from './wildFields';
 import { FishPondsView } from './fishPonds';
-import { HOUSE_MIDDLE, inRect, landmarkZones, readHomesteads, readPaddies, yardSpot, type Homestead } from './homesteads';
+import { HOUSE_MIDDLE, inRect, landmarkZones, placeZones, readHomesteads, readPaddies, yardSpot, type Homestead } from './homesteads';
 import { claimHome, homeOf, houseOn } from '../systems/HomeSystem';
 import { HomeDoor } from './homeDoor';
 import { GroundItems } from './groundItems';
@@ -283,7 +283,8 @@ export abstract class MapScene extends Phaser.Scene {
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
     this.safeZones = this.zoneRects();
-    this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, this.landmarks) : null;
+    // Townsfolk stroll in the landmarks and in the towns (which are free land, not protected).
+    this.ambient = this.isOutdoor ? new AmbientLife(this, ground, decor, [...this.landmarks, ...placeZones(this.map)]) : null;
     this.water = this.isOutdoor ? new WaterLife(this, ground) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.water?.destroy());
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());

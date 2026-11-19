@@ -110,10 +110,13 @@ HUE_ZONES = [  # (zone, area, pond near, rice field near) - see landmark_fields.
 ]
 
 
+FREE_PLACES = {"Phú Xuân"}  # a district of the city, not a landmark: free land (2026-11-20)
+
+
 def _hue_zones(m: Province) -> None:
     landmark_fields(m, HUE_ZONES)
     for name, area, _, _ in HUE_ZONES:
-        zone(m, name, area)
+        zone(m, name, area, "place" if name in FREE_PLACES else "landmark")
     zone_belts(m)
     start_points(m, "hue", [(140, 222), (262, 150), (100, 180), (316, 270), (160, 318), (230, 90)])
 

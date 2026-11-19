@@ -126,11 +126,12 @@ def walk_under(m: Province, sprite: str, x: int, y: int, w: int, h: int, solid_r
             m.put(xx, yy, BLOCK)
 
 
-def zone(m: Province, name: str, area: tuple[int, int, int, int]) -> None:
-    """Marks a special landmark zone (safe, no building; its fields, ponds and
-    terrain are always there). Read by the game from the "zone" objects."""
+def zone(m: Province, name: str, area: tuple[int, int, int, int], kind: str = "landmark") -> None:
+    """Marks a special zone, read by the game from the "zone" objects. "landmark": a protected
+    landmark (safe, nothing may be built, felled, mined or cut; ringed by a forest belt).
+    "place": only a name on the map (a town or district): free land like anywhere else."""
     x0, y0, x1, y1 = area
-    m.obj("zone", x0 * 16, y0 * 16, (x1 - x0 + 1) * 16, (y1 - y0 + 1) * 16, {"zoneName": name, "kind": "landmark"})
+    m.obj("zone", x0 * 16, y0 * 16, (x1 - x0 + 1) * 16, (y1 - y0 + 1) * 16, {"zoneName": name, "kind": kind})
 
 
 def street_row(m: Province, x0: int, x1: int, road_y: int, seed: int = 0) -> None:
