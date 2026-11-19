@@ -1242,6 +1242,11 @@
    },
    {
     "type": "image",
+    "key": "item_icon_cauliflower_seeds",
+    "url": "sprites/icons/cauliflower_seeds.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_copper_ore",
     "url": "sprites/icons/copper_ore.png"
    },
@@ -1252,13 +1257,43 @@
    },
    {
     "type": "image",
+    "key": "item_icon_gold_ore",
+    "url": "sprites/icons/gold_ore.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_hoe",
     "url": "sprites/icons/hoe.png"
    },
    {
     "type": "image",
+    "key": "item_icon_iron_ore",
+    "url": "sprites/icons/iron_ore.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_parsnip",
+    "url": "sprites/icons/parsnip.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_parsnip_seeds",
+    "url": "sprites/icons/parsnip_seeds.png"
+   },
+   {
+    "type": "image",
     "key": "item_icon_pickaxe",
     "url": "sprites/icons/pickaxe.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_potato",
+    "url": "sprites/icons/potato.png"
+   },
+   {
+    "type": "image",
+    "key": "item_icon_potato_seeds",
+    "url": "sprites/icons/potato_seeds.png"
    },
    {
     "type": "image",

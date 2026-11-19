@@ -24,7 +24,7 @@ Tài liệu này liệt kê **mọi thứ game đang vẽ bằng code**, kèm k�
 
 ## Cách dùng
 
-1. Mở Gemini, **đính kèm ảnh mẫu `assets/reference.jpg`** rồi dán nguyên prompt của từng mục. Mọi prompt đều mở đầu bằng cùng một đoạn phong cách, để các hình đồng bộ với nhau.
+1. Mở Gemini, **đính kèm ảnh mẫu `assets/reference.jpg`** rồi dán nguyên prompt của từng mục. Mọi prompt đều mở đầu bằng cùng một đoạn phong cách, để các hình đồng bộ với nhau. Riêng nhân vật có đoạn phong cách riêng (xem đầu mục 1).
 2. Lưu ảnh đúng **tên file** ghi ở mỗi mục (thư mục `assets/...` ở gốc repo).
 3. Gemini thường trả ảnh to (1024 px…) và không đúng kích thước pixel. Sau khi có ảnh, cần một bước xử lý (sẽ làm bằng script khi nạp vào game):
    - thu nhỏ về đúng **Kích thước file** bằng *nearest neighbour* (không làm mờ);
@@ -42,7 +42,7 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 - **Nhân vật, động vật, xe, nhà** (`scripts/art/import_sheets.py`): ảnh được tách thành từng hình theo khoảng trống giữa chúng, rồi bảng trong script chọn hình nào vào khung nào. Hàng nhìn ngang chỉ cần một phía, script tự lật ra phía kia. Nhà lấy hình đầu tiên (góc trên trái) của tấm.
 - **Công trình lớn** (chùa, tháp Thiên Mụ, điện, lăng, đài tưởng niệm, Quảng Bình Quan, Ngọ Môn) được vẽ to hơn nhà dân (`BIG`, `GROW` trong `import_sheets.py`), chỗ đứng trên bản đồ to tương ứng.
 - **Hướng nhà:** lúc tạo bản đồ, mỗi nhà được ghi hướng ra con đường gần nhất (`scripts/art/facing.py`). Nhà trong sân vườn luôn quay ra cổng sân và con đường trước cổng. Từ tấm 2 x 2: hàng trên là mặt trước, hàng dưới là mặt sau. Script làm ra 4 hình `<tên>`, `_left`, `_right`, `_up`, và mọi nhà dùng chung một kiểu: cửa ở tường bên trái.
-- **Nhân vật đi bộ:** các khung đi của Gemini hay lệch góc (nửa quay về người xem, ngoái lại), nên mỗi hướng chỉ dùng **một hình**: nhìn trước, nhìn nghiêng rõ nhất (lật ra để có hướng phải), quay lưng. Khi đi, hình nhún lên xuống.
+- **Nhân vật đi bộ:** tấm **3 hàng** (prompt mới) được dùng đủ 4 bước chân cho mọi hướng, hướng phải lật từ hàng trái. Tấm cũ 4 hàng thì mỗi hướng chỉ dùng **một hình** (các khung cũ hay lệch góc), khi đi hình nhún lên xuống.
 - Tên file lỡ gõ đuôi hai lần (`x.png.png`) vẫn được nhận.
 
 **Đợt 1 (đã nạp):** 53 hình gồm ô mặt đất, ô hầm mỏ, viền, đá, bụi, lau sậy, luống hoa, lúa chín, 4 cây (thông, đước, bưởi, phượng), 5 cây trồng, 4 hình ma và 8 biểu tượng công cụ.
@@ -74,113 +74,288 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 ## 1. Nhân vật (sprite sheet đi bộ)
 
-Mỗi nhân vật là **1 tấm 4 x 4 khung**: 4 hướng (xuống, trái, phải, lên) x 4 khung đi bộ. Mỗi khung 32 x 64 px (trong game 1 x 2 ô). Khi ngồi nghỉ / ngồi uống trà, game tự cắt bớt chân, không cần hình riêng.
+Mỗi nhân vật là **1 tấm 3 hàng x 4 khung**: hàng 1 nhìn trước (đi xuống), hàng 2 nghiêng sang trái, hàng 3 quay lưng (đi lên). Mỗi hàng là 4 bước chân. Hướng phải không cần vẽ, script tự lật hàng 2. Mỗi khung 32 x 64 px (trong game 1 x 2 ô). Khi ngồi nghỉ hay ngồi uống trà, game tự cắt bớt chân, không cần hình riêng.
 
-**Kiểm tra trước khi đưa vào** (Gemini hay sai mấy chỗ này):
-- Hàng 2 phải quay **hẳn sang trái**, hàng 3 quay **hẳn sang phải**: chỉ thấy một bên mặt, không nghiêng 3/4 về người xem.
-- Cả 4 ô của hàng 4 đều **quay lưng**, không ô nào nghiêng ngang.
-- 4 ô trong một hàng cùng một góc nhìn, chỉ khác bước chân.
-- Không cầm gì trên tay (game tự vẽ đòn gánh cho người bán rong).
+**Vì sao prompt cũ hay sai, và prompt mới sửa thế nào:**
+- Đoạn phong cách chung ("nhìn từ trên xuống, nghiêng 45 độ") viết cho nhà cửa, làm Gemini xoay người nhân vật 3/4. Prompt nhân vật giờ có đoạn phong cách riêng, chỉ học màu và nét viền của ảnh mẫu.
+- Bắt vẽ cả hàng trái lẫn hàng phải thì Gemini gần như luôn vẽ hai hàng quay cùng một phía. Giờ chỉ vẽ hàng trái.
+- Quy tắc nằm giữa một đoạn văn dài thì bị bỏ qua. Giờ mỗi hàng một dòng riêng, viết hoa tên hàng.
+- Gemini luôn đóng dấu lấp lánh ở góc dưới phải. Prompt xin lề trắng rộng bên phải và bên dưới để dấu rơi vào chỗ trống.
 
-Nếu chỉ một hàng sai, có thể vẽ lại riêng hàng đó thành một dải 4 ô (128 x 64 px) rồi đặt tên kèm hướng, ví dụ `chu_tu_up.png`, rồi báo để ghép vào. Hàng trái mà đúng thì không cần hàng phải: script tự lật.
+**Cách tạo và lưu cho chuẩn:**
+1. Đính kèm `assets/reference.jpg`, dán nguyên prompt.
+2. Nếu Gemini vẫn vẽ sai một hàng, đừng sửa tay: trả lời Gemini ngay trong cuộc trò chuyện, ví dụ *"Row 2 must be a pure left side profile in all 4 cells, redraw the whole sheet"*.
+3. Lưu bằng **nút tải về** của Gemini (file PNG gốc), **không chụp màn hình**: ảnh chụp bị nút bấm đè lên và bị nén mờ.
+4. Đặt đúng tên file, ví dụ `assets/characters/chu_tu.png`. Script tự nhận ra tấm 3 hàng và cho đi đủ bước chân. Tấm kiểu cũ 4 hàng vẫn dùng được, nhưng mỗi hướng chỉ có một hình.
+
+**Kiểm tra trước khi đưa vào:**
+- Hàng 1: cả 4 ô nhìn thẳng, không ô nào xoay người.
+- Hàng 2: cả 4 ô nghiêng **hẳn sang trái**, chỉ thấy một bên mặt.
+- Hàng 3: cả 4 ô **quay lưng**, không ô nào quay ngang.
+- Không cầm gì trên tay, không có đường kẻ khung, không có chữ.
 
 ### Người chơi
 
-- **File:** `assets/characters/player.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/player.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/player.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a young Vietnamese farmer wearing an indigo áo bà ba shirt, dark trousers, bare feet or simple sandals and a conical palm-leaf hat (nón lá). Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a young Vietnamese farmer wearing an indigo áo bà ba shirt, dark trousers, bare feet or simple sandals and a conical palm-leaf hat (nón lá). Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Chú Tư (nông dân già)
 
-- **File:** `assets/characters/chu_tu.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/chu_tu.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/chu_tu.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of an old Vietnamese farmer with grey hair, a faded brown áo bà ba, dark trousers rolled to the knee and a conical hat. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: an old Vietnamese farmer with grey hair, a faded brown áo bà ba, dark trousers rolled to the knee and a conical hat. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Cô Hạnh (người buôn bán)
 
-- **File:** `assets/characters/co_hanh.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/co_hanh.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/co_hanh.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a middle-aged Vietnamese woman with her hair in a bun, a purple áo bà ba, black trousers and a cream apron. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a middle-aged Vietnamese woman with her hair in a bun, a purple áo bà ba, black trousers and a cream apron. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Linh (cô gái)
 
-- **File:** `assets/characters/linh.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/linh.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/linh.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a young Vietnamese woman with long black hair wearing a white áo dài and white trousers. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a young Vietnamese woman with long black hair wearing a white áo dài and white trousers. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Minh (chàng trai)
 
-- **File:** `assets/characters/minh.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/minh.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/minh.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a young Vietnamese man with short black hair, a blue shirt and brown trousers. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a young Vietnamese man with short black hair, a blue shirt and brown trousers. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Dân làng 1
 
-- **File:** `assets/characters/folk_0.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/folk_0.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_0.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a Vietnamese village man in a dark indigo áo bà ba, black trousers and a conical hat. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a Vietnamese village man in a dark indigo áo bà ba, black trousers and a conical hat. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Dân làng 2
 
-- **File:** `assets/characters/folk_1.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/folk_1.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_1.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a Vietnamese village woman in a red-brown áo bà ba, black trousers, hair in a bun under a conical hat. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a Vietnamese village woman in a red-brown áo bà ba, black trousers, hair in a bun under a conical hat. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Dân làng 3
 
-- **File:** `assets/characters/folk_2.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/folk_2.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_2.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of an elderly Vietnamese villager with grey hair in a faded khaki áo bà ba and a conical hat. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: an elderly Vietnamese villager with grey hair in a faded khaki áo bà ba and a conical hat. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Dân làng 4
 
-- **File:** `assets/characters/folk_3.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/folk_3.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_3.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a Vietnamese village woman with long black hair, an off-white áo bà ba, dark trousers and a conical hat. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a Vietnamese village woman with long black hair, an off-white áo bà ba, dark trousers and a conical hat. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Dân làng 5 (cũng dùng cho trẻ con, game tự thu nhỏ)
 
-- **File:** `assets/characters/folk_4.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/folk_4.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_4.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a Vietnamese village man without a hat, short black hair, a green-grey shirt and brown trousers. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a Vietnamese village man without a hat, short black hair, a green-grey shirt and brown trousers. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Dân làng 6 / người bán gánh hàng rong
 
-- **File:** `assets/characters/folk_5.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** 1 x 2 ô mỗi khung
-- **Animation:** 4 hướng x 4 khung đi bộ (16 khung)
+- **File:** `assets/characters/folk_5.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_5.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Pixel grid: 128 x 256 pixels (the picture must look like a 128 x 256 pixel sprite scaled up, every art pixel a clean square). Character sprite sheet of a Vietnamese village woman with her hair in a bun, a lilac áo bà ba, dark trousers and a beige apron. Layout: exactly 4 rows x 4 columns of equal cells, each cell 32 x 64 pixels, whole sheet 128 x 256 pixels. Plain pure white (#FFFFFF) background, no grid lines, no borders between cells, no shadows on the ground, no text, numbers or labels. Same character, same outfit, same size in every cell, chibi proportions (big head, small body), centred in its cell, feet on the same baseline near the bottom of every cell, never touching the cell edges. Hands empty: carrying nothing, no pole, no baskets, no tools. Row 1 walking DOWN toward the viewer: seen straight from the front, body square to the camera, both eyes visible. Row 2 walking LEFT: strict side profile, only one eye visible, nose, chest and toes pointing to the LEFT edge of the picture; not turned toward the viewer, not three-quarter. Row 3 walking RIGHT: the exact mirror image of row 2, strict side profile, nose, chest and toes pointing to the RIGHT edge of the picture. Row 4 walking UP away from the viewer: seen straight from behind in all 4 cells, only the back of the head, hat and shirt, no face visible, never turned sideways. Inside each row the 4 cells are one walk cycle at exactly the same angle, only legs and arms change: cell 1 feet together, cell 2 left foot forward, cell 3 feet together, cell 4 right foot forward. The head, hat and body never turn between the cells of a row.
+Pixel art walking sprite sheet for a cozy top-down 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines; ignore its camera angle and its layout.
+
+CHARACTER: a Vietnamese village woman with her hair in a bun, a lilac áo bà ba, dark trousers and a beige apron. Chibi proportions: big head, small body. Hands empty: holding nothing, no pole, no baskets, no tools.
+
+LAYOUT (most important):
+- A neat grid of 3 rows x 4 columns: 12 copies of the same character, same size, evenly spaced.
+- Plain pure white background. No grid lines, no frames, no borders, no ground shadow, no text, no numbers.
+- Leave a wide empty white margin around the grid, especially on the right side and at the bottom.
+
+ROW 1, FRONT: in all 4 cells the character faces the viewer squarely: symmetrical body, both shoulders, both eyes, both feet pointing at the viewer. The body never turns.
+ROW 2, SIDE: in all 4 cells the character faces LEFT in pure side profile: one eye, nose pointing at the left edge, toes pointing left. Never three-quarter, never turned toward the viewer.
+ROW 3, BACK: in all 4 cells the character faces away: only the back of the head (or hat) and the back of the shirt, no face, no side view.
+
+WALK CYCLE, the same in every row: cell 1 standing with feet together, cell 2 left leg forward, cell 3 standing with feet together, cell 4 right leg forward. Only the legs and arms move; the head and body keep exactly the same angle in all 4 cells of a row. Feet on the same baseline in every cell.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, light from the top left, no anti-aliasing, no blur.
 ```
 
 ### Người bán cá (bảng mua bán)
@@ -189,7 +364,13 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 - **Animation:** không (1 khung, nhìn thẳng)
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/vendor_fish.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one standing character, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 64 pixels (the picture must look like a 32 x 64 pixel sprite scaled up, every art pixel a clean square). A Vietnamese fish seller woman in a conical hat and a blue-grey áo bà ba, standing facing the viewer, chibi proportions, full body. One single figure only, not several views or poses, no grid, no shadow on the ground
+Pixel art character portrait for a cozy 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines.
+
+CHARACTER: A Vietnamese fish seller woman in a conical hat and a blue-grey áo bà ba. Chibi proportions: big head, small body.
+
+LAYOUT: ONE single figure only, standing and facing the viewer squarely, full body from hat to feet, centred, filling most of the picture height. Not several views, not a sheet. Plain pure white background, no ground shadow, no frame, no text. Leave an empty white margin on the right side and at the bottom.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, no anti-aliasing, no blur.
 ```
 
 ### Người bán rau
@@ -198,7 +379,13 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 - **Animation:** không (1 khung, nhìn thẳng)
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/vendor_veg.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one standing character, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 64 pixels (the picture must look like a 32 x 64 pixel sprite scaled up, every art pixel a clean square). An old Vietnamese vegetable seller woman in a brown áo bà ba and a scarf, standing facing the viewer, chibi proportions, full body. One single figure only, not several views or poses, no grid, no shadow on the ground
+Pixel art character portrait for a cozy 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines.
+
+CHARACTER: An old Vietnamese vegetable seller woman in a brown áo bà ba and a scarf. Chibi proportions: big head, small body.
+
+LAYOUT: ONE single figure only, standing and facing the viewer squarely, full body from hat to feet, centred, filling most of the picture height. Not several views, not a sheet. Plain pure white background, no ground shadow, no frame, no text. Leave an empty white margin on the right side and at the bottom.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, no anti-aliasing, no blur.
 ```
 
 ### Người bán gạo
@@ -207,7 +394,13 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 - **Animation:** không (1 khung, nhìn thẳng)
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/vendor_rice.png`
 ```
-Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one standing character, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 64 pixels (the picture must look like a 32 x 64 pixel sprite scaled up, every art pixel a clean square). A Vietnamese rice seller man in a white shirt and a conical hat, standing facing the viewer, chibi proportions, full body. One single figure only, not several views or poses, no grid, no shadow on the ground
+Pixel art character portrait for a cozy 2D farming game set in an old, humble Vietnamese village. Classic 16-bit RPG character style. Use the attached reference image only for its colours and its thin dark outlines.
+
+CHARACTER: A Vietnamese rice seller man in a white shirt and a conical hat. Chibi proportions: big head, small body.
+
+LAYOUT: ONE single figure only, standing and facing the viewer squarely, full body from hat to feet, centred, filling most of the picture height. Not several views, not a sheet. Plain pure white background, no ground shadow, no frame, no text. Leave an empty white margin on the right side and at the bottom.
+
+STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel shading, no anti-aliasing, no blur.
 ```
 
 

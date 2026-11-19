@@ -111,11 +111,46 @@ PORTRAITS = ["vendor_fish", "vendor_veg", "vendor_rice"]  # front view of a 2 x 
 CHAR = dict(fit=(30, 58), canvas=(32, 64), bottom_pad=3)
 
 
+def drawn_rows(path: Path) -> int:
+    """How many rows of drawings a sheet holds (bands of drawing between empty white lines)."""
+    a = load(path)
+    on = (~background(a, pockets=False)).any(axis=1)
+    runs, start = [], None
+    for i, v in enumerate(list(on) + [False]):
+        if v and start is None:
+            start = i
+        elif not v and start is not None:
+            runs.append(i - start)
+            start = None
+    return sum(1 for r in runs if r > len(on) * 0.06)
+
+
+# The walk sheet asked for in ASSET_LIST.md (2026-11-20): 3 rows - front, left profile, back -
+# of 4 steps each; right is the left row mirrored.
+THREE_ROWS = {"down": [(0, c, False) for c in CYCLE], "left": [(1, c, False) for c in CYCLE],
+              "right": [(1, c, True) for c in CYCLE], "up": [(2, c, False) for c in CYCLE]}
+
+
+def _cycle_sheet(cells: list[list[tuple[np.ndarray, np.ndarray]]], dirs: dict[str, list[Cell]]) -> Image.Image:
+    picks = [pick for d in ("down", "left", "right", "up") for pick in dirs[d]]
+    out = frames(cells, picks, **CHAR)
+    for i in range(1, len(picks)):
+        if picks[i] == picks[i - 1]:
+            out[i] = bob(out[i])
+    return sheet(out, 4)
+
+
 def import_characters() -> list[str]:
     done = []
+    full: set[str] = set()  # targets that got a real walk cycle this run
     for name, (target, rows, side) in WALKERS.items():
         p = find(f"characters/{name}.png")
         if not p:
+            continue
+        if drawn_rows(p) == 3:  # the new layout: a real walk in every direction
+            _cycle_sheet(grid(p, 3, 4), THREE_ROWS).save(PUB / f"{target}.png")
+            full.add(target)
+            done.append(f"characters/{name}")
             continue
         # The generator's walk frames drift between angles (half-turned toward the viewer, over
         # the shoulder), so each direction keeps one drawing: front, a true left profile, that
@@ -126,14 +161,9 @@ def import_characters() -> list[str]:
         done.append(f"characters/{name}")
     for name, (target, rows, dirs) in WALK_CYCLES.items():
         p = find(f"characters/{name}.png")
-        if not p:
+        if not p or target in full:  # a newer 3-row sheet of the same person wins
             continue
-        picks = [pick for d in ("down", "left", "right", "up") for pick in dirs[d]]
-        out = frames(grid(p, rows, 4, labelled=True), picks, **CHAR)
-        for i in range(1, len(picks)):
-            if picks[i] == picks[i - 1]:
-                out[i] = bob(out[i])
-        sheet(out, 4).save(PUB / f"{target}.png")
+        _cycle_sheet(grid(p, rows, 4, labelled=True), dirs).save(PUB / f"{target}.png")
         done.append(f"characters/{name}")
     for name in PORTRAITS:
         p = find(f"characters/{name}.png")
