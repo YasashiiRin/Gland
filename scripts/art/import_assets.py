@@ -5,14 +5,15 @@ art can arrive a batch at a time.
 
 Run:  python3 scripts/art/import_assets.py   (gen_placeholders.py runs it too)
 
-  * ground textures -> public/assets/tilesets/ground_hd.png: each one a 4 x 4
+  * ground textures -> public/assets/tilesets/ground_hd.png: each one a 6 x 6
     block of tiles (a picture is too detailed for one 32 px tile), drawn over
     the map by src/scenes/groundLook.ts; src/data/groundTextures.json says
     which tile uses which block;
   * edges, overlays (rock, bush, rice…) and plain tiles -> farm_tiles_hd.png;
   * mine tiles -> mine_tiles_hd.png;
   * trees, crops, ghosts -> public/assets/sprites/...;
-  * item icons -> public/assets/sprites/icons/<item>.png (32 x 32, in pack.json).
+  * item icons -> public/assets/sprites/icons/<item>.png (32 x 32, in pack.json);
+  * characters, animals, vehicles, buildings -> their sprite sheets (import_sheets.py).
 """
 import json
 import sys
@@ -27,6 +28,7 @@ from art import tiles as t  # noqa: E402
 from art import water_tiles as wt  # noqa: E402
 from art.asset_import import ROOT, SRC, find, fit_scale, darken, framed_tile, match_tone, native_tile, place, sprite, strip_frames, texture  # noqa: E402
 from art.import_edges import edge_tiles, overlay_tile  # noqa: E402
+from art.import_sheets import import_sheets  # noqa: E402
 
 PUB = ROOT / "public" / "assets"
 S = 32
@@ -169,7 +171,7 @@ def import_icons() -> list[str]:
 
 
 def main() -> None:
-    done = import_ground() + import_mine() + import_sprites() + import_icons()
+    done = import_ground() + import_mine() + import_sprites() + import_icons() + import_sheets()
     print(f"Imported {len(done)} pictures from assets/: {', '.join(done)}")
 
 

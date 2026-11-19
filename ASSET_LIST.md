@@ -39,10 +39,16 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 - **Đồ vật, cây, cây trồng, ma, biểu tượng:** xoá nền trắng (kể cả khoảng trắng giữa cành lá), bỏ bóng xám dưới đồ vật (cây thì giữ bóng mờ), thu nhỏ đúng kích thước, kẻ viền tối.
 - **Hầm mỏ:** cắt một ô ở đúng cỡ điểm ảnh gốc. Vách và quặng tối hơn nền để dễ phân biệt.
 - **Cây trồng** để ở `assets/crops/` hoặc `assets/trees/` đều được.
+- **Nhân vật, động vật, xe, nhà** (`scripts/art/import_sheets.py`): ảnh được tách thành từng hình theo khoảng trống giữa chúng, rồi bảng trong script chọn hình nào vào khung nào. Hàng nhìn ngang chỉ cần một phía, script tự lật ra phía kia. Nhà lấy hình đầu tiên (góc trên trái) của tấm.
+- Tên file lỡ gõ đuôi hai lần (`x.png.png`) vẫn được nhận.
 
 **Đợt 1 (đã nạp):** 53 hình gồm ô mặt đất, ô hầm mỏ, viền, đá, bụi, lau sậy, luống hoa, lúa chín, 4 cây (thông, đước, bưởi, phượng), 5 cây trồng, 4 hình ma và 8 biểu tượng công cụ.
 
+**Đợt 2 (đã nạp):** 9 nhân vật (người chơi, Chú Tư, Cô Hạnh, Linh, Minh, dân làng 1, 2, 4, người bán rau, người bán gạo), 5 con vật, 6 xe và 24 nhà, công trình.
+
 **Chưa dùng:**
+- `folk_5.png`: vẽ người gánh hàng có sẵn đòn gánh, nhưng game tự vẽ đòn gánh lên người bán rong (sẽ thành hai đòn). Cần tấm 4 x 4 người đi bộ không cầm gì.
+- `cable_bridge.png`, `river_bridge.png`, `truong_tien.png`: cầu vẽ nghiêng chéo, không đặt được lên dòng sông thẳng. Cần cầu nhìn thẳng từ trên xuống (cầu sông và Trường Tiền chạy dọc trên–dưới, cầu dây văng chạy ngang).
 - `stubble.png`: Gemini vẽ thành cả một thửa ruộng chứ không phải 1 ô, nên vẫn giữ hình cũ. Nếu muốn thay thì vẽ lại thành 1 ô gốc rạ phủ kín.
 - `rice_young.png`: game chưa có ô riêng cho lúa non, vẫn dùng lúa chín tô xanh.
 

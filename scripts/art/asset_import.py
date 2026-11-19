@@ -16,9 +16,9 @@ SRC = ROOT / "assets"
 def find(*names: str) -> Path | None:
     """The first of assets/<name> that exists (people sometimes save into another folder)."""
     for n in names:
-        p = SRC / n
-        if p.exists():
-            return p
+        for p in (SRC / n, SRC / f"{n}.png"):  # "x.png.png": saved with the extension typed twice
+            if p.exists():
+                return p
     return None
 
 
@@ -36,13 +36,16 @@ def hide_sparkle(a: np.ndarray) -> np.ndarray:
     return a
 
 
-def background(a: np.ndarray) -> np.ndarray:
-    """Mask of the near-white background connected to the picture's border."""
+def background(a: np.ndarray, pockets: bool = True) -> np.ndarray:
+    """Mask of the near-white background connected to the picture's border (and, with
+    `pockets`, pure white holes shut in by the object: not for white clothes or walls)."""
     rgb = a[..., :3]
     light = (rgb.min(axis=2) >= 218) & (rgb.max(axis=2) - rgb.min(axis=2) <= 32)
     lab, _ = ndimage.label(light)
     edge = np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))
     bg = np.isin(lab, edge[edge > 0])
+    if not pockets:
+        return bg
     # Pure white pockets shut in by the object (sky between branches) are background too.
     white = (rgb.min(axis=2) >= 240) & (rgb.max(axis=2) - rgb.min(axis=2) <= 12) & ~bg
     lab, n = ndimage.label(white)
@@ -58,9 +61,10 @@ def shadow_like(rgb: np.ndarray) -> np.ndarray:
     return (rgb.max(axis=2) - rgb.min(axis=2) <= 34) & (rgb.min(axis=2) >= 150)
 
 
-def cut_out(a: np.ndarray, keep_shadow: bool) -> tuple[np.ndarray, np.ndarray]:
-    """(picture with alpha, shadow mask): background removed, specks and loose shadows dropped."""
-    fg = ~background(a) & (a[..., 3] > 0)
+def cut_out(a: np.ndarray, keep_shadow: bool, pockets: bool = True, solo: bool = False) -> tuple[np.ndarray, np.ndarray]:
+    """(picture with alpha, shadow mask): background removed, specks and loose shadows dropped
+    (`solo`: everything but the biggest piece, e.g. a written label beside the drawing)."""
+    fg = ~background(a, pockets) & (a[..., 3] > 0)
     lab, n = ndimage.label(fg)
     sizes = ndimage.sum(fg, lab, range(1, n + 1)) if n else np.array([])
     shadow = np.zeros(fg.shape, bool)
@@ -70,13 +74,20 @@ def cut_out(a: np.ndarray, keep_shadow: bool) -> tuple[np.ndarray, np.ndarray]:
         pale = shadow_like(rgb)
         for i, s in enumerate(sizes, start=1):
             comp = lab == i
-            if s < big * 0.02 or pale[comp].mean() > 0.8:  # specks, or a shadow on its own
+            if s < big * (0.999 if solo else 0.02) or pale[comp].mean() > 0.8:  # specks, or a shadow on its own
                 fg[comp] = False
         if keep_shadow:  # a shadow joined to the object: only near the bottom of it
             ys = np.nonzero(fg)[0]
             low = np.zeros(fg.shape, bool)
-            low[int(ys.min() + (ys.max() - ys.min()) * 0.78):] = True
+            top, span = ys.min(), ys.max() - ys.min()
+            low[int(top + span * 0.78):] = True
             shadow = fg & pale & low
+            # ...and the pale patches of it reaching up beside the object's lower half
+            half = np.zeros(fg.shape, bool)
+            half[int(top + span * 0.5):] = True
+            plab, _ = ndimage.label(fg & pale & half)
+            touched = np.unique(plab[shadow])
+            shadow |= np.isin(plab, touched[touched > 0])
         else:
             fg &= ~(pale & _bottom_band(fg))
     out = a.copy()
