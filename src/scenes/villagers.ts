@@ -1,114 +1,234 @@
 import type Phaser from 'phaser';
 import { TILE } from '../config/constants';
-import { DAY_LENGTH_MINUTES } from '../config/time';
-import { gameState } from '../state/GameState';
-import { findPath, type TilePath } from '../systems/gridPath';
-import { currentJob, type FieldJob } from '../systems/NpcFarmSystem';
-import { absoluteMinute } from '../systems/StatsSystem';
-import { clockMinuteOfDay } from '../systems/TimeSystem';
-import { adultDoing, gardenerDoing, phaseAt, type Doing } from '../systems/VillagerSchedule';
+import { childAtHome, childAtPasture } from '../systems/npc/child';
+import { NPC_CONFIG } from '../systems/npc/config';
+import type { FamilyState, Npc } from '../systems/npc/types';
 import { FOLK_KEYS, createFolkAnims } from './ambientLife';
 import { artScale, hdScale } from './hd';
-import type { Homestead } from './homesteads';
-import { follow, standAt, tendPaddy, workGarden, workPaddy, type Worker } from './villagerChores';
+import type { FamilyGeo, NpcWorld } from './npcWorld';
+import { cellMiddle } from './villageFields';
+import { feedAnimals, follow, standAt, stepTowards, workCell, workGarden, type Worker } from './villagerChores';
 import { HouseAnimals } from './villageAnimals';
-import type { PaddyWork, VillageFields } from './villageFields';
+import { placeOnPath, resetRouteBudget, Routes } from './villagerPaths';
+import { chase, nearestOther, roam, RUN, type Player as Playful } from './villagerPlay';
 
 const ACTIVE_TILES = 46;
-const WALK = 22;
-/** A game minute lasts 0.7 s: how far a villager walks in one (px). */
-const PX_PER_GAME_MINUTE = WALK * 0.7;
 const DIRS = ['down', 'left', 'right', 'up'];
 
-interface Person extends Worker {
+interface Person extends Worker, Playful {
   key: string;
   child: boolean;
-  index: number;
-  doing?: string;
-  progress: number;
   sprite?: Phaser.GameObjects.Sprite;
   load?: Phaser.GameObjects.Image;
-  nextMove: number;
 }
 
 interface Household {
-  home: Homestead;
-  work?: PaddyWork;
+  geo: FamilyGeo;
   people: Person[];
   animals: HouseAnimals;
-  route?: TilePath | null;
+  routes: Routes;
 }
 
+type Pt = { x: number; y: number };
+const px = (t: Pt): Pt => ({ x: t.x * TILE + TILE / 2, y: t.y * TILE + TILE - 2 });
+const pick = <T>(list: T[]): T => list[Math.floor(Math.random() * list.length)];
+
 /**
- * The people of the village homesteads (rules: VillagerSchedule.adultDoing and
- * NpcFarmSystem). Out to the household's own paddy at 5:30 to do whatever it
- * needs - hoe, sow, water, fertilise, harvest, carry the sheaves home one by
- * one - resting by the road between spells. Once it's done, one minds the
- * buffalo or cow while the other goes to market; or they rest and walk home.
- * Tea at the yard table till dusk. Children go to school, then play.
+ * Draws the village farm families near the camera from their simulated state
+ * (systems/npc): walking their routes, working their field cell by cell,
+ * carrying the harvest home, minding the buffalo, tea in the yard. Families
+ * off screen have no sprites (they live on in the simulation). Talking to
+ * one makes them stop; they cut it short when they have somewhere to be.
  */
 export class Villagers {
   private readonly households: Household[] = [];
+  private talking: { key: string; npcId: string; person: Person } | null = null;
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly ground: Phaser.Tilemaps.TilemapLayer,
-    private readonly decor: Phaser.Tilemaps.TilemapLayer,
-    homesteads: Homestead[],
-    private readonly fields: VillageFields,
-    taken: (h: Homestead) => boolean,
+    private readonly world: NpcWorld,
+    walkable: (x: number, y: number) => boolean,
+    grazable: (x: number, y: number) => boolean,
+    private readonly speak: (x: number, y: number, text: string) => void,
   ) {
     createFolkAnims(scene);
-    homesteads.forEach((home, n) => {
-      if (home.vacant || home.members < 1 || taken(home)) return;
-      const people: Person[] = [];
-      const adults = home.members >= 3 ? 2 : 1;
-      for (let i = 0; i < adults; i++) people.push({ key: FOLK_KEYS[((n * 2) % 3) + (i ? 3 : 0)], child: false, index: i, progress: 0, nextMove: 0 });
-      if (home.members >= 3) people.push({ key: FOLK_KEYS[4], child: true, index: 2, progress: 0, nextMove: 0 });
-      this.households.push({ home, work: fields.works.find((w) => w.paddy.key === home.key), people, animals: new HouseAnimals(scene, home) });
+    world.geos.forEach((geo, n) => {
+      const people = Array.from({ length: geo.home.members >= 3 ? 3 : 1 }, (_, i) => ({ key: FOLK_KEYS[i === 2 ? 4 : ((n * 2) % 3) + (i ? 3 : 0)], child: i === 2, index: i, nextMove: 0 }));
+      this.households.push({ geo, people, animals: new HouseAnimals(scene, geo, grazable), routes: new Routes(geo, walkable) });
     });
   }
 
-  update(time: number, delta: number, view: Phaser.Geom.Rectangle): void {
-    const clock = clockMinuteOfDay(gameState.time);
-    const now = absoluteMinute(gameState.time);
-    const today = Math.floor(now / DAY_LENGTH_MINUTES);
-    const near = (x: number, y: number) => Math.max(Math.abs(x - view.centerX / TILE), Math.abs(y - view.centerY / TILE)) < ACTIVE_TILES;
+  update(time: number, delta: number, view: Phaser.Geom.Rectangle, player: Pt): void {
+    resetRouteBudget();
+    const minute = this.world.exactMinute();
+    const near = (t: Pt) => Math.max(Math.abs(t.x - view.centerX / TILE), Math.abs(t.y - view.centerY / TILE)) < ACTIVE_TILES;
+    const children = this.households.flatMap((h) => h.people.filter((p) => p.child && p.sprite).map((p) => p.sprite!));
     for (const h of this.households) {
-      const pad = h.work?.paddy;
-      const nearPad = pad && near(Math.max(pad.x0, Math.min(pad.x1, view.centerX / TILE)), Math.max(pad.y0, Math.min(pad.y1, view.centerY / TILE)));
-      if (!near(h.home.gate.x, h.home.gate.y) && !(pad && (near(pad.bridgeX, pad.roadY) || nearPad))) {
+      const fam = this.world.family(h.geo.home.key);
+      const s = h.geo.spots;
+      if (!fam || !(near(s.home) || near(s.field) || near(s.pasture))) {
         this.sleep(h);
         continue;
       }
-      if (h.route === undefined && pad) {
-        h.route = findPath(h.home.gate, this.walkable, (x, y) => x === pad.bridgeX && y === pad.roadY, 80000);
-      }
-      const f = pad ? this.fields.state(pad.key) : null;
-      const job = f ? currentJob(f, today) : null;
-      let idleFor: number | null = null;
-      if (f && !job) idleFor = f.doneAt >= 0 && Math.floor(f.doneAt / DAY_LENGTH_MINUTES) === today ? now - f.doneAt : Math.max(0, clock - 6 * 60);
-      let grazing: { x: number; y: number; flip: boolean } | null = null;
-      for (const p of h.people) {
-        if (p.child) {
-          this.child(h, p, clock, delta, time);
-          continue;
-        }
-        const plan = pad
-          ? adultDoing({ index: p.index, clock, hasJob: !!job, idleFor, livestock: !!h.home.livestock, chickens: h.home.feature === 'chickens' })
-          : gardenerDoing(clock);
-        this.adult(h, p, plan.doing, plan.since, clock, delta, time, job, f?.haulProgress ?? 0);
-        if (plan.doing === 'herd' && p.sprite) grazing = { x: p.sprite.x + 18, y: p.sprite.y, flip: Math.sin(time / 9000) < 0 };
-        // Going home at 16:30 the minder leads the beast on a rope: it walks just behind them.
-        if (plan.doing === 'toHome' && p.index === 0 && h.home.livestock && p.sprite && p.trail) grazing = p.trail;
+      let led: { x: number; y: number; flip: boolean } | null = null;
+      fam.members.forEach((npc, i) => {
+        const p = h.people[i] ?? (h.people[i] = { key: FOLK_KEYS[4], child: npc.role === 'child', index: i, nextMove: 0 });
+        p.child = npc.role === 'child';
+        this.person(h, fam, npc, p, minute, time, delta, player, children);
         if (p.sprite) follow(p, p.sprite);
-      }
-      h.animals.update(time, clock >= 330 && clock < 18 * 60, grazing);
+        if (fam.buffalo?.ledBy === npc.id && p.trail) led = p.trail;
+      });
+      for (let i = fam.members.length; i < h.people.length; i++) this.hide(h.people[i]);
+      const clock = minute % 1440;
+      h.animals.update(time, delta, clock >= 5 * 60 && clock < 18 * 60, fam, led);
     }
+    this.sayGoodbyes();
+    const t = this.talking;
+    if (t && (!t.person.sprite || Math.hypot(t.person.sprite.x - player.x, t.person.sprite.y - player.y) > NPC_CONFIG.talk.rangeTiles * TILE * 2)) {
+      this.world.stopTalking(t.key, t.npcId);
+      this.talking = null;
+    }
+  }
+
+  /** E next to a villager: they stop for a chat (or say they must be off). False: nobody close. */
+  talkNear(player: Pt): boolean {
+    let best: { h: Household; p: Person; d: number; i: number } | null = null;
+    for (const h of this.households) {
+      for (let i = 0; i < h.people.length; i++) {
+        const s = h.people[i].sprite;
+        if (!s?.visible) continue;
+        const d = Math.hypot(s.x - player.x, s.y - player.y);
+        if (d < NPC_CONFIG.talk.rangeTiles * TILE && (!best || d < best.d)) best = { h, p: h.people[i], d, i };
+      }
+    }
+    if (!best?.p.sprite) return false;
+    const { h, p, i } = best;
+    const npc = this.world.family(h.geo.home.key)?.members[i];
+    if (!npc) return false;
+    const at = p.sprite!;
+    if (p.child) {
+      this.speak(at.x, at.y - 24, pick(['Dạ con chào cô chú!', 'Hì hì, con đi chơi đây!']));
+      return true;
+    }
+    const stays = this.world.talk(h.geo.home.key, npc.id);
+    if (stays) this.talking = { key: h.geo.home.key, npcId: npc.id, person: p };
+    this.speak(at.x, at.y - 30, pick(stays ? NPC_CONFIG.lines.greeting : NPC_CONFIG.lines.farewell));
+    return true;
   }
 
   destroy(): void {
     this.households.forEach((h) => this.sleep(h));
+  }
+
+  private sayGoodbyes(): void {
+    const events = this.world.farewells;
+    this.world.farewells = [];
+    for (const ev of events) {
+      for (const h of this.households) {
+        const i = this.world.family(h.geo.home.key)?.members.findIndex((m) => m.id === ev.npcId) ?? -1;
+        const s = i >= 0 ? h.people[i]?.sprite : undefined;
+        if (s) this.speak(s.x, s.y - 30, pick(NPC_CONFIG.lines.farewell));
+        if (i >= 0 && this.talking?.npcId === ev.npcId) this.talking = null;
+      }
+    }
+  }
+
+  private person(h: Household, fam: FamilyState, npc: Npc, p: Person, minute: number, time: number, delta: number, player: Pt, children: Phaser.GameObjects.Sprite[]): void {
+    const pos = npc.position;
+    if (npc.state === 'sleep' && 'place' in pos) return this.hide(p);
+    if (npc.state === 'talking' && p.sprite) {
+      const s = p.sprite;
+      const dir = Math.abs(player.x - s.x) > Math.abs(player.y - s.y) ? (player.x > s.x ? 'right' : 'left') : player.y > s.y ? 'down' : 'up';
+      return standAt(s.setCrop().setAngle(0), s.x, s.y, dir, time, false);
+    }
+    if (!('place' in pos)) {
+      const s = this.spriteOf(p);
+      const done = pos.done + Math.max(0, minute - fam.simMinute) * npc.speedMultiplier;
+      placeOnPath(s, p.key, h.routes.path(pos.from, pos.to), pos.total > 0 ? done / pos.total : 1);
+      return this.carry(p, npc.carrying);
+    }
+    this.carry(p, false);
+    const g = h.geo;
+    const home = g.home;
+    switch (pos.place) {
+      case 'market':
+      case 'school':
+        return this.hide(p);
+      case 'field':
+        return this.atField(h, fam, npc, p, time);
+      case 'pasture':
+        if (p.child) return this.atPasture(h, fam, p, minute, time, delta, children);
+        return standAt(this.spriteOf(p), px(g.spots.pasture).x - 14, px(g.spots.pasture).y, 'right', time, false);
+    }
+    const s = this.spriteOf(p);
+    const tea = { x: (home.x0 + 11) * TILE + [-13, 13, 0][p.index], y: (home.y0 + 12) * TILE - 2 + (p.index === 2 ? 12 : 0) };
+    switch (npc.state) {
+      case 'tea':
+      case 'eat':
+        return this.sit(s, p, tea.x, tea.y, ['right', 'left', 'up'][p.index]);
+      case 'porch':
+        return this.sit(s, p, (home.x0 + 8 + p.index * 2) * TILE, (home.y0 + 9) * TILE, 'down');
+      case 'sweep': {
+        const x = (home.x0 + 6 + Math.sin(time / 2500) * 3) * TILE;
+        return standAt(s, x, (home.y0 + 12) * TILE, Math.cos(time / 2500) > 0 ? 'right' : 'left', time, true);
+      }
+      case 'feedLivestock':
+        return feedAnimals(this.scene, s, p, (home.x0 + 13) * TILE, (home.y0 + 14) * TILE, time);
+      case 'garden':
+        return workGarden(this.scene, s, p, home, time);
+      case 'play': {
+        const other = nearestOther(s, children);
+        const centre = { x: (home.x0 + 8) * TILE, y: (home.y0 + 13) * TILE };
+        if (childAtHome(other ? other.d / TILE : null, NPC_CONFIG) === 'chase' && other) return chase(p, s, other.s, time, delta);
+        return roam(p, s, centre, NPC_CONFIG.child.yardRadiusTiles * TILE, delta);
+      }
+      default:
+        return standAt(s.setCrop().setAngle(0), (home.x0 + 9) * TILE, (home.y0 + 10) * TILE, 'down', time, true);
+    }
+  }
+
+  private atField(h: Household, fam: FamilyState, npc: Npc, p: Person, time: number): void {
+    const s = this.spriteOf(p);
+    const pad = h.geo.paddy;
+    const grid = fam.field;
+    if (!pad || !grid) return this.hide(p);
+    if (npc.state === 'lunch' || npc.state === 'tea') {
+      // Lunch in the shade by the road, on their own side of the bridge.
+      const side = pad.side === 'north' ? -1 : 1;
+      return this.sit(s, p, (pad.bridgeX + (p.index ? 2 : -2)) * TILE + 8, (pad.roadY + side) * TILE + TILE - 2, side < 0 ? 'up' : 'down');
+    }
+    const task = npc.currentTask;
+    if (task) return workCell(this.scene, s, p, cellMiddle(pad, grid, task.cell), `${task.cell}:${task.kind}:${task.until}`, task.kind, time);
+    // Nothing left today: weeding here and there in their half.
+    const half = Math.ceil(grid.cols / 2);
+    const k = Math.floor(time / 6000 + p.index * 37);
+    const col = fam.type === 1 ? k % grid.cols : p.index === 0 ? k % half : half + (k % Math.max(1, grid.cols - half));
+    const cell = (Math.floor(k / 3) % grid.rows) * grid.cols + col;
+    const at = cellMiddle(pad, grid, cell);
+    standAt(s.setCrop().setAngle(0), at.x * TILE + TILE / 2, at.y * TILE + TILE - 2, p.index ? 'left' : 'right', time, true);
+  }
+
+  /** The child minding the buffalo: within reach of it first, then play, ride or nap. */
+  private atPasture(h: Household, fam: FamilyState, p: Person, minute: number, time: number, delta: number, children: Phaser.GameObjects.Sprite[]): void {
+    const s = this.spriteOf(p);
+    const beast = h.animals.beast;
+    const centre = beast ? { x: beast.x, y: beast.y } : px(h.geo.spots.pasture);
+    const dist = Math.hypot(s.x - centre.x, s.y - centre.y) / TILE;
+    const other = nearestOther(s, children);
+    const doing = childAtPasture(dist, other ? other.d / TILE : null, minute, fam.seed, NPC_CONFIG);
+    if (doing === 'chase' && other) return chase(p, s, other.s, time, delta);
+    if (doing === 'ride' && beast) {
+      s.setAngle(0);
+      return this.sit(s, p, beast.x, beast.y - 12, beast.flipX ? 'left' : 'right', beast.depth + 1);
+    }
+    s.setCrop();
+    if (doing === 'nap' && dist < 3) {
+      s.anims.stop();
+      return void s.setFrame(0).setAngle(90).setDepth(s.y);
+    }
+    s.setAngle(0);
+    if (dist > 2) stepTowards(s, p.key, centre.x - 16, centre.y, RUN, delta);
+    else standAt(s, s.x, s.y, beast?.flipX ? 'left' : 'right', time, false);
   }
 
   private sleep(h: Household): void {
@@ -121,91 +241,7 @@ export class Villagers {
     p.load?.destroy();
     p.sprite = undefined;
     p.load = undefined;
-  }
-
-  private walkable = (x: number, y: number): boolean => {
-    const g = this.ground.getTileAt(x, y);
-    if (!g || g.collides) return false;
-    const d = this.decor.getTileAt(x, y);
-    return !d || !d.collides;
-  };
-
-  /** How far along a walk the person is (they may already be under way when first seen). */
-  private advance(p: Person, doing: string, since: number, clock: number, delta: number): void {
-    if (p.doing !== doing) {
-      p.progress = Math.max(0, clock - since) * PX_PER_GAME_MINUTE;
-      p.doing = doing;
-    } else {
-      p.progress += WALK * (delta / 1000);
-    }
-  }
-
-  private adult(h: Household, p: Person, doing: Doing, since: number, clock: number, delta: number, time: number, job: FieldJob | null, haul: number): void {
-    this.advance(p, doing, since, clock, delta);
-    if (doing === 'indoors' || doing === 'market') return this.hide(p);
-    const s = this.spriteOf(p);
-    s.setCrop();
-    this.carry(p, false);
-    const { home } = h;
-    const route = h.route ?? null;
-    const pad = h.work?.paddy;
-    const teaX = (home.x0 + 11) * TILE + (p.index ? 13 : -13);
-    const teaY = (home.y0 + 12) * TILE - 2;
-    if (doing === 'garden') return workGarden(this.scene, s, p, home, time);
-    if (doing === 'feedChickens') return standAt(s, (home.x0 + 13) * TILE, (home.y0 + 14) * TILE, 'right', time, true);
-    if (doing === 'tea') return this.sit(s, p, teaX, teaY, p.index ? 'left' : 'right');
-    if (!route || !pad) return standAt(s, home.gate.x * TILE + 8, (home.gate.y - 3) * TILE, 'down', time, false);
-    const road = (n: number): TilePath => Array.from({ length: n }, (_, i) => ({ x: pad.bridgeX + i + 1, y: pad.roadY }));
-    if (doing === 'toField' && !this.walk(s, p, route, p.progress)) return;
-    if (doing === 'toMarket') {
-      if (!this.walk(s, p, [...route, ...road(30)], p.progress)) return;
-      return this.hide(p); // gone off to market
-    }
-    if (doing === 'fromMarket') {
-      if (!this.walk(s, p, [...road(30)].reverse().concat([...route].reverse()), p.progress)) return;
-      return this.sit(s, p, teaX, teaY, p.index ? 'left' : 'right');
-    }
-    if (doing === 'toHome') {
-      if (!this.walk(s, p, [...route].reverse(), p.progress)) return;
-      return this.sit(s, p, teaX, teaY, p.index ? 'left' : 'right');
-    }
-    if (doing === 'restRoad') {
-      // Sitting on their own side of the road, by their bridge.
-      const side = pad.side === 'north' ? -1 : 1;
-      return this.sit(s, p, (pad.bridgeX + (p.index ? 2 : -2)) * TILE + 8, (pad.roadY + side) * TILE + (side < 0 ? TILE - 2 : TILE - 2), side < 0 ? 'up' : 'down');
-    }
-    if (doing === 'herd') {
-      const span = pad.x1 - pad.x0;
-      const x = (pad.x0 + span * (0.5 + 0.4 * Math.sin(time / 9000))) * TILE;
-      const y = (pad.side === 'north' ? pad.y0 - 2 : pad.y1 + 3) * TILE;
-      return standAt(s, x, y, Math.cos(time / 9000) > 0 ? 'right' : 'left', time, false);
-    }
-    if (job === 'haul') {
-      // To and fro between the sheaves on the roadside and home, one sheaf a trip.
-      const phase = (haul + p.index * 0.5) % 1;
-      const loaded = phase < 0.5;
-      const len = (route.length - 1) * TILE;
-      this.walk(s, p, loaded ? [...route].reverse() : route, (loaded ? phase : phase - 0.5) * 2 * len);
-      return this.carry(p, loaded);
-    }
-    const w = h.work;
-    if (!w) return;
-    if (doing === 'tend') return tendPaddy(s, p, w, time);
-    workPaddy(this.scene, s, p, w, this.fields.state(pad.key), job, time);
-  }
-
-  private child(h: Household, p: Person, clock: number, delta: number, time: number): void {
-    const phase = phaseAt('child', clock);
-    const doing = phase.activity === 'toSchool' || phase.activity === 'school' ? 'school' : phase.activity === 'indoors' ? 'indoors' : 'yard';
-    this.advance(p, doing, phase.since, clock, delta);
-    if (doing !== 'yard') return this.hide(p);
-    const s = this.spriteOf(p);
-    const t = time / 1000 / 5;
-    const x = (h.home.x0 + 6 + Math.sin(t) * 3) * TILE;
-    const y = (h.home.y0 + 14) * TILE;
-    s.setPosition(x, y).setDepth(y);
-    const anim = `${p.key}-walk-${Math.cos(t) > 0 ? 'right' : 'left'}`;
-    if (s.anims.currentAnim?.key !== anim || !s.anims.isPlaying) s.play(anim);
+    p.goal = undefined;
   }
 
   private spriteOf(p: Person): Phaser.GameObjects.Sprite {
@@ -215,30 +251,15 @@ export class Villagers {
     return p.sprite;
   }
 
-  /** Places the walker `progress` px along the path; true once they have arrived. */
-  private walk(s: Phaser.GameObjects.Sprite, p: Person, path: TilePath, progress: number): boolean {
-    const step = Math.floor(Math.max(0, progress) / TILE);
-    if (path.length < 2 || step >= path.length - 1) return true;
-    const a = path[step];
-    const b = path[step + 1];
-    const f = (Math.max(0, progress) % TILE) / TILE;
-    const x = (a.x + (b.x - a.x) * f) * TILE + TILE / 2;
-    const y = (a.y + (b.y - a.y) * f) * TILE + TILE - 2;
-    s.setPosition(x, y).setDepth(y);
-    const anim = `${p.key}-walk-${b.x > a.x ? 'right' : b.x < a.x ? 'left' : b.y > a.y ? 'down' : 'up'}`;
-    if (s.anims.currentAnim?.key !== anim || !s.anims.isPlaying) s.play(anim);
-    return false;
-  }
-
-
-  private sit(s: Phaser.GameObjects.Sprite, p: Person, x: number, y: number, dir: string): void {
+  private sit(s: Phaser.GameObjects.Sprite, p: Person, x: number, y: number, dir: string, depth = y): void {
     const k = artScale(this.scene, p.key);
     s.anims.stop();
-    s.setFrame(DIRS.indexOf(dir) * 4).setCrop(0, 0, 16 * k, 22 * k).setPosition(x, y + 9).setDepth(y);
+    s.setAngle(0).setFrame(DIRS.indexOf(dir) * 4).setCrop(0, 0, 16 * k, 22 * k).setPosition(x, y + 9).setDepth(depth);
   }
 
-  /** A sheaf of rice over the shoulder while hauling it home. */
+  /** A pile of the harvest on the head while carrying it home. */
   private carry(p: Person, on: boolean): void {
+    p.sprite?.setCrop().setAngle(0);
     if (!on) {
       p.load?.destroy();
       p.load = undefined;
@@ -247,6 +268,4 @@ export class Villagers {
     if (!p.load) p.load = this.scene.add.image(0, 0, 'prop_haystack').setScale(hdScale(this.scene, 'prop_haystack') * 0.32);
     if (p.sprite) p.load.setPosition(p.sprite.x, p.sprite.y - 30).setDepth(p.sprite.depth + 1);
   }
-
-
 }

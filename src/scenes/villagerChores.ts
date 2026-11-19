@@ -1,35 +1,27 @@
 import type Phaser from 'phaser';
 import { TILE } from '../config/constants';
-import { DAY_LENGTH_MINUTES } from '../config/time';
-import { gameState } from '../state/GameState';
+import type { TaskKind } from '../systems/npc/config';
 import type { Direction } from '../systems/movement';
-import { jobFront, strips, stripTile, tilesDone, type FieldJob, type FieldState, type PaddyRect } from '../systems/NpcFarmSystem';
-import { absoluteMinute } from '../systems/StatsSystem';
 import type { Homestead } from './homesteads';
 import { swingTool } from './toolSwing';
 
 /**
- * What a villager does with their hands (villagers.ts decides when): working
- * the paddy one tile at a time like the player, weeding it, the yard garden,
- * and leading the buffalo home.
+ * What a villager does with their hands (villagers.ts decides when and where):
+ * a stroke of the tool on a field cell, weeding, the yard garden, feeding the
+ * animals, and leading the buffalo home on a rope.
  */
 const DIRS: Direction[] = ['down', 'left', 'right', 'up'];
-const TOOL: Partial<Record<FieldJob, 'hoe' | 'watering_can' | 'scythe'>> = { hoe: 'hoe', water: 'watering_can', harvest: 'scythe' };
+const TOOL: Partial<Record<TaskKind, 'hoe' | 'watering_can' | 'scythe'>> = { hoe: 'hoe', water: 'watering_can', harvest: 'scythe' };
 
 export interface Worker {
   index: number;
   nextMove: number;
-  /** The tile of the strip last worked (one stroke per tile). */
-  tile?: number;
+  /** The job last started (one stroke per job). */
+  lastJob?: string;
   /** Where an animal led by this person walks: a little behind them (see follow). */
   trail?: { x: number; y: number; flip: boolean };
   lastX?: number;
   lastY?: number;
-}
-
-export interface PaddyJob {
-  paddy: PaddyRect;
-  workers: number;
 }
 
 /** Stands still at a spot facing `dir` (busy: a little bob, as when stooping to work). */
@@ -38,45 +30,33 @@ export function standAt(s: Phaser.GameObjects.Sprite, x: number, y: number, dir:
   s.setFrame(DIRS.indexOf(dir as Direction) * 4 + (busy ? Math.floor(time / 400) % 2 : 0)).setPosition(x, y).setDepth(y);
 }
 
-/**
- * Working the paddy one tile at a time, like the player: standing on the last
- * tile done (or at the row's start), facing the next one, one stroke of the
- * tool per tile, moving on as each is finished (NpcFarmSystem.strips).
- */
-export function workPaddy(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: Worker, w: PaddyJob, f: FieldState, job: FieldJob | null, time: number): void {
-  const pad = w.paddy;
-  const parts = strips(pad, w.workers);
-  const strip = parts[p.index % parts.length];
-  const today = Math.floor(absoluteMinute(gameState.time) / DAY_LENGTH_MINUTES);
-  const k = Math.min(strip.size - 1, tilesDone(jobFront(f, today), strip));
-  const next = stripTile(pad, strip, k);
-  const away = pad.side === 'north' ? -1 : 1; // rows go away from the road this way
-  let at: { x: number; y: number };
-  let facing: Direction;
-  if (k % (strip.b - strip.a + 1) > 0) {
-    const prev = stripTile(pad, strip, k - 1);
-    at = { x: prev.x, y: prev.y };
-    facing = next.forward ? 'right' : 'left';
-  } else {
-    at = { x: next.x, y: next.y - away }; // the start of a row: from the row before (or the road)
-    facing = away < 0 ? 'up' : 'down';
+/** Walks (animated) to a point, `speed` px a second; true once there. */
+export function stepTowards(s: Phaser.GameObjects.Sprite, key: string, x: number, y: number, speed: number, delta: number): boolean {
+  const dx = x - s.x;
+  const dy = y - s.y;
+  const d = Math.hypot(dx, dy);
+  const step = (speed * delta) / 1000;
+  if (d <= step || d < 0.5) {
+    s.setPosition(x, y).setDepth(y);
+    return true;
   }
-  standAt(s, at.x * TILE + TILE / 2, at.y * TILE + TILE - 2, facing, time, false);
-  if (p.tile === k || time < p.nextMove) return;
-  p.tile = k;
-  p.nextMove = time + 250; // a stroke takes this long at least
-  const tool = job ? TOOL[job] : undefined;
-  if (tool) swingTool(scene, s, tool, facing);
-  else toss(scene, s, job === 'fertilize' ? 0x6a5a40 : 0x8fd16a);
+  s.setPosition(s.x + (dx / d) * step, s.y + (dy / d) * step).setDepth(s.y);
+  const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+  const anim = `${key}-walk-${dir}`;
+  if (s.anims.currentAnim?.key !== anim || !s.anims.isPlaying) s.play(anim);
+  return false;
 }
 
-/** Nothing left to do today: weeding along the rows, stooping, a few tiles at a time. */
-export function tendPaddy(s: Phaser.GameObjects.Sprite, p: Worker, w: PaddyJob, time: number): void {
-  const parts = strips(w.paddy, w.workers);
-  const strip = parts[p.index % parts.length];
-  const k = Math.floor(time / 4000 + p.index * 37) % strip.size;
-  const t = stripTile(w.paddy, strip, k);
-  standAt(s, t.x * TILE + TILE / 2, t.y * TILE + TILE - 2, t.forward ? 'right' : 'left', time, true);
+/** Working a field cell: standing on it, one stroke of the tool (or a handful thrown) per job. */
+export function workCell(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: Worker, tile: { x: number; y: number }, job: string, kind: TaskKind, time: number): void {
+  const facing: Direction = p.index % 2 ? 'left' : 'right';
+  standAt(s, tile.x * TILE + TILE / 2, tile.y * TILE + TILE - 2, facing, time, kind === 'sow' || kind === 'fertilize');
+  if (p.lastJob === job || time < p.nextMove) return;
+  p.lastJob = job;
+  p.nextMove = time + 250;
+  const tool = TOOL[kind];
+  if (tool) swingTool(scene, s, tool, facing);
+  else toss(scene, s, kind === 'fertilize' ? 0x6a5a40 : 0x8fd16a);
 }
 
 /** No paddy: hoeing and watering the vegetable rows of the yard, a tile at a stroke. */
@@ -88,6 +68,14 @@ export function workGarden(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p:
   if (time < p.nextMove) return;
   p.nextMove = time + 2600;
   swingTool(scene, s, k % 3 === 2 ? 'watering_can' : 'hoe', 'right');
+}
+
+/** Scattering feed to the chickens and pigs. */
+export function feedAnimals(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: Worker, x: number, y: number, time: number): void {
+  standAt(s, x, y, 'right', time, true);
+  if (time < p.nextMove) return;
+  p.nextMove = time + 1500;
+  toss(scene, s, 0xe0c070);
 }
 
 /** Keeps a point 20 px behind a walking person, for the animal they lead. */
