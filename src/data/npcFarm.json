@@ -1,0 +1,105 @@
+{
+  "_comment": "Village farm families (docs: PLAN.md 'Hệ thống NPC gia đình nông trại'). Every number of the NPC farm system lives here. Times are departure times, 'HH:MM' on the 24 h clock.",
+  "adult": {
+    "wake": "05:00",
+    "sweepUntil": "05:30",
+    "feedLivestock": "05:30",
+    "feedMinutes": 10,
+    "breakfast": "06:30",
+    "toField": "07:00",
+    "lunchStart": "11:30",
+    "lunchEnd": "13:00",
+    "wifeLeaveField": "16:00",
+    "leaveField": "16:30",
+    "singleMarketLeave": "15:00",
+    "dinner": "18:00",
+    "porch": "19:00",
+    "sleep": "21:00"
+  },
+  "child": {
+    "wake": "05:00",
+    "breakfast": "06:00",
+    "toSchool": "06:30",
+    "schoolEnd": "16:30",
+    "dinner": "18:00",
+    "sleep": "21:00",
+    "yardRadiusM": 15,
+    "buffaloRadiusM": 10,
+    "playRadiusM": 10,
+    "behaviourMinutes": 20
+  },
+  "buffalo": {
+    "leadOut": "07:00",
+    "leadHome": "16:00",
+    "wanderRadiusM": 50
+  },
+  "market": {
+    "stayMinutes": 20,
+    "walkMinutes": 45,
+    "everyDaysByFamilyType": { "1": 3, "2": 1, "3": 2 }
+  },
+  "lateness": {
+    "toleranceMinutes": 30,
+    "hurrySpeedMultiplier": 1.5
+  },
+  "talk": {
+    "wrapUpMinutes": 5,
+    "maxMinutes": 30,
+    "rangeTiles": 2.5
+  },
+  "travel": {
+    "walkTilesPerMinute": 3,
+    "pathFactor": 1.1,
+    "minMinutes": 2
+  },
+  "world": {
+    "tilesPerMetre": 1.1875,
+    "firstWeekday": 0,
+    "weekendDays": [5, 6],
+    "maxCatchUpDays": 30
+  },
+  "families": {
+    "twoPersonShare": 0.35,
+    "pigChance": 0.4
+  },
+  "field": {
+    "cellTiles": 4,
+    "minutes": { "hoe": 2, "sow": 1, "water": 1, "fertilize": 1, "harvest": 2 },
+    "fertilizeEveryDays": 7,
+    "deathAfterMissedDays": 1,
+    "pileFraction": 0.2
+  },
+  "yardPiles": {
+    "max": 5,
+    "lifetimeDays": 3
+  },
+  "crops": [
+    { "id": "parsnip", "name": "Củ cải vàng", "growDays": 4, "color": "#e8d27a" },
+    { "id": "garlic", "name": "Tỏi", "growDays": 4, "color": "#e9e4d0" },
+    { "id": "wheat", "name": "Lúa mì", "growDays": 4, "color": "#d9b85c" },
+    { "id": "hot_pepper", "name": "Ớt", "growDays": 5, "color": "#d8452f" },
+    { "id": "potato", "name": "Khoai tây", "growDays": 6, "color": "#b98b55" },
+    { "id": "kale", "name": "Cải xoăn", "growDays": 6, "color": "#4f8f4a" },
+    { "id": "radish", "name": "Củ cải đỏ", "growDays": 6, "color": "#c8475e" },
+    { "id": "beet", "name": "Củ dền", "growDays": 6, "color": "#8e2f4f" },
+    { "id": "rice", "name": "Lúa", "growDays": 8, "color": "#e6c45a" },
+    { "id": "tomato", "name": "Cà chua", "growDays": 11, "color": "#e0503a" },
+    { "id": "cauliflower", "name": "Súp lơ", "growDays": 12, "color": "#efe9cf" },
+    { "id": "melon", "name": "Dưa lưới", "growDays": 12, "color": "#c9d77a" },
+    { "id": "pumpkin", "name": "Bí ngô", "growDays": 13, "color": "#e88a2c" },
+    { "id": "corn", "name": "Bắp", "growDays": 14, "color": "#f0d040" }
+  ],
+  "lines": {
+    "greeting": [
+      "Chào con! Trời hôm nay đẹp ghê.",
+      "Ừ, con đi đâu đó?",
+      "Ruộng nhà bác năm nay tốt lắm đó.",
+      "Rảnh thì ghé nhà bác uống chén trà nghe."
+    ],
+    "farewell": [
+      "Thôi bác đi kẻo trễ, nói chuyện sau nghe!",
+      "Chết, tới giờ rồi, bác đi đây!",
+      "Bác phải đi đây con, mai gặp lại."
+    ]
+  }
+}

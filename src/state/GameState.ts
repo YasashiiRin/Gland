@@ -1,5 +1,5 @@
 import type { ProfessionState } from '../systems/ProfessionSystem';
-import type { FieldState } from '../systems/NpcFarmSystem';
+import type { FamilyState } from '../systems/npc/types';
 import type { HomeHouses, Homes } from '../systems/HomeSystem';
 import { createInitialHunger } from '../systems/HungerSystem';
 import { pickStart } from '../data/startPoints';
@@ -58,8 +58,8 @@ export interface GameState {
   homes: Homes;
   /** Houses players have rebuilt (shared): home key -> house sprite. */
   homeHouses: HomeHouses;
-  /** The village paddies worked by the households (shared): home key -> paddy state. */
-  npcFields: Record<string, FieldState>;
+  /** The village farm families (shared): home key -> people, field cells, buffalo, piles (systems/npc). */
+  npcFamilies: Record<string, FamilyState>;
   /** The player's profession (personal): null until a talisman is used. */
   profession: ProfessionState | null;
   /** Things lying on the ground to pick up (shared): "Map:x,y" -> item. */
@@ -153,7 +153,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     fishPonds: {},
     homes: {},
     homeHouses: {},
-    npcFields: {},
+    npcFamilies: {},
     profession: null,
     groundItems: {},
     groundRolls: {},

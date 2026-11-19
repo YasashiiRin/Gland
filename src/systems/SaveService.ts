@@ -49,7 +49,8 @@ export function load(): GameState | null {
     parsed.hunger ??= { current: 150, max: 150 };
     parsed.homes ??= {};
     parsed.homeHouses ??= {};
-    parsed.npcFields ??= {};
+    parsed.npcFamilies ??= {};
+    delete (parsed as { npcFields?: unknown }).npcFields; // the old one-state-per-paddy farms (replaced by systems/npc)
     parsed.profession ??= null;
     parsed.groundItems ??= {};
     parsed.groundRolls ??= {};

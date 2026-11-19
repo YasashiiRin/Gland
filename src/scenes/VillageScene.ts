@@ -132,7 +132,7 @@ export abstract class VillageScene extends FieldScene {
         break;
       }
     }
-    if (!foundId) return false;
+    if (!foundId) return super.tryTalkToNpc(); // the village farm families (MapScene)
 
     const stack = gameState.inventory.slots[gameState.equippedSlot];
     const def = ITEMS[stack?.itemId as ItemId]?.category;

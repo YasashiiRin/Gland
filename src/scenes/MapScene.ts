@@ -68,6 +68,7 @@ import { ownerName } from '../state/owner';
 import { AmbientLife } from './ambientLife';
 import { Villagers } from './villagers';
 import { VillageFields } from './villageFields';
+import { NpcWorld } from './npcWorld';
 import { Hawkers } from './hawkers';
 import { lampSpotsOnMap } from './worldSprites';
 import { matTileKeysOnMap } from '../systems/PlacedObjectSystem';
@@ -155,6 +156,8 @@ export abstract class MapScene extends Phaser.Scene {
   /** The village households' paddies (worked by the villagers; hands off for the player). */
   protected paddies: VillageFields | null = null;
   private lastPaddyUpdate = 0;
+  /** The village farm families of this map (systems/npc). */
+  private npcWorld: NpcWorld | null = null;
   private homeDoor!: HomeDoor;
   private hawkers: Hawkers | null = null;
   /** Talismans and ancient books lying about (the Thầy pháp's). */
@@ -286,10 +289,19 @@ export abstract class MapScene extends Phaser.Scene {
     this.water = this.isOutdoor ? new WaterLife(this, ground) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.water?.destroy());
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ambient?.destroy());
-    this.paddies = this.isOutdoor ? new VillageFields(this, this.groundLook, ground, decor, readPaddies(this.map, this.mapKey), this.homesteads) : null;
+    const paddyRects = this.isOutdoor ? readPaddies(this.map, this.mapKey) : [];
+    const walkable = (x: number, y: number): boolean => {
+      const g = ground.getTileAt(x, y);
+      const d = decor.getTileAt(x, y);
+      return !!g && !g.collides && (!d || !d.collides);
+    };
+    const grazable = (x: number, y: number) => walkable(x, y) && !paddyRects.some((p) => inRect(p, x, y)) && ground.getTileAt(x, y)?.index !== TILE_GID.WATER;
+    this.npcWorld = this.isOutdoor ? new NpcWorld(this.map, this.homesteads, paddyRects, walkable, (h) => h.key in gameState.homes) : null;
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.npcWorld?.destroy());
+    this.paddies = this.npcWorld ? new VillageFields(this, this.groundLook, ground, decor, paddyRects, this.npcWorld) : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.paddies?.destroy());
-    this.villagers = this.paddies
-      ? new Villagers(this, ground, decor, this.homesteads, this.paddies, (h) => h.key in gameState.homes)
+    this.villagers = this.npcWorld
+      ? new Villagers(this, this.npcWorld, walkable, grazable, (x, y, text) => this.showFloatingText(x, y, text))
       : null;
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.villagers?.destroy());
     this.hawkers = this.isOutdoor ? new Hawkers(this, this.map, ground, decor, this.homesteads) : null;
@@ -357,9 +369,10 @@ export abstract class MapScene extends Phaser.Scene {
     this.water?.update(time, view);
     if (this.paddies && time - this.lastPaddyUpdate > 500) {
       this.lastPaddyUpdate = time;
+      this.npcWorld?.update();
       this.paddies.update(view);
     }
-    this.villagers?.update(time, this.game.loop.delta, view);
+    this.villagers?.update(time, this.game.loop.delta, view, this.player);
     this.hawkers?.update(time, this.game.loop.delta, view, this.player);
     this.groundItems?.update(time, this.player, (t) => this.say(t));
     this.ride.update(this.time.now);
@@ -627,8 +640,9 @@ export abstract class MapScene extends Phaser.Scene {
   protected tryOpenChest(): boolean {
     return false;
   }
+  /** A village farmer close by stops for a chat (systems/npc). */
   protected tryTalkToNpc(): boolean {
-    return false;
+    return this.villagers?.talkNear(this.player) ?? false;
   }
   protected tryEnterMine(): boolean {
     return false;

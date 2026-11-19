@@ -495,7 +495,8 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
         chỉ trong các khu phố). Rừng rậm chỉ ở rìa bản đồ, rừng giữa bản đồ thưa (`scripts/art/villages.py`).
       - [x] B. **Dân trong mỗi nhà** (nhà phố: 1 người bán hàng; nhà làng: 1 người, hoặc vợ chồng + con đi học): 5h30 ra
         đồng, cuốc từng đợt 3 tiếng, nghỉ ngồi 30', 15h về nhà, quanh sân tới 18h rồi vào nhà; con 6h30 đi trường làng, 11h
-        về. Mỗi nhà có mảnh ruộng riêng, tìm đường thật (`VillagerSchedule`, `gridPath`, `scenes/villagers.ts`).
+        về. Mỗi nhà có mảnh ruộng riêng, tìm đường thật (`gridPath`, `scenes/villagers.ts`). *(Đã thay bằng
+        "Hệ thống NPC gia đình nông trại" ở cuối file.)*
       - [x] C. **Cửa nhà** (đứng trước cửa bấm E): nhà mình → Đi ngủ / làm lại nhà (nhà tranh → nhà tranh vách đất 1.500 ₫
         → nhà ngói ba gian 4.000 ₫, `homes.json`) / Đóng; nhà trống → chuyển về ở (nhà cũ để trống cho người khác). Bảng chọn
         dùng chung `ui/ChoiceMenu.ts`; nhà đã làm lại lưu trong `gameState.homeHouses` (chung khi chơi nhiều người).
@@ -508,7 +509,7 @@ Chủ phòng giữ save; khách không ghi save. Tab của chủ phòng phải l
   3f. [x] **Làng và đồng áng khép kín** (yêu cầu 2026-11-18): bản đồ cao thêm 50% (425x640), đồng bằng phía nam có 1 làng
       mỗi tỉnh. Mỗi nhà một khu đất 19x18 (nền đất màu đường, nhiều tre/chuối/cây ăn quả quanh, bàn trà trong sân, ngẫu nhiên
       có ao cá hoặc chuồng gà; nhà có/không trâu bò). Cánh đồng: mỗi nhà một thửa 32x64 (nhà 1 người nhỏ hơn) hai bên đường
-      chính rộng 3 ô, kênh nhỏ dọc đường, cầu ván vào từng thửa, lối 1 ô viền cỏ giữa các thửa. Vòng ruộng (NpcFarmSystem):
+      chính rộng 3 ô, kênh nhỏ dọc đường, cầu ván vào từng thửa, lối 1 ô viền cỏ giữa các thửa. Vòng ruộng (NpcFarmSystem — nay đã thay bằng `systems/npc/`, xem cuối file):
       cuốc → gieo → tưới mỗi ngày (bón phân 1 lần) → lớn (chỉ ngày được tưới) → gặt → bó lúa trên bờ → gánh từng bó về nhà
       → cuốc lại; làm theo công (người-phút/ô), chạy cả khi không ai đứng xem. Lịch người lớn (adultDoing): 5h30 cho gà ăn,
       ra ruộng; làm từng đợt 3 tiếng, nghỉ 30' ngồi bên đường; xong việc: nhà có trâu bò thì một người chăn, người kia đi
@@ -575,3 +576,46 @@ nâng cấp dần từng đợt. Lưu ý: ở mức phóng to ×1 hình HD bị 
 - [x] Đợt 4: mọi ô nền còn lại (đá, hàng rào, sàn, tường, ruộng, ô tỉnh…) vẽ lại ở x2; cây trồng, đồ nội thất,
       cây/đá/giếng/rơm, chuối, đước, đa, ma quỷ ở HD. Giờ **toàn bộ** sprite trong pack đều là HD.
       Ảnh: `docs/previews/hd_cay_trong_dot4.png`, `hd_noi_that_dot4.png`.
+
+
+## Hệ thống NPC gia đình nông trại (theo spec `npc-farm-spec.md`, 2026-11-19)
+Thay hẳn `NpcFarmSystem` + `VillagerSchedule` cũ. Logic thuần trong `src/systems/npc/` (có test), mọi con số trong
+`src/data/npcFarm.json` (giờ giấc, bán kính, thời lượng, tỉ lệ, danh sách cây). Trạng thái lưu ở `gameState.npcFamilies`
+(lưu game + đồng bộ khi chơi nhiều người: chủ phòng chạy mô phỏng, khách nhận lại).
+- `config.ts` đọc file config; `families.ts` dựng gia đình từ bản đồ (băm theo mã nhà → luôn ra cùng một nhà);
+  `field.ts` máy trạng thái **từng ô** ruộng; `schedule.ts` lịch theo giờ + việc vặt (dắt trâu, đi chợ);
+  `sim.ts` chạy từng phút (dùng chung cho NPC trên màn hình, ngoài màn hình và chạy bù); `child.ts` hành vi đứa con.
+- Phần vẽ: `scenes/npcWorld.ts` (chạy mô phỏng, vị trí nhà/ruộng/bãi cỏ/trường), `villageFields.ts` (vẽ từng ô, đống
+  nông sản), `villagers.ts` + `villagerPaths.ts` + `villagerPlay.ts` + `villagerChores.ts` (người), `villageAnimals.ts` (gà, heo, trâu).
+
+Tiêu chí hoàn thành:
+- [x] 3 loại gia đình (1 người / vợ chồng / vợ chồng + con); gà, heo, trâu; vợ chăm gia súc; không đói/máu/tiền.
+- [x] Lịch người lớn đúng bảng giờ (giờ là giờ XUẤT PHÁT); nghỉ trưa 11h30–13h ngồi bên ruộng; ăn tối, uống trà, đi ngủ.
+- [x] Đi chợ: 1 người 3 ngày/lần rời ruộng 15h; vợ (nhà 2 người) mỗi ngày, (nhà 3 người) 2 ngày/lần, 16h; ở chợ 20 phút
+      rồi về thẳng nhà; `marketCounter` lưu trong save.
+- [x] Dắt trâu: vợ dắt ra 7h, dắt về 16h; ngày vợ đi chợ ai về nhà trước nhận việc (`buffaloReturnClaimedBy`, không áp
+      luật trễ); cuối tuần con dắt thay mẹ, ở trong 10 m quanh trâu (đi theo / nằm trên lưng / ngủ; gặp trẻ khác thì đuổi bắt).
+- [x] Con: thứ 2–6 đi học 6h30, tan 16h30; ở nhà chơi trong bán kính 15 m.
+- [x] Trễ lịch tối đa 30 phút, quá thì bỏ việc, đi nhanh +50%. Nói chuyện (E cạnh dân làng): NPC đứng lại; còn 5 phút
+      tới giờ kế tiếp thì nói 1 câu chào rồi đi nhanh +50%.
+- [x] Ruộng từng ô: UNTILLED → TILLED → SEEDED/GROWING → MATURE → TILLED, chết thành DEAD nếu bỏ lỡ 1 ngày tưới; mưa =
+      đã tưới; bón ngay ngày gieo rồi 7 ngày/lần; ưu tiên thu hoạch > tưới > bón > gieo > cuốc > nhổ cỏ; chồng nửa trái,
+      vợ nửa phải, xong thì sang phụ; mỗi ô chỉ 1 người nhận (`reservedBy`).
+- [x] Cả thửa 1 loại cây/vụ, random từ 14 loại (không trùng vụ trước, theo seed lưu trong save); cứ 20% thửa thành 1 đống
+      bên đường; thu xong thì mỗi người lớn vác 1 đống/chuyến về sân; mang hết thì nghỉ ở nhà, hôm sau vụ mới.
+- [x] Đống trong sân tối đa 5, mỗi đống 3 ngày.
+- [x] LOD: ngoài màn hình không vẽ, không tìm đường; tới gần thì đặt đúng chỗ. Ngủ/tua giờ/vào lại bản đồ: chạy bù
+      (tối đa 30 ngày). Ruộng, nhà, gia súc của NPC là vùng khoá.
+
+Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
+- **1 "ô" ruộng = 4×4 ô bản đồ** (`field.cellTiles`). Thửa trên bản đồ rộng ~2.000 ô; nếu mỗi ô bản đồ tưới 1 phút thì
+  một ngày làm không kịp tưới, cây chết hết. Với 4×4, thửa lớn có 128 ô, tưới ~1 tiếng/người/ngày.
+- Đồng hồ NPC theo giờ thật: ngày mới lúc 0h (ngày của game vẫn đổi lúc 6h). Ngày 1 của game là Thứ 2.
+- Bản đồ chỉ có "trâu" hoặc "bò": cả hai đều được dắt đi ăn cỏ như trâu (hình vẫn giữ là bò nếu bản đồ ghi bò).
+  Heo được thêm ngẫu nhiên (`families.pigChance`); nhà 2–3 người không có con vật nào thì được thêm gà.
+- Nhà ghi "3 người" trên bản đồ: ~35% là vợ chồng (loại 2), còn lại có con (loại 3) (`families.twoPersonShare`).
+- Chợ nằm "xa xa" theo đường cái (đi 45 phút, rồi khuất khỏi màn hình); trường là trường làng trên bản đồ.
+- Đi bộ 3 ô/phút game (≈ tốc độ người chơi); nhà ở xa ruộng nên tới nơi muộn hơn giờ xuất phát.
+- Nhà lẻ ngoài hoang không có ruộng: giờ ra đồng thì làm vườn trong sân.
+- Lúc chạy bù khi vắng mặt lâu, thời tiết của cả khoảng đó lấy theo thời tiết hiện tại (game không lưu lịch sử mưa).
+- Cây trồng tạm dùng hình cây lúa nhuộm màu theo loại cây (màu trong config) — thay hình thật sau.
