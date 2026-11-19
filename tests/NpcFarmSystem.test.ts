@@ -44,7 +44,7 @@ describe('village paddies', () => {
     const one = simulate(newField(0), { workers: 1, tiles, tripMinutes: 60 }, DAY - 1, DAY, START);
     const two = simulate(newField(0), { workers: 2, tiles, tripMinutes: 60 }, DAY - 1, DAY, START);
     expect(one.stage).toBe('fallow');
-    expect(one.progress).toBeCloseTo(540 / 1024, 2); // 9 hours of spells
+    expect(one.progress).toBeCloseTo(570 / 1024, 2); // 9.5 hours of spells
     expect(two.stage).toBe('tilled');
   });
 

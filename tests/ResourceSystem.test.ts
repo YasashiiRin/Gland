@@ -43,28 +43,28 @@ describe('hitResource', () => {
 });
 
 describe('isCleared / advanceResourceDay', () => {
-  it('a rock respawns after its 1-day window', () => {
+  it('a rock comes back 15 days after it was broken', () => {
     const key = resourceKey('Farm', 2, 2);
     const nodes: ResourceNodes = { [key]: { kind: 'rock', health: 0, clearedOnDay: 10 } };
-    expect(isCleared(nodes[key], 10)).toBe(true);
-    expect(isCleared(nodes[key], 11)).toBe(false);
+    expect(isCleared(nodes[key], 24)).toBe(true);
+    expect(isCleared(nodes[key], 25)).toBe(false);
   });
 
-  it('a tree stays cleared until its 3-day window passes', () => {
+  it('a tree grows back 15 days after it was felled (also one felled on day 0)', () => {
     const key = resourceKey('Farm', 3, 3);
-    const nodes: ResourceNodes = { [key]: { kind: 'tree', health: 0, clearedOnDay: 10 } };
-    expect(isCleared(nodes[key], 12)).toBe(true);
-    expect(isCleared(nodes[key], 13)).toBe(false);
+    const nodes: ResourceNodes = { [key]: { kind: 'tree', health: 0, clearedOnDay: 0 } };
+    expect(isCleared(nodes[key], 14)).toBe(true);
+    expect(isCleared(nodes[key], 15)).toBe(false);
   });
 
   it('advanceResourceDay drops entries whose respawn window has passed', () => {
     const treeKey = resourceKey('Farm', 1, 1);
     const rockKey = resourceKey('Farm', 2, 2);
     const nodes: ResourceNodes = {
-      [treeKey]: { kind: 'tree', health: 0, clearedOnDay: 1 }, // respawns day 4
-      [rockKey]: { kind: 'rock', health: 0, clearedOnDay: 3 }, // respawns day 4
+      [treeKey]: { kind: 'tree', health: 0, clearedOnDay: 1 }, // grows back day 16
+      [rockKey]: { kind: 'rock', health: 0, clearedOnDay: 3 }, // back day 18
     };
-    const next = advanceResourceDay(nodes, 4);
+    const next = advanceResourceDay(nodes, 18);
     expect(next[treeKey]).toBeUndefined();
     expect(next[rockKey]).toBeUndefined();
   });

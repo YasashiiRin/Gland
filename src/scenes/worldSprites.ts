@@ -98,17 +98,9 @@ export class TreeSprites {
     looks: { forestTrees?: readonly string[]; orchardTree?: string } = {},
   ) {
     this.images = new ChunkedImages(scene);
-    // Trees are drawn at their true size (scripts/art/real_scale.py), several tiles across, so
-    // a wood or hedge shows one tree per 2 x 2 tiles (the tiles in between still block the way).
-    // Trees you can chop always show.
-    const shown = new Set<number>();
+    // Every tree tile is one tree (the maps keep at most one per 2 x 2 tiles: maps.thin_trees).
     decor.forEachTile((tile) => {
       if (!isTreeGid(tile.index)) return;
-      if (tile.index !== TILE_GID.TRUNK) {
-        const cell = Math.floor(tile.y / 2) * 100000 + Math.floor(tile.x / 2);
-        if (shown.has(cell)) return;
-        shown.add(cell);
-      }
       const h = tileHash(tile.x, tile.y);
       const forest = tile.index === TILE_GID.FOREST;
       const pool: readonly string[] =

@@ -130,7 +130,7 @@ export class VillageFields {
 
   /** Ground, crop and tint of one tile of the paddy. */
   private tileLook(f: FieldState, job: string | null, done: boolean, watered: boolean): [number, number | null, number] {
-    const fallow: [number, number | null, number] = f.harvests > 0 ? [TILE_GID.DIRT, TILE_GID.STUBBLE, 0xffffff] : [TILE_GID.GRASS3, null, 0xffffff];
+    const fallow: [number, number | null, number] = f.harvests > 0 ? [TILE_GID.DIRT, TILE_GID.STUBBLE, 0xffffff] : [TILE_GID.GRASS, null, 0xffffff];
     switch (f.stage) {
       case 'fallow':
         return job === 'hoe' && done ? [TILE_GID.SOIL, null, 0xffffff] : fallow;

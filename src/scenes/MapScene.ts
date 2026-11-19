@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { DEPTH_ABOVE, FADE_MS, TILE } from '../config/constants';
 import { setupWorldCamera } from './cameraFit';
 import { ITEMS, TOOL_ENERGY_COST, type ItemId } from '../data/items';
-import { isWaterGid, TILE_GID } from '../config/tileGids';
+import { isTreeGid, isWaterGid, TILE_GID } from '../config/tileGids';
 import { isMapKey, MAPS, PROVINCE_MAP_KEYS, type MapKey } from '../data/maps';
 import { Player, type PlayerInput } from '../entities/Player';
 import {
@@ -933,7 +933,7 @@ export abstract class MapScene extends Phaser.Scene {
       if (!isCleared(gameState.resourceNodes[key], today)) continue;
       const tile = this.decorLayer.getTileAt(x, y);
       if (!tile || tile.index === TILE_GID.BLOCK) continue;
-      if (tile.index === TILE_GID.TRUNK) this.trees.fell(x, y, true);
+      if (isTreeGid(tile.index)) this.trees.fell(x, y, true);
       this.decorLayer.removeTileAt(x, y);
     }
   }
@@ -1035,8 +1035,8 @@ export abstract class MapScene extends Phaser.Scene {
       const y = Number(yStr);
       // Only clear the tile if it still is that resource: after a map redesign
       // an old key may point at a wall/fence that must stay.
-      const expected = node.kind === 'tree' ? TILE_GID.TRUNK : node.kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH;
-      if (this.decorLayer.getTileAt(x, y)?.index !== expected) continue;
+      const here = this.decorLayer.getTileAt(x, y)?.index;
+      if (node.kind === 'tree' ? !isTreeGid(here) : here !== (node.kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH)) continue;
       this.decorLayer.removeTileAt(x, y);
     }
   }
@@ -1048,8 +1048,12 @@ export abstract class MapScene extends Phaser.Scene {
     if (!kind) return;
 
     const gid = this.decorLayer.getTileAt(tile.x, tile.y)?.index;
-    const expectedGid = kind === 'tree' ? TILE_GID.TRUNK : kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH;
-    if (gid !== expectedGid) return;
+    // Any tree can be felled (bamboo, fruit trees, palms, the woods), not only the lone trunks.
+    if (kind === 'tree' ? !isTreeGid(gid) : gid !== (kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH)) return;
+    if (kind === 'tree' && this.buildBlocked(tile.x, tile.y)) {
+      this.say('Cây này của nhà người ta / của danh thắng: không chặt được');
+      return;
+    }
 
     const key = resourceKey(this.mapKey, tile.x, tile.y);
     const existing = gameState.resourceNodes[key];

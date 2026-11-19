@@ -15,7 +15,8 @@ export function resourceKey(mapKey: string, x: number, y: number): string {
 }
 
 export const STARTING_HEALTH: Record<ResourceKind, number> = { tree: 3, rock: 1, weed: 1 };
-export const RESPAWN_DAYS: Record<ResourceKind, number> = { tree: 3, rock: 1, weed: 1 };
+/** Everything the map started with grows back (or turns up again) 15 days after it was taken. */
+export const RESPAWN_DAYS: Record<ResourceKind, number> = { tree: 15, rock: 15, weed: 15 };
 
 export const TOOL_FOR_KIND: Record<ResourceKind, string> = { tree: 'axe', rock: 'pickaxe', weed: 'scythe' };
 
@@ -41,7 +42,7 @@ export function hitResource(nodes: ResourceNodes, key: string, kind: ResourceKin
 
 /** True while the node should still be hidden/depleted (not enough days have passed to respawn). */
 export function isCleared(node: ResourceNodeState | undefined, nowDay: number): boolean {
-  if (!node?.clearedOnDay) return false;
+  if (node?.clearedOnDay === undefined) return false; // (day 0 counts too)
   return nowDay - node.clearedOnDay < RESPAWN_DAYS[node.kind];
 }
 

@@ -32,7 +32,7 @@ from .biome import Regions, connect, fill_contents, paint_ground, trail
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_services import services
-from .map_helpers import (HOUSES, KARST, SIZE, TALL, clearing, crossing, fish_ponds, herd, jetty, market, mooring, place_near, quay, street_row,
+from .map_helpers import (HOUSES, KARST, SIZE, TALL, clearing, crossing, fish_ponds, jetty, market, mooring, place_near, quay, street_row,
                           walk_under, water_spots, zone)
 from .province_tiles import BRIDGE, CITADEL, PAVING
 from .region import (Province, beach_trees, boats, coast, exit_south, finish, meander, place, river, road, walls)
@@ -102,7 +102,6 @@ def _phong_nha(m: Province) -> None:
     for i, (s, w, h) in enumerate((("stall_veg", 3, 3), ("hat_stall", 3, 2), ("stall_rice", 3, 3))):
         place(m, s, 198 + i * 6, 120, w, h, solid_from=1, force=True)                    # bánh khoái, nón lá, snacks
     place(m, "signpost", 236, 116, 1, 2, solid_from=1, force=True)                       # đi Ba Đồn / đi Đồng Hới
-    place(m, "buffalo", 190, 122, 2, 1, solid_from=0, force=True)
     clearing(m, (178, 84, 206, 94), palms=0.03)                                           # stilt houses north bank
     clearing(m, (112, 134, 134, 162), palms=0.01)                                         # Thiên Đường
     walk_under(m, "paradise_cave", 118, 136, 5, 6, solid_rows=4)
@@ -240,7 +239,6 @@ def build_quang_binh() -> Province:
     villages = [v for v in (village(m, "Làng Võ Ninh", avoid),) if v]                # where the map has most room
     lone_houses(m, 4, avoid + villages)
     deep_forest(m)
-    herd(m, regions, ("rice", "meadow"), 14)
     for x, y in water_spots(m, 3, 30, range(30, 60), range(20, 380)):
         m.prop("sampan", x, y, 3, 1)
     for x, y in water_spots(m, 3, 3, range(97, 106), range(186, 236))[:3]:              # tour boats on the Son

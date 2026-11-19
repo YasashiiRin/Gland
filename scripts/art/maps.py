@@ -142,6 +142,21 @@ class MapBuilder:
                     out[y][x] = DEEP
         self.ground = out
 
+    def thin_trees(self) -> None:
+        """Trees are drawn at true size, several tiles across: at most one tree per 2 x 2 tiles, so
+        each tree you see is one you can walk up to and fell (no invisible tree tiles between)."""
+        trees = {TRUNK, FOREST, ORCHARD, *BIOME_TREES}
+        seen: set[tuple[int, int]] = set()
+        for y in range(self.h):
+            for x in range(self.w):
+                if self.decor[y][x] not in trees:
+                    continue
+                cell = (x // 2, y // 2)
+                if cell in seen:
+                    self.decor[y][x] = None
+                else:
+                    seen.add(cell)
+
     def clear_fronts(self) -> None:
         """Takes away the trees standing just in front of (below) a landmark, which would hide it."""
         trees = {TRUNK, FOREST, ORCHARD, *BIOME_TREES}
@@ -159,6 +174,7 @@ class MapBuilder:
     def to_tmj(self) -> dict:
         set_facings(self)  # before autotile: it reads the plain road tiles
         self.clear_fronts()
+        self.thin_trees()
         self.autotile()
 
         def layer(lid: int, name: str, grid: list) -> dict:

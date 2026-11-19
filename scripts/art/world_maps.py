@@ -13,7 +13,7 @@ from .real_scale import scale_box
 from .biome import Regions, connect, fill_contents, paint_ground, trail
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
-from .map_helpers import (GARDEN_HOUSES, MOUNTAINS, SIZE, TALL, crossing, herd, market, mooring, place_near, street_row,
+from .map_helpers import (GARDEN_HOUSES, MOUNTAINS, SIZE, TALL, crossing, market, mooring, place_near, street_row,
                           water_spots, zone)
 from .map_quang_binh import build_quang_binh
 from .province_tiles import LOTUS, PAVING
@@ -84,7 +84,6 @@ def build_hue() -> Province:
     villages = [v for v in (village(m, "Làng An Hòa", avoid),) if v]                  # where the map has most room
     lone_houses(m, 4, avoid + villages)
     deep_forest(m)
-    herd(m, regions, ("rice", "meadow"), 10)
     for x, y in water_spots(m, 4, 30, range(210, 330), range(20, 330)):
         m.prop("dragon_boat", x, y, 4, 2)
     for x, y in water_spots(m, 3, 40, range(10, 320), range(330, 365)):

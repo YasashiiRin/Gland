@@ -233,7 +233,7 @@ def fields_block(m: Province, x0: int, y0: int, homes: list[tuple[str, int]], fw
         for y in range(fy, fy + d):
             for x in range(fx, fx + w):
                 if m.ground[y][x] != WATER:                          # a stream through it stays
-                    m.ground[y][x] = GRASS3                          # fallow: waiting to be hoed
+                    m.ground[y][x] = GRASS                           # plain ground: nobody has hoed it yet
                 m.taken.add((x, y))
         bx = fx + w // 2
         m.ground[road_y - 1 if side == 0 else road_y + ROAD][bx] = BRIDGE   # plank over the canal

@@ -8,7 +8,7 @@
  *
  * Work is counted in person-minutes per tile, so a bigger paddy or a smaller
  * household takes longer. People work in three-hour spells with a half-hour
- * rest (6:00–9:00, 9:30–12:30, 13:00–16:00); the rest of the day is for the
+ * rest (6:00–9:00, 9:30–12:30, 13:00–16:30); the rest of the day is for the
  * animals, the market and tea (VillagerSchedule / villagers.ts).
  */
 export type FieldStage = 'fallow' | 'tilled' | 'growing' | 'ripe' | 'cut';
@@ -51,7 +51,7 @@ export const RATES: Record<'hoe' | 'sow' | 'water' | 'fertilize' | 'harvest', nu
 export const WORK_SPELLS: [number, number][] = [
   [6 * 60, 9 * 60],
   [9 * 60 + 30, 12 * 60 + 30],
-  [13 * 60, 16 * 60],
+  [13 * 60, 16 * 60 + 30],
 ];
 
 export function newField(simMinute: number): FieldState {

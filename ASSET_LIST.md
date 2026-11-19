@@ -19,8 +19,86 @@ Tài liệu này liệt kê **mọi thứ game đang vẽ bằng code**, kèm k�
 | 9c. Ô hầm mỏ (32 x 32 px) | 6 |
 | 10. Biểu tượng vật phẩm (túi đồ, thanh công cụ) | 63 |
 | 11. Giao diện (UI) | 13 |
-| 12. Asset mới gợi ý từ ảnh mẫu (game nên có) | 11 |
-| **Tổng** | **226** |
+| 12. Asset mới gợi ý từ ảnh mẫu (game nên có) | 12 |
+| **Tổng** | **227** |
+
+<!-- status:start -->
+
+### Tình trạng (tự cập nhật bằng `python3 scripts/art/asset_status.py`)
+
+✅ đã có trong game: **176** · 🔁 có nhưng cần vẽ lại: **10** · 🟡 có ảnh, chưa dùng trong game: **12** · ⬜ còn thiếu: **29** (tổng 227)
+
+**Cần vẽ lại (10):**
+
+- *1. Nhân vật (sprite sheet đi bộ)*
+  - Chú Tư (nông dân già) — `assets/characters/chu_tu.png` (vẽ lại theo prompt 3 hàng để có bước chân)
+  - Dân làng 1 — `assets/characters/folk_0.png` (vẽ lại theo prompt 3 hàng để có bước chân)
+  - Dân làng 4 — `assets/characters/folk_3.png` (vẽ lại theo prompt 3 hàng để có bước chân)
+- *4. Nhà và công trình (đang có trên bản đồ)*
+  - Quảng Bình Quan (cổng thành cổ) — `assets/buildings/quang_binh_quan.png` (vẽ nghiêng chéo: cần nhìn thẳng từ trước, lối qua cổng chạy dọc)
+  - Cổng tam quan chùa — `assets/buildings/pagoda_gate.png` (vẽ nghiêng chéo: cần nhìn thẳng từ trước)
+  - Ngọ Môn (Huế) — `assets/buildings/ngo_mon.png` (vẽ nghiêng chéo: cần nhìn thẳng từ trước, lối qua cổng chạy dọc)
+  - Cầu Trường Tiền (nhìn từ trên) — `assets/buildings/truong_tien.png` (vẽ nghiêng chéo: cần nhìn thẳng từ trên, cầu chạy dọc)
+  - Cầu dây văng Nhật Lệ — `assets/buildings/cable_bridge.png` (vẽ nghiêng chéo: cần nhìn thẳng từ trên, cầu chạy ngang)
+  - Cầu bắc qua sông — `assets/buildings/river_bridge.png` (vẽ nghiêng chéo: cần nhìn thẳng từ trên, cầu chạy dọc)
+- *9b. Dải viền và lớp phủ trên mặt đất*
+  - Gốc rạ (sau khi gặt) — `assets/tiles/stubble.png` (vẽ thành cả thửa ruộng: cần 1 ô gốc rạ phủ kín)
+
+**Còn thiếu, cần vẽ tiếp (29):**
+
+- *1. Nhân vật (sprite sheet đi bộ)*
+  - Người chơi — `assets/characters/player.png`
+  - Dân làng 6 / người bán gánh hàng rong — `assets/characters/folk_5.png`
+- *4. Nhà và công trình (đang có trên bản đồ)*
+  - Đình làng — `assets/buildings/dinh_lang.png`
+  - Bến phà (mái lá) — `assets/buildings/ferry_shelter.png`
+  - Sạp gạo — `assets/buildings/stall_rice.png`
+  - Chợ ô dù: rau — `assets/buildings/umbrella_veg.png`
+  - Động Phong Nha (cửa động) — `assets/landmarks/phong_nha_cave.png`
+  - Động Thiên Đường (cửa động) — `assets/landmarks/paradise_cave.png`
+  - Núi đá vôi 1 — `assets/landmarks/karst_a.png`
+  - Núi đá vôi 2 — `assets/landmarks/karst_b.png`
+  - Núi (Thần Đinh / Ngự Bình) — `assets/landmarks/mountain.png`
+  - Thác nước — `assets/landmarks/waterfall.png`
+  - Suối nước nóng — `assets/landmarks/hot_spring.png`
+- *5. Vật trang trí và đồ đặt được*
+  - Đống rơm — `assets/props/haystack.png`
+  - Chum, vại — `assets/props/jar.png`
+  - Bàn trà trong sân — `assets/props/tea_table.png`
+  - Thùng bán hàng — `assets/props/shipping_bin.png`
+  - Cột đèn dầu — `assets/props/oil_lamp_post.png`
+  - Ghế đá — `assets/props/stone_bench.png`
+  - Biển chỉ đường — `assets/props/signpost.png`
+  - Cái cày — `assets/props/plough.png`
+  - Đòn gánh hàng rong — `assets/props/ganh.png`
+  - Trâu nằm (trang trí) — `assets/props/buffalo_resting.png`
+  - Thuyền nan (thuyền thúng tròn) — `assets/props/basket_boat.png`
+  - Thuyền tam bản — `assets/props/sampan.png`
+  - Thuyền rồng — `assets/props/dragon_boat.png`
+  - Thuyền đua — `assets/props/race_boat.png`
+- *9. Ô mặt đất (tile 32 x 32 px, ghép liền)*
+  - Ruộng ngập nước (bùn) — `assets/tiles/paddy.png`
+- *12. Asset mới gợi ý từ ảnh mẫu (game nên có)*
+  - Gốc cây sau khi chặt — `assets/props/tree_stump.png`
+
+**Có ảnh, chờ đưa vào game (12):**
+
+- *9b. Dải viền và lớp phủ trên mặt đất*
+  - Lúa non / mạ (game cũng tô xanh lúa chín được, nhưng có hình riêng thì đẹp hơn) — `assets/tiles/rice_young.png` (game chưa có ô lúa non riêng)
+- *12. Asset mới gợi ý từ ảnh mẫu (game nên có)*
+  - Trâu kéo cày (người cày đi sau) — `assets/animals/buffalo_plough.png` (chưa có cảnh dân làng cày bằng trâu)
+  - Bó lúa (sau khi gặt) — `assets/props/rice_sheaf.png` (chưa đặt lên bản đồ)
+  - Thúng / rổ hàng của gánh hàng rong — `assets/props/produce_baskets.png` (chưa đặt lên bản đồ)
+  - Giàn phơi nón lá — `assets/props/hat_drying_rack.png` (chưa đặt lên bản đồ)
+  - Lá nón phơi trên sân — `assets/tiles/drying_leaves.png` (chưa đặt lên bản đồ)
+  - Đò ngang có mái (bến phà) — `assets/props/ferry_boat.png` (chưa đặt lên bản đồ)
+  - Cầu tàu gỗ (bến thuyền) — `assets/props/wooden_jetty.png` (chưa đặt lên bản đồ)
+  - Hàng rào tre thấp (vườn nhà) — `assets/tiles/bamboo_fence.png` (chưa đặt lên bản đồ)
+  - Bụi hoa ven đường — `assets/props/flower_bush.png` (chưa đặt lên bản đồ)
+  - Nhà vườn (nhà ngói trong vườn cây) — `assets/buildings/garden_house.png` (chưa đặt lên bản đồ)
+  - Chiếu tre / phên phơi lúa trên sân — `assets/tiles/drying_rice.png` (chưa đặt lên bản đồ)
+
+<!-- status:end -->
 
 ## Cách dùng
 
@@ -44,6 +122,7 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 - **Hướng nhà:** lúc tạo bản đồ, mỗi nhà được ghi hướng ra con đường gần nhất (`scripts/art/facing.py`). Nhà trong sân vườn luôn quay ra cổng sân và con đường trước cổng. Từ tấm 2 x 2: hàng trên là mặt trước, hàng dưới là mặt sau. Script làm ra 4 hình `<tên>`, `_left`, `_right`, `_up`, và mọi nhà dùng chung một kiểu: cửa ở tường bên trái.
 - **Nhân vật đi bộ:** tấm **3 hàng** (prompt mới) được dùng đủ 4 bước chân cho mọi hướng, hướng phải lật từ hàng trái. Tấm cũ 4 hàng thì mỗi hướng chỉ dùng **một hình** (các khung cũ hay lệch góc), khi đi hình nhún lên xuống.
 - Tên file lỡ gõ đuôi hai lần (`x.png.png`) vẫn được nhận.
+- **Tình trạng từng hình** (✅ ⬜ 🔁 🟡, bảng tổng ở đầu file): chạy `python3 scripts/art/asset_status.py` sau mỗi lần thêm ảnh hoặc thêm mục mới.
 
 **Đợt 1 (đã nạp):** 53 hình gồm ô mặt đất, ô hầm mỏ, viền, đá, bụi, lau sậy, luống hoa, lúa chín, 4 cây (thông, đước, bưởi, phượng), 5 cây trồng, 4 hình ma và 8 biểu tượng công cụ.
 
@@ -101,6 +180,7 @@ Mỗi nhân vật là **1 tấm 3 hàng x 4 khung**: hàng 1 nhìn trước (đi
 ### Người chơi
 
 - **File:** `assets/characters/player.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/player.png`
 ```
@@ -125,6 +205,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Chú Tư (nông dân già)
 
 - **File:** `assets/characters/chu_tu.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** 🔁 đang dùng 1 hình mỗi hướng: vẽ lại theo prompt 3 hàng để có bước chân
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/chu_tu.png`
 ```
@@ -149,6 +230,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Cô Hạnh (người buôn bán)
 
 - **File:** `assets/characters/co_hanh.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/co_hanh.png`
 ```
@@ -173,6 +255,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Linh (cô gái)
 
 - **File:** `assets/characters/linh.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/linh.png`
 ```
@@ -197,6 +280,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Minh (chàng trai)
 
 - **File:** `assets/characters/minh.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/minh.png`
 ```
@@ -221,6 +305,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Dân làng 1
 
 - **File:** `assets/characters/folk_0.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** 🔁 đang dùng 1 hình mỗi hướng: vẽ lại theo prompt 3 hàng để có bước chân
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_0.png`
 ```
@@ -245,6 +330,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Dân làng 2
 
 - **File:** `assets/characters/folk_1.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_1.png`
 ```
@@ -269,6 +355,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Dân làng 3
 
 - **File:** `assets/characters/folk_2.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_2.png`
 ```
@@ -293,6 +380,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Dân làng 4
 
 - **File:** `assets/characters/folk_3.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** 🔁 đang dùng 1 hình mỗi hướng: vẽ lại theo prompt 3 hàng để có bước chân
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_3.png`
 ```
@@ -317,6 +405,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Dân làng 5 (cũng dùng cho trẻ con, game tự thu nhỏ)
 
 - **File:** `assets/characters/folk_4.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_4.png`
 ```
@@ -341,6 +430,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Dân làng 6 / người bán gánh hàng rong
 
 - **File:** `assets/characters/folk_5.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** 1 x 2 ô mỗi khung
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** 3 hàng (trước, nghiêng trái, sau) x 4 bước (12 khung). Hướng phải script tự lật từ hàng trái
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/folk_5.png`
 ```
@@ -365,6 +455,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Người bán cá (bảng mua bán)
 
 - **File:** `assets/characters/vendor_fish.png`  ·  **Kích thước file:** 32 x 64 px  ·  **Trong game:** hiện to trong bảng mua bán
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (1 khung, nhìn thẳng)
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/vendor_fish.png`
 ```
@@ -380,6 +471,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Người bán rau
 
 - **File:** `assets/characters/vendor_veg.png`  ·  **Kích thước file:** 32 x 64 px  ·  **Trong game:** hiện to trong bảng mua bán
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (1 khung, nhìn thẳng)
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/vendor_veg.png`
 ```
@@ -395,6 +487,7 @@ STYLE: crisp pixel art, every pixel a clean square, thin dark outline, soft cel 
 ### Người bán gạo
 
 - **File:** `assets/characters/vendor_rice.png`  ·  **Kích thước file:** 32 x 64 px  ·  **Trong game:** hiện to trong bảng mua bán
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (1 khung, nhìn thẳng)
 - **Thay cho (hiện tại):** `public/assets/sprites/npcs/vendor_rice.png`
 ```
@@ -415,6 +508,7 @@ Mỗi con là **1 dải 2 khung** nằm ngang (bước chân trái / phải), nh
 ### Gà
 
 - **File:** `assets/animals/chicken.png`  ·  **Kích thước file:** 64 x 32 px  ·  **Trong game:** 1 x 1 ô mỗi khung (khoảng)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 2 khung đi
 - **Thay cho (hiện tại):** `public/assets/sprites/animals/chicken.png`
 ```
@@ -424,6 +518,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Heo
 
 - **File:** `assets/animals/pig.png`  ·  **Kích thước file:** 128 x 48 px  ·  **Trong game:** 2 x 1 ô mỗi khung (khoảng)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 2 khung đi
 - **Thay cho (hiện tại):** `public/assets/sprites/animals/pig.png`
 ```
@@ -433,6 +528,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bò
 
 - **File:** `assets/animals/cow.png`  ·  **Kích thước file:** 128 x 48 px  ·  **Trong game:** 2 x 1 ô mỗi khung (khoảng)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 2 khung đi
 - **Thay cho (hiện tại):** `public/assets/sprites/animals/cow.png`
 ```
@@ -442,6 +538,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Trâu
 
 - **File:** `assets/animals/buffalo.png`  ·  **Kích thước file:** 128 x 48 px  ·  **Trong game:** 2 x 1 ô mỗi khung (khoảng)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 2 khung đi
 - **Thay cho (hiện tại):** `public/assets/sprites/animals/buffalo.png`
 ```
@@ -451,6 +548,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hổ
 
 - **File:** `assets/animals/tiger.png`  ·  **Kích thước file:** 160 x 48 px  ·  **Trong game:** 2 x 1 ô mỗi khung (khoảng)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 2 khung đi
 - **Thay cho (hiện tại):** `public/assets/sprites/animals/tiger.png`
 ```
@@ -465,6 +563,7 @@ Mỗi xe là **1 dải 4 khung 64 x 64 px**: nhìn từ phía trước (đi xu�
 ### Xe đạp
 
 - **File:** `assets/vehicles/bicycle.png`  ·  **Kích thước file:** 256 x 64 px  ·  **Trong game:** 2 x 2 ô (xe nhỏ 1 x 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 4 hướng (1 khung mỗi hướng)
 - **Thay cho (hiện tại):** `public/assets/sprites/vehicles/bicycle.png`
 ```
@@ -474,6 +573,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Xe máy
 
 - **File:** `assets/vehicles/motorbike.png`  ·  **Kích thước file:** 256 x 64 px  ·  **Trong game:** 2 x 2 ô (xe nhỏ 1 x 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 4 hướng (1 khung mỗi hướng)
 - **Thay cho (hiện tại):** `public/assets/sprites/vehicles/motorbike.png`
 ```
@@ -483,6 +583,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Xe bò
 
 - **File:** `assets/vehicles/ox_cart.png`  ·  **Kích thước file:** 256 x 64 px  ·  **Trong game:** 2 x 2 ô (xe nhỏ 1 x 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 4 hướng (1 khung mỗi hướng)
 - **Thay cho (hiện tại):** `public/assets/sprites/vehicles/ox_cart.png`
 ```
@@ -492,6 +593,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Máy cày
 
 - **File:** `assets/vehicles/tractor.png`  ·  **Kích thước file:** 256 x 64 px  ·  **Trong game:** 2 x 2 ô (xe nhỏ 1 x 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 4 hướng (1 khung mỗi hướng)
 - **Thay cho (hiện tại):** `public/assets/sprites/vehicles/tractor.png`
 ```
@@ -501,6 +603,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Máy gặt lúa
 
 - **File:** `assets/vehicles/harvester.png`  ·  **Kích thước file:** 256 x 64 px  ·  **Trong game:** 2 x 2 ô (xe nhỏ 1 x 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 4 hướng (1 khung mỗi hướng)
 - **Thay cho (hiện tại):** `public/assets/sprites/vehicles/harvester.png`
 ```
@@ -510,6 +613,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Máy tưới nước
 
 - **File:** `assets/vehicles/water_truck.png`  ·  **Kích thước file:** 256 x 64 px  ·  **Trong game:** 2 x 2 ô (xe nhỏ 1 x 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 4 hướng (1 khung mỗi hướng)
 - **Thay cho (hiện tại):** `public/assets/sprites/vehicles/water_truck.png`
 ```
@@ -524,6 +628,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nhà tranh (nhà trống cấp cho người chơi)
 
 - **File:** `assets/buildings/thatched_house.png`  ·  **Kích thước file:** 160 x 128 px  ·  **Trong game:** chân đế 5 x 4 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/thatched_house.png`
 ```
@@ -533,6 +638,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nhà tranh vách đất
 
 - **File:** `assets/buildings/house_mud_thatch.png`  ·  **Kích thước file:** 160 x 160 px  ·  **Trong game:** chân đế 5 x 4 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/house_c.png`
 ```
@@ -542,6 +648,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nhà ngói ba gian (tường vôi)
 
 - **File:** `assets/buildings/house_tile_lime.png`  ·  **Kích thước file:** 160 x 160 px  ·  **Trong game:** chân đế 5 x 4 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/house_a.png`
 ```
@@ -551,6 +658,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nhà ngói gạch trần
 
 - **File:** `assets/buildings/house_tile_brick.png`  ·  **Kích thước file:** 160 x 160 px  ·  **Trong game:** chân đế 5 x 4 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/house_b.png`
 ```
@@ -560,6 +668,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Tiệm xe (nhà ngói có biển)
 
 - **File:** `assets/buildings/vehicle_shop.png`  ·  **Kích thước file:** 160 x 160 px  ·  **Trong game:** chân đế 5 x 5 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/vehicle_house.png`
 ```
@@ -569,6 +678,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Tiệm hạt giống
 
 - **File:** `assets/buildings/seed_shop.png`  ·  **Kích thước file:** 192 x 160 px  ·  **Trong game:** chân đế 6 x 5 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/shop.png`
 ```
@@ -578,6 +688,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nhà kho hợp tác xã
 
 - **File:** `assets/buildings/warehouse.png`  ·  **Kích thước file:** 192 x 160 px  ·  **Trong game:** chân đế 6 x 4 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/warehouse.png`
 ```
@@ -587,6 +698,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Trường làng
 
 - **File:** `assets/buildings/village_school.png`  ·  **Kích thước file:** 288 x 176 px  ·  **Trong game:** chân đế 9 x 3 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/school.png`
 ```
@@ -596,6 +708,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đình làng
 
 - **File:** `assets/buildings/dinh_lang.png`  ·  **Kích thước file:** 256 x 192 px  ·  **Trong game:** chân đế 8 x 4 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/ubnd.png`
 ```
@@ -605,6 +718,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nhà lưu niệm Võ Nguyên Giáp (Lệ Thủy)
 
 - **File:** `assets/buildings/memorial_house.png`  ·  **Kích thước file:** 160 x 128 px  ·  **Trong game:** chân đế 5 x 4 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/memorial_house.png`
 ```
@@ -614,6 +728,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ga Đồng Hới (ga tàu cũ)
 
 - **File:** `assets/buildings/station.png`  ·  **Kích thước file:** 224 x 144 px  ·  **Trong game:** chân đế 7 x 4 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/station.png`
 ```
@@ -623,6 +738,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Quảng Bình Quan (cổng thành cổ)
 
 - **File:** `assets/buildings/quang_binh_quan.png`  ·  **Kích thước file:** 320 x 320 px  ·  **Trong game:** chân đế 10 x 6, vòm cổng ở giữa đi xuyên được ô (công trình lớn, to hơn nhà dân)
+- **Tình trạng:** 🔁 có ảnh, cần vẽ lại: vẽ nghiêng chéo: cần nhìn thẳng từ trước, lối qua cổng chạy dọc
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/quang_binh_quan.png`
 ```
@@ -632,6 +748,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chùa
 
 - **File:** `assets/buildings/pagoda.png`  ·  **Kích thước file:** 256 x 224 px  ·  **Trong game:** chân đế 7 x 5 ô (công trình lớn, to hơn nhà dân)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/pagoda.png`
 ```
@@ -641,6 +758,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cổng tam quan chùa
 
 - **File:** `assets/buildings/pagoda_gate.png`  ·  **Kích thước file:** 160 x 160 px  ·  **Trong game:** chân đế 5 x 2 ô
+- **Tình trạng:** 🔁 có ảnh, cần vẽ lại: vẽ nghiêng chéo: cần nhìn thẳng từ trước
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/pagoda_gate.png`
 ```
@@ -650,6 +768,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bến phà (mái lá)
 
 - **File:** `assets/buildings/ferry_shelter.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/ferry_shelter.png`
 ```
@@ -659,6 +778,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chòi ngắm cảnh
 
 - **File:** `assets/buildings/lookout.png`  ·  **Kích thước file:** 80 x 80 px  ·  **Trong game:** chân đế 3 x 2 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/lookout.png`
 ```
@@ -668,6 +788,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đài tưởng niệm
 
 - **File:** `assets/buildings/memorial.png`  ·  **Kích thước file:** 128 x 256 px  ·  **Trong game:** chân đế 4 x 3 ô (công trình lớn, to hơn nhà dân)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/memorial.png`
 ```
@@ -677,6 +798,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Sạp nón lá
 
 - **File:** `assets/buildings/hat_stall.png`  ·  **Kích thước file:** 96 x 80 px  ·  **Trong game:** chân đế 3 x 2 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/hat_stall.png`
 ```
@@ -686,6 +808,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Sạp rau
 
 - **File:** `assets/buildings/stall_veg.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/stall_veg.png`
 ```
@@ -695,6 +818,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Sạp gạo
 
 - **File:** `assets/buildings/stall_rice.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/stall_rice.png`
 ```
@@ -704,6 +828,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chợ ô dù: trái cây
 
 - **File:** `assets/buildings/umbrella_fruit.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/umbrella_fruit.png`
 ```
@@ -713,6 +838,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chợ ô dù: rau
 
 - **File:** `assets/buildings/umbrella_veg.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/umbrella_veg.png`
 ```
@@ -722,6 +848,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chợ ô dù: cá
 
 - **File:** `assets/buildings/umbrella_fish.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/umbrella_fish.png`
 ```
@@ -731,6 +858,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chợ ô dù: hoa
 
 - **File:** `assets/buildings/umbrella_flower.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** chân đế 3 x 3 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/umbrella_flower.png`
 ```
@@ -740,6 +868,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ngọ Môn (Huế)
 
 - **File:** `assets/buildings/ngo_mon.png`  ·  **Kích thước file:** 512 x 320 px  ·  **Trong game:** chân đế 16 x 10, vòm giữa đi xuyên được ô (công trình lớn, to hơn nhà dân)
+- **Tình trạng:** 🔁 có ảnh, cần vẽ lại: vẽ nghiêng chéo: cần nhìn thẳng từ trước, lối qua cổng chạy dọc
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/ngo_mon.png`
 ```
@@ -749,6 +878,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Điện trong Đại Nội
 
 - **File:** `assets/buildings/royal_hall.png`  ·  **Kích thước file:** 320 x 384 px  ·  **Trong game:** chân đế 10 x 5 ô (công trình lớn, to hơn nhà dân)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/royal_hall.png`
 ```
@@ -758,6 +888,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lăng vua
 
 - **File:** `assets/buildings/royal_tomb.png`  ·  **Kích thước file:** 256 x 384 px  ·  **Trong game:** chân đế 8 x 6 ô (công trình lớn, to hơn nhà dân)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/royal_tomb.png`
 ```
@@ -767,6 +898,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Tháp chùa Thiên Mụ
 
 - **File:** `assets/buildings/thien_mu.png`  ·  **Kích thước file:** 128 x 384 px  ·  **Trong game:** chân đế 3 x 3 ô (công trình lớn, to hơn nhà dân)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/thien_mu.png`
 ```
@@ -776,6 +908,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cầu Trường Tiền (nhìn từ trên)
 
 - **File:** `assets/buildings/truong_tien.png`  ·  **Kích thước file:** 160 x 224 px  ·  **Trong game:** chân đế 5 x 7 ô
+- **Tình trạng:** 🔁 có ảnh, cần vẽ lại: vẽ nghiêng chéo: cần nhìn thẳng từ trên, cầu chạy dọc
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/truong_tien.png`
 ```
@@ -785,6 +918,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cầu dây văng Nhật Lệ
 
 - **File:** `assets/buildings/cable_bridge.png`  ·  **Kích thước file:** 320 x 144 px  ·  **Trong game:** chân đế 10 x 4 ô
+- **Tình trạng:** 🔁 có ảnh, cần vẽ lại: vẽ nghiêng chéo: cần nhìn thẳng từ trên, cầu chạy ngang
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/cable_bridge.png`
 ```
@@ -794,6 +928,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cầu bắc qua sông
 
 - **File:** `assets/buildings/river_bridge.png`  ·  **Kích thước file:** 96 x 224 px  ·  **Trong game:** chân đế 3 x 7 ô
+- **Tình trạng:** 🔁 có ảnh, cần vẽ lại: vẽ nghiêng chéo: cần nhìn thẳng từ trên, cầu chạy dọc
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/river_bridge.png`
 ```
@@ -803,6 +938,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Động Phong Nha (cửa động)
 
 - **File:** `assets/landmarks/phong_nha_cave.png`  ·  **Kích thước file:** 256 x 192 px  ·  **Trong game:** chân đế 8 x 6 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/phong_nha_cave.png`
 ```
@@ -812,6 +948,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Động Thiên Đường (cửa động)
 
 - **File:** `assets/landmarks/paradise_cave.png`  ·  **Kích thước file:** 160 x 192 px  ·  **Trong game:** chân đế 5 x 6 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/paradise_cave.png`
 ```
@@ -821,6 +958,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Núi đá vôi 1
 
 - **File:** `assets/landmarks/karst_a.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** chân đế 4 x 6 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/karst_a.png`
 ```
@@ -830,6 +968,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Núi đá vôi 2
 
 - **File:** `assets/landmarks/karst_b.png`  ·  **Kích thước file:** 128 x 192 px  ·  **Trong game:** chân đế 4 x 6 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/karst_b.png`
 ```
@@ -839,6 +978,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Núi (Thần Đinh / Ngự Bình)
 
 - **File:** `assets/landmarks/mountain.png`  ·  **Kích thước file:** 256 x 192 px  ·  **Trong game:** chân đế 8 x 6 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/mountain.png`
 ```
@@ -848,6 +988,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thác nước
 
 - **File:** `assets/landmarks/waterfall.png`  ·  **Kích thước file:** 128 x 160 px  ·  **Trong game:** chân đế 4 x 5 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/waterfall.png`
 ```
@@ -857,6 +998,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Suối nước nóng
 
 - **File:** `assets/landmarks/hot_spring.png`  ·  **Kích thước file:** 128 x 96 px  ·  **Trong game:** chân đế 4 x 3 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/hot_spring.png`
 ```
@@ -871,6 +1013,7 @@ Không cần animation (trừ ghi chú).
 ### Đống rơm
 
 - **File:** `assets/props/haystack.png`  ·  **Kích thước file:** 64 x 64 px  ·  **Trong game:** 2 x 2 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/haystack.png`
 ```
@@ -880,6 +1023,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chum, vại
 
 - **File:** `assets/props/jar.png`  ·  **Kích thước file:** 32 x 48 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/jar.png`
 ```
@@ -889,6 +1033,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bàn trà trong sân
 
 - **File:** `assets/props/tea_table.png`  ·  **Kích thước file:** 64 x 48 px  ·  **Trong game:** 2 x 1 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/furniture/tea_table.png`
 ```
@@ -898,6 +1043,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chuồng gà
 
 - **File:** `assets/props/chicken_coop.png`  ·  **Kích thước file:** 64 x 56 px  ·  **Trong game:** 2 x 2 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/furniture/chicken_coop.png`
 ```
@@ -907,6 +1053,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chiếu (trải ra để ngủ)
 
 - **File:** `assets/props/sleeping_mat.png`  ·  **Kích thước file:** 32 x 56 px  ·  **Trong game:** 1 x 2 ô (nằm phẳng)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/furniture/sleeping_mat.png`
 ```
@@ -916,6 +1063,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bàn thợ mộc
 
 - **File:** `assets/props/carpenter_bench.png`  ·  **Kích thước file:** 48 x 56 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/furniture/carpenter_bench.png`
 ```
@@ -925,6 +1073,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thùng bán hàng
 
 - **File:** `assets/props/shipping_bin.png`  ·  **Kích thước file:** 64 x 48 px  ·  **Trong game:** 2 x 1 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/shipping_bin.png`
 ```
@@ -934,6 +1083,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cột đèn dầu
 
 - **File:** `assets/props/oil_lamp_post.png`  ·  **Kích thước file:** 32 x 80 px  ·  **Trong game:** 1 x 1 ô (cao 2,5 ô)
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/street_lamp.png`
 ```
@@ -943,6 +1093,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ghế đá
 
 - **File:** `assets/props/stone_bench.png`  ·  **Kích thước file:** 64 x 32 px  ·  **Trong game:** 2 x 1 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/bench.png`
 ```
@@ -952,6 +1103,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Biển chỉ đường
 
 - **File:** `assets/props/signpost.png`  ·  **Kích thước file:** 32 x 64 px  ·  **Trong game:** 1 x 2 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/signpost.png`
 ```
@@ -961,6 +1113,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cái cày
 
 - **File:** `assets/props/plough.png`  ·  **Kích thước file:** 48 x 32 px  ·  **Trong game:** dùng khi trâu cày ruộng
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/plough.png`
 ```
@@ -970,6 +1123,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đòn gánh hàng rong
 
 - **File:** `assets/props/ganh.png`  ·  **Kích thước file:** 80 x 44 px  ·  **Trong game:** vắt trên vai người bán rong
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/ganh.png`
 ```
@@ -979,6 +1133,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Trâu nằm (trang trí)
 
 - **File:** `assets/props/buffalo_resting.png`  ·  **Kích thước file:** 64 x 48 px  ·  **Trong game:** 2 x 1 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/props/buffalo.png`
 ```
@@ -988,6 +1143,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thuyền nan (thuyền thúng tròn)
 
 - **File:** `assets/props/basket_boat.png`  ·  **Kích thước file:** 64 x 48 px  ·  **Trong game:** trên mặt nước
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không (game tự cho trôi, nhấp nhô)
 - **Thay cho (hiện tại):** `public/assets/sprites/props/basket_boat.png`
 ```
@@ -997,6 +1153,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thuyền tam bản
 
 - **File:** `assets/props/sampan.png`  ·  **Kích thước file:** 96 x 48 px  ·  **Trong game:** trên mặt nước
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không (game tự cho trôi, nhấp nhô)
 - **Thay cho (hiện tại):** `public/assets/sprites/props/sampan.png`
 ```
@@ -1006,6 +1163,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thuyền rồng
 
 - **File:** `assets/props/dragon_boat.png`  ·  **Kích thước file:** 128 x 64 px  ·  **Trong game:** trên mặt nước
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không (game tự cho trôi, nhấp nhô)
 - **Thay cho (hiện tại):** `public/assets/sprites/props/dragon_boat.png`
 ```
@@ -1015,6 +1173,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thuyền đua
 
 - **File:** `assets/props/race_boat.png`  ·  **Kích thước file:** 192 x 48 px  ·  **Trong game:** trên mặt nước
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không (game tự cho trôi, nhấp nhô)
 - **Thay cho (hiện tại):** `public/assets/sprites/props/race_boat.png`
 ```
@@ -1029,6 +1188,7 @@ Mỗi cây 96 x 128 px (trong game 3 x 4 ô; gốc cây ở giữa đáy ảnh, 
 ### Cây tán tròn 1 (chặt được)
 
 - **File:** `assets/trees/broadleaf_0.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/oak_0.png`
 ```
@@ -1038,6 +1198,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây tán tròn 2 (có quả)
 
 - **File:** `assets/trees/broadleaf_1.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/oak_1.png`
 ```
@@ -1047,6 +1208,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bụi tre
 
 - **File:** `assets/trees/bamboo.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/bamboo.png`
 ```
@@ -1056,6 +1218,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây chuối
 
 - **File:** `assets/trees/banana.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/banana.png`
 ```
@@ -1065,6 +1228,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây cau
 
 - **File:** `assets/trees/areca.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/areca.png`
 ```
@@ -1074,6 +1238,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây dừa
 
 - **File:** `assets/trees/coconut.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/coconut.png`
 ```
@@ -1083,6 +1248,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây phi lao
 
 - **File:** `assets/trees/casuarina.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/casuarina.png`
 ```
@@ -1092,6 +1258,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây thông
 
 - **File:** `assets/trees/pine.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/pine.png`
 ```
@@ -1101,6 +1268,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây đước (rừng ngập mặn)
 
 - **File:** `assets/trees/mangrove.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/mangrove.png`
 ```
@@ -1110,6 +1278,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây bưởi (vườn Huế)
 
 - **File:** `assets/trees/pomelo.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/pomelo.png`
 ```
@@ -1119,6 +1288,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây phượng (Huế)
 
 - **File:** `assets/trees/flame.png`  ·  **Kích thước file:** 96 x 128 px  ·  **Trong game:** 3 x 4 ô (gốc 1 ô)
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/trees/flame.png`
 ```
@@ -1133,6 +1303,7 @@ Mỗi cây trồng là **1 dải 5 khung 32 x 64 px** (trong game 1 ô, cây cao
 ### Củ cải trắng
 
 - **File:** `assets/crops/parsnip.png`  ·  **Kích thước file:** 160 x 64 px  ·  **Trong game:** 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 5 giai đoạn lớn (không phải chuyển động)
 - **Thay cho (hiện tại):** `public/assets/sprites/crops/parsnip.png`
 ```
@@ -1142,6 +1313,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Khoai tây
 
 - **File:** `assets/crops/potato.png`  ·  **Kích thước file:** 160 x 64 px  ·  **Trong game:** 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 5 giai đoạn lớn (không phải chuyển động)
 - **Thay cho (hiện tại):** `public/assets/sprites/crops/potato.png`
 ```
@@ -1151,6 +1323,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Súp lơ
 
 - **File:** `assets/crops/cauliflower.png`  ·  **Kích thước file:** 160 x 64 px  ·  **Trong game:** 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 5 giai đoạn lớn (không phải chuyển động)
 - **Thay cho (hiện tại):** `public/assets/sprites/crops/cauliflower.png`
 ```
@@ -1160,6 +1333,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Dâu tây
 
 - **File:** `assets/crops/strawberry.png`  ·  **Kích thước file:** 160 x 64 px  ·  **Trong game:** 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 5 giai đoạn lớn (không phải chuyển động)
 - **Thay cho (hiện tại):** `public/assets/sprites/crops/strawberry.png`
 ```
@@ -1169,6 +1343,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đậu que
 
 - **File:** `assets/crops/green_bean.png`  ·  **Kích thước file:** 160 x 64 px  ·  **Trong game:** 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 5 giai đoạn lớn (không phải chuyển động)
 - **Thay cho (hiện tại):** `public/assets/sprites/crops/green_bean.png`
 ```
@@ -1178,6 +1353,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lúa
 
 - **File:** `assets/crops/rice.png`  ·  **Kích thước file:** 160 x 64 px  ·  **Trong game:** 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** 5 giai đoạn lớn (không phải chuyển động)
 - **Thay cho (hiện tại):** `public/assets/sprites/crops/rice.png`
 ```
@@ -1190,6 +1366,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bóng ma
 
 - **File:** `assets/horror/ghost.png`  ·  **Kích thước file:** 32 x 64 px  ·  **Trong game:** 1 x 2 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (game cho trôi, mờ dần)
 - **Thay cho (hiện tại):** `public/assets/sprites/horror/ghost.png`
 ```
@@ -1199,6 +1376,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bóng đen
 
 - **File:** `assets/horror/shadow.png`  ·  **Kích thước file:** 32 x 64 px  ·  **Trong game:** 1 x 2 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/horror/shadow.png`
 ```
@@ -1208,6 +1386,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bàn tay ma
 
 - **File:** `assets/horror/hand.png`  ·  **Kích thước file:** 24 x 36 px  ·  **Trong game:** 1 x 2 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (game cho trồi lên)
 - **Thay cho (hiện tại):** `public/assets/sprites/horror/hand.png`
 ```
@@ -1217,6 +1396,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Mặt ma (hù doạ toàn màn hình)
 
 - **File:** `assets/horror/face.png`  ·  **Kích thước file:** 128 x 128 px  ·  **Trong game:** hiện to giữa màn hình
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/sprites/horror/face.png`
 ```
@@ -1231,6 +1411,7 @@ Mỗi tile là **1 ảnh vuông 32 x 32 px, phủ kín, ghép liền 4 phía**. 
 ### Cỏ
 
 - **File:** `assets/tiles/grass.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1240,6 +1421,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cỏ (biến thể)
 
 - **File:** `assets/tiles/grass2.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1249,6 +1431,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cỏ có hoa dại
 
 - **File:** `assets/tiles/flowers.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1258,6 +1441,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cỏ ruộng bỏ hoang (thửa ruộng chưa cuốc)
 
 - **File:** `assets/tiles/grass3.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1267,6 +1451,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đường đất
 
 - **File:** `assets/tiles/path.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1276,6 +1461,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đất nện / sân / bờ ruộng
 
 - **File:** `assets/tiles/dirt.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1285,6 +1471,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đất đã cuốc
 
 - **File:** `assets/tiles/soil.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1294,6 +1481,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ruộng ngập nước (bùn)
 
 - **File:** `assets/tiles/paddy.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ⬜ còn thiếu
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1303,6 +1491,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nước sông / ao
 
 - **File:** `assets/tiles/water.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (có thể thêm 2–3 khung sóng sau)
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1312,6 +1501,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nước sâu
 
 - **File:** `assets/tiles/deep_water.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1321,6 +1511,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Biển
 
 - **File:** `assets/tiles/sea.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (có thể thêm 2–3 khung sóng sau)
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1330,6 +1521,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Biển sâu
 
 - **File:** `assets/tiles/sea_deep.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1339,6 +1531,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Sóng vỗ bờ (biển gặp cát, cát ở bên trái)
 
 - **File:** `assets/tiles/surf.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không (có thể thêm 2–3 khung sóng sau)
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1348,6 +1541,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cát
 
 - **File:** `assets/tiles/sand.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1357,6 +1551,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cát có vỏ sò
 
 - **File:** `assets/tiles/sand2.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1366,6 +1561,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đường / sân đá cuội (sân đình, Đại Nội, bến chợ)
 
 - **File:** `assets/tiles/paving.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1375,6 +1571,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Tường thành gạch (Huế)
 
 - **File:** `assets/tiles/citadel_wall.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1384,6 +1581,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hồ sen
 
 - **File:** `assets/tiles/lotus.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1393,6 +1591,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ván cầu gỗ
 
 - **File:** `assets/tiles/bridge_planks.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1402,6 +1601,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đầm lầy
 
 - **File:** `assets/tiles/marsh.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1411,6 +1611,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đất đá sỏi
 
 - **File:** `assets/tiles/rocky.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1420,6 +1621,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cỏ khô
 
 - **File:** `assets/tiles/dry_grass.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png (1 ô trong tileset)`
 ```
@@ -1434,6 +1636,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bờ nước (viền cỏ/đất ở cạnh trên của ô nước)
 
 - **File:** `assets/tiles/edge_water_bank.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1443,6 +1646,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Kè đá (bờ sông có kè trong phố)
 
 - **File:** `assets/tiles/edge_quay.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1452,6 +1656,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Mép đường đất
 
 - **File:** `assets/tiles/edge_path.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1461,6 +1666,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hòn đá
 
 - **File:** `assets/tiles/rock.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1470,6 +1676,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bụi cỏ
 
 - **File:** `assets/tiles/bush.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1479,6 +1686,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lau sậy
 
 - **File:** `assets/tiles/reeds.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1488,6 +1696,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Luống hoa
 
 - **File:** `assets/tiles/flowerbed.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1497,6 +1706,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lúa chín (trên ruộng)
 
 - **File:** `assets/tiles/rice_ripe.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1506,6 +1716,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lúa non / mạ (game cũng tô xanh lúa chín được, nhưng có hình riêng thì đẹp hơn)
 
 - **File:** `assets/tiles/rice_young.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: game chưa có ô lúa non riêng
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1515,6 +1726,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Gốc rạ (sau khi gặt)
 
 - **File:** `assets/tiles/stubble.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** 🔁 có ảnh, cần vẽ lại: vẽ thành cả thửa ruộng: cần 1 ô gốc rạ phủ kín
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/farm_tiles_hd.png`
 ```
@@ -1527,6 +1739,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nền hang
 
 - **File:** `assets/tiles/mine_floor.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/mine_tiles_hd.png`
 ```
@@ -1536,6 +1749,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Vách đá hang
 
 - **File:** `assets/tiles/mine_wall.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/mine_tiles_hd.png`
 ```
@@ -1545,6 +1759,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Mạch quặng đồng
 
 - **File:** `assets/tiles/mine_ore_copper.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/mine_tiles_hd.png`
 ```
@@ -1554,6 +1769,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Mạch quặng sắt
 
 - **File:** `assets/tiles/mine_ore_iron.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/mine_tiles_hd.png`
 ```
@@ -1563,6 +1779,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Mạch quặng vàng
 
 - **File:** `assets/tiles/mine_ore_gold.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/mine_tiles_hd.png`
 ```
@@ -1572,6 +1789,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thang xuống tầng dưới
 
 - **File:** `assets/tiles/mine_ladder.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `public/assets/tilesets/mine_tiles_hd.png`
 ```
@@ -1586,6 +1804,7 @@ Hiện đang vẽ bằng code ở `src/ui/itemIcons.ts` (16 x 16). Ảnh mới: 
 ### Cuốc (`hoe`)
 
 - **File:** `assets/icons/hoe.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1595,6 +1814,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bình tưới (`watering_can`)
 
 - **File:** `assets/icons/watering_can.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1604,6 +1824,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Rìu (`axe`)
 
 - **File:** `assets/icons/axe.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1613,6 +1834,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cuốc chim (`pickaxe`)
 
 - **File:** `assets/icons/pickaxe.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1622,6 +1844,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Liềm (`scythe`)
 
 - **File:** `assets/icons/scythe.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1631,6 +1854,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cần câu (`fishing_rod`)
 
 - **File:** `assets/icons/fishing_rod.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1640,6 +1864,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Kiếm (`sword`)
 
 - **File:** `assets/icons/sword.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1649,6 +1874,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Quặng đồng (`copper_ore`)
 
 - **File:** `assets/icons/copper_ore.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1658,6 +1884,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Quặng sắt (`iron_ore`)
 
 - **File:** `assets/icons/iron_ore.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1667,6 +1894,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Quặng vàng (`gold_ore`)
 
 - **File:** `assets/icons/gold_ore.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1676,6 +1904,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hạt củ cải trắng (`parsnip_seeds`)
 
 - **File:** `assets/icons/parsnip_seeds.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1685,6 +1914,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Củ cải trắng (`parsnip`)
 
 - **File:** `assets/icons/parsnip.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1694,6 +1924,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hạt khoai tây (`potato_seeds`)
 
 - **File:** `assets/icons/potato_seeds.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1703,6 +1934,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Khoai tây (`potato`)
 
 - **File:** `assets/icons/potato.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1712,6 +1944,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hạt súp lơ (`cauliflower_seeds`)
 
 - **File:** `assets/icons/cauliflower_seeds.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1721,6 +1954,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Súp lơ (`cauliflower`)
 
 - **File:** `assets/icons/cauliflower.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1730,6 +1964,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hạt dâu tây (`strawberry_seeds`)
 
 - **File:** `assets/icons/strawberry_seeds.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1739,6 +1974,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Dâu tây (`strawberry`)
 
 - **File:** `assets/icons/strawberry.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1748,6 +1984,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hạt đậu que (`green_bean_seeds`)
 
 - **File:** `assets/icons/green_bean_seeds.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1757,6 +1994,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đậu que (`green_bean`)
 
 - **File:** `assets/icons/green_bean.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1766,6 +2004,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Gỗ (`wood`)
 
 - **File:** `assets/icons/wood.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1775,6 +2014,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đá (`stone`)
 
 - **File:** `assets/icons/stone.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1784,6 +2024,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Sợi (`fiber`)
 
 - **File:** `assets/icons/fiber.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1793,6 +2034,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá chép nhỏ (`carp`)
 
 - **File:** `assets/icons/carp.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1802,6 +2044,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá rô (`perch`)
 
 - **File:** `assets/icons/perch.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1811,6 +2054,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá trắm (`grass_carp`)
 
 - **File:** `assets/icons/grass_carp.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1820,6 +2064,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá chạch vàng (`golden_loach`)
 
 - **File:** `assets/icons/golden_loach.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1829,6 +2074,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Rương (`chest`)
 
 - **File:** `assets/icons/chest.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1838,6 +2084,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bù nhìn (`scarecrow`)
 
 - **File:** `assets/icons/scarecrow.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1847,6 +2094,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Vòi tưới tự động (`sprinkler`)
 
 - **File:** `assets/icons/sprinkler.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1856,6 +2104,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chuồng gà (`chicken_coop`)
 
 - **File:** `assets/icons/chicken_coop.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1865,6 +2114,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Trứng gà (`egg`)
 
 - **File:** `assets/icons/egg.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1874,6 +2124,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cơm nắm muối vừng (`com_nam`)
 
 - **File:** `assets/icons/com_nam.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1883,6 +2134,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bánh mì (`banh_mi`)
 
 - **File:** `assets/icons/banh_mi.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1892,6 +2144,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cà phê sữa đá (`ca_phe_sua_da`)
 
 - **File:** `assets/icons/ca_phe_sua_da.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1901,6 +2154,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lúa giống (`rice_seeds`)
 
 - **File:** `assets/icons/rice_seeds.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1910,6 +2164,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lúa (`rice`)
 
 - **File:** `assets/icons/rice.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1919,6 +2174,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Xe bò (`ox_cart`)
 
 - **File:** `assets/icons/ox_cart.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1928,6 +2184,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Xe máy (`motorbike`)
 
 - **File:** `assets/icons/motorbike.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1937,6 +2194,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Máy cày (`tractor`)
 
 - **File:** `assets/icons/tractor.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1946,6 +2204,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Máy gặt lúa (`harvester`)
 
 - **File:** `assets/icons/harvester.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1955,6 +2214,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Máy tưới nước (`water_truck`)
 
 - **File:** `assets/icons/water_truck.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1964,6 +2224,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Gạo (`gao`)
 
 - **File:** `assets/icons/gao.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1973,6 +2234,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ba lô vải (`backpack_cloth`)
 
 - **File:** `assets/icons/backpack_cloth.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1982,6 +2244,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ba lô lớn (`backpack_large`)
 
 - **File:** `assets/icons/backpack_large.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -1991,6 +2254,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bàn thợ mộc (`carpenter_bench`)
 
 - **File:** `assets/icons/carpenter_bench.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2000,6 +2264,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chiếu (`sleeping_mat`)
 
 - **File:** `assets/icons/sleeping_mat.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2009,6 +2274,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Giun (mồi câu) (`worm`)
 
 - **File:** `assets/icons/worm.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2018,6 +2284,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá giống (`fish_fry`)
 
 - **File:** `assets/icons/fish_fry.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2027,6 +2294,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cây roi (`whip`)
 
 - **File:** `assets/icons/whip.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2036,6 +2304,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Gà con (`animal_chicken`)
 
 - **File:** `assets/icons/animal_chicken.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2045,6 +2314,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Heo con (`animal_pig`)
 
 - **File:** `assets/icons/animal_pig.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2054,6 +2324,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nghé (trâu con) (`animal_buffalo`)
 
 - **File:** `assets/icons/animal_buffalo.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2063,6 +2334,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bê (bò con) (`animal_cow`)
 
 - **File:** `assets/icons/animal_cow.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2072,6 +2344,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá lóc (`snakehead`)
 
 - **File:** `assets/icons/snakehead.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2081,6 +2354,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá diếc (`crucian`)
 
 - **File:** `assets/icons/crucian.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2090,6 +2364,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá trê (`catfish`)
 
 - **File:** `assets/icons/catfish.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2099,6 +2374,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá bống (`goby`)
 
 - **File:** `assets/icons/goby.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2108,6 +2384,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá thu (`mackerel`)
 
 - **File:** `assets/icons/mackerel.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2117,6 +2394,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá mú (`grouper`)
 
 - **File:** `assets/icons/grouper.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2126,6 +2404,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cá cơm (`anchovy`)
 
 - **File:** `assets/icons/anchovy.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2135,6 +2414,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bùa khai đạo (`bua_khai_dao`)
 
 - **File:** `assets/icons/bua_khai_dao.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2144,6 +2424,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Sách cổ: Khai nhãn (`sach_co`)
 
 - **File:** `assets/icons/sach_co.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** ô 40 x 40 px trên thanh công cụ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code: src/ui/itemIcons.ts`
 ```
@@ -2158,6 +2439,7 @@ Hiện đều vẽ bằng code (khung gỗ, nút, ô…). Khung và nút sẽ d�
 ### Khung bảng gỗ (bảng túi đồ, cửa hàng, hộp thoại…)
 
 - **File:** `assets/ui/panel_wood.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** co giãn theo bảng
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2167,6 +2449,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nút bấm
 
 - **File:** `assets/ui/button.png`  ·  **Kích thước file:** 96 x 32 px  ·  **Trong game:** co giãn theo chữ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2176,6 +2459,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nút bấm (đang rê chuột)
 
 - **File:** `assets/ui/button_hover.png`  ·  **Kích thước file:** 96 x 32 px  ·  **Trong game:** co giãn theo chữ
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2185,6 +2469,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ô vật phẩm (thanh công cụ, túi đồ)
 
 - **File:** `assets/ui/slot.png`  ·  **Kích thước file:** 40 x 40 px  ·  **Trong game:** 40 x 40 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2194,6 +2479,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Ô vật phẩm đang chọn
 
 - **File:** `assets/ui/slot_selected.png`  ·  **Kích thước file:** 40 x 40 px  ·  **Trong game:** 40 x 40 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2203,6 +2489,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đồng hồ ngày đêm
 
 - **File:** `assets/ui/day_dial.png`  ·  **Kích thước file:** 48 x 48 px  ·  **Trong game:** 48 x 48 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2212,6 +2499,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Khung thanh chỉ số
 
 - **File:** `assets/ui/bar_frame.png`  ·  **Kích thước file:** 12 x 80 px  ·  **Trong game:** 12 x 80 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2221,6 +2509,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nút cảm ứng tròn (Dùng / Tương tác / Túi…)
 
 - **File:** `assets/ui/touch_button.png`  ·  **Kích thước file:** 64 x 64 px  ·  **Trong game:** 64 x 64 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2230,6 +2519,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cần điều khiển cảm ứng: đế
 
 - **File:** `assets/ui/joystick_base.png`  ·  **Kích thước file:** 96 x 96 px  ·  **Trong game:** 96 x 96 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2239,6 +2529,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cần điều khiển cảm ứng: núm
 
 - **File:** `assets/ui/joystick_knob.png`  ·  **Kích thước file:** 40 x 40 px  ·  **Trong game:** 40 x 40 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2248,6 +2539,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Khung bản đồ nhỏ
 
 - **File:** `assets/ui/minimap_frame.png`  ·  **Kích thước file:** 112 x 112 px  ·  **Trong game:** 112 x 112 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2257,6 +2549,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nút cài đặt (bánh răng)
 
 - **File:** `assets/ui/gear.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 32 x 32 px
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2266,6 +2559,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nền màn hình tiêu đề
 
 - **File:** `assets/ui/title_background.png`  ·  **Kích thước file:** 1280 x 720 px  ·  **Trong game:** phủ kín màn hình
+- **Tình trạng:** ✅ đã có trong game
 - **Animation:** không
 - **Thay cho (hiện tại):** `vẽ bằng code (src/ui/*.ts)`
 ```
@@ -2280,6 +2574,7 @@ Những thứ có trong `assets/reference.jpg` hợp với làng quê xưa của
 ### Trâu kéo cày (người cày đi sau)
 
 - **File:** `assets/animals/buffalo_plough.png`  ·  **Kích thước file:** 192 x 64 px  ·  **Trong game:** 2 khung, mỗi khung 96 x 64; trong game 3 x 2 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa có cảnh dân làng cày bằng trâu
 - **Animation:** 2 khung đi
 - **Dùng cho:** dân làng cày ruộng bằng trâu thay vì cuốc tay *(asset mới, chưa có trong game)*
 ```
@@ -2289,6 +2584,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bó lúa (sau khi gặt)
 
 - **File:** `assets/props/rice_sheaf.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** bó lúa xếp bên đường ruộng và trên vai người gánh (hiện dùng đống rơm thu nhỏ) *(asset mới, chưa có trong game)*
 ```
@@ -2298,6 +2594,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Thúng / rổ hàng của gánh hàng rong
 
 - **File:** `assets/props/produce_baskets.png`  ·  **Kích thước file:** 64 x 32 px  ·  **Trong game:** 2 x 1 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** đặt xuống khi gánh hàng rong dừng trước nhà *(asset mới, chưa có trong game)*
 ```
@@ -2307,6 +2604,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Giàn phơi nón lá
 
 - **File:** `assets/props/hat_drying_rack.png`  ·  **Kích thước file:** 96 x 64 px  ·  **Trong game:** 3 x 2 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** trang trí làng (làng nghề nón lá) *(asset mới, chưa có trong game)*
 ```
@@ -2316,6 +2614,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Lá nón phơi trên sân
 
 - **File:** `assets/tiles/drying_leaves.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô (lớp phủ)
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** trang trí sân nhà làng nghề *(asset mới, chưa có trong game)*
 ```
@@ -2325,6 +2624,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Đò ngang có mái (bến phà)
 
 - **File:** `assets/props/ferry_boat.png`  ·  **Kích thước file:** 128 x 48 px  ·  **Trong game:** 4 x 1,5 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không (game cho trôi)
 - **Dùng cho:** đò chở khách qua sông ở bến *(asset mới, chưa có trong game)*
 ```
@@ -2334,6 +2634,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Cầu tàu gỗ (bến thuyền)
 
 - **File:** `assets/props/wooden_jetty.png`  ·  **Kích thước file:** 96 x 64 px  ·  **Trong game:** 3 x 2 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** bến đò, bến thuyền câu *(asset mới, chưa có trong game)*
 ```
@@ -2343,6 +2644,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Hàng rào tre thấp (vườn nhà)
 
 - **File:** `assets/tiles/bamboo_fence.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô (nối liền ngang)
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** rào vườn nhà, rào ruộng *(asset mới, chưa có trong game)*
 ```
@@ -2352,6 +2654,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Bụi hoa ven đường
 
 - **File:** `assets/props/flower_bush.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** trang trí sân, ngõ *(asset mới, chưa có trong game)*
 ```
@@ -2361,6 +2664,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Nhà vườn (nhà ngói trong vườn cây)
 
 - **File:** `assets/buildings/garden_house.png`  ·  **Kích thước file:** 160 x 160 px  ·  **Trong game:** chân đế 5 x 4 ô
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** thêm một kiểu nhà cho làng *(asset mới, chưa có trong game)*
 ```
@@ -2370,6 +2674,7 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 ### Chiếu tre / phên phơi lúa trên sân
 
 - **File:** `assets/tiles/drying_rice.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 x 1 ô (lớp phủ)
+- **Tình trạng:** 🟡 có ảnh, chưa dùng: chưa đặt lên bản đồ
 - **Animation:** không
 - **Dùng cho:** nhà vừa gặt: lúa phơi trên sân *(asset mới, chưa có trong game)*
 ```
@@ -2378,6 +2683,16 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 
 **Có trong ảnh mẫu nhưng cố ý KHÔNG đưa vào** (trái với bối cảnh làng quê nghèo thời xưa đã chốt): UBND thị xã, bưu điện, trường THPT, dãy nhà phố hai tầng, sạp chợ / chợ ô dù đông đúc (game dùng gánh hàng rong thay chợ), cờ đỏ, biển hiệu có chữ, xe máy của dân, cầu bê tông lớn.
 
+
+### Gốc cây sau khi chặt
+
+- **File:** `assets/props/tree_stump.png`  ·  **Kích thước file:** 64 x 48 px  ·  **Trong game:** 1 x 1 ô (gốc), mọc lại thành cây sau 15 ngày
+- **Tình trạng:** ⬜ còn thiếu
+- **Animation:** không
+- **Dùng cho:** chỗ cây vừa bị chặt (hiện để trống cỏ) *(asset mới, chưa có trong game)*
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one object, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 64 x 48 pixels (the picture must look like a 64 x 48 pixel sprite scaled up, every art pixel a clean square). A single freshly cut tree stump, low and wide, pale cut wood on top with growth rings, dark bark around, a few roots spreading on the ground and two small wood chips beside it. One object only, centred, standing at the bottom of the picture. Plain pure white (#FFFFFF) background, no ground shadow, no text.
+```
 
 ## 13. Hiệu ứng: giữ vẽ bằng code (không cần ảnh)
 

@@ -81,7 +81,8 @@ export type Doing =
   | 'market'
   | 'fromMarket'
   | 'feedChickens'
-  | 'tend';
+  | 'tend'
+  | 'garden';
 
 export interface AdultDay {
   /** 0 or 1: the first and second adult of the household. */
@@ -99,7 +100,8 @@ export interface AdultDay {
 const WALK_MIN = 40;
 const MARKET_AWAY = 240;
 export const TO_FIELD = 5 * 60 + 30;
-export const HOME_TIME = 16 * 60;
+/** Everyone leaves the field at 16:30 (the herder leads the buffalo home). */
+export const HOME_TIME = 16 * 60 + 30;
 export const BED_TIME = 18 * 60;
 
 /**
@@ -112,6 +114,13 @@ export const BED_TIME = 18 * 60;
  *   (weeding) until 16:00, so the fields are never empty in working hours.
  *   At home: tea at the table in the yard; indoors from 18:00.
  */
+/** A household with no paddy (a lone hut in the wilds): works its garden till 16:30, then tea. */
+export function gardenerDoing(clock: number): { doing: Doing; since: number } {
+  if (clock < TO_FIELD || clock >= BED_TIME) return { doing: 'indoors', since: 0 };
+  if (clock < HOME_TIME) return { doing: 'garden', since: TO_FIELD };
+  return { doing: 'tea', since: HOME_TIME };
+}
+
 export function adultDoing(a: AdultDay): { doing: Doing; since: number } {
   const c = a.clock;
   if (c < TO_FIELD || c >= BED_TIME) return { doing: 'indoors', since: 0 };
@@ -129,7 +138,7 @@ export function adultDoing(a: AdultDay): { doing: Doing; since: number } {
     if (t < WALK_MIN) return { doing: 'toMarket', since: done };
     if (t < WALK_MIN + MARKET_AWAY) return { doing: 'market', since: done + WALK_MIN };
     if (t < 2 * WALK_MIN + MARKET_AWAY) return { doing: 'fromMarket', since: done + WALK_MIN + MARKET_AWAY };
-    return { doing: 'tea', since: done + 2 * WALK_MIN + MARKET_AWAY };
+    return { doing: 'tend', since: done + 2 * WALK_MIN + MARKET_AWAY }; // back from market: out to the paddy
   }
   // No animals to mind: after a rest they stay out tending the paddy (weeding, looking the
   // rice over) like everyone else in the village, until it is time to go home.

@@ -44,8 +44,9 @@ describe('a farming adult’s day', () => {
     expect(adultDoing({ ...base, clock: 5 * 60 + 40 }).doing).toBe('toField');
     expect(adultDoing({ ...base, clock: 7 * 60 }).doing).toBe('work');
     expect(adultDoing({ ...base, clock: 9 * 60 + 10 }).doing).toBe('restRoad');
-    expect(adultDoing({ ...base, clock: 16 * 60 + 10 }).doing).toBe('toHome');
-    expect(adultDoing({ ...base, clock: 17 * 60 }).doing).toBe('tea');
+    expect(adultDoing({ ...base, clock: 16 * 60 + 10 }).doing).toBe('work'); // until 16:30
+    expect(adultDoing({ ...base, clock: 16 * 60 + 40 }).doing).toBe('toHome');
+    expect(adultDoing({ ...base, clock: 17 * 60 + 20 }).doing).toBe('tea');
     expect(adultDoing({ ...base, clock: 19 * 60 }).doing).toBe('indoors');
   });
 
@@ -54,12 +55,12 @@ describe('a farming adult’s day', () => {
     expect(adultDoing({ ...idle, idleFor: 10 }).doing).toBe('restRoad');
     expect(adultDoing({ ...idle, idleFor: 40 }).doing).toBe('tend'); // stays out weeding till 16:00
     expect(adultDoing({ ...idle, idleFor: 90 }).doing).toBe('tend');
-    expect(adultDoing({ ...idle, idleFor: 90, clock: 16 * 60 + 10 }).doing).toBe('toHome');
+    expect(adultDoing({ ...idle, idleFor: 90, clock: 16 * 60 + 40 }).doing).toBe('toHome');
     expect(adultDoing({ ...idle, idleFor: 90, livestock: true }).doing).toBe('herd');
     expect(adultDoing({ ...idle, idleFor: 10, livestock: true, index: 1 }).doing).toBe('toMarket');
     expect(adultDoing({ ...idle, idleFor: 100, livestock: true, index: 1 }).doing).toBe('market');
     expect(adultDoing({ ...idle, idleFor: 300, livestock: true, index: 1 }).doing).toBe('fromMarket');
-    expect(adultDoing({ ...idle, idleFor: 400, livestock: true, index: 1 }).doing).toBe('tea');
+    expect(adultDoing({ ...idle, idleFor: 400, livestock: true, index: 1 }).doing).toBe('tend'); // back from market: to the paddy
   });
 
   it('feeds the chickens first thing', () => {
