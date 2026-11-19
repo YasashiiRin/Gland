@@ -1,6 +1,6 @@
 {
   "yieldChance": 0.25,
   "doubleChance": 0.04,
-  "energyCost": 2,
+  "energyCost": 0.8,
   "xp": 1
 }

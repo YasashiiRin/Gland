@@ -10,7 +10,11 @@ import {
   type WorldPlacement,
   type WorldRect,
 } from '../systems/WorldMapSystem';
+import { gameState } from '../state/GameState';
+import { ownerName } from '../state/owner';
+import { homeKey, homeOf } from '../systems/HomeSystem';
 import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
+import { drawZones, type ZoneBox } from './worldMapZones';
 import { woodPanel, skinButton } from './uiSkin';
 
 const TEXTURE_KEY = 'worldmap';
@@ -53,6 +57,10 @@ export class WorldMap {
   private readonly image: Phaser.GameObjects.Image;
   private readonly labels: Phaser.GameObjects.Text[] = [];
   private places: PlaceLabel[] = [];
+  /** Protected areas and my home, drawn over the picture (redrawn as you pan and zoom). */
+  private readonly overlay: Phaser.GameObjects.Graphics;
+  private zones: ZoneBox[] = [];
+  private readonly homeText: Phaser.GameObjects.Text;
   private readonly marker: Phaser.GameObjects.Arc;
   private readonly hereText: Phaser.GameObjects.Text;
   private readonly loading: Phaser.GameObjects.Text;
@@ -82,6 +90,12 @@ export class WorldMap {
     this.image = scene.add.image(0, 0, '__DEFAULT').setOrigin(0, 0);
     const maskShape = scene.make.graphics({}).fillStyle(0xffffff).fillRect(v.x, v.y, v.width, v.height);
     this.image.setMask(maskShape.createGeometryMask());
+    this.overlay = scene.add.graphics();
+    this.overlay.setMask(maskShape.createGeometryMask());
+    this.homeText = inkText(scene, 0, 0, 'Nhà tôi', 12, '#fff2d0').setOrigin(0.5, 1).setStroke('#7a2010', 4).setVisible(false);
+    const legend = inkText(scene, this.view.x + 8, this.view.y + this.view.height - 8,
+      '■ vàng: danh thắng · □ đỏ: đất nhà người khác — không chặt cây, đập đá, cắt cỏ · ■ xanh: nhà tôi', 11, '#fff2d0')
+      .setOrigin(0, 1).setStroke('#2b1a10', 3);
     this.marker = scene.add.circle(0, 0, 5, 0xe8402a).setStrokeStyle(2, 0xffffff);
     scene.tweens.add({ targets: this.marker, scale: 1.5, alpha: 0.5, duration: 500, yoyo: true, repeat: -1 });
     this.hereText = inkText(scene, 0, 0, 'Bạn ở đây', 12, '#fff2d0').setOrigin(0.5, 1).setStroke('#2b1a10', 3);
@@ -95,7 +109,7 @@ export class WorldMap {
       })
       .setOrigin(0.5);
     this.loading = inkText(scene, w / 2, h / 2, 'Đang vẽ bản đồ…', 18, '#fff2d0').setOrigin(0.5).setVisible(false);
-    this.root.add([shade, frame, sea, this.image, this.marker, this.hereText, title, hint, this.loading]);
+    this.root.add([shade, frame, sea, this.image, this.overlay, this.homeText, legend, this.marker, this.hereText, title, hint, this.loading]);
 
     const buttons: [string, () => void][] = [
       ['✕', () => this.close()],
@@ -212,9 +226,17 @@ export class WorldMap {
     }
     this.places.forEach((l) => l.text.destroy());
     this.places = [];
+    this.zones = [];
+    const myHome = homeOf(gameState.homes, ownerName());
     for (const p of this.placements) {
       const objects = this.tmj(p.key)?.layers.find((l) => l.name === 'objects')?.objects ?? [];
       for (const o of objects) {
+        const prop = (n: string) => o.properties?.find((q) => q.name === n)?.value;
+        if (o.name === 'zone' && (prop('kind') === 'landmark' || prop('kind') === 'home')) {
+          const mine = prop('kind') === 'home' && homeKey(p.key, String(prop('homeId'))) === myHome;
+          this.zones.push({ x: p.x + o.x / 16, y: p.y + o.y / 16, w: o.width / 16, h: o.height / 16, mine, landmark: prop('kind') === 'landmark' });
+        }
+        if (o.name === 'zone' && prop('kind') === 'home') continue; // plots are outlined, not named
         const name = o.name === 'zone' ? o.properties?.find((q) => q.name === 'zoneName')?.value : undefined;
         if (typeof name !== 'string') continue;
         const text = inkText(this.scene, 0, 0, `◆ ${name}`, 11, '#ffe6a8').setOrigin(0.5).setStroke('#2b1a10', 3);
@@ -222,6 +244,12 @@ export class WorldMap {
         this.places.push({ text, x: p.x + (o.x + o.width / 2) / 16, y: p.y + (o.y + o.height / 2) / 16 });
       }
     }
+  }
+
+  private drawZones(): void {
+    const home = drawZones(this.overlay.clear(), this.zones, (x, y) => this.toScreen(x, y), this.zoom, this.fitZoom);
+    this.homeText.setVisible(!!home && this.inView(home.x, home.y));
+    if (home) this.homeText.setPosition(home.x, home.y - home.size - 3);
   }
 
   private tmj(key: MapKey): TmjJson | undefined {
@@ -291,6 +319,7 @@ export class WorldMap {
       const at = this.toScreen(l.x, l.y);
       l.text.setPosition(at.x, at.y).setVisible(showPlaces && this.inView(at.x, at.y));
     }
+    this.drawZones();
     const here = this.player ? this.toScreen(this.player.x + 0.5, this.player.y + 0.5) : null;
     const show = !!here && this.inView(here.x, here.y);
     this.marker.setVisible(show);

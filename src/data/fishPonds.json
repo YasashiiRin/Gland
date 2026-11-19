@@ -1,7 +1,7 @@
 {
   "growDays": 3,
   "maxPerOwner": 12,
-  "energyCost": 2,
+  "energyCost": 0.8,
   "xp": 3,
   "fry": {
     "fish_fry": ["carp", "crucian", "crucian", "perch", "snakehead", "catfish"]

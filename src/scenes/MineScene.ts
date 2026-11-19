@@ -6,6 +6,7 @@ import { setupWorldCamera } from './cameraFit';
 import { Player, type PlayerInput } from '../entities/Player';
 import { EventBus, GameEvents, type MapEnteredPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
+import { TOOL_ENERGY_COST } from '../data/items';
 import { currentSpeedMultiplier } from '../state/playerStats';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked } from '../state/uiState';
@@ -235,7 +236,7 @@ export class MineScene extends Phaser.Scene {
       if (isExhausted(gameState.energy)) return;
       const t = this.floor.tiles[tile.y]?.[tile.x];
       if (t !== 'ore') return;
-      gameState.energy = consume(gameState.energy, 3);
+      gameState.energy = consume(gameState.energy, TOOL_ENERGY_COST.pickaxe ?? 1.2);
       this.floor.tiles[tile.y][tile.x] = 'floor';
       this.layer.putTileAt(TILE_GID_FOR.floor, tile.x, tile.y);
       this.layer.getTileAt(tile.x, tile.y)?.setCollision(false, false, false, false);

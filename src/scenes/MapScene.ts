@@ -29,6 +29,7 @@ import { buildMinimap } from '../systems/MinimapSystem';
 import { consume, isExhausted } from '../systems/EnergySystem';
 import { DAY_LENGTH_MINUTES } from '../config/time';
 import { endWorldDay, hoursSlept, sleepState, wakeUp } from '../state/dayCycle';
+import { sleepThrough } from '../state/hungerClock';
 import { addItem, countItem, expandInventory, HOTBAR_SIZE, INVENTORY_SIZE, itemAt, removeItem } from '../systems/InventorySystem';
 import { craftingState } from '../state/craftingState';
 import type { Station } from '../data/recipes';
@@ -298,6 +299,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => EventBus.off(GameEvents.SkillCast, onCast));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.hawkers?.destroy());
     this.herd = new LivestockHerd(this, this.player, this.mapKey, ground, decor);
+    this.herd.onDeath = (message) => this.say(message);
     this.tigers = PROVINCE_MAP_KEYS.includes(this.mapKey)
       ? new Tigers(this, this.player, decor, this.safeZones, (text) => this.say(text))
       : null;
@@ -431,6 +433,8 @@ export abstract class MapScene extends Phaser.Scene {
       this.say(this.ride.dismount());
       return;
     }
+    if (!gameState.riding && this.say(this.herd.tryRide())) return; // climb on / off my buffalo
+    if (this.herd.riding) return;
     if (this.say(this.ride.tryMount())) return;
     if (craftingState.nearStation) {
       EventBus.emit(GameEvents.CraftingOpenRequested, { station: craftingState.nearStation });
@@ -784,6 +788,7 @@ export abstract class MapScene extends Phaser.Scene {
     if (this.transitioning) return;
     if (sleepState.bedElapsed === null) sleepState.bedElapsed = gameState.time.elapsedMinutes;
     const hours = hoursSlept(DAY_LENGTH_MINUTES);
+    sleepThrough(hours * 60); // asleep, the stomach empties 60% slower
     const payload = this.startNextDay();
     wakeUp(hours);
     this.goHomeForNewDay(payload);
@@ -1050,8 +1055,9 @@ export abstract class MapScene extends Phaser.Scene {
     const gid = this.decorLayer.getTileAt(tile.x, tile.y)?.index;
     // Any tree can be felled (bamboo, fruit trees, palms, the woods), not only the lone trunks.
     if (kind === 'tree' ? !isTreeGid(gid) : gid !== (kind === 'rock' ? TILE_GID.ROCK : TILE_GID.BUSH)) return;
-    if (kind === 'tree' && this.buildBlocked(tile.x, tile.y)) {
-      this.say('Cây này của nhà người ta / của danh thắng: không chặt được');
+    // Landmarks and other people's plots are protected (outlined on the big map).
+    if (this.buildBlocked(tile.x, tile.y)) {
+      this.say('Đây là danh thắng hoặc đất nhà người ta: không lấy tài nguyên được');
       return;
     }
 

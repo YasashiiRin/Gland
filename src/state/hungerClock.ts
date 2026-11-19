@@ -3,6 +3,7 @@ import { consume } from '../systems/EnergySystem';
 import { drainHunger, starvationDamage } from '../systems/HungerSystem';
 import { absoluteMinute } from '../systems/StatsSystem';
 import { gameState } from './GameState';
+import { uiState } from './uiState';
 
 /** Longer jumps than this (sleep, loading) never starve you to fainting: you wake weak, not out cold. */
 const SKIP_MINUTES = 30;
@@ -22,7 +23,8 @@ export function tickHunger(): void {
   const minutes = now - lastMinute;
   if (minutes <= 0) return;
   lastMinute = now;
-  gameState.hunger = drainHunger(gameState.hunger, minutes);
+  // Lying in bed (waiting for the others to sleep) the stomach empties 60% slower.
+  gameState.hunger = drainHunger(gameState.hunger, uiState.sleepWait ? minutes * SLEEP_HUNGER : minutes);
   const damage = starvationDamage(gameState.hunger, minutes);
   if (damage <= 0) return;
   if (minutes > SKIP_MINUTES) {
@@ -31,6 +33,15 @@ export function tickHunger(): void {
   }
   gameState.playerHealth = consume(gameState.playerHealth, damage);
   if (gameState.playerHealth.current <= 0) EventBus.emit(GameEvents.PlayerFainted);
+}
+
+/** How fast the stomach empties while asleep, compared with awake. */
+export const SLEEP_HUNGER = 0.4;
+
+/** Slept `minutes` through the night: hunger at 40% of the usual rate (the clock jump is not charged again). */
+export function sleepThrough(minutes: number): void {
+  gameState.hunger = drainHunger(gameState.hunger, Math.max(0, minutes) * SLEEP_HUNGER);
+  lastMinute = null;
 }
 
 /** A new game or a loaded save: don't charge the time in between. */

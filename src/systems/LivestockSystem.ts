@@ -19,6 +19,24 @@ export interface Livestock {
   hunger: number;
   /** 0 = just born, 100 = fully grown. */
   growth: number;
+  /** Health 0..100 (missing in old saves: full). At 0 the animal dies. */
+  hp?: number;
+}
+
+/** Starving (hunger 100) costs this much health a game hour: dead in about 10 hours. */
+export const STARVE_HP_PER_HOUR = 10;
+/** Grazing on grass heals this much a game hour; just being fed (not hungry) a little. */
+export const GRAZE_HP_PER_HOUR = 8;
+export const FED_HP_PER_HOUR = 2;
+/** Animals that can carry a rider. */
+export const RIDEABLE: ReadonlySet<LivestockKind> = new Set(['buffalo']);
+
+export function hpOf(animal: Livestock): number {
+  return animal.hp ?? 100;
+}
+
+export function isDead(animal: Livestock): boolean {
+  return hpOf(animal) <= 0;
 }
 
 export interface LivestockDef {
@@ -57,13 +75,19 @@ export function createLivestock(id: string, kind: LivestockKind, mapKey: MapKey,
   return { id, kind, mapKey, x, y, hunger: 30, growth: 0 };
 }
 
-/** Time passing for one animal: hunger rises, grazing (on grass) brings it down. */
+/**
+ * Time passing for one animal: hunger rises, grazing (on grass) brings it down
+ * and heals; left starving it loses health until it dies (hp 0, see isDead).
+ */
 export function tickLivestock(animal: Livestock, gameMinutes: number, onGrass: boolean): Livestock {
   const def = LIVESTOCK[animal.kind];
   const hours = gameMinutes / 60;
   const eaten = onGrass ? def.grazePerHour * hours : 0;
   const hunger = clamp(animal.hunger + def.hungerPerHour * hours - eaten, 0, 100);
-  return hunger === animal.hunger ? animal : { ...animal, hunger };
+  const before = hpOf(animal);
+  const heal = onGrass ? GRAZE_HP_PER_HOUR : hunger < 50 ? FED_HP_PER_HOUR : 0;
+  const hp = clamp(hunger >= 100 ? before - STARVE_HP_PER_HOUR * hours : before + heal * hours, 0, 100);
+  return hunger === animal.hunger && hp === before ? animal : { ...animal, hunger, hp };
 }
 
 /** A new morning: a well-fed animal grows; a starving one doesn't. */
