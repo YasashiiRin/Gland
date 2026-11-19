@@ -7,8 +7,8 @@ import type { FamilyState, FamilyType, LivestockKind, Npc } from '../src/systems
 const T = (day: number, hh: number, mm = 0) => day * 1440 + hh * 60 + mm;
 const env = (raining = false): SimEnv => ({ layout: { minutes: () => 20 }, raining: () => raining, cfg });
 
-function family(type: FamilyType, livestock: LivestockKind[] = [], market = false, field = { cols: 4, rows: 2 }): FamilyState {
-  const f = buildFamily('test:home', type, livestock, field, T(1, 0), cfg);
+function family(type: FamilyType, livestock: LivestockKind[] = [], market = false, plots = [{ cols: 4, rows: 2 }]): FamilyState {
+  const f = buildFamily('test:home', type, livestock, plots, T(1, 0), cfg);
   return { ...f, marketCounter: market ? 0 : 1 };
 }
 
@@ -131,10 +131,10 @@ describe('NPC family day (Monday = day 1)', () => {
       f = run(f, T(d, 20));
       mostPiles = Math.max(mostPiles, f.yardPiles.length);
     }
-    expect(f.field!.seasonIndex).toBeGreaterThanOrEqual(2);
+    expect(f.fields[0].seasonIndex).toBeGreaterThanOrEqual(2);
     expect(mostPiles).toBeGreaterThan(0);
     expect(mostPiles).toBeLessThanOrEqual(cfg.yardPiles.max);
-    expect(f.field!.cells.some((c) => c.state === 'DEAD')).toBe(false);
+    expect(f.fields[0].cells.some((c) => c.state === 'DEAD')).toBe(false);
   });
 
   it('yard piles last 3 days', () => {
@@ -146,9 +146,9 @@ describe('NPC family day (Monday = day 1)', () => {
   it('rain waters the field for them', () => {
     let f = family(2);
     f = run(f, T(2, 16), env(false));
-    expect(f.field!.cells.some((c) => c.state === 'SEEDED' || c.state === 'GROWING')).toBe(true);
+    expect(f.fields[0].cells.some((c) => c.state === 'SEEDED' || c.state === 'GROWING')).toBe(true);
     f = run(f, T(3, 6), env(true));
-    const planted = f.field!.cells.filter((c) => c.state === 'GROWING' || c.state === 'SEEDED');
+    const planted = f.fields[0].cells.filter((c) => c.state === 'GROWING' || c.state === 'SEEDED');
     expect(planted.every((c) => c.wateredToday)).toBe(true);
   });
 
@@ -181,12 +181,32 @@ describe('NPC family day (Monday = day 1)', () => {
   it('more than 30 minutes late: drops the job and hurries', () => {
     let f = run(family(1), T(1, 16, 29));
     const h = who(f, 'husband');
-    f = { ...f, members: [{ ...h, currentTask: { kind: 'hoe', cell: 0, until: T(1, 23) } }] };
+    f = { ...f, members: [{ ...h, currentTask: { kind: 'hoe', plot: 0, cell: 0, until: T(1, 23) } }] };
     f = run(f, T(1, 16, 50));
     expect(where(who(f, 'husband'))).toBe('field');
     f = run(f, T(1, 17, 1));
     expect(where(who(f, 'husband'))).toBe('->home');
     expect(who(f, 'husband').speedMultiplier).toBe(1.5);
-    expect(f.field!.cells[0].reservedBy).toBeNull();
+    expect(f.fields[0].cells[0].reservedBy).toBeNull();
+  });
+
+  it('several plots: each its own crop and season, all kept going', () => {
+    let f = family(3, ['chicken'], false, [{ cols: 4, rows: 2 }, { cols: 4, rows: 2 }, { cols: 4, rows: 2 }]);
+    expect(new Set(f.fields.map((g) => g.cropType)).size).toBeGreaterThan(1);
+    for (let d = 1; d <= 30; d++) f = run(f, T(d, 20));
+    for (const g of f.fields) {
+      expect(g.seasonIndex).toBeGreaterThanOrEqual(1);
+      expect(g.cells.some((c) => c.state === 'DEAD')).toBe(false);
+    }
+  });
+
+  it('stays home only once every plot is in', () => {
+    let f = family(2, [], false, [{ cols: 2, rows: 1 }, { cols: 2, rows: 1 }]);
+    f = run(f, T(1, 6));
+    const done = { ...f.fields[0], phase: 'done' as const, restDay: 1 };
+    f = run({ ...f, fields: [done, f.fields[1]] }, T(1, 8));
+    expect(where(who(f, 'husband'))).toBe('field');
+    f = run({ ...f, fields: [done, { ...f.fields[1], phase: 'done' as const, restDay: 1 }] }, T(1, 9));
+    expect(['home', '->home']).toContain(where(who(f, 'husband')));
   });
 });

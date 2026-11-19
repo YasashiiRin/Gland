@@ -601,7 +601,7 @@ Tiêu chí hoàn thành:
 - [x] Ruộng từng ô: UNTILLED → TILLED → SEEDED/GROWING → MATURE → TILLED, chết thành DEAD nếu bỏ lỡ 1 ngày tưới; mưa =
       đã tưới; bón ngay ngày gieo rồi 7 ngày/lần; ưu tiên thu hoạch > tưới > bón > gieo > cuốc > nhổ cỏ; chồng nửa trái,
       vợ nửa phải, xong thì sang phụ; mỗi ô chỉ 1 người nhận (`reservedBy`).
-- [x] Cả thửa 1 loại cây/vụ, random từ 14 loại (không trùng vụ trước, theo seed lưu trong save); cứ 20% thửa thành 1 đống
+- [x] Mỗi thửa 1 loại cây/vụ (nhà có 2–3 thửa, xem dưới), random từ 14 loại (không trùng vụ trước, theo seed lưu trong save); cứ 20% thửa thành 1 đống
       bên đường; thu xong thì mỗi người lớn vác 1 đống/chuyến về sân; mang hết thì nghỉ ở nhà, hôm sau vụ mới.
 - [x] Đống trong sân tối đa 5, mỗi đống 3 ngày.
 - [x] LOD: ngoài màn hình không vẽ, không tìm đường; tới gần thì đặt đúng chỗ. Ngủ/tua giờ/vào lại bản đồ: chạy bù
@@ -610,9 +610,13 @@ Tiêu chí hoàn thành:
 Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
 - **1 ô ruộng NPC = 1 ô đất, mỗi nhát 2 phút game (≈1,4 giây: vung cuốc xuống, nghỉ ~1 giây)** cho cả cuốc, gieo,
   tưới, bón, thu hoạch (người chơi yêu cầu 2026-11-19, spec gốc: gieo/tưới/bón 1 phút). Thửa trên bản đồ ~1.300–2.000
-  ô, làm từng nhát thì không kịp tưới, nên mỗi nhà chỉ canh tác **một mảnh sát đường, quanh cầu ván**: nhà 2–3 người
-  16×16, nhà 1 người 11×11 (`field.plotTilesByFamilyType`); phần còn lại của thửa để cỏ. Save cũ có lưới khác cỡ thì
-  ruộng NPC được làm lại từ đầu.
+  ô, làm từng nhát thì không kịp tưới, nên mỗi nhà chỉ canh tác **vài thửa nhỏ** sát đường quanh cầu ván, nối tiếp
+  nhau từ đường vào, cách nhau 1 hàng bờ cỏ (người chơi yêu cầu 2026-11-19): nhà 3 người 3 thửa, nhà 1–2 người 2 thửa;
+  mỗi thửa 16×5 ô (nhà 1 người 11×4) (`field.plotTilesByFamilyType`, `plotsByFamilyType`, `plotGapTiles`). Phần còn
+  lại của thửa lớn để cỏ. **Mỗi thửa một loại cây, vụ riêng** (seed riêng mỗi thửa): thu xong thửa nào thì mang thửa đó
+  về; mang về được ưu tiên sau thu hoạch và tưới các thửa khác (để cây không chết), trước bón/gieo/cuốc. Cả nhà chỉ ở
+  nhà nghỉ khi mọi thửa đều vừa mang về xong trong ngày. Chồng nửa trái, vợ nửa phải của mỗi thửa. Save cũ có ruộng
+  khác cỡ thì ruộng NPC được làm lại từ đầu.
 - Người chơi: mỗi nhát dụng cụ cách nhau 0,8 giây (`TOOL_STROKE_MS` trong `config/constants.ts`).
 - Đồng hồ NPC theo giờ thật: ngày mới lúc 0h (ngày của game vẫn đổi lúc 6h). Ngày 1 của game là Thứ 2.
 - Bản đồ chỉ có "trâu" hoặc "bò": cả hai đều được dắt đi ăn cỏ như trâu (hình vẫn giữ là bò nếu bản đồ ghi bò).

@@ -18,8 +18,18 @@ export interface HomeDescriptor {
   members: number;
   grazer: boolean;
   chickens: boolean;
-  /** Field size in cells (null: the house has no field and keeps a garden). */
-  fieldCells: { cols: number; rows: number } | null;
+  /** Size in cells of each plot of its field (empty: the house has no field and keeps a garden). */
+  plots: PlotSize[];
+}
+
+export interface PlotSize {
+  cols: number;
+  rows: number;
+}
+
+/** Each plot draws its crops from its own seed. */
+export function plotSeed(seed: number, plot: number): number {
+  return (seed + Math.imul(plot, 0x9e3779b1)) >>> 0;
 }
 
 function newNpc(familyId: string, role: Role, index: number): Npc {
@@ -55,14 +65,14 @@ export function createFamily(home: HomeDescriptor, startMinute: number, cfg: Npc
     if (home.grazer) livestock.push('buffalo');
     if (!livestock.length) livestock.push('chicken');
   }
-  return buildFamily(home.key, type, livestock, home.fieldCells, startMinute, cfg);
+  return buildFamily(home.key, type, livestock, home.plots, startMinute, cfg);
 }
 
 export function buildFamily(
   key: string,
   type: FamilyType,
   livestock: LivestockKind[],
-  fieldCells: { cols: number; rows: number } | null,
+  plots: PlotSize[],
   startMinute: number,
   cfg: NpcConfig,
 ): FamilyState {
@@ -73,14 +83,14 @@ export function buildFamily(
     id: key,
     type,
     houseId: key,
-    fieldId: fieldCells ? `${key}:field` : null,
+    fieldId: plots.length ? `${key}:field` : null,
     pastureId: hasBuffalo ? `${key}:pasture` : null,
     livestock,
     members: roles.map((r, i) => newNpc(key, r, i)),
     marketCounter: Math.floor(seededRandom(seed, 3) * cfg.market.everyDays[type]),
     buffaloReturnClaimedBy: null,
     buffalo: hasBuffalo ? { at: 'home', ledBy: null, outDay: -1 } : null,
-    field: fieldCells ? newFieldGrid(fieldCells.cols, fieldCells.rows, seed, cfg) : null,
+    fields: plots.map((p, k) => newFieldGrid(p.cols, p.rows, plotSeed(seed, k), cfg)),
     yardPiles: [],
     seed,
     simMinute: startMinute,

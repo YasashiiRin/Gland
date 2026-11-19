@@ -54,6 +54,9 @@ export interface NpcConfig {
     cellTiles: number;
     /** Map tiles (columns, rows) of the paddy each family type works. */
     plotTiles: Record<1 | 2 | 3, [number, number]>;
+    /** How many plots each family type works, and the grass strip between them. */
+    plots: Record<1 | 2 | 3, number>;
+    plotGapTiles: number;
     minutes: Record<TaskKind, number>;
     fertilizeEveryDays: number;
     deathAfterMissedDays: number;
@@ -116,6 +119,8 @@ export function parseNpcConfig(r: RawNpcConfig): NpcConfig {
         2: r.field.plotTilesByFamilyType['2'] as [number, number],
         3: r.field.plotTilesByFamilyType['3'] as [number, number],
       },
+      plots: { 1: r.field.plotsByFamilyType['1'], 2: r.field.plotsByFamilyType['2'], 3: r.field.plotsByFamilyType['3'] },
+      plotGapTiles: r.field.plotGapTiles,
       minutes: r.field.minutes,
       fertilizeEveryDays: r.field.fertilizeEveryDays,
       deathAfterMissedDays: r.field.deathAfterMissedDays,

@@ -3,7 +3,7 @@ import { childAtHome, childAtPasture } from '../src/systems/npc/child';
 import { NPC_CONFIG as cfg } from '../src/systems/npc/config';
 import { createFamily } from '../src/systems/npc/families';
 
-const home = (key: string, members: number) => ({ key, members, grazer: true, chickens: false, fieldCells: { cols: 3, rows: 2 } });
+const home = (key: string, members: number) => ({ key, members, grazer: true, chickens: false, plots: [{ cols: 3, rows: 2 }, { cols: 3, rows: 2 }] });
 
 describe('NPC families', () => {
   it('one person: a man alone without animals; otherwise a couple or a family with animals', () => {

@@ -1,6 +1,7 @@
 import { clockOfMinute, dayOf, isWeekend, MINUTES_PER_DAY } from './clock';
 import type { NpcConfig } from './config';
-import { checkHarvestDone, checkHaulDone, completeTask, newFieldDay, pickTask, rainOn, reserve } from './field';
+import { plotSeed } from './families';
+import { checkHarvestDone, checkHaulDone, completeTask, newFieldDay, pickTaskOnPlots, rainOn, reserve } from './field';
 import { canClaimBuffalo, intentOf, type Ctx, type Intent } from './schedule';
 import type { FamilyLayout, FamilyState, Npc, Place } from './types';
 
@@ -32,16 +33,23 @@ function travelMinutes(from: Place, to: Place, env: SimEnv): number {
   return Math.max(env.cfg.travel.minMinutes, env.layout.minutes(from, to));
 }
 
+/** Replaces plot `k` of the family's field. */
+function setPlot(f: FamilyState, k: number, grid: FamilyState['fields'][number]): void {
+  f.fields = f.fields.map((g, i) => (i === k ? grid : g));
+}
+
 function finishTask(f: FamilyState, npc: Npc, ctx: Ctx): void {
   const task = npc.currentTask;
-  if (!task || !f.field) return;
-  f.field = completeTask(f.field, task.cell, task.kind, ctx.day, ctx.raining, ctx.cfg);
+  const grid = task ? f.fields[task.plot] : undefined;
+  if (!task || !grid) return;
+  setPlot(f, task.plot, completeTask(grid, task.cell, task.kind, ctx.day, ctx.raining, ctx.cfg));
   npc.currentTask = null;
   idleOf(f).clear();
 }
 
 function dropTask(f: FamilyState, npc: Npc): void {
-  if (npc.currentTask && f.field) f.field = reserve(f.field, npc.currentTask.cell, null);
+  const t = npc.currentTask;
+  if (t && f.fields[t.plot]) setPlot(f, t.plot, reserve(f.fields[t.plot], t.cell, null));
   npc.currentTask = null;
   idleOf(f).clear();
 }
@@ -78,29 +86,36 @@ function arrive(f: FamilyState, npc: Npc, to: Place, ctx: Ctx): void {
 const idleRuns = new WeakMap<FamilyState, Map<string, number>>();
 const idleOf = (f: FamilyState) => idleRuns.get(f) ?? idleRuns.set(f, new Map()).get(f)!;
 
-/** Field work: finish the job in hand, then take the next (or a pile to carry home). */
+/**
+ * Field work: finish the job in hand, then take the next. A plot whose
+ * harvest is all in has its piles carried home one per trip; that comes after
+ * harvesting and watering the other plots (so nothing dies meanwhile) but
+ * before the rest.
+ */
 function fieldWork(f: FamilyState, npc: Npc, ctx: Ctx, env: SimEnv): void {
-  if (!f.field) return;
+  if (!f.fields.length) return;
   if (npc.currentTask && ctx.minute >= npc.currentTask.until) finishTask(f, npc, ctx);
   if (npc.currentTask) {
     npc.state = 'work';
     return;
   }
-  if (f.field.phase === 'hauling' && f.field.piles > 0 && npc.role !== 'child') {
-    f.field = { ...f.field, piles: f.field.piles - 1 };
+  const half = f.type === 1 ? null : npc.role === 'husband' ? 0 : 1;
+  const pick = idleOf(f).get(npc.id) === ctx.day ? null : pickTaskOnPlots(f.fields, half, ctx.day, ctx.cfg);
+  const urgent = pick && (pick.kind === 'harvest' || pick.kind === 'water');
+  const pile = f.fields.findIndex((g) => g.phase === 'hauling' && g.piles > 0);
+  if (!urgent && pile >= 0 && npc.role !== 'child') {
+    setPlot(f, pile, { ...f.fields[pile], piles: f.fields[pile].piles - 1 });
     npc.carrying = true;
     depart(f, npc, 'field', { place: 'home', activity: 'tea', since: ctx.minute }, false, env);
     return;
   }
-  const half = f.type === 1 ? null : npc.role === 'husband' ? 0 : 1;
-  const pick = idleOf(f).get(npc.id) === ctx.day ? null : pickTask(f.field, half, ctx.day, ctx.cfg);
   if (!pick) {
     idleOf(f).set(npc.id, ctx.day);
     npc.state = 'weed';
     return;
   }
-  f.field = reserve(f.field, pick.cell, npc.id);
-  npc.currentTask = { kind: pick.kind, cell: pick.cell, until: ctx.minute + ctx.cfg.field.minutes[pick.kind] };
+  setPlot(f, pick.plot, reserve(f.fields[pick.plot], pick.cell, npc.id));
+  npc.currentTask = { kind: pick.kind, plot: pick.plot, cell: pick.cell, until: ctx.minute + ctx.cfg.field.minutes[pick.kind] };
   npc.state = 'work';
 }
 
@@ -165,7 +180,7 @@ function stepNpc(f: FamilyState, npc: Npc, ctx: Ctx, env: SimEnv, events: SimEve
 }
 
 function newDay(f: FamilyState, day: number, cfg: NpcConfig): void {
-  if (f.field) f.field = newFieldDay(f.field, day, f.seed, cfg);
+  f.fields = f.fields.map((g, k) => newFieldDay(g, day, plotSeed(f.seed, k), cfg));
   f.yardPiles = f.yardPiles.filter((d) => day - d < cfg.yardPiles.lifetimeDays);
   f.marketCounter = (f.marketCounter + 1) % cfg.market.everyDays[f.type];
   f.buffaloReturnClaimedBy = null;
@@ -199,14 +214,14 @@ export function simulateFamily(family: FamilyState, env: SimEnv, toMinute: numbe
       continue;
     }
     const ctx = makeCtx(t, env);
-    if (f.field && ctx.raining && rainDay !== day) {
-      f.field = rainOn(f.field);
+    if (f.fields.length && ctx.raining && rainDay !== day) {
+      f.fields = f.fields.map(rainOn);
       rainDay = day;
     }
     for (const npc of f.members) stepNpc(f, npc, ctx, env, events);
-    if (f.field) {
-      f.field = checkHarvestDone(f.field);
-      f.field = checkHaulDone(f.field, day, f.members.some((m) => m.carrying));
+    if (f.fields.length) {
+      const carrying = f.members.some((m) => m.carrying);
+      f.fields = f.fields.map((g) => checkHaulDone(checkHarvestDone(g), day, carrying));
     }
     t += 1;
   }

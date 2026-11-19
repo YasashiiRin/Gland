@@ -39,6 +39,8 @@ export type Position =
 
 export interface CellTask {
   kind: TaskKind;
+  /** Which of the family's plots (index into FamilyState.fields). */
+  plot: number;
   cell: number;
   /** Absolute minute it is finished. */
   until: number;
@@ -120,7 +122,8 @@ export interface FamilyState {
   marketCounter: number;
   buffaloReturnClaimedBy: string | null;
   buffalo: BuffaloState | null;
-  field: FieldGrid | null;
+  /** The family's plots, nearest the road first (empty: no field, they keep a garden). Each has its own crop and season. */
+  fields: FieldGrid[];
   /** Days the piles in the yard were made, oldest first. */
   yardPiles: number[];
   seed: number;

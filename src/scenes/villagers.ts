@@ -190,28 +190,30 @@ export class Villagers {
   private atField(h: Household, fam: FamilyState, npc: Npc, p: Person, time: number): void {
     const s = this.spriteOf(p);
     const pad = h.geo.paddy;
-    const plot = h.geo.plot;
-    const grid = fam.field;
-    if (!pad || !plot || !grid) return this.hide(p);
+    const plots = h.geo.plots;
+    if (!pad || !plots.length || !fam.fields.length) return this.hide(p);
     if (npc.state === 'lunch' || npc.state === 'tea') {
       // Lunch in the shade by the road, on their own side of the bridge.
       const side = pad.side === 'north' ? -1 : 1;
       return this.sit(s, p, (pad.bridgeX + (p.index ? 2 : -2)) * TILE + 8, (pad.roadY + side) * TILE + TILE - 2, side < 0 ? 'up' : 'down');
     }
     const task = npc.currentTask;
-    if (task) {
+    const tgrid = task ? fam.fields[task.plot] : undefined;
+    if (task && tgrid && plots[task.plot]) {
       // Beside the cell, facing it the way the row is worked (back and forth from the road).
-      const at = cellMiddle(plot, grid, task.cell);
-      const forward = Math.floor(task.cell / grid.cols) % 2 === 0;
+      const at = cellMiddle(plots[task.plot], tgrid, task.cell);
+      const forward = Math.floor(task.cell / tgrid.cols) % 2 === 0;
       const stand = { x: at.x + (forward ? -1 : 1), y: at.y };
-      return workCell(this.scene, s, p, stand, forward ? 'right' : 'left', `${task.cell}:${task.kind}`, task.kind, time);
+      return workCell(this.scene, s, p, stand, forward ? 'right' : 'left', `${task.plot}:${task.cell}:${task.kind}`, task.kind, time);
     }
-    // Nothing left today: weeding here and there in their half.
-    const half = Math.ceil(grid.cols / 2);
+    // Nothing left today: weeding here and there in their half of the plots.
     const k = Math.floor(time / 6000 + p.index * 37);
+    const plot = Math.floor(k / 7) % plots.length;
+    const grid = fam.fields[plot] ?? fam.fields[0];
+    const half = Math.ceil(grid.cols / 2);
     const col = fam.type === 1 ? k % grid.cols : p.index === 0 ? k % half : half + (k % Math.max(1, grid.cols - half));
     const cell = (Math.floor(k / 3) % grid.rows) * grid.cols + col;
-    const at = cellMiddle(plot, grid, cell);
+    const at = cellMiddle(plots[plot] ?? plots[0], grid, cell);
     standAt(s.setCrop().setAngle(0), at.x * TILE + TILE / 2, at.y * TILE + TILE - 2, p.index ? 'left' : 'right', time, true);
   }
 

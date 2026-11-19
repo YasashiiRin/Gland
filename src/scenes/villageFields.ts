@@ -80,7 +80,10 @@ export class VillageFields {
         this.clearPiles(geo.home.key);
         continue;
       }
-      if (geo.plot && fam.field) this.drawField(geo.home.key, geo.plot, this.shown(fam, fam.field));
+      geo.plots.forEach((plot, k) => {
+        const grid = fam.fields[k];
+        if (grid) this.drawField(`${geo.home.key}#${k}`, plot, this.shown(fam, k, grid));
+      });
       this.drawPiles(geo, fam);
     }
   }
@@ -93,12 +96,12 @@ export class VillageFields {
    * The field as it looks right now: a job whose stroke has landed already
    * shows its result (the simulation only marks it done when the job ends).
    */
-  private shown(fam: FamilyState, grid: FieldGrid): FieldGrid {
+  private shown(fam: FamilyState, plot: number, grid: FieldGrid): FieldGrid {
     const now = this.world.exactMinute();
     let g = grid;
     for (const m of fam.members) {
       const t = m.currentTask;
-      if (t && m.talkUntil < 0 && now - (t.until - NPC_CONFIG.field.minutes[t.kind]) >= STRIKE) {
+      if (t && t.plot === plot && m.talkUntil < 0 && now - (t.until - NPC_CONFIG.field.minutes[t.kind]) >= STRIKE) {
         g = completeTask(g, t.cell, t.kind, dayOf(Math.floor(now)), false, NPC_CONFIG);
       }
     }
@@ -148,8 +151,9 @@ export class VillageFields {
   private drawPiles(geo: FamilyGeo, fam: FamilyState): void {
     const want: { x: number; y: number }[] = [];
     const p = geo.paddy;
-    if (p && fam.field) {
-      for (let i = 0; i < fam.field.piles; i++) {
+    const piles = fam.fields.reduce((n, g) => n + g.piles, 0);
+    if (p) {
+      for (let i = 0; i < piles; i++) {
         want.push({ x: (p.bridgeX + (i % 4) - 1.5) * TILE + TILE / 2, y: (p.roadY + (p.side === 'north' ? -1 : 1)) * TILE + TILE - 2 - Math.floor(i / 4) * 3 });
       }
     }
