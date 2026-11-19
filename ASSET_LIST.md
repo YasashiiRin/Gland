@@ -26,7 +26,7 @@ Tài liệu này liệt kê **mọi thứ game đang vẽ bằng code**, kèm k�
 
 ### Tình trạng (tự cập nhật bằng `python3 scripts/art/asset_status.py`)
 
-✅ đã có trong game: **176** · 🔁 có nhưng cần vẽ lại: **10** · 🟡 có ảnh, chưa dùng trong game: **12** · ⬜ còn thiếu: **29** (tổng 227)
+✅ đã có trong game: **176** · 🔁 có nhưng cần vẽ lại: **10** · 🟡 có ảnh, chưa dùng trong game: **12** · ⬜ còn thiếu: **31** (tổng 229)
 
 **Cần vẽ lại (10):**
 
@@ -44,7 +44,7 @@ Tài liệu này liệt kê **mọi thứ game đang vẽ bằng code**, kèm k�
 - *9b. Dải viền và lớp phủ trên mặt đất*
   - Gốc rạ (sau khi gặt) — `assets/tiles/stubble.png` (vẽ thành cả thửa ruộng: cần 1 ô gốc rạ phủ kín)
 
-**Còn thiếu, cần vẽ tiếp (29):**
+**Còn thiếu, cần vẽ tiếp (31):**
 
 - *1. Nhân vật (sprite sheet đi bộ)*
   - Người chơi — `assets/characters/player.png`
@@ -80,6 +80,9 @@ Tài liệu này liệt kê **mọi thứ game đang vẽ bằng code**, kèm k�
   - Ruộng ngập nước (bùn) — `assets/tiles/paddy.png`
 - *12. Asset mới gợi ý từ ảnh mẫu (game nên có)*
   - Gốc cây sau khi chặt — `assets/props/tree_stump.png`
+- *15. Trong nhà người chơi*
+  - Sàn đất nện trong nhà — `assets/tiles/home_floor.png`
+  - Tường trong nhà (vách đất, cột tre) — `assets/tiles/home_wall.png`
 
 **Có ảnh, chờ đưa vào game (12):**
 
@@ -2692,6 +2695,30 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 - **Dùng cho:** chỗ cây vừa bị chặt (hiện để trống cỏ) *(asset mới, chưa có trong game)*
 ```
 Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one object, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 64 x 48 pixels (the picture must look like a 64 x 48 pixel sprite scaled up, every art pixel a clean square). A single freshly cut tree stump, low and wide, pale cut wood on top with growth rings, dark bark around, a few roots spreading on the ground and two small wood chips beside it. One object only, centred, standing at the bottom of the picture. Plain pure white (#FFFFFF) background, no ground shadow, no text.
+```
+
+## 15. Trong nhà người chơi
+
+Căn phòng khi bấm "Vào nhà" (bản đồ `Home`, `scripts/art/home_interior.py`). Hiện vẽ bằng ô có sẵn; có hình riêng thì nhà ấm cúng hơn. Nội thất sẽ thêm sau.
+
+### Sàn đất nện trong nhà
+
+- **File:** `assets/tiles/home_floor.png`  ·  **Kích thước file:** 32 x 32 px  ·  **Trong game:** 1 ô, ghép liền
+- **Tình trạng:** ⬜ còn thiếu
+- **Animation:** không
+- **Dùng cho:** sàn căn phòng trong nhà *(asset mới, chưa có trong game)*
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one object, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A seamless top-down tile of a beaten-earth floor inside a poor old Vietnamese farmhouse: smooth packed brown earth, a few faint cracks and swept marks, tiling seamlessly on all four sides, filling the whole picture edge to edge. No objects, no text.
+```
+
+### Tường trong nhà (vách đất, cột tre)
+
+- **File:** `assets/tiles/home_wall.png`  ·  **Kích thước file:** 32 x 64 px  ·  **Trong game:** 1 x 2 ô, ghép liền ngang
+- **Tình trạng:** ⬜ còn thiếu
+- **Animation:** không
+- **Dùng cho:** tường sau của căn phòng *(asset mới, chưa có trong game)*
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one object, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 64 pixels (the picture must look like a 32 x 64 pixel sprite scaled up, every art pixel a clean square). A seamless wall tile seen from the front for the inside of a poor old Vietnamese farmhouse: a mud-plastered wall with a bamboo post and a wooden beam near the top, the lower edge meeting the floor, tiling seamlessly left and right, filling the whole picture. No windows, no objects, no text.
 ```
 
 ## 13. Hiệu ứng: giữ vẽ bằng code (không cần ảnh)

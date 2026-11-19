@@ -8,7 +8,12 @@ export interface ZoneBox {
   h: number;
   mine: boolean;
   landmark: boolean;
+  /** Who lives there (a player's house), if anyone. */
+  owner?: string;
 }
+
+/** Where a plot's house stands inside it (tiles from its corner; scenes/homesteads.ts HOUSE_MIDDLE). */
+export const HOUSE_IN_PLOT = { x: 9.5, y: 6.5 };
 
 /**
  * Landmarks (gold, shaded) and other people's plots (red, once zoomed in) where
@@ -29,12 +34,19 @@ export function drawZones(
     const h = z.h * zoom;
     if (z.mine) {
       g.fillStyle(0x6fdc5a, 0.25).fillRect(a.x, a.y, w, h).lineStyle(2, 0x6fdc5a, 1).strokeRect(a.x, a.y, w, h);
-      home = { x: a.x + w / 2, y: a.y + h / 2, size: Math.max(6, Math.min(14, zoom * 2)) };
+      const c = toScreen(z.x + HOUSE_IN_PLOT.x, z.y + HOUSE_IN_PLOT.y);
+      home = { x: c.x, y: c.y, size: Math.max(6, Math.min(14, zoom * 2)) };
     } else if (z.landmark) {
       g.fillStyle(0xffd060, 0.16).fillRect(a.x, a.y, w, h).lineStyle(2, 0xffd060, 0.95).strokeRect(a.x, a.y, w, h);
     } else if (zoom >= fitZoom * 1.6) {
       g.lineStyle(1, 0xe0604f, 0.85).strokeRect(a.x, a.y, w, h);
     }
+  }
+  // A red dot on every player's house (named by WorldMap).
+  for (const z of zones) {
+    if (!z.owner) continue;
+    const p = toScreen(z.x + HOUSE_IN_PLOT.x, z.y + HOUSE_IN_PLOT.y);
+    g.fillStyle(0xffffff, 1).fillCircle(p.x, p.y + (z.mine ? 12 : 0), 5).fillStyle(0xd8261c, 1).fillCircle(p.x, p.y + (z.mine ? 12 : 0), 3.5);
   }
   if (home) {
     const { x, y, size: s } = home;

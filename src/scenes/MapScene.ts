@@ -29,6 +29,7 @@ import { buildMinimap } from '../systems/MinimapSystem';
 import { consume, isExhausted } from '../systems/EnergySystem';
 import { DAY_LENGTH_MINUTES } from '../config/time';
 import { endWorldDay, hoursSlept, sleepState, wakeUp } from '../state/dayCycle';
+import { homeVisit } from '../state/homeVisit';
 import { sleepThrough } from '../state/hungerClock';
 import { addItem, countItem, expandInventory, HOTBAR_SIZE, INVENTORY_SIZE, itemAt, removeItem } from '../systems/InventorySystem';
 import { craftingState } from '../state/craftingState';
@@ -266,6 +267,7 @@ export abstract class MapScene extends Phaser.Scene {
       mine: () => this.myHomestead(),
       player: () => ({ x: this.player.x, y: this.player.y }),
       sleep: () => (net.online ? EventBus.emit(GameEvents.SleepWaitRequested) : this.sleepSequence()),
+      enter: () => this.enterHome(),
       redraw: () => this.redrawInPlace(),
       say: (text) => this.say(text),
     });
@@ -706,6 +708,13 @@ export abstract class MapScene extends Phaser.Scene {
       if (o.name !== 'door') continue;
       const to = readProp(o, 'to');
       const spawn = readProp(o, 'spawn') ?? 'default';
+      if (to === 'back') {
+        // The door of the room inside a house: back out to the yard you came from.
+        const zone = this.add.zone(o.x ?? 0, o.y ?? 0, o.width ?? 16, o.height ?? 16).setOrigin(0, 0);
+        this.physics.add.existing(zone, true);
+        this.physics.add.overlap(this.player, zone, () => this.leaveHome());
+        continue;
+      }
       if (!to || !isMapKey(to)) {
         console.warn(`Door in ${this.mapKey} points to unknown map "${to}"`);
         continue;
@@ -754,6 +763,26 @@ export abstract class MapScene extends Phaser.Scene {
           .zone((o.x ?? 0) - pad, (o.y ?? 0) - pad, (o.width ?? 16) + pad * 2, (o.height ?? 16) + pad * 2)
           .setOrigin(0, 0),
       );
+  }
+
+  /** Into my own house: the room of the "Home" map; remember the door to come back out by. */
+  private enterHome(): void {
+    if (this.transitioning) return;
+    homeVisit.from = { map: this.mapKey, x: Math.round(this.player.x), y: Math.round(this.player.y + 6) };
+    this.goTo('Home' as MapKey, 'default');
+  }
+
+  /** Out of the house, onto the spot before its door (or my yard if I don't know where I came from). */
+  private leaveHome(): void {
+    if (this.transitioning) return;
+    const from = homeVisit.from;
+    const myMap = (homeOf(gameState.homes, ownerName()) ?? '').split(':')[0];
+    const target = (from && isMapKey(from.map) ? from.map : isMapKey(myMap) ? myMap : 'QuangBinh') as MapKey;
+    this.beginTransition();
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      const data: MapSceneData = from ? { x: from.x, y: from.y, facing: 'down' } : { spawn: 'home', facing: 'down' };
+      this.scene.start(target, data);
+    });
   }
 
   private goTo(target: MapKey, spawn: string): void {

@@ -14,7 +14,7 @@ import { gameState } from '../state/GameState';
 import { ownerName } from '../state/owner';
 import { homeKey, homeOf } from '../systems/HomeSystem';
 import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
-import { drawZones, type ZoneBox } from './worldMapZones';
+import { drawZones, HOUSE_IN_PLOT, type ZoneBox } from './worldMapZones';
 import { woodPanel, skinButton } from './uiSkin';
 
 const TEXTURE_KEY = 'worldmap';
@@ -61,6 +61,8 @@ export class WorldMap {
   private readonly overlay: Phaser.GameObjects.Graphics;
   private zones: ZoneBox[] = [];
   private readonly homeText: Phaser.GameObjects.Text;
+  /** "Nhà <name>" over every other player's house. */
+  private ownerTexts: { text: Phaser.GameObjects.Text; x: number; y: number }[] = [];
   private readonly marker: Phaser.GameObjects.Arc;
   private readonly hereText: Phaser.GameObjects.Text;
   private readonly loading: Phaser.GameObjects.Text;
@@ -227,14 +229,24 @@ export class WorldMap {
     this.places.forEach((l) => l.text.destroy());
     this.places = [];
     this.zones = [];
+    this.ownerTexts.forEach((t) => t.text.destroy());
+    this.ownerTexts = [];
     const myHome = homeOf(gameState.homes, ownerName());
     for (const p of this.placements) {
       const objects = this.tmj(p.key)?.layers.find((l) => l.name === 'objects')?.objects ?? [];
       for (const o of objects) {
         const prop = (n: string) => o.properties?.find((q) => q.name === n)?.value;
         if (o.name === 'zone' && (prop('kind') === 'landmark' || prop('kind') === 'home')) {
-          const mine = prop('kind') === 'home' && homeKey(p.key, String(prop('homeId'))) === myHome;
-          this.zones.push({ x: p.x + o.x / 16, y: p.y + o.y / 16, w: o.width / 16, h: o.height / 16, mine, landmark: prop('kind') === 'landmark' });
+          const key = homeKey(p.key, String(prop('homeId')));
+          const mine = prop('kind') === 'home' && key === myHome;
+          const owner = prop('kind') === 'home' ? gameState.homes[key] : undefined;
+          const zone: ZoneBox = { x: p.x + o.x / 16, y: p.y + o.y / 16, w: o.width / 16, h: o.height / 16, mine, landmark: prop('kind') === 'landmark', owner };
+          this.zones.push(zone);
+          if (owner && !mine) {
+            const text = inkText(this.scene, 0, 0, `Nhà ${owner}`, 11, '#fff2d0').setOrigin(0.5, 1).setStroke('#7a2010', 3);
+            this.root.addAt(text, this.root.getIndex(this.marker));
+            this.ownerTexts.push({ text, x: zone.x + HOUSE_IN_PLOT.x, y: zone.y + HOUSE_IN_PLOT.y - 0.6 });
+          }
         }
         if (o.name === 'zone' && prop('kind') === 'home') continue; // plots are outlined, not named
         const name = o.name === 'zone' ? o.properties?.find((q) => q.name === 'zoneName')?.value : undefined;
@@ -249,6 +261,10 @@ export class WorldMap {
   private drawZones(): void {
     const home = drawZones(this.overlay.clear(), this.zones, (x, y) => this.toScreen(x, y), this.zoom, this.fitZoom);
     this.homeText.setVisible(!!home && this.inView(home.x, home.y));
+    for (const t of this.ownerTexts) {
+      const at = this.toScreen(t.x, t.y);
+      t.text.setPosition(at.x, at.y).setVisible(this.inView(at.x, at.y));
+    }
     if (home) this.homeText.setPosition(home.x, home.y - home.size - 3);
   }
 

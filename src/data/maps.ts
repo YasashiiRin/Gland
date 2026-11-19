@@ -23,5 +23,5 @@ export function isMapKey(value: string): value is MapKey {
   return value in maps;
 }
 
-/** Keys of the big world maps (Quảng Bình, Huế), each run by a ProvinceScene. */
-export const PROVINCE_MAP_KEYS: readonly MapKey[] = MAP_KEYS;
+/** Keys of the big world maps (Quảng Bình, Huế). Every map, these and the room inside your house, runs a ProvinceScene. */
+export const PROVINCE_MAP_KEYS: readonly MapKey[] = MAP_KEYS.filter((k) => MAPS[k].outdoor);

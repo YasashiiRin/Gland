@@ -29,6 +29,7 @@ from __future__ import annotations
 
 from .real_scale import scale_box
 from .biome import Regions, connect, fill_contents, paint_ground, trail
+from .trails import village_trails
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_services import services
@@ -251,4 +252,6 @@ def build_quang_binh() -> Province:
     services(m)
     _zones(m)
     strip_roads(m, villages, [area for _, area in ZONES])
+    for v in villages:                                                                   # footpaths from the village
+        village_trails(m, v, [area for _, area in ZONES])
     return finish(m, "start")

@@ -27,6 +27,7 @@ describe('world maps', () => {
     for (const key of MAP_KEYS) {
       for (const door of objectsOf(loadMap(MAPS[key].file)).filter((o) => o.name === 'door')) {
         const to = prop(door, 'to') ?? '';
+        if (to === 'back') continue; // the door of the room inside a house: back to wherever you came in
         expect(isMapKey(to), `${key} door to ${to}`).toBe(true);
         if (!isMapKey(to)) continue;
         const spawns = objectsOf(loadMap(MAPS[to].file)).map((o) => o.name);
@@ -45,8 +46,9 @@ describe('world maps', () => {
     }
   });
 
-  it('has the two big province maps, Quảng Bình and Huế', () => {
+  it('has the two big province maps, Quảng Bình and Huế, and the room inside your house', () => {
     expect(PROVINCE_MAP_KEYS).toEqual(['QuangBinh', 'Hue']);
+    expect(MAPS.Home.outdoor).toBe(false);
     expect(MAPS.QuangBinh.province).toBe('Quảng Bình');
     expect(MAPS.Hue.orchardTree).toBe('tree_pomelo');
   });

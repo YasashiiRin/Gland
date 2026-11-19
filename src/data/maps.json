@@ -26,5 +26,11 @@
       "tree_oak_1"
     ],
     "orchardTree": "tree_pomelo"
+  },
+  "Home": {
+    "file": "home",
+    "displayName": "Nhà của tôi",
+    "province": "Nhà",
+    "outdoor": false
   }
 }

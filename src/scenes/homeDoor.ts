@@ -11,14 +11,20 @@ interface Hooks {
   mine: () => Homestead | undefined;
   player: () => { x: number; y: number };
   sleep: () => void;
+  /** Step inside your own house (the room of the "Home" map). */
+  enter: () => void;
   /** Redraw the map where the player stands (a house was rebuilt, or they moved). */
   redraw: () => void;
   say: (text: string) => void;
 }
 
-/** The tile in front of a homestead house's door. */
-function doorOf(h: Homestead): { x: number; y: number } {
-  return { x: h.gate.x, y: h.gate.y - 3 };
+/**
+ * The tile in front of a homestead house's door: just below the house, in line
+ * with the yard gate (the house stands on rows 3-8 of the plot, the gate is
+ * below row 17; scripts/art/homesteads.py).
+ */
+export function doorOf(h: Homestead): { x: number; y: number } {
+  return { x: h.gate.x, y: h.gate.y - 9 };
 }
 
 /**
@@ -61,7 +67,10 @@ export class HomeDoor {
   private ownMenu(home: Homestead): ChoiceRequest {
     const house = houseOn(gameState.homeHouses, home.key, home.house);
     const up = nextUpgrade(house);
-    const options: ChoiceOption[] = [{ id: 'home:sleep', label: 'Đi ngủ' }];
+    const options: ChoiceOption[] = [
+      { id: 'home:enter', label: 'Vào nhà' },
+      { id: 'home:sleep', label: 'Đi ngủ' },
+    ];
     if (up) {
       options.push({ id: 'home:upgrade', label: `Làm lại thành ${up.name} (${up.cost.toLocaleString('vi-VN')} ₫)`, enabled: gameState.money >= up.cost });
     }
@@ -82,6 +91,7 @@ export class HomeDoor {
     if (!key || !id.startsWith('home:')) return;
     const home = this.hooks.homesteads().find((h) => h.key === key);
     if (!home) return;
+    if (id === 'home:enter') this.hooks.enter();
     if (id === 'home:sleep') this.hooks.sleep();
     if (id === 'home:upgrade') {
       const current = houseOn(gameState.homeHouses, key, home.house);

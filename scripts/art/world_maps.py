@@ -11,6 +11,8 @@ from __future__ import annotations
 
 from .real_scale import scale_box
 from .biome import Regions, connect, fill_contents, paint_ground, trail
+from .home_interior import build_home
+from .trails import village_trails
 from .villages import deep_forest, lone_houses, strip_roads, village
 from .landmark_fields import landmark_fields, start_points, zone_belts
 from .map_helpers import (GARDEN_HOUSES, MOUNTAINS, SIZE, TALL, crossing, market, mooring, place_near, street_row,
@@ -94,6 +96,8 @@ def build_hue() -> Province:
         mooring(m, f"hue_boat_{i}", x, y)                                                # rowing boats on the Hương
     _hue_zones(m)
     strip_roads(m, villages, [area for _, area, _, _ in HUE_ZONES])
+    for v in villages:                                                                   # footpaths from the village
+        village_trails(m, v, [area for _, area, _, _ in HUE_ZONES])
     return finish(m, "fromQuangBinh")
 
 
@@ -114,4 +118,4 @@ def _hue_zones(m: Province) -> None:
     start_points(m, "hue", [(140, 222), (262, 150), (100, 180), (316, 270), (160, 318), (230, 90)])
 
 
-WORLD_MAPS = (("quang_binh", build_quang_binh), ("hue", build_hue))
+WORLD_MAPS = (("quang_binh", build_quang_binh), ("hue", build_hue), ("home", build_home))
