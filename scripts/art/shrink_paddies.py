@@ -1,16 +1,19 @@
-"""Shrinks the village paddies of the finished maps to the plots the families work
-(asked for by the player, 2026-11-19), without rebuilding the maps.
+"""Lays the village paddies out tidily around the families' plots (asked for by the
+player, 2026-11-19), on the maps villages.py built, without rebuilding them.
 
-Each "field" object becomes just big enough for its family's plots
-(src/data/npcFarm.json: plots one behind the other from the road), centred on
-its plank bridge and still touching the canal. Between two plots a dirt path
-runs along the middle of the gap (plotGapTiles; 1 = just the path, 3 = grass,
-path, grass), so they are easy to tell apart. The family type (and so the number of plots) is worked out exactly
-as the game does (systems/npc/families.ts: FNV-1a hash of the home key, then
-seededRandom). The footpaths between the paddies are cut back to the new depth
-(the lane from the village to the road stays). The freed ground is plain grass.
+On each side of the main road the paddies are packed side by side against the
+canal, a 1-tile dirt path between neighbours and at both ends; each paddy has a
+dirt path along its top, and inside it a dirt path between its plots that runs
+into the side paths, so every path end meets another path and no strips of
+spare ground are left between the fields. Each paddy is just big enough for its
+family's plots (src/data/npcFarm.json), the family type (and so how many plots)
+worked out exactly as the game does (systems/npc/families.ts: FNV-1a hash of
+the home key, then seededRandom). The lanes coming down from the village run on
+until they meet one of these paths. Plank bridges move to the middle of their
+paddy; a lane that reaches the canal gets one over it to the road, and a
+bridge that no longer leads anywhere becomes canal again.
 
-Run it on the maps as villages.py built them (it only shrinks):
+maps.py runs this after building the maps; to redo it by hand on freshly built maps:
     python3 -m scripts.art.shrink_paddies     (from the repository root)
 """
 from __future__ import annotations
@@ -24,6 +27,11 @@ T = 16
 GRASS = 1
 PATH = 4                      # gid of a plain path tile
 PATH_EDGE = 41                # gids 41..56: path variants, 41 + mask (1 north, 2 east, 4 south, 8 west open)
+DIRT = 58
+BRIDGE = 70
+WATER = 5
+WATER_EDGE = 25               # gids 25..40: water bank variants, 25 + mask
+DEEP = 89
 ROAD, CANAL = 3, 1
 U32 = 0xFFFFFFFF
 
@@ -81,76 +89,131 @@ def is_path(gid: int) -> bool:
     return gid == PATH or PATH_EDGE <= gid < PATH_EDGE + 16
 
 
-def with_open_end(gid: int, bit: int) -> int:
-    mask = 0 if gid == PATH else gid - PATH_EDGE
-    return PATH_EDGE + (mask | bit)
-
-
 def props(o: dict) -> dict:
     return {p["name"]: p["value"] for p in o.get("properties", [])}
 
 
-def shrink(name: str, map_key: str, cfg: dict) -> None:
+def set_prop(o: dict, name: str, value: str) -> None:
+    for p in o["properties"]:
+        if p["name"] == name:
+            p["value"] = value
+
+
+class Ground:
+    def __init__(self, data: list[int], width: int):
+        self.d, self.w = data, width
+
+    def __getitem__(self, xy: tuple[int, int]) -> int:
+        return self.d[xy[1] * self.w + xy[0]]
+
+    def __setitem__(self, xy: tuple[int, int], gid: int) -> None:
+        self.d[xy[1] * self.w + xy[0]] = gid
+
+    def autotile_paths(self, x0: int, y0: int, x1: int, y1: int) -> None:
+        """Path edge variants (as maps.py autotile) for the paths in this rectangle."""
+        def pathy(x: int, y: int) -> bool:
+            return not (0 <= x < self.w) or is_path(self[x, y]) or self[x, y] == DIRT
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                if not is_path(self[x, y]):
+                    continue
+                mask = (not pathy(x, y - 1)) * 1 | (not pathy(x + 1, y)) * 2 | (not pathy(x, y + 1)) * 4 | (not pathy(x - 1, y)) * 8
+                self[x, y] = PATH if mask == 0 else PATH_EDGE + mask
+
+
+def is_water(gid: int) -> bool:
+    return gid in (WATER, DEEP) or WATER_EDGE <= gid < WATER_EDGE + 16
+
+
+def autotile_canal(g: "Ground", y: int, x0: int, x1: int) -> None:
+    """Bank variants of a 1-tall canal row after its bridges moved."""
+    for x in range(x0, x1 + 1):
+        if not is_water(g[x, y]):
+            continue
+        mask = (not is_water(g[x, y - 1])) * 1 | (not is_water(g[x + 1, y])) * 2 | (not is_water(g[x, y + 1])) * 4 | (not is_water(g[x - 1, y])) * 8
+        g[x, y] = WATER if mask == 0 else WATER_EDGE + mask
+
+
+def lay_out(name: str, map_key: str, cfg: dict) -> None:
     path = ROOT / "public/assets/maps" / f"{name}.tmj"
     m = json.loads(path.read_text())
-    W = m["width"]
-    ground = next(l for l in m["layers"] if l["name"] == "ground")["data"]
+    g = Ground(next(l for l in m["layers"] if l["name"] == "ground")["data"], m["width"])
     objs = next(l for l in m["layers"] if l["name"] == "objects")["objects"]
     members = {props(o)["homeId"]: int(props(o).get("members", "1")) for o in objs if o["name"] == "zone" and props(o).get("kind") == "home"}
     for block in (o for o in objs if o["name"] == "fields"):
         bx0, by0 = int(block["x"] // T), int(block["y"] // T)
         bx1, by1 = bx0 + int(block["width"] // T) - 1, by0 + int(block["height"] // T) - 1
         fields = [o for o in objs if o["name"] == "field" and bx0 * T <= o["x"] < (bx1 + 1) * T and by0 * T <= o["y"] < (by1 + 1) * T]
-        if not fields:
+        north = [o for o in fields if props(o)["side"] == "north"]
+        if not north:
             continue
-        keep = 0
-        road_y = None
-        for o in fields:
-            p = props(o)
-            x0, y0 = int(o["x"] // T), int(o["y"] // T)
-            w0, h0 = int(o["width"] // T), int(o["height"] // T)
-            family = family_type(f"{map_key}:{p['homeId']}", members.get(p["homeId"], 1), cfg)
-            w, h = paddy_size(family, cfg)
-            w, h = min(w, w0), min(h, h0)
-            keep = max(keep, h)
-            bridge = int(p["bridgeX"])
-            nx = max(x0, min(bridge - w // 2, x0 + w0 - w))
-            north = p["side"] == "north"
-            ny = y0 + h0 - h if north else y0
-            if north:
-                road_y = y0 + h0 + CANAL                                # the road's first row
-            o["x"], o["y"], o["width"], o["height"] = nx * T, ny * T, w * T, h * T
-            for r in gap_paths(family, cfg):                            # grass | dirt path | grass between plots
-                if r >= h:
-                    continue
-                y = ny + h - 1 - r if north else ny + r
-                for x in range(nx, nx + w):
-                    if ground[y * W + x] == GRASS:
-                        mask = 1 | 4 | (8 if x == nx else 0) | (2 if x == nx + w - 1 else 0)
-                        ground[y * W + x] = PATH_EDGE + mask
-        if road_y is None:
-            continue
-        north_cut = range(by0, road_y - CANAL - keep)                    # rows above the kept band
-        south_cut = range(road_y + ROAD + CANAL + keep, by1 + 1)
-        for x in range(bx0, bx1 + 1):
-            if is_path(ground[(by0 - 1) * W + x]):                       # the path up into the village: keep it
-                continue
-            for rows, edge_row, bit in ((north_cut, road_y - CANAL - keep, 1), (south_cut, road_y + ROAD + CANAL + keep - 1, 4)):
-                cut = False
-                for y in rows:
-                    if is_path(ground[y * W + x]):
-                        ground[y * W + x] = GRASS
-                        cut = True
-                if cut and is_path(ground[edge_row * W + x]):
-                    ground[edge_row * W + x] = with_open_end(ground[edge_row * W + x], bit)
-        print(f"  {name}: {len(fields)} paddies in the block at {(bx0, by0)} shrunk; paths kept {keep} deep")
+        canal_n = int((north[0]["y"] + north[0]["height"]) // T)        # the canal north of the road
+        canal_s = canal_n + CANAL + ROAD                                 # and south of it
+        lanes = [x for x in range(bx0, bx1 + 1) if is_path(g[x, by0 - 1])]
+        old_bridges = {x for x in range(bx0, bx1 + 1) for y in (canal_n, canal_s) if g[x, y] == BRIDGE}
+        # 1. a clean slate: the old paths and bridges of the fields go
+        for y in list(range(by0, canal_n)) + list(range(canal_s + 1, by1 + 1)):
+            for x in range(bx0, bx1 + 1):
+                if is_path(g[x, y]):
+                    g[x, y] = GRASS
+        for x in old_bridges:
+            for y in (canal_n, canal_s):
+                if g[x, y] == BRIDGE:
+                    g[x, y] = WATER
+        # 2. each side: paddies packed against the canal, paths between, along their tops and between plots
+        start = min(int(o["x"] // T) for o in fields) - 1               # where the first old paddy began
+        bridges: set[int] = set()
+        for side, row in (("north", north), ("south", [o for o in fields if props(o)["side"] == "south"])):
+            row.sort(key=lambda o: o["x"])
+            toward = -1 if side == "north" else 1                        # rows go away from the road this way
+            edge = canal_n - 1 if side == "north" else canal_s + 1       # the row next to the canal
+            x = start
+            depths: list[int] = []
+            for o in row:
+                p = props(o)
+                family = family_type(f"{map_key}:{p['homeId']}", members.get(p["homeId"], 1), cfg)
+                w, h = paddy_size(family, cfg)
+                px = x + 1
+                rows = [edge + toward * r for r in range(h)]
+                o["x"], o["y"], o["width"], o["height"] = px * T, min(rows) * T, w * T, h * T
+                bx = px + w // 2
+                set_prop(o, "bridgeX", str(bx))
+                bridges.add(bx)
+                g[bx, canal_n if side == "north" else canal_s] = BRIDGE
+                for r in gap_paths(family, cfg):                         # between its plots, into the side paths
+                    for xx in range(px, px + w):
+                        g[xx, edge + toward * r] = PATH
+                for xx in range(px - 1, px + w + 1):                     # along its top
+                    g[xx, edge + toward * h] = PATH
+                depths.append(h)
+                x = px + w
+            seps = [start] + [int(o["x"] // T) + int(o["width"] // T) for o in row]
+            for i, sx in enumerate(seps):                                # the paths between, as deep as the deeper neighbour
+                d = max(depths[max(0, i - 1)], depths[min(len(depths) - 1, i)]) + 1
+                for r in range(d):
+                    g[sx, edge + toward * r] = PATH
+        # 3. the lanes from the village run down to the first path they meet
+        for lx in lanes:
+            for y in range(by0, canal_n):
+                if is_path(g[lx, y]):
+                    break
+                if any(int(o["x"] // T) <= lx < int((o["x"] + o["width"]) // T) and int(o["y"] // T) <= y for o in north):
+                    break                                                # a paddy (its top path is just above)
+                g[lx, y] = PATH
+            else:
+                g[lx, canal_n] = BRIDGE                                  # down to the canal: a plank over it to the road
+        g.autotile_paths(bx0 - 1, by0 - 1, bx1 + 1, by1 + 1)
+        for y in (canal_n, canal_s):
+            autotile_canal(g, y, bx0 - 1, bx1 + 1)
+        print(f"  {name}: {len(fields)} paddies laid out in the block at {(bx0, by0)}; lanes {lanes}")
     path.write_text(json.dumps(m, separators=(",", ":")))
 
 
 def main() -> None:
     cfg = json.loads((ROOT / "src/data/npcFarm.json").read_text())
     for name, key in MAPS.items():
-        shrink(name, key, cfg)
+        if (ROOT / "public/assets/maps" / f"{name}.tmj").exists():
+            lay_out(name, key, cfg)
 
 
 if __name__ == "__main__":

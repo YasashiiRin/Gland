@@ -644,5 +644,9 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
 - Để NPC vẫn tưới kịp ruộng to hơn, tưới trở lại 1 phút/ô như spec gốc (cuốc, gieo, bón, thu hoạch vẫn 2 phút);
       đã chạy thử 40 ngày, nhà ở xa ruộng tới 90 phút đi bộ cũng không có ô nào chết. Lối đi giữa các thửa cắt ngắn bằng độ sâu mới (lối từ làng
       xuống đường cái giữ nguyên). Phần đất thửa cũ còn lại là cỏ trống, người chơi dùng được.
+- [x] Bố cục gọn (người chơi yêu cầu): mỗi bên đường cái các thửa xếp sát nhau dựa vào kênh, giữa hai thửa và ở hai
+      đầu là 1 ô đường đất; mỗi thửa có đường đất chạy dọc mép trên; đường giữa các thửa nhỏ chạy ngang nối vào hai
+      đường bên — mọi đầu đường đều nối vào nhau, không còn dải đất thừa. Lối từ làng chạy xuống tới đường gặp đầu tiên
+      (hoặc tới kênh, có cầu ván sang đường cái). Cầu ván dời vào giữa mỗi thửa.
 - Sửa thẳng 2 file bản đồ bằng `scripts/art/shrink_paddies.py` (không tạo lại bản đồ, nhà cửa giữ nguyên);
-  `scripts/art/villages.py` cũng tạo thửa theo cỡ này nếu sau này tạo lại bản đồ. Cỡ lấy từ `src/data/npcFarm.json`.
+  `scripts/art/maps.py` tự chạy bước này sau khi tạo bản đồ. Cỡ lấy từ `src/data/npcFarm.json`.

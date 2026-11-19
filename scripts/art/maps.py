@@ -202,3 +202,6 @@ def make_maps() -> None:
     for name, builder in WORLD_MAPS:
         # compact JSON: the world maps are 425x425 tiles
         (out / f"{name}.tmj").write_text(json.dumps(builder().to_tmj(), separators=(",", ":")))
+    # The village paddies: packed around the families' plots, paths joined up (shrink_paddies.py).
+    from .shrink_paddies import main as lay_out_paddies
+    lay_out_paddies()
