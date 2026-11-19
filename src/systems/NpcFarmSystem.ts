@@ -43,8 +43,8 @@ export const GROW_DAYS = 8;
 export const RATES: Record<'hoe' | 'sow' | 'water' | 'fertilize' | 'harvest', number> = {
   hoe: 0.5,
   sow: 0.25,
-  water: 0.12,
-  fertilize: 0.1,
+  water: 0.25,
+  fertilize: 0.15,
   harvest: 0.4,
 };
 /** Work spells in clock minutes (a half-hour rest between them). */
@@ -164,4 +164,51 @@ export function jobFront(f: FieldState, today: number): number {
   if (job === 'fertilize') return f.fertProgress;
   if (job === 'hoe' || job === 'sow' || job === 'harvest') return f.progress;
   return 1;
+}
+
+/**
+ * The order the tiles of a paddy are worked in, one at a time like the player:
+ * each worker takes a strip of columns (two workers: left and right half) and
+ * goes along the row nearest the road, then back along the next one, and so on.
+ */
+export interface PaddyRect {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+  /** Which side of the road the paddy lies on ("north": its rows count up from y1). */
+  side: 'north' | 'south';
+}
+
+export interface Strip {
+  /** First and last column of the strip. */
+  a: number;
+  b: number;
+  /** Tiles in the strip. */
+  size: number;
+}
+
+export function strips(p: PaddyRect, workers: number): Strip[] {
+  const rows = p.y1 - p.y0 + 1;
+  const width = p.x1 - p.x0 + 1;
+  if (workers < 2 || width < 2) return [{ a: p.x0, b: p.x1, size: width * rows }];
+  const mid = p.x0 + Math.floor(width / 2) - 1;
+  return [
+    { a: p.x0, b: mid, size: (mid - p.x0 + 1) * rows },
+    { a: mid + 1, b: p.x1, size: (p.x1 - mid) * rows },
+  ];
+}
+
+/** The k-th tile of a strip in working order: rows from the road, back and forth. */
+export function stripTile(p: PaddyRect, s: Strip, k: number): { x: number; y: number; row: number; forward: boolean } {
+  const w = s.b - s.a + 1;
+  const row = Math.floor(k / w);
+  const c = k % w;
+  const forward = row % 2 === 0;
+  return { x: forward ? s.a + c : s.b - c, y: p.side === 'north' ? p.y1 - row : p.y0 + row, row, forward };
+}
+
+/** How many tiles of a strip a job that is `fraction` done has finished (every strip keeps pace). */
+export function tilesDone(fraction: number, s: Strip): number {
+  return Math.min(s.size, Math.floor(fraction * s.size + 1e-9));
 }

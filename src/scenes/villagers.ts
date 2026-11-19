@@ -3,12 +3,13 @@ import { TILE } from '../config/constants';
 import { DAY_LENGTH_MINUTES } from '../config/time';
 import { gameState } from '../state/GameState';
 import { findPath, type TilePath } from '../systems/gridPath';
-import { currentJob, type FieldJob } from '../systems/NpcFarmSystem';
+import { currentJob, jobFront, strips, stripTile, tilesDone, type FieldJob } from '../systems/NpcFarmSystem';
 import { absoluteMinute } from '../systems/StatsSystem';
 import { clockMinuteOfDay } from '../systems/TimeSystem';
 import { adultDoing, phaseAt, type Doing } from '../systems/VillagerSchedule';
 import { FOLK_KEYS, createFolkAnims } from './ambientLife';
 import { artScale, hdScale } from './hd';
+import type { Direction } from '../systems/movement';
 import type { Homestead } from './homesteads';
 import { swingTool } from './toolSwing';
 import { HouseAnimals } from './villageAnimals';
@@ -20,6 +21,7 @@ const WALK = 22;
 const PX_PER_GAME_MINUTE = WALK * 0.7;
 const TOOL: Partial<Record<FieldJob, 'hoe' | 'watering_can' | 'scythe'>> = { hoe: 'hoe', water: 'watering_can', harvest: 'scythe' };
 const DIRS = ['down', 'left', 'right', 'up'];
+const currentToday = (): number => Math.floor(absoluteMinute(gameState.time) / DAY_LENGTH_MINUTES);
 
 interface Person {
   key: string;
@@ -30,6 +32,8 @@ interface Person {
   sprite?: Phaser.GameObjects.Sprite;
   load?: Phaser.GameObjects.Image;
   nextMove: number;
+  /** The tile of the strip last worked (one stroke per tile). */
+  tile?: number;
 }
 
 interface Household {
@@ -77,7 +81,8 @@ export class Villagers {
     const near = (x: number, y: number) => Math.max(Math.abs(x - view.centerX / TILE), Math.abs(y - view.centerY / TILE)) < ACTIVE_TILES;
     for (const h of this.households) {
       const pad = h.work?.paddy;
-      if (!near(h.home.gate.x, h.home.gate.y) && !(pad && near(pad.bridgeX, pad.roadY))) {
+      const nearPad = pad && near(Math.max(pad.x0, Math.min(pad.x1, view.centerX / TILE)), Math.max(pad.y0, Math.min(pad.y1, view.centerY / TILE)));
+      if (!near(h.home.gate.x, h.home.gate.y) && !(pad && (near(pad.bridgeX, pad.roadY) || nearPad))) {
         this.sleep(h);
         continue;
       }
@@ -184,24 +189,53 @@ export class Villagers {
       this.walk(s, p, loaded ? [...route].reverse() : route, (loaded ? phase : phase - 0.5) * 2 * len);
       return this.carry(p, loaded);
     }
-    this.work(s, p, pad, job, time);
+    if (doing === 'tend') return this.tend(s, p, h, time);
+    this.work(s, p, h, job, time);
   }
 
-  /** At the work front of the paddy (the row the job has got to), with the right tool. */
-  private work(s: Phaser.GameObjects.Sprite, p: Person, pad: PaddyWork['paddy'], job: FieldJob | null, time: number): void {
-    const rows = pad.y1 - pad.y0 + 1;
+  /**
+   * Working the paddy one tile at a time, like the player: standing on the last
+   * tile done (or at the row's start), facing the next one, one stroke of the
+   * tool per tile, moving on as each is finished (NpcFarmSystem.strips).
+   */
+  private work(s: Phaser.GameObjects.Sprite, p: Person, h: Household, job: FieldJob | null, time: number): void {
+    const w = h.work;
+    if (!w) return;
+    const pad = w.paddy;
     const f = this.fields.state(pad.key);
-    const done = job === 'water' ? f.waterProgress : job === 'fertilize' ? f.fertProgress : f.progress;
-    const r = Math.min(rows - 1, Math.floor(done * rows));
-    const x = (pad.x0 + Math.round((pad.x1 - pad.x0) * (0.3 + 0.4 * p.index))) * TILE + 8;
-    const y = (pad.side === 'north' ? pad.y1 - r : pad.y0 + r) * TILE + TILE - 2;
-    const facing = pad.side === 'north' ? 'up' : 'down';
-    this.stand(s, x, y, facing, time, false);
-    if (time < p.nextMove) return;
-    p.nextMove = time + 1300 + p.index * 200;
+    const parts = strips(pad, w.workers);
+    const strip = parts[p.index % parts.length];
+    const k = Math.min(strip.size - 1, tilesDone(jobFront(f, currentToday()), strip));
+    const next = stripTile(pad, strip, k);
+    const away = pad.side === 'north' ? -1 : 1; // rows go away from the road this way
+    let at: { x: number; y: number };
+    let facing: Direction;
+    if (k % (strip.b - strip.a + 1) > 0) {
+      const prev = stripTile(pad, strip, k - 1);
+      at = { x: prev.x, y: prev.y };
+      facing = next.forward ? 'right' : 'left';
+    } else {
+      at = { x: next.x, y: next.y - away }; // the start of a row: from the row before (or the road)
+      facing = away < 0 ? 'up' : 'down';
+    }
+    this.stand(s, at.x * TILE + TILE / 2, at.y * TILE + TILE - 2, facing, time, false);
+    if (p.tile === k || time < p.nextMove) return;
+    p.tile = k;
+    p.nextMove = time + 250; // a stroke takes this long at least
     const tool = job ? TOOL[job] : undefined;
     if (tool) swingTool(this.scene, s, tool, facing);
     else this.toss(s, job === 'fertilize' ? 0x6a5a40 : 0x8fd16a);
+  }
+
+  /** Nothing left to do today: weeding along the rows, stooping, a few tiles at a time. */
+  private tend(s: Phaser.GameObjects.Sprite, p: Person, h: Household, time: number): void {
+    const w = h.work;
+    if (!w) return;
+    const parts = strips(w.paddy, w.workers);
+    const strip = parts[p.index % parts.length];
+    const k = Math.floor(time / 4000 + p.index * 37) % strip.size;
+    const t = stripTile(w.paddy, strip, k);
+    this.stand(s, t.x * TILE + TILE / 2, t.y * TILE + TILE - 2, t.forward ? 'right' : 'left', time, true);
   }
 
   private child(h: Household, p: Person, clock: number, delta: number, time: number): void {

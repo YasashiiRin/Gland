@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { currentJob, GROW_DAYS, newDay, newField, simulate, work } from '../src/systems/NpcFarmSystem';
+import { currentJob, GROW_DAYS, newDay, newField, simulate, strips, stripTile, tilesDone, work } from '../src/systems/NpcFarmSystem';
 
 const DAY = 1200; // game day (6:00 → 2:00) in minutes
 const START = 6 * 60;
@@ -52,4 +52,18 @@ describe('village paddies', () => {
     const f = simulate(newField(0), { workers: 2, tiles: 2048, tripMinutes: 60 }, DAY * 40, DAY, START);
     expect(f.harvests).toBeGreaterThanOrEqual(2);
   });
+
+  it('is worked one tile at a time, like the player: rows from the road, back and forth', () => {
+    const pad = { x0: 10, x1: 13, y0: 0, y1: 2, side: 'north' as const }; // 4 x 3, road below
+    const [left, right] = strips(pad, 2);
+    expect(left).toEqual({ a: 10, b: 11, size: 6 });
+    expect(right).toEqual({ a: 12, b: 13, size: 6 });
+    const order = Array.from({ length: 6 }, (_, k) => stripTile(pad, left, k)).map((t) => [t.x, t.y]);
+    expect(order).toEqual([[10, 2], [11, 2], [11, 1], [10, 1], [10, 0], [11, 0]]);
+    expect(strips(pad, 1)).toEqual([{ a: 10, b: 13, size: 12 }]);
+    expect(tilesDone(0, left)).toBe(0);
+    expect(tilesDone(0.5, left)).toBe(3); // 3 single tiles done, not a whole row at once
+    expect(tilesDone(1, left)).toBe(6);
+  });
 });
+

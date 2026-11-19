@@ -49,11 +49,12 @@ describe('a farming adult’s day', () => {
     expect(adultDoing({ ...base, clock: 19 * 60 }).doing).toBe('indoors');
   });
 
-  it('with the work done: rest, walk home, tea — or mind the buffalo and go to market', () => {
+  it('with the work done: rest, then tend the paddy — or mind the buffalo and go to market', () => {
     const idle = { ...base, hasJob: false, clock: 10 * 60 };
     expect(adultDoing({ ...idle, idleFor: 10 }).doing).toBe('restRoad');
-    expect(adultDoing({ ...idle, idleFor: 40 }).doing).toBe('toHome');
-    expect(adultDoing({ ...idle, idleFor: 90 }).doing).toBe('tea');
+    expect(adultDoing({ ...idle, idleFor: 40 }).doing).toBe('tend'); // stays out weeding till 16:00
+    expect(adultDoing({ ...idle, idleFor: 90 }).doing).toBe('tend');
+    expect(adultDoing({ ...idle, idleFor: 90, clock: 16 * 60 + 10 }).doing).toBe('toHome');
     expect(adultDoing({ ...idle, idleFor: 90, livestock: true }).doing).toBe('herd');
     expect(adultDoing({ ...idle, idleFor: 10, livestock: true, index: 1 }).doing).toBe('toMarket');
     expect(adultDoing({ ...idle, idleFor: 100, livestock: true, index: 1 }).doing).toBe('market');

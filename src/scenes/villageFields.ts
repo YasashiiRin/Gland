@@ -4,7 +4,7 @@ import { DAY_LENGTH_MINUTES } from '../config/time';
 import { TILE_GID } from '../config/tileGids';
 import { net } from '../net/NetSession';
 import { gameState } from '../state/GameState';
-import { currentJob, jobFront, newField, simulate, type FieldState } from '../systems/NpcFarmSystem';
+import { currentJob, jobFront, newField, simulate, strips, stripTile, tilesDone, type FieldState } from '../systems/NpcFarmSystem';
 import { absoluteMinute } from '../systems/StatsSystem';
 import type { GroundLook } from './groundLook';
 import { hdScale } from './hd';
@@ -32,7 +32,8 @@ export interface PaddyWork {
  */
 export class VillageFields {
   readonly works: PaddyWork[];
-  private readonly drawn = new Map<string, string>();
+  /** What each paddy was last drawn as: its look, and the tiles done / watered per strip. */
+  private readonly drawn = new Map<string, { base: string; counts: (readonly [number, number])[] }>();
   private readonly sheafImages = new Map<string, Phaser.GameObjects.Image[]>();
 
   constructor(
@@ -90,34 +91,44 @@ export class VillageFields {
     this.sheafImages.forEach((list) => list.forEach((i) => i.destroy()));
   }
 
-  /** Redraws a paddy if what it looks like has changed. */
+  /**
+   * Redraws a paddy as it changes. The job is done one tile at a time (each
+   * worker along their strip, see NpcFarmSystem.strips), so usually only the
+   * few tiles finished since last time are redrawn.
+   */
   private draw(w: PaddyWork, f: FieldState, today: number): void {
     const p = w.paddy;
-    const rows = p.y1 - p.y0 + 1;
     const job = currentJob(f, today);
-    const front = Math.floor(jobFront(f, today) * rows);
-    const watered = f.wateredDay === today ? rows : Math.floor(f.waterProgress * rows);
-    const look = `${f.stage}|${job}|${front}|${watered}|${f.grownDays}|${f.harvests > 0}|${f.sheaves}`;
-    if (this.drawn.get(p.key) === look) return;
-    this.drawn.set(p.key, look);
-    for (let r = 0; r < rows; r++) {
-      const y = p.side === 'north' ? p.y1 - r : p.y0 + r; // rows counted from the road
-      const [g, d, tint] = this.tileLook(f, job, r < front, r < watered);
-      for (let x = p.x0; x <= p.x1; x++) {
-        if (this.ground.getTileAt(x, y)?.index === TILE_GID.WATER) continue; // a stream through it
-        this.look.put(g, x, y);
-        if (d) {
-          const t = this.decor.putTileAt(d, x, y);
-          t.tint = tint;
-        } else if (this.decor.getTileAt(x, y)) {
-          this.decor.removeTileAt(x, y);
-        }
+    const front = jobFront(f, today);
+    const water = f.wateredDay === today ? 1 : f.waterProgress;
+    const base = `${f.stage}|${job}|${f.grownDays}|${f.harvests > 0}`;
+    const parts = strips(p, w.workers);
+    const counts = parts.map((s) => [tilesDone(front, s), tilesDone(water, s)] as const);
+    const before = this.drawn.get(p.key);
+    this.drawn.set(p.key, { base, counts });
+    parts.forEach((strip, i) => {
+      const [done, wet] = counts[i];
+      let from = 0;
+      let to = strip.size;
+      if (before && before.base === base) {
+        const [d0, w0] = before.counts[i];
+        if (d0 === done && w0 === wet) return;
+        from = Math.min(d0, done, w0, wet);
+        to = Math.max(d0, done, w0, wet);
       }
-    }
-    this.drawSheaves(w, f);
+      for (let k = from; k < to; k++) {
+        const t = stripTile(p, strip, k);
+        if (this.ground.getTileAt(t.x, t.y)?.index === TILE_GID.WATER) continue; // a stream through it
+        const [g, d, tint] = this.tileLook(f, job, k < done, k < wet);
+        this.look.put(g, t.x, t.y);
+        if (d) this.decor.putTileAt(d, t.x, t.y).tint = tint;
+        else if (this.decor.getTileAt(t.x, t.y)) this.decor.removeTileAt(t.x, t.y);
+      }
+    });
+    if (this.sheafImages.get(p.key)?.length !== f.sheaves) this.drawSheaves(w, f);
   }
 
-  /** Ground, crop and tint of one row of the paddy. */
+  /** Ground, crop and tint of one tile of the paddy. */
   private tileLook(f: FieldState, job: string | null, done: boolean, watered: boolean): [number, number | null, number] {
     const fallow: [number, number | null, number] = f.harvests > 0 ? [TILE_GID.DIRT, TILE_GID.STUBBLE, 0xffffff] : [TILE_GID.GRASS3, null, 0xffffff];
     switch (f.stage) {

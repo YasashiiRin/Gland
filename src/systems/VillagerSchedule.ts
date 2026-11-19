@@ -80,7 +80,8 @@ export type Doing =
   | 'toMarket'
   | 'market'
   | 'fromMarket'
-  | 'feedChickens';
+  | 'feedChickens'
+  | 'tend';
 
 export interface AdultDay {
   /** 0 or 1: the first and second adult of the household. */
@@ -107,7 +108,8 @@ export const BED_TIME = 18 * 60;
  *   work it (3-hour spells, half-hour rest sitting by the road); at 16:00 home.
  *   Once today's work is done: with a buffalo or cow, the first adult takes it
  *   to graze and minds it until 16:00, the second goes to market and back;
- *   without animals they rest by the road half an hour, then walk home.
+ *   without animals they rest by the road half an hour, then tend the paddy
+ *   (weeding) until 16:00, so the fields are never empty in working hours.
  *   At home: tea at the table in the yard; indoors from 18:00.
  */
 export function adultDoing(a: AdultDay): { doing: Doing; since: number } {
@@ -129,7 +131,8 @@ export function adultDoing(a: AdultDay): { doing: Doing; since: number } {
     if (t < 2 * WALK_MIN + MARKET_AWAY) return { doing: 'fromMarket', since: done + WALK_MIN + MARKET_AWAY };
     return { doing: 'tea', since: done + 2 * WALK_MIN + MARKET_AWAY };
   }
+  // No animals to mind: after a rest they stay out tending the paddy (weeding, looking the
+  // rice over) like everyone else in the village, until it is time to go home.
   if (t < 30) return { doing: 'restRoad', since: done };
-  if (t < 30 + WALK_MIN) return { doing: 'toHome', since: done + 30 };
-  return { doing: 'tea', since: done + 30 + WALK_MIN };
+  return { doing: 'tend', since: done + 30 };
 }
