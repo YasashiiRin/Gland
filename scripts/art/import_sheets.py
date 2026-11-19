@@ -15,7 +15,8 @@ from .asset_import import background, bbox, cut_out, find, fit_scale, load, plac
 PUB = Path(__file__).resolve().parents[2] / "public" / "assets" / "sprites"
 
 Cell = tuple[int, int, bool]  # row, column, mirror
-STD = {"down": 0, "left": 1, "up": 3}  # rows of a 4 x 4 walk sheet; side row faces left
+STD = {"down": 0, "up": 3}  # rows of a 4 x 4 walk sheet
+UP_ROW = {"minh": 4}  # 6 rows: its first back row has the legs cut short
 
 
 def _runs(on: np.ndarray, n: int) -> list[tuple[int, int]]:
@@ -69,6 +70,13 @@ def frames(cells: list[list[tuple[np.ndarray, np.ndarray]]], picks: list[Cell], 
     return out
 
 
+def bob(im: Image.Image, dy: int = 2) -> Image.Image:
+    """The same drawing a little higher: the step of a walk when there is one drawing per direction."""
+    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    out.alpha_composite(im, (0, -dy))
+    return out
+
+
 def sheet(images: list[Image.Image], cols: int) -> Image.Image:
     w, h = images[0].size
     out = Image.new("RGBA", (w * cols, h * ((len(images) + cols - 1) // cols)), (0, 0, 0, 0))
@@ -78,11 +86,11 @@ def sheet(images: list[Image.Image], cols: int) -> Image.Image:
 
 
 # --- characters: 4 rows (down, left, right, up) x 4 walk frames of 32 x 64 ---------------
-WALKERS = {  # picture -> (target under sprites/, grid rows)
-    "player": ("player", 4), "chu_tu": ("npcs/chu_tu", 4), "co_hanh": ("npcs/co_hanh", 4),
-    "linh": ("npcs/linh", 4), "minh": ("npcs/minh", 6), "folk_0": ("npcs/folk_0", 4),
-    "folk_1": ("npcs/folk_1", 4), "folk_2": ("npcs/folk_2", 4), "folk_3": ("npcs/folk_3", 4),
-    "folk_4": ("npcs/folk_4", 4),
+WALKERS = {  # picture -> (target under sprites/, grid rows, the row with the clearest left profile)
+    "player": ("player", 4, 2), "chu_tu": ("npcs/chu_tu", 4, 2), "co_hanh": ("npcs/co_hanh", 4, 2),
+    "linh": ("npcs/linh", 4, 2), "minh": ("npcs/minh", 6, 2), "folk_0": ("npcs/folk_0", 4, 2),
+    "folk_1": ("npcs/folk_1", 4, 1), "folk_2": ("npcs/folk_2", 4, 2), "folk_3": ("npcs/folk_3", 4, 2),
+    "folk_4": ("npcs/folk_4", 4, 2),
 }
 # folk_5 came as a hawker with the carrying pole drawn in: the game draws the pole itself, so not used.
 PORTRAITS = ["vendor_fish", "vendor_veg", "vendor_rice"]  # front view of a 2 x 2 sheet, 32 x 64
@@ -91,14 +99,16 @@ CHAR = dict(fit=(30, 58), canvas=(32, 64), bottom_pad=3)
 
 def import_characters() -> list[str]:
     done = []
-    for name, (target, rows) in WALKERS.items():
+    for name, (target, rows, side) in WALKERS.items():
         p = find(f"characters/{name}.png")
         if not p:
             continue
-        cells = grid(p, rows, 4)
-        picks = [(STD["down"], c, False) for c in range(4)] + [(STD["left"], c, False) for c in range(4)]
-        picks += [(STD["left"], c, True) for c in range(4)] + [(STD["up"], c, False) for c in range(4)]
-        sheet(frames(cells, picks, **CHAR), 4).save(PUB / f"{target}.png")
+        # The generator's walk frames drift between angles (half-turned toward the viewer, over
+        # the shoulder), so each direction keeps one drawing: front, a true left profile, that
+        # profile mirrored for right, back.
+        picks = [(STD["down"], 0, False), (side, 0, False), (side, 0, True), (UP_ROW.get(name, STD["up"]), 0, False)]
+        one = frames(grid(p, rows, 4), picks, **CHAR)
+        sheet([im if k % 2 == 0 else bob(im) for im in one for k in range(4)], 4).save(PUB / f"{target}.png")
         done.append(f"characters/{name}")
     for name in PORTRAITS:
         p = find(f"characters/{name}.png")

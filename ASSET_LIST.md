@@ -40,6 +40,7 @@ Chạy `python3 scripts/art/import_assets.py` (hoặc `python3 scripts/gen_place
 - **Hầm mỏ:** cắt một ô ở đúng cỡ điểm ảnh gốc. Vách và quặng tối hơn nền để dễ phân biệt.
 - **Cây trồng** để ở `assets/crops/` hoặc `assets/trees/` đều được.
 - **Nhân vật, động vật, xe, nhà** (`scripts/art/import_sheets.py`): ảnh được tách thành từng hình theo khoảng trống giữa chúng, rồi bảng trong script chọn hình nào vào khung nào. Hàng nhìn ngang chỉ cần một phía, script tự lật ra phía kia. Nhà lấy hình đầu tiên (góc trên trái) của tấm.
+- **Nhân vật đi bộ:** các khung đi của Gemini hay lệch góc (nửa quay về người xem, ngoái lại), nên mỗi hướng chỉ dùng **một hình**: nhìn trước, nhìn nghiêng rõ nhất (lật ra để có hướng phải), quay lưng. Khi đi, hình nhún lên xuống.
 - Tên file lỡ gõ đuôi hai lần (`x.png.png`) vẫn được nhận.
 
 **Đợt 1 (đã nạp):** 53 hình gồm ô mặt đất, ô hầm mỏ, viền, đá, bụi, lau sậy, luống hoa, lúa chín, 4 cây (thông, đước, bưởi, phượng), 5 cây trồng, 4 hình ma và 8 biểu tượng công cụ.
