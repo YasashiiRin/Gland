@@ -131,6 +131,25 @@ THREE_ROWS = {"down": [(0, c, False) for c in CYCLE], "left": [(1, c, False) for
               "right": [(1, c, True) for c in CYCLE], "up": [(2, c, False) for c in CYCLE]}
 
 
+def faces_left(a: np.ndarray) -> bool | None:
+    """Which way a side view looks: its hair shows at the back of the head (None: can't tell)."""
+    x0, y0, x1, y1 = bbox(a)
+    h = y1 - y0
+    band = a[y0 + int(h * 0.12):y0 + int(h * 0.45), x0:x1]
+    solid = band[..., 3] > 0
+    hair = np.nonzero(solid & (band[..., :3].mean(axis=2) < 70))[1]
+    xs = np.nonzero(solid)[1]
+    if len(hair) < 5 or not len(xs):
+        return None
+    return bool(hair.mean() > (xs.min() + xs.max()) / 2)
+
+
+def side_faces_left(cells: list[list[tuple[np.ndarray, np.ndarray]]], row: int) -> bool:
+    """The way most drawings of a side row look (the generator may draw right though asked left)."""
+    votes = [faces_left(a) for a, _ in cells[row]]
+    return votes.count(False) <= votes.count(True)
+
+
 def _cycle_sheet(cells: list[list[tuple[np.ndarray, np.ndarray]]], dirs: dict[str, list[Cell]]) -> Image.Image:
     picks = [pick for d in ("down", "left", "right", "up") for pick in dirs[d]]
     out = frames(cells, picks, **CHAR)
@@ -148,7 +167,10 @@ def import_characters() -> list[str]:
         if not p:
             continue
         if drawn_rows(p) == 3:  # the new layout: a real walk in every direction
-            _cycle_sheet(grid(p, 3, 4), THREE_ROWS).save(PUB / f"{target}.png")
+            cells = grid(p, 3, 4)
+            left = side_faces_left(cells, 1)
+            dirs = {**THREE_ROWS, "left": [(1, c, not left) for c in CYCLE], "right": [(1, c, left) for c in CYCLE]}
+            _cycle_sheet(cells, dirs).save(PUB / f"{target}.png")
             full.add(target)
             done.append(f"characters/{name}")
             continue
