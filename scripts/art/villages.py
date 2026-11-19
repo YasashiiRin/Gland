@@ -15,6 +15,10 @@ from .homesteads import H as PLOT_H, W as PLOT_W, homestead
 from .province_tiles import SAND, SAND2, BAMBOO_TREE, BRIDGE, DRY_GRASS, PADDY, PAVING, PINE_TREE, RICE, ROCKY
 from .region import GRASSY, Province, _pave, place
 from .tiles import BUSH, DIRT, FOREST, GRASS, GRASS3, PATH, TRUNK, WATER
+from .shrink_paddies import ROOT, paddy_size
+import json
+
+NPC_CFG = json.loads((ROOT / "src/data/npcFarm.json").read_text())
 
 T = 16
 HOUSES = 10
@@ -224,11 +228,14 @@ def fields_block(m: Province, x0: int, y0: int, homes: list[tuple[str, int]], fw
             _pave(m, x, road_y + d, PATH)
         m.ground[road_y - 1][x] = WATER                              # canals along the road
         m.ground[road_y + ROAD][x] = WATER
+    # Each paddy is just the family's plots (src/data/npcFarm.json, see shrink_paddies.py),
+    # centred in its column and touching the canal; the paths between are as deep as the deepest.
+    sizes = [paddy_size(members, NPC_CFG) for _, members in homes[: 2 * PER_SIDE]]
+    path_d = min(fd, max((d for _, d in sizes), default=fd))
     for i, (home_id, members) in enumerate(homes[: 2 * PER_SIDE]):
         side, col = i % 2, i // 2
-        w = fw if members > 1 else round(fw * 0.8)
-        d = fd if members > 1 else round(fd * 0.8)
-        fx = x0 + 1 + col * (fw + SEP)
+        w, d = (min(v, lim) for v, lim in zip(sizes[i], (fw, fd)))
+        fx = x0 + 1 + col * (fw + SEP) + (fw - w) // 2
         fy = road_y - 1 - d if side == 0 else road_y + ROAD + 1
         for y in range(fy, fy + d):
             for x in range(fx, fx + w):
@@ -240,8 +247,8 @@ def fields_block(m: Province, x0: int, y0: int, homes: list[tuple[str, int]], fw
         m.obj("field", fx * T, fy * T, w * T, d * T, {"homeId": home_id, "side": "north" if side == 0 else "south",
                                                        "bridgeX": str(bx)})
         if col < PER_SIDE - 1:                                       # the path to the next paddy, grass either side
-            px = fx + fw + 1
-            ys = range(road_y - 1 - fd, road_y - 1) if side == 0 else range(road_y + ROAD + 1, road_y + ROAD + 1 + fd)
+            px = x0 + 1 + col * (fw + SEP) + fw + 1
+            ys = range(road_y - 1 - path_d, road_y - 1) if side == 0 else range(road_y + ROAD + 1, road_y + ROAD + 1 + path_d)
             for y in ys:
                 m.ground[y][px - 1] = GRASS
                 _pave(m, px, y, PATH)

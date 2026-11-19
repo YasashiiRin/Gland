@@ -635,3 +635,10 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
       bình tưới trên thanh công cụ, lưu trong save (`gameState.wateringCanWater`). Hết nước thì đứng sát ao/sông/kênh
       (ô nước cạnh chỗ đứng, hoặc nhắm vào ô nước) bấm bình để múc đầy lại (`systems/WateringCanSystem.ts`, có test).
       Xe chở nước vẫn tưới như cũ, không tốn nước bình.
+
+## Cập nhật: thu nhỏ thửa ruộng trên bản đồ (yêu cầu 2026-11-19)
+- [x] Thửa của mỗi nhà trên bản đồ giờ chỉ vừa đúng các mảnh NPC làm (nhà vẽ 3 người: 16×17 ô = 3 thửa 16×5 + 2 hàng
+      bờ; nhà 1 người: 11×9 ô), sát kênh, giữa cột cũ. Lối đi giữa các thửa cắt ngắn bằng độ sâu mới (lối từ làng
+      xuống đường cái giữ nguyên). Phần đất thửa cũ còn lại là cỏ trống, người chơi dùng được.
+- Sửa thẳng 2 file bản đồ bằng `scripts/art/shrink_paddies.py` (không tạo lại bản đồ, nhà cửa giữ nguyên);
+  `scripts/art/villages.py` cũng tạo thửa theo cỡ này nếu sau này tạo lại bản đồ. Cỡ lấy từ `src/data/npcFarm.json`.
