@@ -60,9 +60,12 @@ export function pileSize(grid: FieldGrid, cfg: NpcConfig): number {
 
 const planted = (c: FieldCell) => c.state === 'SEEDED' || c.state === 'GROWING';
 
-/** Sowing is open until the first harvest of the season. */
+/**
+ * Sowing starts once the whole plot is hoed (nobody sows a half-tilled
+ * field) and stays open until the first harvest of the season.
+ */
 function sowingOpen(grid: FieldGrid): boolean {
-  return grid.phase === 'growing' && grid.harvestedThisSeason === 0;
+  return grid.phase === 'growing' && grid.harvestedThisSeason === 0 && !grid.cells.some((c) => c.state === 'UNTILLED');
 }
 
 /** What this cell needs today, if anything. */

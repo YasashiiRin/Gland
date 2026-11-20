@@ -51,19 +51,29 @@ describe('NPC field cells', () => {
     expect(g.cells.every((c) => c.growthDay === 1)).toBe(true);
   });
 
-  it('picks jobs by priority: harvest, water, fertilise, sow, hoe', () => {
+  it('hoes the whole plot before sowing any of it', () => {
+    let g = grid(3, 1);
+    g = doTask(g, 0, 'hoe');
+    expect(pickTask(g, null, 1, cfg)).toEqual({ cell: 1, kind: 'hoe' });
+    g = reserve(doTask(g, 1, 'hoe'), 2, 'a'); // the last cell is being hoed: still no sowing
+    expect(pickTask(g, null, 1, cfg)).toBeNull();
+    g = doTask(g, 2, 'hoe');
+    expect(pickTask(g, null, 1, cfg)).toEqual({ cell: 0, kind: 'sow' });
+  });
+
+  it('picks jobs by priority: harvest, water, fertilise, sow', () => {
     let g = grid(2, 1);
     expect(pickTask(g, null, 1, cfg)?.kind).toBe('hoe');
-    g = doTask(g, 0, 'hoe');
+    g = doTask(doTask(g, 0, 'hoe'), 1, 'hoe');
     expect(pickTask(g, null, 1, cfg)).toEqual({ cell: 0, kind: 'sow' });
     g = doTask(g, 0, 'sow');
     expect(pickTask(g, null, 1, cfg)).toEqual({ cell: 0, kind: 'water' });
     g = doTask(g, 0, 'water');
     expect(pickTask(g, null, 1, cfg)).toEqual({ cell: 0, kind: 'fertilize' });
     g = doTask(g, 0, 'fertilize');
-    expect(pickTask(g, null, 1, cfg)).toEqual({ cell: 1, kind: 'hoe' });
+    expect(pickTask(g, null, 1, cfg)).toEqual({ cell: 1, kind: 'sow' });
     // fertilised again 7 days later
-    expect(pickTask(g, null, cfg.field.fertilizeEveryDays, cfg)?.kind).toBe('hoe');
+    expect(pickTask(g, null, cfg.field.fertilizeEveryDays, cfg)?.kind).toBe('sow');
     expect(pickTask(g, null, 1 + cfg.field.fertilizeEveryDays, cfg)).toEqual({ cell: 0, kind: 'fertilize' });
   });
 
