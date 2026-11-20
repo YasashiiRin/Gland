@@ -157,7 +157,7 @@ export class Villagers {
   private person(h: Household, fam: FamilyState, npc: Npc, p: Person, minute: number, time: number, dt: number, player: Pt, children: Agent[], view: Phaser.Geom.Rectangle): void {
     const a = (p.agent ??= createAgent(this.startPoint(h, fam, npc, p, minute)));
     const plan = this.planOf(h, fam, npc, p, a, time, player, children, minute);
-    const there = moveAgent(a, plan.at, plan.speed ?? WALK_SPEED * npc.speedMultiplier, dt, this.planner);
+    const there = moveAgent(a, plan.at, plan.speed ?? WALK_SPEED, dt, this.planner);
     const gone = there && plan.pose.kind === 'hide';
     const inView = a.x > view.x - VIEW_MARGIN && a.x < view.right + VIEW_MARGIN && a.y > view.y - VIEW_MARGIN && a.y < view.bottom + VIEW_MARGIN * 2;
     if (gone || !inView) return this.hideSprite(p);
