@@ -4,8 +4,9 @@ import { ITEMS, type ItemId } from '../data/items';
 import { gameState } from '../state/GameState';
 import { ownerName } from '../state/owner';
 import { consume, isExhausted } from '../systems/EnergySystem';
-import { collectPond, FISH_POND, fishForFry, isFryItem, ownedBy, stockPond } from '../systems/FishPondSystem';
+import { collectPond, feedPond, FISH_POND, fishForFry, isFryItem, ownedBy, stockPond } from '../systems/FishPondSystem';
 import { addItem, removeItem } from '../systems/InventorySystem';
+import { formatKg, pondMaxKgChance, rollUnitKg } from '../systems/ProduceSystem';
 import { addXp } from '../systems/SkillSystem';
 import { absoluteDayNumber } from '../systems/TimeSystem';
 import { seasonStamp } from '../systems/WildFieldSystem';
@@ -71,6 +72,21 @@ export class FishPondsView {
     return `Thả 1 cá giống xuống ${pond.name} (${mine} con của bạn) — ${FISH_POND.growDays} ngày nữa cá lớn`;
   }
 
+  /** Holding fish feed, used on `tile`: feed your fish there (once a day). Null if the tile is not a pond. */
+  feed(itemId: ItemId, tile: { x: number; y: number }): string | null {
+    const pond = this.pondAt(tile);
+    if (!pond) return 'Cầm thức ăn cá đứng cạnh ao có cá của bạn rồi bấm dùng';
+    const result = feedPond(gameState.fishPonds, pond.key, ownerName(), absoluteDayNumber(gameState.time));
+    if (!result.fed) {
+      return ownedBy(gameState.fishPonds, pond.key, ownerName()).length
+        ? `Cá của bạn ở ${pond.name} đã ăn hôm nay rồi`
+        : `${pond.name}: bạn chưa thả cá ở đây`;
+    }
+    gameState.fishPonds = result.ponds;
+    gameState.inventory = removeItem(gameState.inventory, itemId, 1);
+    return `Cho ${result.fed} con cá ở ${pond.name} ăn — cá được ăn đều sẽ dễ đạt cân tối đa`;
+  }
+
   /** Interact with a pond: net your grown fish. Null if the tile is not a pond. */
   collect(tile: { x: number; y: number }): string | null {
     const pond = this.pondAt(tile);
@@ -88,10 +104,13 @@ export class FishPondsView {
     const got: string[] = [];
     let full = false;
     for (const [fishId, n] of kinds) {
-      const added = addItem(gameState.inventory, fishId, n);
+      // Each fish is weighed on its own: the more days it was fed, the likelier full weight.
+      const maxKg = ITEMS[fishId].maxKg ?? 0;
+      const kg = result.netted.filter((s) => s.fishId === fishId).reduce((sum, s) => sum + rollUnitKg(maxKg, pondMaxKgChance(s.fedDays ?? 0)), 0);
+      const added = addItem(gameState.inventory, fishId, n, kg);
       gameState.inventory = added.state;
       full ||= added.leftover > 0;
-      got.push(`${n} ${ITEMS[fishId].name}`);
+      got.push(`${n} ${ITEMS[fishId].name} (${formatKg(kg)})`);
       gameState.skills = addXp(gameState.skills, 'fishing', FISH_POND.xp * n).skills;
     }
     const rest = result.growing ? ` (còn ${result.growing} con đang lớn)` : '';

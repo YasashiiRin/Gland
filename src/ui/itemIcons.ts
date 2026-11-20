@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { ITEM_IDS, type ItemId } from '../data/items';
 import { EXTRA_ICONS } from './itemIconsExtra';
 import { CROP_ICONS } from './itemIconsCrops';
+import { FISH_ICONS } from './itemIconsFish';
 
 export function iconTextureKey(itemId: ItemId): string {
   return `item_icon_${itemId}`;
@@ -520,7 +521,7 @@ export function createItemIconTextures(scene: Phaser.Scene): void {
     const key = iconTextureKey(id);
     if (scene.textures.exists(key)) continue;
     g.clear();
-    (ICONS[id] ?? EXTRA_ICONS[id] ?? CROP_ICONS[id] ?? ICONS.stone)?.(g);
+    (ICONS[id] ?? EXTRA_ICONS[id] ?? CROP_ICONS[id] ?? FISH_ICONS[id] ?? ICONS.stone)?.(g);
     g.generateTexture(tmp, DRAWN_SIZE, DRAWN_SIZE);
     const canvas = scene.textures.createCanvas(key, ICON_SIZE, ICON_SIZE);
     const ctx = canvas?.getContext();

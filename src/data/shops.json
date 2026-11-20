@@ -71,11 +71,15 @@
     "greeting": "Cá tươi rói mới vớt sáng nay nè con!",
     "stock": [
       "carp",
-      "perch",
+      "tilapia",
+      "silver_carp",
       "grass_carp",
       "snakehead",
-      "goby",
-      "fish_fry"
+      "scad",
+      "anchovy",
+      "mackerel",
+      "fish_fry",
+      "fish_feed"
     ],
     "buysCategories": [
       "fish"

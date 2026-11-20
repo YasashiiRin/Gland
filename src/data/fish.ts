@@ -13,11 +13,12 @@ export interface FishDef {
   name: string;
   locations: MapKey[];
   season: Season[];
+  /** When it is fattest: a catch then gets the in-season bonus to reach full weight. */
+  peakSeason: Season[];
   minHour: number;
   maxHour: number;
   weather: Weather | 'any';
   difficulty: number;
-  sellPrice: number;
   behavior: FishBehavior;
   water: FishWater;
 }

@@ -1,6 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import { addItem, createEmptyInventory, moveItem, removeItemKg, withQuantity } from '../src/systems/InventorySystem';
-import { dailyCare, maxKgChance, referenceKg, rollHarvestKg, stackKg, stackValue } from '../src/systems/ProduceSystem';
+import { catchMaxKgChance, dailyCare, maxKgChance, pondMaxKgChance, referenceKg, rollHarvestKg, stackKg, stackValue } from '../src/systems/ProduceSystem';
+
+describe('fish weight', () => {
+  it('a catch: 10%, +50% in its peak season, +20% when perfect', () => {
+    expect(catchMaxKgChance(false, false)).toBeCloseTo(0.1);
+    expect(catchMaxKgChance(true, false)).toBeCloseTo(0.6);
+    expect(catchMaxKgChance(false, true)).toBeCloseTo(0.3);
+    expect(catchMaxKgChance(true, true)).toBeCloseTo(0.8);
+  });
+
+  it('a pond fish: 10%, +10% a day fed, at most 100%', () => {
+    expect(pondMaxKgChance(0)).toBeCloseTo(0.1);
+    expect(pondMaxKgChance(3)).toBeCloseTo(0.4);
+    expect(pondMaxKgChance(20)).toBe(1);
+  });
+
+  it('every fish is sold by the kilo, and bites in its peak season', async () => {
+    const { FISH, FISH_IDS } = await import('../src/data/fish');
+    const { ITEMS } = await import('../src/data/items');
+    for (const id of FISH_IDS) {
+      expect(ITEMS[id].maxKg, id).toBeGreaterThan(0);
+      expect(ITEMS[id].pricePerKg, id).toBeGreaterThan(0);
+      expect(FISH[id].peakSeason.every((s) => FISH[id].season.includes(s)), id).toBe(true);
+    }
+  });
+});
 
 describe('produce weight', () => {
   it('chance of full weight: 10% base, care and +50% in season, at most 100%', () => {

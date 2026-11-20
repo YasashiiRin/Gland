@@ -4,6 +4,15 @@
   "energyCost": 0.8,
   "xp": 3,
   "fry": {
-    "fish_fry": ["carp", "crucian", "crucian", "perch", "snakehead", "catfish"]
+    "fish_fry": [
+      "tilapia",
+      "tilapia",
+      "carp",
+      "crucian",
+      "crucian",
+      "perch",
+      "snakehead",
+      "catfish"
+    ]
   }
 }

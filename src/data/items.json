@@ -194,32 +194,44 @@
     "description": "Cắt cỏ dại bằng liềm để lấy."
   },
   "carp": {
-    "name": "Cá chép nhỏ",
+    "name": "Cá chép",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 4400,
-    "description": "Loại cá phổ biến quanh năm."
+    "sellPrice": 12180,
+    "description": "Loại cá phổ biến quanh năm, béo nhất vào xuân. Mỗi con nặng tối đa 1,2 kg, giá 14.500 đ/kg. Câu vào mùa xuân dễ được con to.",
+    "unit": "con",
+    "maxKg": 1.2,
+    "pricePerKg": 14500
   },
   "perch": {
-    "name": "Cá rô",
+    "name": "Cá rô đồng",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 2000,
-    "description": "Hay gặp vào mùa xuân và mùa thu."
+    "sellPrice": 2100,
+    "description": "Hay gặp vào mùa xuân và mùa thu. Mỗi con nặng tối đa 0,15 kg, giá 20.000 đ/kg. Câu vào mùa thu dễ được con to.",
+    "unit": "con",
+    "maxKg": 0.15,
+    "pricePerKg": 20000
   },
   "grass_carp": {
-    "name": "Cá trắm",
+    "name": "Cá trắm cỏ",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 14500,
-    "description": "Thích cắn câu vào ngày mưa."
+    "sellPrice": 30450,
+    "description": "Thích cắn câu vào ngày mưa. Mỗi con nặng tối đa 3 kg, giá 14.500 đ/kg. Câu vào mùa hạ dễ được con to.",
+    "unit": "con",
+    "maxKg": 3.0,
+    "pricePerKg": 14500
   },
   "golden_loach": {
     "name": "Cá chạch vàng",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 6000,
-    "description": "Hiếm, chỉ xuất hiện ban đêm."
+    "sellPrice": 4200,
+    "description": "Hiếm, chỉ xuất hiện ban đêm. Mỗi con nặng tối đa 0,15 kg, giá 40.000 đ/kg. Câu vào mùa xuân dễ được con to.",
+    "unit": "con",
+    "maxKg": 0.15,
+    "pricePerKg": 40000
   },
   "chest": {
     "name": "Rương",
@@ -480,53 +492,74 @@
     "description": "Thả ra ngoài bò tự gặm cỏ. Sợ cây roi."
   },
   "snakehead": {
-    "name": "Cá lóc",
+    "name": "Cá lóc đồng",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 16300,
-    "description": "Cá sông dữ, giật mạnh và lao rất nhanh."
+    "sellPrice": 34125,
+    "description": "Cá sông dữ, giật mạnh và lao rất nhanh. Mỗi con nặng tối đa 1,5 kg, giá 32.500 đ/kg. Câu vào mùa thu dễ được con to.",
+    "unit": "con",
+    "maxKg": 1.5,
+    "pricePerKg": 32500
   },
   "crucian": {
     "name": "Cá diếc",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 1800,
-    "description": "Cá nước ngọt nhỏ, bơi lững lờ."
+    "sellPrice": 2310,
+    "description": "Cá nước ngọt nhỏ, bơi lững lờ. Mỗi con nặng tối đa 0,3 kg, giá 11.000 đ/kg. Câu vào mùa đông dễ được con to.",
+    "unit": "con",
+    "maxKg": 0.3,
+    "pricePerKg": 11000
   },
   "catfish": {
     "name": "Cá trê",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 5000,
-    "description": "Hay lặn sát đáy, kéo rất nặng tay. Cắn câu nhiều khi trời mưa."
+    "sellPrice": 5250,
+    "description": "Hay lặn sát đáy, kéo rất nặng tay. Cắn câu nhiều khi trời mưa. Mỗi con nặng tối đa 0,6 kg, giá 12.500 đ/kg. Câu vào mùa hạ dễ được con to.",
+    "unit": "con",
+    "maxKg": 0.6,
+    "pricePerKg": 12500
   },
   "goby": {
     "name": "Cá bống",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 16000,
-    "description": "Cá bống sông Gianh, đặc sản Quảng Bình."
+    "sellPrice": 5600,
+    "description": "Cá bống sông Gianh, đặc sản Quảng Bình. Mỗi con nặng tối đa 0,1 kg, giá 80.000 đ/kg. Câu vào mùa đông dễ được con to.",
+    "unit": "con",
+    "maxKg": 0.1,
+    "pricePerKg": 80000
   },
   "mackerel": {
     "name": "Cá thu",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 48800,
-    "description": "Cá biển bơi nhanh, đổi hướng liên tục."
+    "sellPrice": 68250,
+    "description": "Cá biển bơi nhanh, đổi hướng liên tục. Mỗi con nặng tối đa 3 kg, giá 32.500 đ/kg. Câu vào mùa xuân dễ được con to.",
+    "unit": "con",
+    "maxKg": 3.0,
+    "pricePerKg": 32500
   },
   "grouper": {
     "name": "Cá mú",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 165000,
-    "description": "Cá biển quý, khỏe và rất khó kéo."
+    "sellPrice": 192500,
+    "description": "Cá biển quý, khỏe và rất khó kéo. Mỗi con nặng tối đa 2,5 kg, giá 110.000 đ/kg. Câu vào mùa hạ dễ được con to.",
+    "unit": "con",
+    "maxKg": 2.5,
+    "pricePerKg": 110000
   },
   "anchovy": {
     "name": "Cá cơm",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 100,
-    "description": "Cá biển nhỏ, dễ câu."
+    "sellPrice": 84,
+    "description": "Cá biển nhỏ, dễ câu. Mỗi con nặng tối đa 0,03 kg, giá 4.000 đ/kg. Câu vào mùa hạ dễ được con to.",
+    "unit": "con",
+    "maxKg": 0.03,
+    "pricePerKg": 4000
   },
   "bua_khai_dao": {
     "name": "Bùa khai đạo",
@@ -874,5 +907,112 @@
     "stackable": true,
     "sellPrice": 300,
     "description": "Một nắm phân chuồng trộn NPK cho một ô đất đang có cây. Ngày được bón, cây tăng 10% khả năng đạt cân nặng tối đa (thay cho 5% của tưới nước)."
+  },
+  "tilapia": {
+    "name": "Cá rô phi",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 0.6,
+    "pricePerKg": 8500,
+    "sellPrice": 3570,
+    "description": "Cá ao hồ dễ câu, mau lớn. Mỗi con nặng tối đa 0,6 kg, giá 8.500 đ/kg. Câu vào mùa hạ dễ được con to."
+  },
+  "silver_carp": {
+    "name": "Cá mè",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 2.0,
+    "pricePerKg": 9000,
+    "sellPrice": 12600,
+    "description": "Cá mè, cá trôi sông hồ, hay nổi gần mặt nước. Mỗi con nặng tối đa 2 kg, giá 9.000 đ/kg. Câu vào mùa xuân dễ được con to."
+  },
+  "linh_fish": {
+    "name": "Cá linh",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 0.05,
+    "pricePerKg": 7500,
+    "sellPrice": 262,
+    "description": "Cá nhỏ theo con nước lũ mùa thu, rẻ mà ngon. Mỗi con nặng tối đa 0,05 kg, giá 7.500 đ/kg. Câu vào mùa thu dễ được con to."
+  },
+  "scad": {
+    "name": "Cá nục",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 0.15,
+    "pricePerKg": 6500,
+    "sellPrice": 682,
+    "description": "Cá biển bình dân, đi thành đàn. Mỗi con nặng tối đa 0,15 kg, giá 6.500 đ/kg. Câu vào mùa hạ dễ được con to."
+  },
+  "tuna": {
+    "name": "Cá ngừ",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 4.0,
+    "pricePerKg": 16000,
+    "sellPrice": 44800,
+    "description": "Cá biển lớn, kéo rất khỏe. Mỗi con nặng tối đa 4 kg, giá 16.000 đ/kg. Câu vào mùa hạ dễ được con to."
+  },
+  "pomfret": {
+    "name": "Cá chim",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 0.8,
+    "pricePerKg": 32500,
+    "sellPrice": 18200,
+    "description": "Cá biển thịt ngọt, giá cao. Mỗi con nặng tối đa 0,8 kg, giá 32.500 đ/kg. Câu vào mùa thu dễ được con to."
+  },
+  "red_snapper": {
+    "name": "Cá hồng",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 1.5,
+    "pricePerKg": 32500,
+    "sellPrice": 34125,
+    "description": "Cá biển đỏ au, sống gần đáy đá. Mỗi con nặng tối đa 1,5 kg, giá 32.500 đ/kg. Câu vào mùa đông dễ được con to."
+  },
+  "indian_mackerel": {
+    "name": "Cá bạc má",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 0.2,
+    "pricePerKg": 6500,
+    "sellPrice": 910,
+    "description": "Cá biển nhỏ, rẻ, ai cũng mua. Mỗi con nặng tối đa 0,2 kg, giá 6.500 đ/kg. Câu vào mùa xuân dễ được con to."
+  },
+  "hairtail": {
+    "name": "Cá hố",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 0.8,
+    "pricePerKg": 16000,
+    "sellPrice": 8960,
+    "description": "Cá biển dài như dải bạc, cắn câu ban đêm. Mỗi con nặng tối đa 0,8 kg, giá 16.000 đ/kg. Câu vào mùa đông dễ được con to."
+  },
+  "barramundi": {
+    "name": "Cá chẽm",
+    "category": "fish",
+    "stackable": true,
+    "unit": "con",
+    "maxKg": 3.0,
+    "pricePerKg": 45000,
+    "sellPrice": 94500,
+    "description": "Cá vùng nước lợ cửa sông, giật rất mạnh. Mỗi con nặng tối đa 3 kg, giá 45.000 đ/kg. Câu vào mùa hạ dễ được con to."
+  },
+  "fish_feed": {
+    "name": "Thức ăn cá",
+    "category": "fish_feed",
+    "stackable": true,
+    "sellPrice": 1100,
+    "description": "Một túi cá tạp băm (khoảng nửa ký). Cầm và bấm dùng cạnh ao để cho cá của bạn trong ao ăn. Mỗi ngày được cho ăn, mỗi con tăng 10% khả năng đạt cân nặng tối đa khi vớt."
   }
 }

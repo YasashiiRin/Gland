@@ -689,7 +689,13 @@ Nguồn: `Bang_gia_nong_san_VN_2000.xlsx` (giá ước tính). Script `scripts/d
 - [x] Phân bón (300 đ/nắm, 1 ô) bán ở cửa hàng hạt giống.
 - [x] Trồng trái mùa: cây vẫn lớn, không chết, chỉ mất +50% (đổi bằng `offSeasonWithers` trong `produce.json`).
 - [x] `Assets.md`: 16 dải cây trồng và 33 biểu tượng còn thiếu, có prompt.
-- [ ] Đợt 2: chăn nuôi và thuỷ sản theo kg (cân nặng tối đa từng con, tỉ lệ đạt tối đa).
+- [x] Đợt 2 — thuỷ sản (yêu cầu 2026-11-21): script `scripts/data/apply_vn2000_fish.py` (sheet Thuy_San).
+  - 21 loài cá (11 cũ + 10 mới câu được: rô phi, mè, cá linh, nục, ngừ, chim, hồng, bạc má, hố, chẽm), đếm theo con, mỗi con nặng tối đa `maxKg`, bán theo kg (`pricePerKg`).
+  - Câu cá: tỉ lệ đạt kg tối đa gốc 10%, đúng mùa rộ của cá (`peakSeason` trong `fish.json`) +50%, câu hoàn hảo +20%.
+  - Ao nuôi: cá giống phần lớn ra cá rô phi; món mới "Thức ăn cá" (1.100 đ/túi, sạp cá) — cầm và bấm dùng cạnh ao, mỗi ngày 1 lần, mỗi ngày được ăn +10% cho từng con (`fedDays` trên mỗi con trong ao).
+  - Sạp cá bán 8 loại cá + cá giống + thức ăn cá; mua cá về là con cỡ thường (70% kg tối đa).
+  - `Assets.md` mục 3: 11 biểu tượng còn thiếu (tạm vẽ bằng code).
+- [ ] Đợt 3: chăn nuôi theo kg (cân nặng tối đa từng con, tỉ lệ đạt tối đa).
 
 ## Cập nhật: tuỳ chỉnh phím, nút cảm ứng và bố cục giao diện (yêu cầu 2026-11-20)
 

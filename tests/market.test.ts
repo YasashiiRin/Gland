@@ -18,7 +18,8 @@ describe('open-air market', () => {
     // Produce is bought by the kilo: rice 2,000 đ/kg.
     expect(marketBuyPrice(SHOPS.market_rice, 'rice')).toBe(2400); // × 1.2
     expect(marketBuyPrice(SHOPS.market_veg, 'rice')).toBe(2200); // × 1.1
-    expect(marketSellPrice(SHOPS.market_fish, 'carp')).toBe(7040); // 4,400 × 1.6
+    expect(marketSellPrice(SHOPS.market_fish, 'carp')).toBe(19488); // a 0.84 kg carp at 14,500 đ/kg = 12,180 × 1.6
+    expect(marketBuyPrice(SHOPS.market_fish, 'carp')).toBe(15950); // fish by the kilo: 14,500 × 1.1
   });
 
   it('sells for cash, only what you have', () => {

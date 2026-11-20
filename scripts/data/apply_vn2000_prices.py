@@ -65,18 +65,7 @@ PRICES = {
     "com_nam": 1000, "banh_mi": 1500, "ca_phe_sua_da": 2500,
     "backpack_cloth": 20000, "backpack_large": 60000, "sleeping_mat": 15000,
     "fish_fry": 250,
-    # Fish: price a kilo x the weight of a typical catch (kg per fish comes in wave 2).
-    "carp": 4400,          # cá chép 14,500/kg x 0.3 kg
-    "perch": 2000,         # cá rô đồng 20,000 x 0.1
-    "grass_carp": 14500,   # cá trắm cỏ 14,500 x 1
-    "golden_loach": 6000,  # like lươn đồng 40,000 x 0.15
-    "snakehead": 16300,    # cá lóc đồng 32,500 x 0.5
-    "crucian": 1800,       # cá diếc ~12,000 x 0.15
-    "catfish": 5000,       # cá trê 12,500 x 0.4
-    "goby": 16000,         # cá bống tượng 80,000 x 0.2
-    "mackerel": 48800,     # cá thu 32,500 x 1.5
-    "grouper": 165000,     # cá mú 110,000 x 1.5
-    "anchovy": 100,        # cá cơm 4,000 x 0.025
+    # Fish are sold by the kilo: see apply_vn2000_fish.py (wave 2).
     # Young animals (Chan_Nuoi): chick, piglet (20 kg), calf; a buffalo calf is dearer than a cow calf.
     "animal_chicken": 3000, "animal_pig": 315000, "animal_cow": 1500000, "animal_buffalo": 1800000,
     # Vehicles (May_Xe where listed).

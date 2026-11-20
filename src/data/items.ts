@@ -3,7 +3,7 @@ import type { ItemStats } from '../systems/StatsSystem';
 
 export type ItemId = keyof typeof items;
 
-export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment' | 'bait' | 'animal' | 'fry' | 'relic' | 'fertilizer';
+export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment' | 'bait' | 'animal' | 'fry' | 'relic' | 'fertilizer' | 'fish_feed';
 
 export interface FoodDef {
   /** Energy restored when eaten. */

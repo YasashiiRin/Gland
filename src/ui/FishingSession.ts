@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
 import { FISH, type FishId } from '../data/fish';
-import type { ItemId } from '../data/items';
+import { ITEMS, type ItemId } from '../data/items';
 import { gameState } from '../state/GameState';
 import { uiState } from '../state/uiState';
 import { createFishingState, fishingOutcome, stepFishing, type FishingState } from '../systems/FishingSystem';
 import { biteDelay, strikeWindow } from '../systems/FishSpawnSystem';
 import { addItem } from '../systems/InventorySystem';
+import { catchMaxKgChance, formatKg, rollUnitKg } from '../systems/ProduceSystem';
 import { addXp, levelForXp, XP_REWARDS } from '../systems/SkillSystem';
 import { playPickup } from '../systems/SfxSystem';
 import { FishingMinigame } from './FishingMinigame';
@@ -98,10 +99,14 @@ export class FishingSession {
 
   private caught(fishId: FishId, state: FishingState): void {
     const def = FISH[fishId];
-    gameState.inventory = addItem(gameState.inventory, fishId, 1).state;
+    const peak = def.peakSeason.includes(gameState.time.season);
+    const maxKg = ITEMS[fishId].maxKg ?? 0;
+    const kg = rollUnitKg(maxKg, catchMaxKgChance(peak, state.perfect));
+    gameState.inventory = addItem(gameState.inventory, fishId, 1, kg).state;
     const xp = (XP_REWARDS.catchFish + Math.round(def.difficulty / 10)) * (state.perfect ? 2 : 1);
     gameState.skills = addXp(gameState.skills, 'fishing', xp).skills;
-    let text = `Câu được: ${def.name}!${state.perfect ? ' ★ Hoàn hảo (x2 kinh nghiệm)' : ''}`;
+    const size = kg >= maxKg ? ` nặng ${formatKg(kg)} — con to nhất!` : ` nặng ${formatKg(kg)}`;
+    let text = `Câu được: ${def.name}${size}${state.perfect ? ' ★ Hoàn hảo (x2 kinh nghiệm)' : ''}`;
     if (state.treasureWon) {
       const t = TREASURES[Math.floor(Math.random() * TREASURES.length)];
       if (t.money) {

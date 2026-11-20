@@ -1,10 +1,17 @@
 {
-  "_comment": "Weight of produce (systems/ProduceSystem.ts). Chances are fractions (0.1 = 10%).",
+  "_comment": "Weight of produce and fish (systems/ProduceSystem.ts). Chances are fractions (0.1 = 10%).",
   "baseMaxKgChance": 0.1,
   "waterBonus": 0.05,
   "fertilizerBonus": 0.1,
   "inSeasonBonus": 0.5,
-  "missKgShare": [0.5, 0.9],
+  "missKgShare": [
+    0.5,
+    0.9
+  ],
   "referenceKgShare": 0.7,
-  "offSeasonWithers": false
+  "offSeasonWithers": false,
+  "fish": {
+    "perfectCatchBonus": 0.2,
+    "pondFedBonus": 0.1
+  }
 }

@@ -4,7 +4,8 @@ import type { ItemId } from '../data/items';
 /**
  * The prebuilt ponds of the landmark zones: drop fingerlings (cá giống) in,
  * wait a few days for them to grow, then net them out. Fish belong to whoever
- * stocked them. When the season turns the ponds start afresh: fish nobody
+ * stocked them. Feeding them (once a day) makes a full-weight fish likelier.
+ * When the season turns the ponds start afresh: fish nobody
  * collected are gone (the pond keeps only its own wild fish, for the rod).
  */
 export interface PondStock {
@@ -15,6 +16,10 @@ export interface PondStock {
   day: number;
   /** Season stamp (see seasonStamp) it was stocked in. */
   season: number;
+  /** Days it was fed (missing in old saves: none). */
+  fedDays?: number;
+  /** Absolute day it was last fed. */
+  lastFed?: number;
 }
 
 /** Pond key ("Map:x,y" of the pond's top-left tile) -> what swims in it. */
@@ -47,10 +52,26 @@ export function stockPond(ponds: FishPonds, pondKey: string, stock: PondStock): 
   return { ...ponds, [pondKey]: [...(ponds[pondKey] ?? []), stock] };
 }
 
+/**
+ * Feeds `owner`'s fish in this pond that have not eaten today. Returns how
+ * many ate (0: none of theirs here, or all fed already).
+ */
+export function feedPond(ponds: FishPonds, pondKey: string, owner: string, today: number): { ponds: FishPonds; fed: number } {
+  let fed = 0;
+  const list = (ponds[pondKey] ?? []).map((s) => {
+    if (s.owner !== owner || s.lastFed === today) return s;
+    fed++;
+    return { ...s, fedDays: (s.fedDays ?? 0) + 1, lastFed: today };
+  });
+  return fed ? { ponds: { ...ponds, [pondKey]: list }, fed } : { ponds, fed };
+}
+
 export interface PondCatch {
   ponds: FishPonds;
   /** Grown fish netted, by kind. */
   caught: Partial<Record<ItemId, number>>;
+  /** The same fish one by one (to weigh each: how often it was fed). */
+  netted: PondStock[];
   /** This owner's fish still growing, and the days until the next one is ready. */
   growing: number;
   daysLeft: number;
@@ -59,11 +80,14 @@ export interface PondCatch {
 /** Nets out every grown fish `owner` stocked in this pond; the young ones stay. */
 export function collectPond(ponds: FishPonds, pondKey: string, owner: string, today: number): PondCatch {
   const caught: Partial<Record<ItemId, number>> = {};
+  const netted: PondStock[] = [];
   const left: PondStock[] = [];
   let daysLeft = Infinity;
   for (const s of ponds[pondKey] ?? []) {
-    if (s.owner === owner && isGrown(s, today)) caught[s.fishId] = (caught[s.fishId] ?? 0) + 1;
-    else {
+    if (s.owner === owner && isGrown(s, today)) {
+      caught[s.fishId] = (caught[s.fishId] ?? 0) + 1;
+      netted.push(s);
+    } else {
       left.push(s);
       if (s.owner === owner) daysLeft = Math.min(daysLeft, config.growDays - (today - s.day));
     }
@@ -72,7 +96,7 @@ export function collectPond(ponds: FishPonds, pondKey: string, owner: string, to
   if (left.length) next[pondKey] = left;
   else delete next[pondKey];
   const growing = left.filter((s) => s.owner === owner).length;
-  return { ponds: next, caught, growing, daysLeft: growing ? daysLeft : 0 };
+  return { ponds: next, caught, netted, growing, daysLeft: growing ? daysLeft : 0 };
 }
 
 /** A new season: fish stocked in earlier seasons are gone. */

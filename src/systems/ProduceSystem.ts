@@ -33,6 +33,19 @@ export function maxKgChance(care: number, inSeason: boolean): number {
   return Math.min(1, config.baseMaxKgChance + Math.max(0, care) + (inSeason ? config.inSeasonBonus : 0));
 }
 
+/**
+ * Chance (0–1) that a fish on the line is full weight: 10%, +50% in its peak
+ * season, +20% for a perfect catch (never lost the line).
+ */
+export function catchMaxKgChance(peakSeason: boolean, perfect: boolean): number {
+  return maxKgChance(perfect ? config.fish.perfectCatchBonus : 0, peakSeason);
+}
+
+/** Chance (0–1) that a pond fish is full weight: 10%, +10% for each day it was fed. */
+export function pondMaxKgChance(fedDays: number): number {
+  return maxKgChance(fedDays * config.fish.pondFedBonus, false);
+}
+
 /** One day's care: fertilizer beats watering, and only one of them counts. */
 export function dailyCare(fertilized: boolean, watered: boolean): number {
   if (fertilized) return config.fertilizerBonus;

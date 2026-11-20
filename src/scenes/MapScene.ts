@@ -990,6 +990,10 @@ export abstract class MapScene extends Phaser.Scene {
       this.say(this.ponds.stock(stack.itemId, this.actionTile()));
       return;
     }
+    if (ITEMS[stack.itemId].category === 'fish_feed') {
+      this.say(this.ponds.feed(stack.itemId, this.actionTile()));
+      return;
+    }
     if (ITEMS[stack.itemId].category === 'bait') {
       this.say(this.attachBaitToRod());
       return;

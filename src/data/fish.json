@@ -1,6 +1,6 @@
 {
   "carp": {
-    "name": "Cá chép nhỏ",
+    "name": "Cá chép",
     "locations": [
       "QuangBinh",
       "Hue"
@@ -11,16 +11,18 @@
       "fall",
       "winter"
     ],
+    "peakSeason": [
+      "spring"
+    ],
     "minHour": 6,
     "maxHour": 26,
     "weather": "any",
     "difficulty": 15,
-    "sellPrice": 30,
     "behavior": "smooth",
     "water": "fresh"
   },
   "perch": {
-    "name": "Cá rô",
+    "name": "Cá rô đồng",
     "locations": [
       "QuangBinh",
       "Hue"
@@ -29,16 +31,18 @@
       "spring",
       "fall"
     ],
+    "peakSeason": [
+      "fall"
+    ],
     "minHour": 6,
     "maxHour": 18,
     "weather": "any",
     "difficulty": 35,
-    "sellPrice": 55,
     "behavior": "mixed",
     "water": "fresh"
   },
   "grass_carp": {
-    "name": "Cá trắm",
+    "name": "Cá trắm cỏ",
     "locations": [
       "QuangBinh"
     ],
@@ -46,11 +50,13 @@
       "spring",
       "summer"
     ],
+    "peakSeason": [
+      "summer"
+    ],
     "minHour": 6,
     "maxHour": 26,
     "weather": "rainy",
     "difficulty": 45,
-    "sellPrice": 80,
     "behavior": "smooth",
     "water": "fresh"
   },
@@ -62,11 +68,13 @@
     "season": [
       "spring"
     ],
+    "peakSeason": [
+      "spring"
+    ],
     "minHour": 20,
     "maxHour": 26,
     "weather": "any",
     "difficulty": 70,
-    "sellPrice": 150,
     "behavior": "dart",
     "water": "fresh"
   },
@@ -82,16 +90,18 @@
       "fall",
       "winter"
     ],
+    "peakSeason": [
+      "winter"
+    ],
     "minHour": 6,
     "maxHour": 26,
     "weather": "any",
     "difficulty": 20,
-    "sellPrice": 40,
     "behavior": "floater",
     "water": "fresh"
   },
   "snakehead": {
-    "name": "Cá lóc",
+    "name": "Cá lóc đồng",
     "locations": [
       "QuangBinh",
       "Hue"
@@ -100,11 +110,13 @@
       "summer",
       "fall"
     ],
+    "peakSeason": [
+      "fall"
+    ],
     "minHour": 6,
     "maxHour": 20,
     "weather": "any",
     "difficulty": 65,
-    "sellPrice": 90,
     "behavior": "dart",
     "water": "fresh"
   },
@@ -120,11 +132,13 @@
       "fall",
       "winter"
     ],
+    "peakSeason": [
+      "summer"
+    ],
     "minHour": 18,
     "maxHour": 26,
     "weather": "rainy",
     "difficulty": 72,
-    "sellPrice": 110,
     "behavior": "sinker",
     "water": "fresh"
   },
@@ -138,12 +152,75 @@
       "fall",
       "winter"
     ],
+    "peakSeason": [
+      "winter"
+    ],
     "minHour": 6,
     "maxHour": 18,
     "weather": "any",
     "difficulty": 50,
-    "sellPrice": 60,
     "behavior": "sinker",
+    "water": "fresh"
+  },
+  "tilapia": {
+    "name": "Cá rô phi",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "peakSeason": [
+      "summer"
+    ],
+    "minHour": 6,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 20,
+    "behavior": "smooth",
+    "water": "fresh"
+  },
+  "silver_carp": {
+    "name": "Cá mè",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall"
+    ],
+    "peakSeason": [
+      "spring"
+    ],
+    "minHour": 6,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 30,
+    "behavior": "floater",
+    "water": "fresh"
+  },
+  "linh_fish": {
+    "name": "Cá linh",
+    "locations": [
+      "Hue"
+    ],
+    "season": [
+      "fall"
+    ],
+    "peakSeason": [
+      "fall"
+    ],
+    "minHour": 5,
+    "maxHour": 19,
+    "weather": "any",
+    "difficulty": 15,
+    "behavior": "dart",
     "water": "fresh"
   },
   "anchovy": {
@@ -158,11 +235,13 @@
       "fall",
       "winter"
     ],
+    "peakSeason": [
+      "summer"
+    ],
     "minHour": 5,
     "maxHour": 20,
     "weather": "any",
     "difficulty": 25,
-    "sellPrice": 25,
     "behavior": "smooth",
     "water": "sea"
   },
@@ -176,11 +255,13 @@
       "spring",
       "summer"
     ],
+    "peakSeason": [
+      "spring"
+    ],
     "minHour": 6,
     "maxHour": 18,
     "weather": "any",
     "difficulty": 78,
-    "sellPrice": 160,
     "behavior": "dart",
     "water": "sea"
   },
@@ -195,11 +276,158 @@
       "fall",
       "winter"
     ],
+    "peakSeason": [
+      "summer"
+    ],
     "minHour": 6,
     "maxHour": 26,
     "weather": "any",
     "difficulty": 88,
-    "sellPrice": 240,
+    "behavior": "mixed",
+    "water": "sea"
+  },
+  "scad": {
+    "name": "Cá nục",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "peakSeason": [
+      "summer"
+    ],
+    "minHour": 4,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 25,
+    "behavior": "mixed",
+    "water": "sea"
+  },
+  "tuna": {
+    "name": "Cá ngừ",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer"
+    ],
+    "peakSeason": [
+      "summer"
+    ],
+    "minHour": 5,
+    "maxHour": 17,
+    "weather": "sunny",
+    "difficulty": 82,
+    "behavior": "dart",
+    "water": "sea"
+  },
+  "pomfret": {
+    "name": "Cá chim",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "summer",
+      "fall"
+    ],
+    "peakSeason": [
+      "fall"
+    ],
+    "minHour": 6,
+    "maxHour": 18,
+    "weather": "any",
+    "difficulty": 55,
+    "behavior": "floater",
+    "water": "sea"
+  },
+  "red_snapper": {
+    "name": "Cá hồng",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "fall",
+      "winter"
+    ],
+    "peakSeason": [
+      "winter"
+    ],
+    "minHour": 6,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 60,
+    "behavior": "sinker",
+    "water": "sea"
+  },
+  "indian_mackerel": {
+    "name": "Cá bạc má",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall",
+      "winter"
+    ],
+    "peakSeason": [
+      "spring"
+    ],
+    "minHour": 4,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 30,
+    "behavior": "mixed",
+    "water": "sea"
+  },
+  "hairtail": {
+    "name": "Cá hố",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "fall",
+      "winter"
+    ],
+    "peakSeason": [
+      "winter"
+    ],
+    "minHour": 18,
+    "maxHour": 26,
+    "weather": "any",
+    "difficulty": 50,
+    "behavior": "dart",
+    "water": "sea"
+  },
+  "barramundi": {
+    "name": "Cá chẽm",
+    "locations": [
+      "QuangBinh",
+      "Hue"
+    ],
+    "season": [
+      "spring",
+      "summer",
+      "fall"
+    ],
+    "peakSeason": [
+      "summer"
+    ],
+    "minHour": 5,
+    "maxHour": 20,
+    "weather": "any",
+    "difficulty": 70,
     "behavior": "mixed",
     "water": "sea"
   }

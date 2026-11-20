@@ -8,7 +8,7 @@ Cách vẽ, cách lưu và cách nạp vào game giống hệt `ASSET_LIST.md`: 
 | Loại | Còn thiếu | Lưu vào |
 |---|---|---|
 | Cây trồng (dải 5 giai đoạn, 160 x 64) | 16 | `assets/crops/<id>.png` |
-| Biểu tượng vật phẩm (32 x 32) | 33 | `assets/icons/<id>.png` |
+| Biểu tượng vật phẩm (32 x 32) | 33 + 11 thủy sản | `assets/icons/<id>.png` |
 
 ## Bảng kiểm
 
@@ -383,4 +383,99 @@ Original pixel art game asset for a cozy farming game set in a humble Vietnamese
 - **File:** `assets/icons/fertilizer.png`  ·  **Kích thước file:** 32 x 32 px
 ```
 Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A small woven bamboo scoop holding dark brown crumbly manure fertilizer with a few white fertilizer granules.
+```
+
+## 3. Thủy sản — giá 2000, đợt 2
+
+10 loài cá mới và túi thức ăn cá. Trong lúc chưa có hình, game tạm dùng hình cá vẽ bằng code (mỗi loài một màu).
+
+| Vật phẩm | Biểu tượng |
+|---|---|
+| Cá rô phi (`tilapia`) | ⬜ |
+| Cá mè (`silver_carp`) | ⬜ |
+| Cá linh (`linh_fish`) | ⬜ |
+| Cá nục (`scad`) | ⬜ |
+| Cá ngừ (`tuna`) | ⬜ |
+| Cá chim (`pomfret`) | ⬜ |
+| Cá hồng (`red_snapper`) | ⬜ |
+| Cá bạc má (`indian_mackerel`) | ⬜ |
+| Cá hố (`hairtail`) | ⬜ |
+| Cá chẽm (`barramundi`) | ⬜ |
+| Thức ăn cá (`fish_feed`) | ⬜ |
+
+### Cá rô phi (`tilapia`)
+
+- **File:** `assets/icons/tilapia.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A grey-green tilapia fish with faint dark vertical bands and a spiny dorsal fin.
+```
+
+### Cá mè (`silver_carp`)
+
+- **File:** `assets/icons/silver_carp.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A silvery bighead silver carp with a large head and small low-set eyes.
+```
+
+### Cá linh (`linh_fish`)
+
+- **File:** `assets/icons/linh_fish.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A tiny slim silvery Mekong linh fish (Henicorhynchus), a little shiny minnow.
+```
+
+### Cá nục (`scad`)
+
+- **File:** `assets/icons/scad.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A slim blue-green round scad sea fish with a silver belly.
+```
+
+### Cá ngừ (`tuna`)
+
+- **File:** `assets/icons/tuna.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A stout dark navy blue tuna with a silver belly and small yellow finlets.
+```
+
+### Cá chim (`pomfret`)
+
+- **File:** `assets/icons/pomfret.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A flat round silvery pomfret fish with a deeply forked tail.
+```
+
+### Cá hồng (`red_snapper`)
+
+- **File:** `assets/icons/red_snapper.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A bright pinkish red snapper fish with a silver-pink belly.
+```
+
+### Cá bạc má (`indian_mackerel`)
+
+- **File:** `assets/icons/indian_mackerel.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A small Indian mackerel with blue-green back, faint dark stripes and a silver belly.
+```
+
+### Cá hố (`hairtail`)
+
+- **File:** `assets/icons/hairtail.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A long thin ribbon-like silver hairtail fish with sharp teeth, curled in an S shape to fit.
+```
+
+### Cá chẽm (`barramundi`)
+
+- **File:** `assets/icons/barramundi.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). An olive-grey barramundi (Asian sea bass) with a large mouth and silver flanks.
+```
+
+### Thức ăn cá (`fish_feed`)
+
+- **File:** `assets/icons/fish_feed.png`  ·  **Kích thước file:** 32 x 32 px
+```
+Original pixel art game asset for a cozy farming game set in a humble Vietnamese countryside village of the old days. Match the art style of the attached reference image (assets/reference.jpg): a high top-down three-quarter view looking down at about 45 degrees, like an illustrated pixel-art town map, so roofs and tops are clearly visible and fronts are seen below them; bright, saturated, cheerful colours (lush greens, turquoise water, warm terracotta roof tiles, sandy orange earth, grey cobblestone, golden rice and straw); a thin dark outline around every shape with soft cel shading and a light top-left highlight; rich small details at a small scale (planks, tiles, leaves, baskets) but readable; clean square pixels, no anti-aliasing, no blur, no photo texture. No text, letters, signs with writing, logos or watermark. Original design: learn only the look of the reference, do not copy its layout or any existing game. Draw exactly one inventory icon, centered and fully visible, on a plain pure white (#FFFFFF) background with nothing else in the image: no ground, no scenery, only a small soft oval shadow right under it. Pixel grid: 32 x 32 pixels (the picture must look like a 32 x 32 pixel sprite scaled up, every art pixel a clean square). A small tied burlap sack of chopped trash-fish feed with a few bits spilling out.
 ```
