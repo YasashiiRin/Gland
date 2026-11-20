@@ -118,6 +118,11 @@ export class Minimap {
     if (show) this.home.setPosition(PAD + (x + 0.5) * this.scale, PAD + (y + 0.5) * this.scale);
   }
 
+  /** The root drawn on screen (for moving/resizing it, see LayoutHost). */
+  get root(): Phaser.GameObjects.Container {
+    return this.container;
+  }
+
   toggle(): void {
     this.hidden = !this.hidden;
     this.container.setVisible(!this.hidden);

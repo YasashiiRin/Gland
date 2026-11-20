@@ -15,6 +15,8 @@ export const uiState = {
   worldMapOpen: false,
   /** Multiplayer: lying in bed waiting for the others. */
   sleepWait: false,
+  /** Moving/resizing the on-screen blocks (settings → Chỉnh bố cục). */
+  layoutEditing: false,
 };
 
 /** True while any modal UI (menus, dialogue, fishing) should block world input. */
@@ -28,7 +30,8 @@ export function isWorldInputBlocked(): boolean {
     uiState.fishingOpen ||
     uiState.settingsOpen ||
     uiState.worldMapOpen ||
-    uiState.sleepWait
+    uiState.sleepWait ||
+    uiState.layoutEditing
   );
 }
 
@@ -42,4 +45,5 @@ export function closeAllMenus(): void {
   uiState.fishingOpen = false;
   uiState.settingsOpen = false;
   uiState.worldMapOpen = false;
+  uiState.layoutEditing = false;
 }

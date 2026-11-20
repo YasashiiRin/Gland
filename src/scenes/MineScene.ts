@@ -5,6 +5,7 @@ import { FADE_MS, TILE } from '../config/constants';
 import { setupWorldCamera } from './cameraFit';
 import { Player, type PlayerInput } from '../entities/Player';
 import { StaminaTracker } from './staminaTracker';
+import { ActionKeys } from './actionKeys';
 import { EventBus, GameEvents, type MapEnteredPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
 import { TOOL_ENERGY_COST } from '../data/items';
@@ -46,7 +47,7 @@ export class MineScene extends Phaser.Scene {
   private layer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
   private stamina!: StaminaTracker;
-  private keys!: Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'interact' | 'attack', Phaser.Input.Keyboard.Key>;
+  private keys!: ActionKeys;
   private monsters: { data: Monster; sprite: Phaser.GameObjects.Arc }[] = [];
   private monsterTimer = 0;
   private transitioning = false;
@@ -84,8 +85,8 @@ export class MineScene extends Phaser.Scene {
     this.player.setExhausted(isExhausted(gameState.energy));
     this.player.updateMovement(this.readInput(), currentSpeedMultiplier());
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.interact) || consumeTouchInteract()) this.tryUseLadder();
-    if (Phaser.Input.Keyboard.JustDown(this.keys.attack) || consumeTouchUse()) this.tryAttackOrMine();
+    if (this.keys.justDown('interact') || consumeTouchInteract()) this.tryUseLadder();
+    if (this.keys.justDown('use') || consumeTouchUse()) this.tryAttackOrMine();
 
     this.monsterTimer += delta;
     if (this.monsterTimer >= MONSTER_STEP_MS) {
@@ -147,11 +148,7 @@ export class MineScene extends Phaser.Scene {
   private setupInput(): void {
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
-    const K = Phaser.Input.Keyboard.KeyCodes;
-    this.keys = kb.addKeys({
-      up: K.UP, down: K.DOWN, left: K.LEFT, right: K.RIGHT,
-      w: K.W, a: K.A, s: K.S, d: K.D, interact: K.E, attack: K.SPACE,
-    }) as typeof this.keys;
+    this.keys = new ActionKeys(kb);
 
     // Mouse: left click attacks/mines toward the pointer, right click uses the ladder.
     this.input.mouse?.disableContextMenu();
@@ -177,10 +174,10 @@ export class MineScene extends Phaser.Scene {
   private readInput(): PlayerInput {
     const k = this.keys;
     return {
-      up: k.up.isDown || k.w.isDown || touchInput.up,
-      down: k.down.isDown || k.s.isDown || touchInput.down,
-      left: k.left.isDown || k.a.isDown || touchInput.left,
-      right: k.right.isDown || k.d.isDown || touchInput.right,
+      up: k.isDown('up') || touchInput.up,
+      down: k.isDown('down') || touchInput.down,
+      left: k.isDown('left') || touchInput.left,
+      right: k.isDown('right') || touchInput.right,
     };
   }
 

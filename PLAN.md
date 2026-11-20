@@ -690,3 +690,10 @@ Nguồn: `Bang_gia_nong_san_VN_2000.xlsx` (giá ước tính). Script `scripts/d
 - [x] Trồng trái mùa: cây vẫn lớn, không chết, chỉ mất +50% (đổi bằng `offSeasonWithers` trong `produce.json`).
 - [x] `Assets.md`: 16 dải cây trồng và 33 biểu tượng còn thiếu, có prompt.
 - [ ] Đợt 2: chăn nuôi và thuỷ sản theo kg (cân nặng tối đa từng con, tỉ lệ đạt tối đa).
+
+## Cập nhật: tuỳ chỉnh phím, nút cảm ứng và bố cục giao diện (yêu cầu 2026-11-20)
+
+Cài đặt (Tab / ⚙) có thêm 2 nút. Lưu trong `settings.keys` và `settings.layout` của save.
+
+- [x] **Phím điều khiển:** 24 việc (đi 4 hướng, dùng, tương tác, túi, chế tạo, bản đồ nhỏ, cài đặt, đóng bảng, phép đầu tiên, 12 ô công cụ), mỗi việc tối đa 2 phím; gán phím đã dùng thì phím đó tự gỡ khỏi việc cũ; Backspace xoá, Esc huỷ; nút "Khôi phục mặc định". Thanh công cụ và ô phép hiện đúng tên phím. Logic: `src/systems/KeyBindings.ts`.
+- [x] **Chỉnh bố cục:** kéo khung để di chuyển, − / + đổi cỡ (60–180%), Ẩn/Hiện, "Mặc định". Áp dụng cho: đồng hồ & tiền, thanh chỉ số, thanh công cụ, bản đồ nhỏ, linh lực và cột phép (thầy pháp), cần điều khiển và 4 nút cảm ứng. Logic: `src/systems/UiLayout.ts`.

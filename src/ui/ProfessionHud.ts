@@ -1,3 +1,5 @@
+import { currentBindings } from '../state/controls';
+import { keyName } from '../systems/KeyBindings';
 import Phaser from 'phaser';
 import { SKILLS, THAY_PHAP, type ProfessionState, type SkillId } from '../systems/ProfessionSystem';
 import { UI_COLORS, UI_FONT } from './uiStyle';
@@ -14,9 +16,11 @@ const MARGIN = 10;
  * buttons down the right edge (click one, or press Q for the first, to cast).
  */
 export class ProfessionHud {
-  private readonly root: Phaser.GameObjects.Container;
+  /** Linh lực bar and portrait (shown only for a Thầy pháp). */
+  readonly root: Phaser.GameObjects.Container;
   private readonly fill: Phaser.GameObjects.Rectangle;
-  private readonly column: Phaser.GameObjects.Container;
+  /** The spell buttons down the right edge. */
+  readonly column: Phaser.GameObjects.Container;
   private shownOrder = '';
   onOpenPanel?: () => void;
   onCast?: (skill: SkillId) => void;
@@ -43,10 +47,12 @@ export class ProfessionHud {
     badge.on('pointerdown', () => this.onOpenPanel?.());
     this.root.add([frame, this.fill, letter, badge, face]);
     this.column = scene.add.container(0, 0).setDepth(depth);
-    scene.input.keyboard?.on('keydown-Q', () => {
-      const first = this.shownOrder.split(',')[0];
-      if (first) this.onCast?.(first as SkillId);
-    });
+  }
+
+  /** The "ability" key (Q by default): casts the first spell in the column. */
+  castFirst(): void {
+    const first = this.shownOrder.split(',')[0];
+    if (first) this.onCast?.(first as SkillId);
   }
 
   update(p: ProfessionState | null, menuOpen: boolean): void {
@@ -74,7 +80,7 @@ export class ProfessionHud {
         .text(x, y - 6, SKILLS[skill].name, { fontFamily: UI_FONT, fontSize: '10px', color: '#fff2d0', align: 'center', wordWrap: { width: 42 } })
         .setOrigin(0.5);
       const cost = this.scene.add.text(x, y + 14, `${SKILLS[skill].cost}`, { fontFamily: UI_FONT, fontSize: '9px', color: '#f8b060' }).setOrigin(0.5);
-      const key = i === 0 ? this.scene.add.text(x - 20, y - 20, 'Q', { fontFamily: UI_FONT, fontSize: '9px', color: '#fff2d0' }) : null;
+      const key = i === 0 ? this.scene.add.text(x - 20, y - 20, keyName(currentBindings().ability[0]), { fontFamily: UI_FONT, fontSize: '9px', color: '#fff2d0' }) : null;
       box.on('pointerdown', () => this.onCast?.(skill));
       this.column.add(key ? [box, name, cost, key] : [box, name, cost]);
     });

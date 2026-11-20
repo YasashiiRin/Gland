@@ -51,6 +51,8 @@ import { mapCacheKey, RAIN_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
 import type { ChunkedImages } from './chunkedImages';
 import { RideController } from './rideController';
+import { ActionKeys } from './actionKeys';
+import { HOTBAR_ACTIONS } from '../systems/KeyBindings';
 import { ensureHomeBicycle } from './homeBicycle';
 import { StaminaTracker } from './staminaTracker';
 import { WaterLife } from './waterLife';
@@ -109,25 +111,6 @@ interface Door {
   spawn: string;
 }
 
-type Keys = Record<
-  'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'interact' | 'useTool',
-  Phaser.Input.Keyboard.Key
->;
-
-const HOTBAR_KEY_CODES = [
-  Phaser.Input.Keyboard.KeyCodes.ONE,
-  Phaser.Input.Keyboard.KeyCodes.TWO,
-  Phaser.Input.Keyboard.KeyCodes.THREE,
-  Phaser.Input.Keyboard.KeyCodes.FOUR,
-  Phaser.Input.Keyboard.KeyCodes.FIVE,
-  Phaser.Input.Keyboard.KeyCodes.SIX,
-  Phaser.Input.Keyboard.KeyCodes.SEVEN,
-  Phaser.Input.Keyboard.KeyCodes.EIGHT,
-  Phaser.Input.Keyboard.KeyCodes.NINE,
-  Phaser.Input.Keyboard.KeyCodes.ZERO,
-  Phaser.Input.Keyboard.KeyCodes.MINUS,
-  Phaser.Input.Keyboard.KeyCodes.PLUS,
-];
 
 /**
  * Shared logic for every walkable map: loads the Tiled map, places the player
@@ -169,8 +152,7 @@ export abstract class MapScene extends Phaser.Scene {
   /** Talismans and ancient books lying about (the Thầy pháp's). */
   protected groundItems: GroundItems | null = null;
   private lastPoseSent = 0;
-  private keys!: Keys;
-  private hotbarKeys: Phaser.Input.Keyboard.Key[] = [];
+  private keys!: ActionKeys;
   private transitioning = false;
   private targetHighlight!: Phaser.GameObjects.Rectangle;
   private bedZones: Phaser.GameObjects.Zone[] = [];
@@ -418,8 +400,8 @@ export abstract class MapScene extends Phaser.Scene {
     this.mouseAimTile = !touchInput.enabled && this.lastPointerMoveAt > this.lastMoveKeyAt ? this.pointerAimTile() : null;
     this.updateTargetHighlight();
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.interact) || consumeTouchInteract()) this.interact();
-    if (Phaser.Input.Keyboard.JustDown(this.keys.useTool) || consumeTouchUse()) this.useEquippedTool();
+    if (this.keys.justDown('interact') || consumeTouchInteract()) this.interact();
+    if (this.keys.justDown('use') || consumeTouchUse()) this.useEquippedTool();
   }
 
   /** Multiplayer: send my position now and then, and draw the other players. */
@@ -506,8 +488,8 @@ export abstract class MapScene extends Phaser.Scene {
 
   private trackMoveKeyPresses(): void {
     const k = this.keys;
-    const moveKeys = [k.up, k.down, k.left, k.right, k.w, k.a, k.s, k.d];
-    if (moveKeys.some((key) => Phaser.Input.Keyboard.JustDown(key))) this.lastMoveKeyAt = this.time.now;
+    const moved = [k.justDown('up'), k.justDown('down'), k.justDown('left'), k.justDown('right')];
+    if (moved.some(Boolean)) this.lastMoveKeyAt = this.time.now;
   }
 
   /** Left click = use the held tool/seed, right click = interact, aimed at the pointer. */
@@ -917,12 +899,7 @@ export abstract class MapScene extends Phaser.Scene {
   private setupInput(): void {
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
-    const K = Phaser.Input.Keyboard.KeyCodes;
-    this.keys = kb.addKeys({
-      up: K.UP, down: K.DOWN, left: K.LEFT, right: K.RIGHT,
-      w: K.W, a: K.A, s: K.S, d: K.D, interact: K.E, useTool: K.SPACE,
-    }) as Keys;
-    this.hotbarKeys = HOTBAR_KEY_CODES.map((code) => kb.addKey(code));
+    this.keys = new ActionKeys(kb);
 
     // Mouse: right click is an in-game action, so the browser menu must not pop up.
     this.input.mouse?.disableContextMenu();
@@ -939,11 +916,9 @@ export abstract class MapScene extends Phaser.Scene {
   }
 
   private readHotbarSelection(): void {
-    for (let i = 0; i < this.hotbarKeys.length; i++) {
-      if (Phaser.Input.Keyboard.JustDown(this.hotbarKeys[i])) {
-        gameState.equippedSlot = i;
-      }
-    }
+    HOTBAR_ACTIONS.forEach((action, i) => {
+      if (this.keys.justDown(action)) gameState.equippedSlot = i;
+    });
   }
 
   /** A working tractor/harvester reached a new 2x2 area. Farm overrides this to plough/harvest. */
@@ -1054,10 +1029,10 @@ export abstract class MapScene extends Phaser.Scene {
   private readInput(): PlayerInput {
     const k = this.keys;
     return {
-      up: k.up.isDown || k.w.isDown || touchInput.up,
-      down: k.down.isDown || k.s.isDown || touchInput.down,
-      left: k.left.isDown || k.a.isDown || touchInput.left,
-      right: k.right.isDown || k.d.isDown || touchInput.right,
+      up: k.isDown('up') || touchInput.up,
+      down: k.isDown('down') || touchInput.down,
+      left: k.isDown('left') || touchInput.left,
+      right: k.isDown('right') || touchInput.right,
     };
   }
 
