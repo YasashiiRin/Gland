@@ -711,3 +711,5 @@ Cài đặt (Tab / ⚙) có thêm 2 nút. Lưu trong `settings.keys` và `settin
 - [x] Kiểm tra: 22 NPC trong 25 giây, 0 lần nhảy chỗ.
 
 - Tốc độ NPC = tốc độ đi bộ của người chơi (`PLAYER_SPEED` 72 px/s), không tăng tốc khi "trễ giờ"; nhịp bước chân khớp người chơi (8 khung/giây).
+
+- Dân làng trồng trọt theo thứ tự thật: cuốc xong **toàn bộ thửa ruộng** rồi mới bắt đầu gieo hạt (`sowingOpen` trong `systems/npc/field.ts` đòi không còn ô UNTILLED).
