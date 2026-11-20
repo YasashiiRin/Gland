@@ -44,7 +44,7 @@ import { CROP_TEXTURE, WATER_DROPLET_TEXTURE } from './PreloadScene';
 import { MapScene } from './MapScene';
 import type { Station } from '../data/recipes';
 import { touchedKeys, type WorldPatch } from '../net/worldPatch';
-import { vehicleHome, WAREHOUSE_KEY } from '../data/garage';
+import { HOME_VEHICLE, vehicleHome, WAREHOUSE_KEY } from '../data/garage';
 import { recallAll } from '../systems/VehicleSystem';
 import { isSowableField, seasonStamp } from '../systems/WildFieldSystem';
 import { isMine, ownerName } from '../state/owner';
@@ -449,7 +449,9 @@ export abstract class FieldScene extends MapScene {
   protected override tryOpenChest(): boolean {
     if (this.isNearAnyZone(this.warehouseZones)) {
       // The warehouse: open its big storage and call every vehicle back to its bay.
-      const { owned, recalled } = recallAll(gameState.vehicles, vehicleHome, gameState.riding);
+      // The bicycle lives at home, not at the warehouse: it stays where it is.
+      const homeOf = (id: string) => (id === HOME_VEHICLE ? (gameState.vehicles[id] ?? vehicleHome(id)) : vehicleHome(id));
+      const { owned, recalled } = recallAll(gameState.vehicles, homeOf, gameState.riding);
       gameState.vehicles = owned;
       if (recalled > 0) this.say(`Đã gọi ${recalled} xe về nhà kho`);
       const payload: ChestOpenRequestedPayload = { chestKey: WAREHOUSE_KEY };

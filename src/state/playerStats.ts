@@ -4,6 +4,7 @@ import { itemAt, removeItem } from '../systems/InventorySystem';
 import { absoluteMinute, activeBuffs, addBuff, speedMultiplier, type ItemStats } from '../systems/StatsSystem';
 import { sanitySpeedPenalty } from '../systems/SanitySystem';
 import { feed } from '../systems/HungerSystem';
+import { foodRecovery } from '../systems/StaminaSystem';
 import { gameState } from './GameState';
 
 /** Losing control after a scare: legs give way for a moment. Runtime only (never saved). */
@@ -49,6 +50,7 @@ export function eatHeldFood(): string | null {
 
   gameState.inventory = removeItem(gameState.inventory, held.itemId, 1);
   gameState.energy = restore(gameState.energy, def.food.energy);
+  gameState.recovery = foodRecovery(gameState.recovery, def.food.energy);
   gameState.hunger = feed(gameState.hunger, fill);
   let message = `+${def.food.energy} năng lượng`;
   if (fill) message += ` · no +${fill}`;

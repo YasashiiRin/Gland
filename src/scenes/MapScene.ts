@@ -51,6 +51,8 @@ import { mapCacheKey, RAIN_TEXTURE, WOOD_CHIP_TEXTURE } from './PreloadScene';
 import { createProps, readProp, TreeSprites } from './worldSprites';
 import type { ChunkedImages } from './chunkedImages';
 import { RideController } from './rideController';
+import { ensureHomeBicycle } from './homeBicycle';
+import { StaminaTracker } from './staminaTracker';
 import { WaterLife } from './waterLife';
 import { RemotePlayers } from './remotePlayers';
 import { HorrorDirector } from './horrorDirector';
@@ -144,6 +146,7 @@ export abstract class MapScene extends Phaser.Scene {
   protected trees!: TreeSprites;
   private props!: ChunkedImages;
   protected ride!: RideController;
+  private stamina!: StaminaTracker;
   private boats!: Boats;
   private herd!: LivestockHerd;
   private tigers: Tigers | null = null;
@@ -240,6 +243,7 @@ export abstract class MapScene extends Phaser.Scene {
         ? { x: data.x, y: data.y }
         : (data.spawn === 'home' ? this.homeSpawn() : null) ?? this.findSpawn(data.spawn ?? 'default');
     this.player = new Player(this, spawn.x, spawn.y, data.facing ?? this.defaultFacing(data.spawn));
+    this.stamina = new StaminaTracker(this.player);
     // While rowing a boat, water stops blocking (Boats keeps the boat off dry land).
     this.physics.add.collider(this.player, ground, undefined, (_p, t) => !this.boats?.passesWater(t as Phaser.Tilemaps.Tile));
     this.physics.add.collider(this.player, decor);
@@ -284,6 +288,7 @@ export abstract class MapScene extends Phaser.Scene {
     this.wildRice.refresh();
     this.ponds = new FishPondsView(this.mapKey, this.map);
     if (!this.isOutdoor) gameState.riding = null; // vehicles stay outside
+    if (this.isOutdoor) ensureHomeBicycle(this.mapKey, this.myHomestead());
     this.ride = new RideController(this, this.player, this.mapKey, (tiles, ability) => this.onVehicleWork(tiles, ability));
     this.boats = new Boats(this, this.player, this.mapKey, this.map, ground, decor);
     this.safeZones = this.zoneRects();
@@ -362,6 +367,7 @@ export abstract class MapScene extends Phaser.Scene {
     if (this.transitioning) return;
     this.syncNetwork(time);
     this.horror.update(time);
+    this.say(this.stamina.update(this.game.loop.delta));
     craftingState.nearStation = this.nearestStation();
 
     this.player.setExhausted(isExhausted(gameState.energy));

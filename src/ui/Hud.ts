@@ -5,6 +5,7 @@ import { hungerRatio } from '../systems/HungerSystem';
 import type { EnergyState } from '../systems/EnergySystem';
 import type { TimeState } from '../systems/TimeSystem';
 import { clockLabel } from '../systems/TimeSystem';
+import { STAMINA } from '../systems/StaminaSystem';
 import { UI_COLORS, UI_FONT } from './uiStyle';
 import { hasSkin, SKIN, skinRound } from './uiSkin';
 
@@ -12,6 +13,11 @@ const MARGIN = 10;
 const DIAL_R = 22;
 const BAR_W = 8;
 const BAR_H = 76;
+/** The recovery bar: slimmer and shorter than the energy bar, in the same color. */
+const RECOVERY_W = 5;
+const RECOVERY_H = 46;
+const ENERGY_COLOR = 0x7ccf5a;
+const REST_SECONDS = STAMINA.restSecondsToPump;
 
 const SANITY_COLOR = 0x8a7ce0;
 const HUNGER_COLOR = 0xe8a040;
@@ -51,6 +57,10 @@ export class Hud {
   private time?: TimeState;
   private energy: EnergyState = { current: 0, max: 0 };
   private health: EnergyState = { current: 0, max: 0 };
+  private recovery: EnergyState = { current: 0, max: 0 };
+  private restSeconds: number | null = null;
+  private readonly recoveryFill: Phaser.GameObjects.Rectangle;
+  private readonly restText: Phaser.GameObjects.Text;
   /** Called when the on-screen gear button is clicked. */
   onSettings?: () => void;
 
@@ -95,15 +105,22 @@ export class Hud {
 
     // --- Slim energy / health bars (bottom-right) ---
     // Each bar has a letter on top: N năng lượng, H máu, T tinh thần, Đ đói.
-    const bx = width - MARGIN - BAR_W;
+    const rx = width - MARGIN - RECOVERY_W;
+    const bx = rx - 8 - BAR_W;
     const by = height - MARGIN - BAR_H;
     const step = BAR_W + 8;
-    this.energyFill = this.slimBar(scene, bx, by, 0x7ccf5a, 'N', () => `Năng lượng ${Math.round(this.energy.current)}/${this.energy.max}`);
+    this.recoveryFill = this.slimBar(scene, rx, height - MARGIN - RECOVERY_H, ENERGY_COLOR, 'P', () => this.recoveryTip(), RECOVERY_W, RECOVERY_H);
+    this.energyFill = this.slimBar(scene, bx, by, ENERGY_COLOR, 'N', () => `Năng lượng ${Math.round(this.energy.current)}/${this.energy.max}`);
     this.healthFill = this.slimBar(scene, bx - step, by, 0xe0604f, 'H', () => `Máu ${Math.round(this.health.current)}/${this.health.max}`);
     this.sanityFill = this.slimBar(scene, bx - step * 2, by, SANITY_COLOR, 'T', () => `Tinh thần ${Math.round(this.sanity.current)}/${this.sanity.max}`);
     this.hungerFill = this.slimBar(scene, bx - step * 3, by, HUNGER_COLOR, 'Đ', () => `No ${Math.round(this.hunger.current)}/${this.hunger.max}${this.hunger.current <= 0 ? ' — đang đói, mất máu!' : ''}`);
     this.hungerFrame = this.lastFrame;
     this.hungerArt = this.lastArt;
+    this.restText = scene.add
+      .text(width - MARGIN, by - 22, '', { fontFamily: UI_FONT, fontSize: '11px', fontStyle: 'bold', color: '#fff6e0' })
+      .setStroke('#2b1a10', 3)
+      .setOrigin(1, 1);
+    this.container.add(this.restText);
 
     this.tip = scene.add
       .text(0, 0, '', { fontFamily: UI_FONT, fontSize: '12px', color: '#fff6e0', backgroundColor: '#2b1a10dd' })
@@ -120,19 +137,19 @@ export class Hud {
       .setOrigin(0.5);
   }
 
-  private slimBar(scene: Phaser.Scene, x: number, y: number, color: number, letter: string, tip: () => string): Phaser.GameObjects.Rectangle {
-    const frame = scene.add.rectangle(x - 2, y - 2, BAR_W + 4, BAR_H + 4, UI_COLORS.edge, 0.85).setOrigin(0, 0);
-    const fill = scene.add.rectangle(x, y + BAR_H, BAR_W, BAR_H, color).setOrigin(0, 1);
+  private slimBar(scene: Phaser.Scene, x: number, y: number, color: number, letter: string, tip: () => string, w = BAR_W, h = BAR_H): Phaser.GameObjects.Rectangle {
+    const frame = scene.add.rectangle(x - 2, y - 2, w + 4, h + 4, UI_COLORS.edge, 0.85).setOrigin(0, 0);
+    const fill = scene.add.rectangle(x, y + h, w, h, color).setOrigin(0, 1);
     const icon = scene.add
-      .text(x + BAR_W / 2, y - 10, letter, { fontFamily: UI_FONT, fontSize: '13px', fontStyle: 'bold', color: `#${color.toString(16).padStart(6, '0')}` })
+      .text(x + w / 2, y - 10, letter, { fontFamily: UI_FONT, fontSize: '13px', fontStyle: 'bold', color: `#${color.toString(16).padStart(6, '0')}` })
       .setOrigin(0.5)
       .setStroke('#2b1a10', 3);
     this.container.add(icon);
     this.lastFrame = frame;
     frame.setInteractive();
-    frame.on('pointerover', () => this.showTip(tip(), x - 6, y + BAR_H / 2));
+    frame.on('pointerover', () => this.showTip(tip(), x - 6, y + h / 2));
     frame.on('pointerout', () => this.tip.setVisible(false));
-    const art = hasSkin(scene, SKIN.barFrame) ? scene.add.image(x - 2, y - 2, SKIN.barFrame).setOrigin(0, 0).setDisplaySize(BAR_W + 4, BAR_H + 4) : null;
+    const art = hasSkin(scene, SKIN.barFrame) ? scene.add.image(x - 2, y - 2, SKIN.barFrame).setOrigin(0, 0).setDisplaySize(w + 4, h + 4) : null;
     this.lastArt = art;
     this.container.add([frame, ...(art ? [art] : []), fill]);
     return fill;
@@ -193,7 +210,23 @@ export class Hud {
     this.energy = energy;
     const ratio = energy.max > 0 ? energy.current / energy.max : 0;
     this.energyFill.height = Math.max(0, BAR_H * ratio);
-    this.energyFill.setFillStyle(ratio > 0.3 ? 0x7ccf5a : ratio > 0.12 ? 0xe0b040 : 0xe0604f);
+    this.energyFill.setFillStyle(ratio > 0.3 ? ENERGY_COLOR : ratio > 0.12 ? 0xe0b040 : 0xe0604f);
+  }
+
+  /** The recovery bar; `restSeconds` is the rest counter while energy is at 0 (else null). */
+  setRecovery(recovery: EnergyState, restSeconds: number | null): void {
+    this.recovery = recovery;
+    this.restSeconds = restSeconds;
+    const ratio = recovery.max > 0 ? recovery.current / recovery.max : 0;
+    this.recoveryFill.height = Math.max(0, RECOVERY_H * ratio);
+    const label = restSeconds === null ? '' : restSeconds < REST_SECONDS ? `Nghỉ ${Math.floor(restSeconds)}/${REST_SECONDS}s` : `Nghỉ ${Math.floor(restSeconds)}s ✓`;
+    if (this.restText.text !== label) this.restText.setText(label);
+  }
+
+  private recoveryTip(): string {
+    const line = `Hồi phục ${Math.round(this.recovery.current)}/${Math.round(this.recovery.max)}`;
+    if (this.restSeconds === null) return line;
+    return `${line} — hết sức: đứng nghỉ ${REST_SECONDS}s rồi đi tiếp để bơm sức`;
   }
 
   setHealth(health: EnergyState): void {

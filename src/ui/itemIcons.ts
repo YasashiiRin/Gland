@@ -383,6 +383,20 @@ const ICONS: Partial<Record<ItemId, Draw>> = {
     g.lineStyle(1, INK, 1);
     g.strokeRect(1.5, 6.5, 7, 4);
   },
+  bicycle: (g) => {
+    g.lineStyle(1, 0x2a2420, 1);
+    g.strokeCircle(4, 11, 3);
+    g.strokeCircle(12, 11, 3);
+    g.lineStyle(1, 0x3c7a9c, 1);
+    g.lineBetween(4, 11, 7, 6);
+    g.lineBetween(7, 6, 11, 6);
+    g.lineBetween(11, 6, 12, 11);
+    g.lineBetween(7, 6, 8, 11);
+    g.lineBetween(4, 11, 8, 11);
+    g.fillStyle(0x2a2420, 1);
+    g.fillRect(6, 4, 3, 1);
+    g.fillRect(10, 3, 3, 1);
+  },
   motorbike: (g) => {
     g.fillStyle(0x2a2420, 1);
     g.fillCircle(4, 12, 3);

@@ -8,7 +8,8 @@ import type { WildFields } from '../systems/WildFieldSystem';
 import type { ItemId } from '../data/items';
 import type { MapKey } from '../data/maps';
 import { createHauntState, createInitialSanity, type HauntState } from '../systems/SanitySystem';
-import { createInitialEnergy, createInitialHealth, type EnergyState } from '../systems/EnergySystem';
+import { createInitialEnergy, createInitialHealth, DEFAULT_MAX_ENERGY, type EnergyState } from '../systems/EnergySystem';
+import { createInitialRecovery } from '../systems/StaminaSystem';
 import type { FarmPlots } from '../systems/FarmingSystem';
 import { createEmptyInventory, type InventoryState } from '../systems/InventorySystem';
 import type { PlacedObjects } from '../systems/PlacedObjectSystem';
@@ -19,7 +20,7 @@ import type { ResourceNodes } from '../systems/ResourceSystem';
 import type { ActiveBuff } from '../systems/StatsSystem';
 import { addVehicle, type OwnedVehicles } from '../systems/VehicleSystem';
 import { DEV_GIVE_ALL_VEHICLES } from '../config/dev';
-import { vehicleHome, VEHICLE_IDS } from '../data/garage';
+import { vehicleHome, WAREHOUSE_VEHICLE_IDS } from '../data/garage';
 import { ITEMS } from '../data/items';
 import type { PlayerProfile } from '../net/protocol';
 import type { TouchMode } from './touchInput';
@@ -44,6 +45,8 @@ export interface GameState {
   /** Waterings left in my watering can (refilled next to water, see WateringCanSystem). */
   wateringCanWater: number;
   energy: EnergyState;
+  /** The recovery bar ("hồi phục"): refills energy after resting at 0 (StaminaSystem). */
+  recovery: EnergyState;
   /** Index of the currently selected hotbar slot (0-11). */
   equippedSlot: number;
   /** Tilled/planted plots on the Farm map, keyed by "x,y" tile coordinates. */
@@ -143,6 +146,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     inventory,
     wateringCanWater: CAN_CAPACITY,
     energy: createInitialEnergy(),
+    recovery: createInitialRecovery(DEFAULT_MAX_ENERGY),
     equippedSlot: 0,
     farmPlots: {},
     shippingBin: {},
@@ -218,7 +222,7 @@ export function applyLoadedState(saved: GameState): void {
 }
 
 function grantAllVehicles(owned: OwnedVehicles): OwnedVehicles {
-  return VEHICLE_IDS.reduce((acc, id) => addVehicle(acc, id, vehicleHome(id)), owned);
+  return WAREHOUSE_VEHICLE_IDS.reduce((acc, id) => addVehicle(acc, id, vehicleHome(id)), owned);
 }
 
 /** A fresh game, beginning somewhere in the open country of the chosen province (Quảng Bình by default). */

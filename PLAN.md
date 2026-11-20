@@ -661,3 +661,13 @@ Những chỗ mình tự quyết (đều chỉnh được trong `npcFarm.json`):
       đá, ô về đường đất và cỏ bắt đầu mọc lại từ hôm đó.
 - Logic thuần trong `systems/GroundSystem.ts` (có test), số ngày trong `src/data/ground.json`; vẽ ở `scenes/groundPaths.ts`;
   lưu ở `gameState.groundEdits` (lưu game + đồng bộ khi chơi nhiều người).
+
+## Cập nhật: xe đạp ở sân nhà, sức lực theo quãng đường, thanh hồi phục (yêu cầu 2026-11-20)
+
+Thông số nằm trong `src/data/stamina.json`; logic thuần ở `src/systems/StaminaSystem.ts`.
+
+- [x] Mỗi người chơi có 1 xe đạp dựng ở sân nhà mình (+15% tốc độ), lên/xuống xe như các xe khác; không bị gọi về nhà kho.
+- [x] Đi bộ trừ sức theo mét: đầy sức (270) đi được 7 km → 270/7000 ≈ 0,0386 sức/m. Xe đạp: 20 km → 0,0135 sức/m. Xe máy, máy cày, thuyền, ngồi ké: không trừ.
+- [x] Sức > 0: mỗi giờ game hồi 1,5% (4,05 sức). Sức = 0: không hồi theo giờ.
+- [x] Thanh hồi phục (nhỏ, ngắn, cùng màu, chữ "P"), dung lượng bằng thanh sức. Mỗi ngày +30% (81 điểm), ăn +50% năng lượng của món ăn. Game mới bắt đầu với 30%.
+- [x] Sức = 0 và không làm gì tốn sức (đi lại, dùng công cụ) ≥ 30 giây thật → khi cử động lại, bơm n% thanh hồi phục (n = số giây nghỉ, tối đa 100) sang thanh sức, thưởng thêm 20%. Thanh hồi phục không đủ → chuyển phần còn lại, không thưởng. Không lấy quá chỗ trống của thanh sức. Nghỉ bị ngắt thì đếm lại từ 0.
