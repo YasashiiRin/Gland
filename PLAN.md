@@ -702,3 +702,10 @@ Cài đặt (Tab / ⚙) có thêm 2 nút. Lưu trong `settings.keys` và `settin
 
 - [x] Gia đình nông dân (`villagers.ts`): đổi việc, đổi ô ruộng, hết đường đi… không còn đặt thẳng sang chỗ mới mà đi bộ tới (70 px/giây) rồi mới làm việc. Khoảng cách quá 24 ô (chỉ xảy ra ngoài màn hình) mới cho nhảy.
 - [x] Người gánh hàng rong (`hawkers.ts`): chỉ xuất hiện ở điểm dừng ngoài khung hình, và chỉ biến mất khi đã ra khỏi khung hình (đang trong tầm nhìn lúc hết giờ thì đi tiếp cho tới khi khuất).
+
+## Cập nhật: NPC là "người thật" — đi lại liên tục, kể cả khi không nhìn (yêu cầu 2026-11-20)
+
+- [x] Mỗi người trong gia đình nông dân có thân thể riêng (`villagerAgents.ts`): vị trí, hướng, quãng đã đi. Thời gian biểu (`systems/npc`) chỉ nói cần ở đâu, làm gì; họ tự tìm đường quanh nhà, hàng rào (`findPath`) và đi tới với tốc độ đều (3 ô/phút game ≈ 69 px/giây, khớp với thời gian biểu), tới nơi mới làm việc.
+- [x] Mọi gia đình trên bản đồ đang chơi đều đi lại mỗi khung hình, dù camera ở đâu; chỉ phần vẽ bỏ qua khi ở xa (không còn cảnh hiện ra / biến mất trước mắt).
+- [x] Bước chân theo quãng đường đã đi (không trượt, không giật); làm cỏ đi lần lượt từng ô cạnh nhau; dừng lại khi đồng hồ game dừng (mở menu).
+- [x] Kiểm tra: 22 NPC trong 25 giây, 0 lần nhảy chỗ.

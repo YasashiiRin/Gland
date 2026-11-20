@@ -2,7 +2,6 @@ import type Phaser from 'phaser';
 import { TILE } from '../config/constants';
 import type { TaskKind } from '../systems/npc/config';
 import type { Direction } from '../systems/movement';
-import type { Homestead } from './homesteads';
 import { swingTool } from './toolSwing';
 
 /**
@@ -30,23 +29,6 @@ export function standAt(s: Phaser.GameObjects.Sprite, x: number, y: number, dir:
   s.setFrame(DIRS.indexOf(dir as Direction) * 4 + (busy ? Math.floor(time / 400) % 2 : 0)).setPosition(x, y).setDepth(y);
 }
 
-/** Walks (animated) to a point, `speed` px a second; true once there. */
-export function stepTowards(s: Phaser.GameObjects.Sprite, key: string, x: number, y: number, speed: number, delta: number): boolean {
-  const dx = x - s.x;
-  const dy = y - s.y;
-  const d = Math.hypot(dx, dy);
-  const step = (speed * delta) / 1000;
-  if (d <= step || d < 0.5) {
-    s.setPosition(x, y).setDepth(y);
-    return true;
-  }
-  s.setPosition(s.x + (dx / d) * step, s.y + (dy / d) * step).setDepth(s.y);
-  const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
-  const anim = `${key}-walk-${dir}`;
-  if (s.anims.currentAnim?.key !== anim || !s.anims.isPlaying) s.play(anim);
-  return false;
-}
-
 /**
  * Working a field cell: standing at `tile` facing it, one stroke of the tool
  * (raised, brought down) or a handful thrown as the job starts, then still
@@ -61,17 +43,6 @@ export function workCell(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: W
   else toss(scene, s, kind === 'fertilize' ? 0x6a5a40 : 0x8fd16a);
 }
 
-/** No paddy: hoeing and watering the vegetable rows of the yard, a tile at a stroke. */
-export function workGarden(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: Worker, home: Homestead, time: number): void {
-  const k = Math.floor(time / 2600 + p.index * 5) % 12;
-  const x = (home.x0 + 3 + (k % 6) + p.index * 8) * TILE + TILE / 2;
-  const y = (home.y0 + 14 + Math.floor(k / 6)) * TILE + TILE - 2;
-  standAt(s, x, y, 'right', time, false);
-  if (time < p.nextMove) return;
-  p.nextMove = time + 2600;
-  swingTool(scene, s, k % 3 === 2 ? 'watering_can' : 'hoe', 'right');
-}
-
 /** Scattering feed to the chickens and pigs. */
 export function feedAnimals(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p: Worker, x: number, y: number, time: number): void {
   standAt(s, x, y, 'right', time, true);
@@ -81,7 +52,7 @@ export function feedAnimals(scene: Phaser.Scene, s: Phaser.GameObjects.Sprite, p
 }
 
 /** Keeps a point 20 px behind a walking person, for the animal they lead. */
-export function follow(p: Worker, s: Phaser.GameObjects.Sprite): void {
+export function follow(p: Worker, s: { x: number; y: number }): void {
   const dx = s.x - (p.lastX ?? s.x);
   const dy = s.y - (p.lastY ?? s.y);
   const d = Math.hypot(dx, dy);
