@@ -8,6 +8,7 @@ import { isShopId, SHOPS, type ShopId } from '../data/shops';
 import { readProp } from './worldSprites';
 import { EventBus, GameEvents, type NpcInteractedPayload, type ShopOpenRequestedPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
+import { withQuantity } from '../systems/InventorySystem';
 import { portraitKey } from './PreloadScene';
 import {
   giveGift,
@@ -115,8 +116,8 @@ export abstract class VillageScene extends FieldScene {
     gameState.communityFund = result.state;
     gameState.inventory = result.inventory;
     if (gameState.communityFund.completed) {
-      gameState.money += 1000;
-      this.showFloatingText(this.player.x, this.player.y - 20, 'Hoàn thành! +1000 ₫');
+      gameState.money += 50000;
+      this.showFloatingText(this.player.x, this.player.y - 20, 'Hoàn thành! +50.000 ₫');
     } else {
       const left = remainingItems(gameState.communityFund).length;
       this.showFloatingText(this.player.x, this.player.y - 20, `Đã góp! Còn cần ${left} loại`);
@@ -147,7 +148,7 @@ export abstract class VillageScene extends FieldScene {
       if (!result.capped) {
         const slots = gameState.inventory.slots.slice();
         const q = slots[gameState.equippedSlot]!.quantity;
-        slots[gameState.equippedSlot] = q > 1 ? { itemId: stack.itemId, quantity: q - 1 } : null;
+        slots[gameState.equippedSlot] = withQuantity(slots[gameState.equippedSlot]!, q - 1);
         gameState.inventory = { slots };
       }
 

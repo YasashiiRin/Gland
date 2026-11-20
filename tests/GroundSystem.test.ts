@@ -57,7 +57,7 @@ describe('empty plots going back to grass', () => {
   });
 
   it('a crop keeps the grass off; weeding restarts the count', () => {
-    let p = plantSeed(tillPlot({}, K, 10), K, 'parsnip');
+    let p = plantSeed(tillPlot({}, K, 10), K, 'parsnip', 'winter');
     p = advanceDay(p, 'spring', true, 16);
     expect(p[K]?.cropId).toBe('parsnip');
     expect(plotGrass(p[K], 16)).toBe('bare');

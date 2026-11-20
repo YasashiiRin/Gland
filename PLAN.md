@@ -677,3 +677,16 @@ Thông số nằm trong `src/data/stamina.json`; logic thuần ở `src/systems/
 - [x] Ảnh ngồi trong `assets/postures/<npc>.png` → `scripts/art/import_postures.py` → `sprites/npcs/<npc>_sit.png` (key `<npc>_sit`).
 - [x] Ghép theo ngoại hình: folk_0 (ông cụ), folk_1 (phụ nữ áo trắng), folk_2 (áo xanh đậm). folk_3, folk_4 chưa có ảnh nên vẫn ngồi kiểu cũ (cắt chân).
 - [x] NPC ngồi (uống trà, ăn, ngồi hiên, nghỉ trưa bên ruộng) dùng ảnh ngồi; nói chuyện khi đang ngồi thì vẫn ngồi, quay mặt về người chơi.
+
+## Cập nhật: giá nông sản Việt Nam năm 2000 — đợt 1: cây trồng (yêu cầu 2026-11-20)
+
+Nguồn: `Bang_gia_nong_san_VN_2000.xlsx` (giá ước tính). Script `scripts/data/apply_vn2000_prices.py` ghi ra `crops.json`, `items.json`, `shops.json`; thông số cân nặng ở `src/data/produce.json`; logic ở `src/systems/ProduceSystem.ts`.
+
+- [x] Tiền là đồng thật năm 2000: vốn đầu 100.000 đ; hạt, đồ ăn, cá, con giống, xe, nâng cấp nhà, tiền phạt, thưởng đều đổi theo. Save cũ: tiền ×40, thùng gửi bán làm trống.
+- [x] 22 cây (16 mới) đủ 4 mùa; ngày chín = thời gian thật ÷ 7; mỗi gói hạt gieo 1 ô, giá ≈ 25% một vụ đạt cân tối đa.
+- [x] Nông sản đếm theo đơn vị (bó, củ, trái…) và có kg; bán theo kg (thùng gửi bán: giá gốc; gánh rau: +10%).
+- [x] Tỉ lệ đạt kg tối đa: gốc 10%, mỗi ngày tưới (hoặc mưa) +5% hoặc bón phân +10% (mỗi ngày chỉ 1 lần), gieo đúng mùa +50%. Trượt thì nặng 50–90% mức tối đa.
+- [x] Phân bón (300 đ/nắm, 1 ô) bán ở cửa hàng hạt giống.
+- [x] Trồng trái mùa: cây vẫn lớn, không chết, chỉ mất +50% (đổi bằng `offSeasonWithers` trong `produce.json`).
+- [x] `Assets.md`: 16 dải cây trồng và 33 biểu tượng còn thiếu, có prompt.
+- [ ] Đợt 2: chăn nuôi và thuỷ sản theo kg (cân nặng tối đa từng con, tỉ lệ đạt tối đa).

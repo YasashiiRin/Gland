@@ -34,7 +34,7 @@ const ORE_ITEM_FOR_KIND: Record<string, 'copper_ore' | 'iron_ore' | 'gold_ore'> 
 };
 const MONSTER_STEP_MS = 500;
 const PASS_OUT_MONEY_RATE = 0.1;
-const PASS_OUT_MONEY_MAX = 1000;
+const PASS_OUT_MONEY_MAX = 50000;
 
 export interface MineSceneData {
   depth?: number;

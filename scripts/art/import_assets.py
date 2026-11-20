@@ -57,7 +57,8 @@ OVERLAYS: dict[str, int] = {
 MINE = ["mine_floor", "mine_wall", "mine_ore_copper", "mine_ore_iron", "mine_ore_gold", "mine_ladder"]
 TREES = ["broadleaf_0:oak_0", "broadleaf_1:oak_1", "bamboo", "banana", "areca", "coconut", "casuarina",
          "pine", "mangrove", "pomelo", "flame", "rubber"]
-CROPS = ["parsnip", "potato", "cauliflower", "strawberry", "green_bean", "rice"]
+# Every crop in the game (src/data/crops.json): a painted strip is used when there is one.
+CROPS = list(json.loads((ROOT / "src" / "data" / "crops.json").read_text()))
 HORROR = {"ghost": (32, 64), "shadow": (32, 64), "hand": (24, 36), "face": (128, 128)}
 
 
@@ -147,6 +148,7 @@ def import_sprites() -> list[str]:
         for k, box in enumerate(boxes):
             sheet.alpha_composite(place(a, sh, box, scale, (32, 64), bottom_pad=6), (k * 32, 0))
         sheet.save(PUB / "sprites" / "crops" / f"{name}.png")
+        _register_crop(name)
         done.append(f"crops/{name}")
     for name, size in HORROR.items():
         p = find(f"horror/{name}.png")
@@ -155,6 +157,18 @@ def import_sprites() -> list[str]:
             sprite(p, size, anchor=anchor, bottom_pad=0).save(PUB / "sprites" / "horror" / f"{name}.png")
             done.append(f"horror/{name}")
     return done
+
+
+def _register_crop(name: str) -> None:
+    """New crops have no placeholder entry in the sprite pack yet: add their HD strip."""
+    pack_path = PUB / "sprites" / "pack.json"
+    pack = json.loads(pack_path.read_text())
+    key = f"crop_{name}"
+    if any(f["key"] == key for f in pack["generated"]["files"]):
+        return
+    pack["generated"]["files"].append({"type": "spritesheet", "key": key, "url": f"sprites/crops/{name}.png",
+                                       "frameConfig": {"frameWidth": 32, "frameHeight": 64}, "hd": True})
+    pack_path.write_text(json.dumps(pack, indent=1))
 
 
 def import_icons() -> list[str]:

@@ -3,6 +3,7 @@ import { ITEMS, type ItemId } from '../data/items';
 import { SHOPS, type ShopId } from '../data/shops';
 import type { InventoryState } from '../systems/InventorySystem';
 import { marketBuyPrice, marketSellPrice, stallBuys } from '../systems/ShopSystem';
+import { isWeighted } from '../systems/ProduceSystem';
 import { artScale } from '../scenes/hd';
 import { iconTextureKey } from './itemIcons';
 import { UI_COLORS, UI_FONT } from './uiStyle';
@@ -197,7 +198,9 @@ export class MarketMenu {
       if (!id) return;
       t.icon.setTexture(iconTextureKey(id));
       const price = this.mode === 'buy' ? marketSellPrice(shop, id) : marketBuyPrice(shop, id);
-      t.tag.setText(`${price.toLocaleString('vi-VN')}đ`);
+      // Produce is bought from you by the kilo.
+      const perKg = this.mode === 'sell' && isWeighted(id) ? '/kg' : '';
+      t.tag.setText(`${price.toLocaleString('vi-VN')}đ${perKg}`);
       t.name.setText(this.mode === 'buy' ? ITEMS[id].name : `${ITEMS[id].name}\n(có ${owned(id)})`);
     });
     if (this.mode === 'sell' && this.items.length === 0) this.say('Con chưa có món nào sạp này thu mua hết.');

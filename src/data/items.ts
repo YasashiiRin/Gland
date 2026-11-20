@@ -3,7 +3,7 @@ import type { ItemStats } from '../systems/StatsSystem';
 
 export type ItemId = keyof typeof items;
 
-export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment' | 'bait' | 'animal' | 'fry' | 'relic';
+export type ItemCategory = 'tool' | 'seed' | 'crop' | 'material' | 'food' | 'fish' | 'furniture' | 'vehicle' | 'equipment' | 'bait' | 'animal' | 'fry' | 'relic' | 'fertilizer';
 
 export interface FoodDef {
   /** Energy restored when eaten. */
@@ -19,6 +19,12 @@ export interface ItemDef {
   category: ItemCategory;
   stackable: boolean;
   sellPrice?: number;
+  /** Produce sold by weight: đồng a kilo (sellPrice is then a typical unit's worth). */
+  pricePerKg?: number;
+  /** Produce: the most one unit can weigh (kg). */
+  maxKg?: number;
+  /** Produce: what one unit is called (bó, củ, trái…). */
+  unit?: string;
   description: string;
   /** Stat bonuses: while held (weapons), while riding (vehicles) or after eating (food buffs). */
   stats?: ItemStats;

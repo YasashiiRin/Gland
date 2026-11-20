@@ -53,8 +53,9 @@ import type { InventoryState } from '../systems/InventorySystem';
 import { timeControl } from '../state/timeControl';
 import { isWorldInputBlocked, uiState } from '../state/uiState';
 import { craft } from '../systems/CraftingSystem';
-import { addItem, itemAt } from '../systems/InventorySystem';
-import { buyFromStall, buyItem, marketBuyPrice, marketSellPrice, sellToStall } from '../systems/ShopSystem';
+import { addItem, itemAt, withQuantity } from '../systems/InventorySystem';
+import { formatKg, stackKg } from '../systems/ProduceSystem';
+import { buyFromStall, buyItem, marketSellPrice, sellToStall } from '../systems/ShopSystem';
 import { advanceTime, clockMinuteOfDay, darknessAlpha } from '../systems/TimeSystem';
 import { restore } from '../systems/EnergySystem';
 import { daylightRegen } from '../systems/SanitySystem';
@@ -353,7 +354,8 @@ export class UIScene extends Phaser.Scene {
         gameState.inventory = r.inventory;
         gameState.money = r.money;
         playPickup(gameState.settings);
-        return `Lấy ${r.soldQty} ${ITEMS[itemId].name.toLowerCase()}, gửi con ${(r.soldQty * marketBuyPrice(shop, itemId)).toLocaleString('vi-VN')} ₫ nè.`;
+        const weight = r.kg > 0 ? ` (${formatKg(r.kg)})` : '';
+        return `Lấy ${r.soldQty} ${ITEMS[itemId].name.toLowerCase()}${weight}, gửi con ${r.earned.toLocaleString('vi-VN')} ₫ nè.`;
       },
     });
     const onShopOpen = (p: ShopOpenRequestedPayload) => {
@@ -629,12 +631,12 @@ export class UIScene extends Phaser.Scene {
     const stack = itemAt(storage, slotIndex);
     if (!stack) return;
 
-    const { state, leftover } = addItem(gameState.inventory, stack.itemId, stack.quantity);
+    const { state, leftover } = addItem(gameState.inventory, stack.itemId, stack.quantity, stackKg(stack));
     if (leftover > 0 && leftover === stack.quantity) return; // inventory totally full; leave it in storage
 
     gameState.inventory = state;
     const slots = storage.slots.slice();
-    slots[slotIndex] = leftover > 0 ? { itemId: stack.itemId, quantity: leftover } : null;
+    slots[slotIndex] = withQuantity(stack, leftover);
     this.setStorage(key, { slots });
 
     this.activeChestMenu.refresh({ slots });

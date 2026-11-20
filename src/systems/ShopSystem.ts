@@ -1,6 +1,7 @@
 import { ITEMS, type ItemId } from '../data/items';
 import type { ShopDef } from '../data/shops';
-import { addItem, removeItem, type InventoryState } from './InventorySystem';
+import { addItem, removeItemKg, type InventoryState } from './InventorySystem';
+import { isWeighted } from './ProduceSystem';
 import type { TimeState } from './TimeSystem';
 import { clockMinuteOfDay } from './TimeSystem';
 
@@ -51,9 +52,13 @@ export function stallBuys(shop: ShopDef, itemId: ItemId): boolean {
   return (shop.buysItems ?? []).includes(itemId) || (shop.buysCategories ?? []).includes(ITEMS[itemId].category);
 }
 
-/** What the stall pays you for one (base price plus the stall's bonus for its speciality). */
+/**
+ * What the stall pays you (base price plus the stall's bonus for its speciality):
+ * a kilo for produce sold by weight, else one item.
+ */
 export function marketBuyPrice(shop: ShopDef, itemId: ItemId): number {
-  return Math.floor((ITEMS[itemId].sellPrice ?? 0) * (1 + (shop.buyBonus ?? 0)));
+  const base = isWeighted(itemId) ? (ITEMS[itemId].pricePerKg ?? 0) : (ITEMS[itemId].sellPrice ?? 0);
+  return Math.floor(base * (1 + (shop.buyBonus ?? 0)));
 }
 
 /** Sells up to `qty` of an item to a stall for cash right away. */
@@ -63,12 +68,16 @@ export function sellToStall(
   shop: ShopDef,
   itemId: ItemId,
   qty: number,
-): { inventory: InventoryState; money: number; soldQty: number } {
-  if (!stallBuys(shop, itemId) || qty <= 0) return { inventory, money, soldQty: 0 };
+): { inventory: InventoryState; money: number; soldQty: number; earned: number; kg: number } {
+  const none = { inventory, money, soldQty: 0, earned: 0, kg: 0 };
+  if (!stallBuys(shop, itemId) || qty <= 0) return none;
   const have = inventory.slots.reduce((n, s) => n + (s?.itemId === itemId ? s.quantity : 0), 0);
   const soldQty = Math.min(qty, have);
-  if (soldQty === 0) return { inventory, money, soldQty: 0 };
-  return { inventory: removeItem(inventory, itemId, soldQty), money: money + soldQty * marketBuyPrice(shop, itemId), soldQty };
+  if (soldQty === 0) return none;
+  const removed = removeItemKg(inventory, itemId, soldQty);
+  // Produce is paid by weight, everything else by the piece.
+  const earned = isWeighted(itemId) ? Math.floor(removed.kg * marketBuyPrice(shop, itemId)) : soldQty * marketBuyPrice(shop, itemId);
+  return { inventory: removed.state, money: money + earned, soldQty, earned, kg: removed.kg };
 }
 
 /** Buys one item from a stall at its market price. */

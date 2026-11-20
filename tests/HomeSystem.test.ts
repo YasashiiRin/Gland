@@ -26,12 +26,12 @@ import { houseOn, moveHome, nextUpgrade, upgradeHouse } from '../src/systems/Hom
 describe('upgrading and moving house', () => {
   it('rebuilds a thatched house step by step, for money', () => {
     expect(nextUpgrade('thatched_house')?.to).toBe('house_c');
-    expect(upgradeHouse({}, 100, 'Hue:hue1', 'thatched_house')).toBeNull();
-    const a = upgradeHouse({}, 10000, 'Hue:hue1', 'thatched_house')!;
+    expect(upgradeHouse({}, 100000, 'Hue:hue1', 'thatched_house')).toBeNull();
+    const a = upgradeHouse({}, 20000000, 'Hue:hue1', 'thatched_house')!;
     expect(houseOn(a.houses, 'Hue:hue1', 'thatched_house')).toBe('house_c');
     const b = upgradeHouse(a.houses, a.money, 'Hue:hue1', 'house_c')!;
     expect(b.houses['Hue:hue1']).toBe('house_a');
-    expect(b.money).toBe(10000 - 1500 - 4000);
+    expect(b.money).toBe(20000000 - 3000000 - 15000000);
     expect(nextUpgrade('house_a')).toBeUndefined();
   });
 

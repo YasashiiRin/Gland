@@ -1,8 +1,22 @@
 import { ITEMS, MAX_STACK, type ItemId } from '../data/items';
+import { isWeighted, stackKg } from './ProduceSystem';
 
 export interface ItemStack {
   itemId: ItemId;
   quantity: number;
+  /** Produce: total weight of the stack in kg (missing = typical weight, see ProduceSystem). */
+  kg?: number;
+}
+
+/** A stack of `itemId` holding `quantity` units weighing `kg` in all (kg kept only for produce). */
+function makeStack(itemId: ItemId, quantity: number, kg: number): ItemStack {
+  return isWeighted(itemId) ? { itemId, quantity, kg: Math.round(kg * 100) / 100 } : { itemId, quantity };
+}
+
+/** The same stack cut down to `quantity` units, its weight shrunk in proportion (null if none left). */
+export function withQuantity(stack: ItemStack, quantity: number): ItemStack | null {
+  if (quantity <= 0) return null;
+  return makeStack(stack.itemId, quantity, (stackKg(stack) * quantity) / stack.quantity);
 }
 
 export type Slot = ItemStack | null;
@@ -24,17 +38,19 @@ export function createEmptyInventory(): InventoryState {
  * then filling empty slots. Mutates nothing; returns a new state plus the
  * quantity that didn't fit (0 if everything was added).
  */
-export function addItem(state: InventoryState, itemId: ItemId, quantity: number): { state: InventoryState; leftover: number } {
+export function addItem(state: InventoryState, itemId: ItemId, quantity: number, kg?: number): { state: InventoryState; leftover: number } {
   const def = ITEMS[itemId];
   const slots = state.slots.slice();
   let remaining = quantity;
+  // Produce: each added unit carries an equal share of the given weight.
+  const unitKg = quantity > 0 ? (kg ?? stackKg({ itemId, quantity })) / quantity : 0;
 
   if (def.stackable) {
     for (let i = 0; i < slots.length && remaining > 0; i++) {
       const slot = slots[i];
       if (slot && slot.itemId === itemId && slot.quantity < MAX_STACK) {
         const add = Math.min(remaining, MAX_STACK - slot.quantity);
-        slots[i] = { itemId, quantity: slot.quantity + add };
+        slots[i] = makeStack(itemId, slot.quantity + add, stackKg(slot) + add * unitKg);
         remaining -= add;
       }
     }
@@ -43,7 +59,7 @@ export function addItem(state: InventoryState, itemId: ItemId, quantity: number)
   for (let i = 0; i < slots.length && remaining > 0; i++) {
     if (slots[i] === null) {
       const add = def.stackable ? Math.min(remaining, MAX_STACK) : 1;
-      slots[i] = { itemId, quantity: add };
+      slots[i] = makeStack(itemId, add, add * unitKg);
       remaining -= add;
       if (!def.stackable && remaining > 0) {
         // Non-stackable items occupy one slot per unit; loop will find more empty slots.
@@ -62,21 +78,27 @@ export function hasItem(state: InventoryState, itemId: ItemId, quantity: number)
 
 /** Removes quantity of an item across slots. Throws if there isn't enough. */
 export function removeItem(state: InventoryState, itemId: ItemId, quantity: number): InventoryState {
+  return removeItemKg(state, itemId, quantity).state;
+}
+
+/** Removes quantity of an item and tells how much it weighed (produce; 0 otherwise). Throws if there isn't enough. */
+export function removeItemKg(state: InventoryState, itemId: ItemId, quantity: number): { state: InventoryState; kg: number } {
   if (!hasItem(state, itemId, quantity)) {
     throw new Error(`Not enough ${itemId} to remove ${quantity}`);
   }
   const slots = state.slots.slice();
   let remaining = quantity;
+  let kg = 0;
   for (let i = 0; i < slots.length && remaining > 0; i++) {
     const slot = slots[i];
     if (slot && slot.itemId === itemId) {
       const take = Math.min(remaining, slot.quantity);
-      const left = slot.quantity - take;
-      slots[i] = left > 0 ? { itemId, quantity: left } : null;
+      kg += (stackKg(slot) * take) / slot.quantity;
+      slots[i] = withQuantity(slot, slot.quantity - take);
       remaining -= take;
     }
   }
-  return { slots };
+  return { state: { slots }, kg: Math.round(kg * 100) / 100 };
 }
 
 /**
@@ -95,8 +117,9 @@ export function moveItem(state: InventoryState, from: number, to: number): Inven
   if (dst && dst.itemId === src.itemId && def.stackable) {
     const total = src.quantity + dst.quantity;
     const capped = Math.min(total, MAX_STACK);
-    slots[to] = { itemId: src.itemId, quantity: capped };
-    slots[from] = total > capped ? { itemId: src.itemId, quantity: total - capped } : null;
+    const merged = makeStack(src.itemId, total, stackKg(src) + stackKg(dst));
+    slots[to] = withQuantity(merged, capped);
+    slots[from] = withQuantity(merged, total - capped);
   } else {
     slots[to] = src;
     slots[from] = dst;

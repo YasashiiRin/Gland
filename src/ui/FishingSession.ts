@@ -18,8 +18,8 @@ const TREASURES: { itemId?: ItemId; qty: number; money?: number }[] = [
   { itemId: 'worm', qty: 8 },
   { itemId: 'copper_ore', qty: 6 },
   { itemId: 'iron_ore', qty: 4 },
-  { money: 250, qty: 1 },
-  { money: 600, qty: 1 },
+  { money: 10000, qty: 1 },
+  { money: 25000, qty: 1 },
 ];
 
 /**
@@ -106,7 +106,7 @@ export class FishingSession {
       const t = TREASURES[Math.floor(Math.random() * TREASURES.length)];
       if (t.money) {
         gameState.money += t.money;
-        text += ` + rương báu: ${t.money}₫`;
+        text += ` + rương báu: ${t.money.toLocaleString('vi-VN')}₫`;
       } else if (t.itemId) {
         gameState.inventory = addItem(gameState.inventory, t.itemId, t.qty).state;
         text += ` + rương báu: ${t.qty} món`;
