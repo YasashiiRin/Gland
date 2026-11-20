@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 import { FADE_MS, TILE } from '../config/constants';
 import { setupWorldCamera } from './cameraFit';
 import { Player, type PlayerInput } from '../entities/Player';
+import { StaminaTracker } from './staminaTracker';
 import { EventBus, GameEvents, type MapEnteredPayload } from '../events/EventBus';
 import { gameState } from '../state/GameState';
 import { TOOL_ENERGY_COST } from '../data/items';
@@ -44,6 +45,7 @@ export class MineScene extends Phaser.Scene {
   private floor!: MineFloor;
   private layer!: Phaser.Tilemaps.TilemapLayer;
   private player!: Player;
+  private stamina!: StaminaTracker;
   private keys!: Record<'up' | 'down' | 'left' | 'right' | 'w' | 'a' | 's' | 'd' | 'interact' | 'attack', Phaser.Input.Keyboard.Key>;
   private monsters: { data: Monster; sprite: Phaser.GameObjects.Arc }[] = [];
   private monsterTimer = 0;
@@ -75,7 +77,9 @@ export class MineScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    if (this.transitioning || isWorldInputBlocked()) return;
+    if (this.transitioning) return;
+    this.stamina.update(delta);
+    if (isWorldInputBlocked()) return;
 
     this.player.setExhausted(isExhausted(gameState.energy));
     this.player.updateMovement(this.readInput(), currentSpeedMultiplier());
@@ -123,6 +127,7 @@ export class MineScene extends Phaser.Scene {
   private spawnPlayer(): void {
     const { x, y } = this.floor.spawn;
     this.player = new Player(this, x * TILE + TILE / 2, y * TILE + TILE / 2, 'down');
+    this.stamina = new StaminaTracker(this.player);
     this.physics.add.collider(this.player, this.layer);
   }
 

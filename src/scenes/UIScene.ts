@@ -21,6 +21,7 @@ import { ProfessionMenu } from '../ui/ProfessionMenu';
 import { reorder, SKILLS } from '../systems/ProfessionSystem';
 import { receiveTeaching } from '../state/professionActions';
 import { resetHungerClock, tickHunger } from '../state/hungerClock';
+import { resetStaminaClock, restState, tickStamina } from '../state/staminaClock';
 import { fullyRested, tickSleep } from '../state/sleepClock';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
@@ -114,6 +115,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   create(): void {
+    resetStaminaClock();
     resetHungerClock(); // a new game, a loaded save or a resize: count hunger from now
     this.vehicleMenus.clear(); // menus from a previous run were destroyed with the scene
     const { width, height } = this.scale;
@@ -433,7 +435,9 @@ export class UIScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.inventoryKey)) this.toggleInventory();
 
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot, gameState.wateringCanWater);
+    tickStamina();
     this.hud.setEnergy(gameState.energy);
+    this.hud.setRecovery(gameState.recovery, gameState.energy.current <= 0 ? restState.seconds : null);
     this.hud.setHealth(gameState.playerHealth);
     this.hud.setSanity(gameState.sanity);
     tickHunger();

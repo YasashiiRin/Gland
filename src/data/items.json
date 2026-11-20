@@ -311,6 +311,19 @@
       "seats": 2
     }
   },
+  "bicycle": {
+    "name": "Xe đạp",
+    "category": "vehicle",
+    "stackable": false,
+    "sellPrice": 0,
+    "description": "Chiếc xe đạp cũ dựng ở sân nhà (+15% tốc độ). Đạp xe tốn ít sức hơn đi bộ: đầy sức đạp được 20 km (đi bộ chỉ 7 km).",
+    "stats": {
+      "speed": 0.15
+    },
+    "vehicle": {
+      "ability": "none"
+    }
+  },
   "motorbike": {
     "name": "Xe máy",
     "category": "vehicle",

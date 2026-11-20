@@ -1,0 +1,12 @@
+{
+  "_comment": "Stamina on the move and the recovery bar. Fractions are of the bar's max; every calculation uses the resulting points.",
+  "walkKmPerFullBar": 7,
+  "bicycleKmPerFullBar": 20,
+  "hourlyRegenFraction": 0.015,
+  "restSecondsToPump": 30,
+  "pumpMaxSeconds": 100,
+  "pumpBonus": 0.2,
+  "dailyRecoveryFraction": 0.3,
+  "foodRecoveryFraction": 0.5,
+  "startRecoveryFraction": 0.3
+}
