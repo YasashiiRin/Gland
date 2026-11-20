@@ -1684,6 +1684,36 @@
      "frameHeight": 64
     },
     "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_0_sit",
+    "url": "sprites/npcs/folk_0_sit.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_1_sit",
+    "url": "sprites/npcs/folk_1_sit.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
+   },
+   {
+    "type": "spritesheet",
+    "key": "folk_2_sit",
+    "url": "sprites/npcs/folk_2_sit.png",
+    "frameConfig": {
+     "frameWidth": 32,
+     "frameHeight": 64
+    },
+    "hd": true
    }
   ]
  }

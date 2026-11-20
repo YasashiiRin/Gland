@@ -23,3 +23,9 @@ Người dùng tự tạo bằng Gemini theo các prompt trong `ASSET_LIST.md` (
 (`tiles/`, `trees/`, `crops/`, `horror/`, `icons/`, `characters/`, `animals/`, `vehicles/`, `buildings/`); script `scripts/art/import_assets.py` thu nhỏ,
 xoá nền trắng và ghi đè vào `public/assets/...` (tileset mặt đất, hầm mỏ, cây, cây trồng, ma, biểu tượng công cụ;
 đợt 2: nhân vật, động vật, xe, nhà và công trình qua `scripts/art/import_sheets.py`).
+
+## Tư thế ngồi của dân làng (2026-11-20)
+
+Người dùng tự tạo bằng công cụ AI (ảnh gốc trong `assets/postures/`, tên file = NPC dùng nó:
+`folk_0`, `folk_1`, `folk_2`; `unused_old_man_khaki.png` chưa dùng). Script `scripts/art/import_postures.py`
+xoá nền trắng, thu nhỏ theo cỡ nón của hình đi bộ và ghi ra `public/assets/sprites/npcs/folk_N_sit.png`.
