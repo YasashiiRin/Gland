@@ -35,7 +35,7 @@
     "category": "tool",
     "stackable": false,
     "description": "Dùng để câu cá. Phải gắn mồi (giun) mới câu được: cầm mồi rồi bấm dùng để gắn vào cần.",
-    "sellPrice": 250
+    "sellPrice": 15000
   },
   "sword": {
     "name": "Kiếm",
@@ -50,160 +50,175 @@
     "name": "Quặng đồng",
     "category": "material",
     "stackable": true,
-    "sellPrice": 8,
+    "sellPrice": 400,
     "description": "Đào được ở hầm mỏ tầng nông."
   },
   "iron_ore": {
     "name": "Quặng sắt",
     "category": "material",
     "stackable": true,
-    "sellPrice": 18,
+    "sellPrice": 900,
     "description": "Đào được ở hầm mỏ tầng giữa."
   },
   "gold_ore": {
     "name": "Quặng vàng",
     "category": "material",
     "stackable": true,
-    "sellPrice": 35,
+    "sellPrice": 1800,
     "description": "Đào được ở hầm mỏ tầng sâu."
   },
   "parsnip_seeds": {
     "name": "Hạt củ cải trắng",
     "category": "seed",
     "stackable": true,
-    "sellPrice": 10,
-    "description": "Gieo vào mùa xuân."
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Đông. Chín sau 6 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
   },
   "parsnip": {
     "name": "Củ cải trắng",
     "category": "crop",
     "stackable": true,
-    "sellPrice": 35,
-    "description": "Một loại củ quen thuộc.",
+    "sellPrice": 490,
+    "description": "1 củ mỗi ô, mỗi củ nặng tối đa 0,5 kg. Giá 1.400 đ/kg.",
     "food": {
       "energy": 10,
       "hunger": 12
-    }
+    },
+    "unit": "củ",
+    "maxKg": 0.5,
+    "pricePerKg": 1400
   },
   "potato_seeds": {
-    "name": "Hạt khoai tây",
+    "name": "Khoai tây giống",
     "category": "seed",
     "stackable": true,
-    "sellPrice": 25,
-    "description": "Gieo vào mùa xuân."
+    "sellPrice": 1100,
+    "description": "Gieo được 1 ô. Mùa: Xuân. Chín sau 13 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
   },
   "potato": {
     "name": "Khoai tây",
     "category": "crop",
     "stackable": true,
-    "sellPrice": 80,
-    "description": "Củ khoai chắc bụng.",
+    "sellPrice": 656,
+    "description": "3–6 củ mỗi ô, mỗi củ nặng tối đa 0,25 kg. Giá 3.750 đ/kg.",
     "food": {
       "energy": 12,
       "hunger": 18
-    }
+    },
+    "unit": "củ",
+    "maxKg": 0.25,
+    "pricePerKg": 3750
   },
   "cauliflower_seeds": {
     "name": "Hạt súp lơ",
     "category": "seed",
     "stackable": true,
-    "sellPrice": 80,
-    "description": "Gieo vào mùa xuân, lớn khá lâu."
+    "sellPrice": 800,
+    "description": "Gieo được 1 ô. Mùa: Xuân. Chín sau 11 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
   },
   "cauliflower": {
     "name": "Súp lơ",
     "category": "crop",
     "stackable": true,
-    "sellPrice": 175,
-    "description": "Bông súp lơ trắng to.",
+    "sellPrice": 2240,
+    "description": "1 bông mỗi ô, mỗi bông nặng tối đa 0,8 kg. Giá 4.000 đ/kg.",
     "food": {
       "energy": 15,
       "hunger": 20
-    }
+    },
+    "unit": "bông",
+    "maxKg": 0.8,
+    "pricePerKg": 4000
   },
   "strawberry_seeds": {
-    "name": "Hạt dâu tây",
+    "name": "Cây giống dâu tây",
     "category": "seed",
     "stackable": true,
-    "sellPrice": 100,
-    "description": "Gieo vào mùa xuân, thu hoạch nhiều lần."
+    "sellPrice": 1500,
+    "description": "Gieo được 1 ô. Mùa: Xuân. Chín sau 9 ngày, ra lứa mới sau 4 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
   },
   "strawberry": {
     "name": "Dâu tây",
     "category": "crop",
     "stackable": true,
-    "sellPrice": 120,
-    "description": "Quả dâu đỏ mọng.",
+    "sellPrice": 280,
+    "description": "4–8 trái mỗi ô, mỗi trái nặng tối đa 0,02 kg. Giá 20.000 đ/kg.",
     "food": {
-      "energy": 6,
-      "hunger": 8
-    }
+      "energy": 2,
+      "hunger": 2
+    },
+    "unit": "trái",
+    "maxKg": 0.02,
+    "pricePerKg": 20000
   },
   "green_bean_seeds": {
     "name": "Hạt đậu que",
     "category": "seed",
     "stackable": true,
-    "sellPrice": 60,
-    "description": "Gieo vào mùa xuân, thu hoạch nhiều lần."
+    "sellPrice": 400,
+    "description": "Gieo được 1 ô. Mùa: Xuân. Chín sau 8 ngày, ra lứa mới sau 3 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
   },
   "green_bean": {
     "name": "Đậu que",
     "category": "crop",
     "stackable": true,
-    "sellPrice": 40,
-    "description": "Đậu que xanh giòn.",
+    "sellPrice": 656,
+    "description": "1–2 bó mỗi ô, mỗi bó nặng tối đa 0,25 kg. Giá 3.750 đ/kg.",
     "food": {
       "energy": 8,
       "hunger": 10
-    }
+    },
+    "unit": "bó",
+    "maxKg": 0.25,
+    "pricePerKg": 3750
   },
   "wood": {
     "name": "Gỗ",
     "category": "material",
     "stackable": true,
-    "sellPrice": 2,
+    "sellPrice": 100,
     "description": "Vật liệu chế tạo cơ bản. Chặt cây bằng rìu để lấy."
   },
   "stone": {
     "name": "Đá",
     "category": "material",
     "stackable": true,
-    "sellPrice": 2,
+    "sellPrice": 100,
     "description": "Vật liệu chế tạo cơ bản. Đập đá bằng cuốc chim để lấy."
   },
   "fiber": {
     "name": "Sợi",
     "category": "material",
     "stackable": true,
-    "sellPrice": 1,
+    "sellPrice": 50,
     "description": "Cắt cỏ dại bằng liềm để lấy."
   },
   "carp": {
     "name": "Cá chép nhỏ",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 30,
+    "sellPrice": 4400,
     "description": "Loại cá phổ biến quanh năm."
   },
   "perch": {
     "name": "Cá rô",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 55,
+    "sellPrice": 2000,
     "description": "Hay gặp vào mùa xuân và mùa thu."
   },
   "grass_carp": {
     "name": "Cá trắm",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 80,
+    "sellPrice": 14500,
     "description": "Thích cắn câu vào ngày mưa."
   },
   "golden_loach": {
     "name": "Cá chạch vàng",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 150,
+    "sellPrice": 6000,
     "description": "Hiếm, chỉ xuất hiện ban đêm."
   },
   "chest": {
@@ -234,7 +249,7 @@
     "name": "Trứng gà",
     "category": "food",
     "stackable": true,
-    "sellPrice": 50,
+    "sellPrice": 1000,
     "description": "Gà đẻ ra nếu được chăm sóc tốt.",
     "food": {
       "energy": 20,
@@ -245,7 +260,7 @@
     "name": "Cơm nắm muối vừng",
     "category": "food",
     "stackable": true,
-    "sellPrice": 40,
+    "sellPrice": 1000,
     "description": "Nắm cơm chắc bụng. Hồi 60 năng lượng.",
     "food": {
       "energy": 60,
@@ -256,7 +271,7 @@
     "name": "Bánh mì",
     "category": "food",
     "stackable": true,
-    "sellPrice": 60,
+    "sellPrice": 1500,
     "description": "Hồi 40 năng lượng, đi nhanh hơn 10% trong 1 giờ.",
     "food": {
       "energy": 40,
@@ -271,7 +286,7 @@
     "name": "Cà phê sữa đá",
     "category": "food",
     "stackable": true,
-    "sellPrice": 35,
+    "sellPrice": 2500,
     "description": "Tỉnh cả người! Hồi 15 năng lượng, đi nhanh hơn 30% trong 2 giờ.",
     "food": {
       "energy": 15,
@@ -286,21 +301,24 @@
     "name": "Lúa giống",
     "category": "seed",
     "stackable": true,
-    "sellPrice": 30,
-    "description": "Gieo vào mùa xuân hoặc mùa hạ. Gặt bằng tay hoặc máy gặt."
+    "sellPrice": 1100,
+    "description": "Gieo được 1 ô. Mùa: Xuân, Hạ. Chín sau 14 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
   },
   "rice": {
     "name": "Lúa",
     "category": "crop",
     "stackable": true,
-    "sellPrice": 75,
-    "description": "Bó lúa vàng óng, hạt chắc mẩy."
+    "sellPrice": 2100,
+    "description": "1–2 bó mỗi ô, mỗi bó nặng tối đa 1,5 kg. Giá 2.000 đ/kg.",
+    "unit": "bó",
+    "maxKg": 1.5,
+    "pricePerKg": 2000
   },
   "ox_cart": {
     "name": "Xe bò",
     "category": "vehicle",
     "stackable": false,
-    "sellPrice": 800,
+    "sellPrice": 2500000,
     "description": "Chậm mà chắc (+35% tốc độ). Thùng xe chứa được 20 ô đồ (ngồi lên xe rồi bấm chuột trái/Space để mở). Có 2 chỗ ngồi: chơi cùng bạn thì một người lái, một người ngồi ké.",
     "stats": {
       "speed": 0.35
@@ -328,7 +346,7 @@
     "name": "Xe máy",
     "category": "vehicle",
     "stackable": false,
-    "sellPrice": 2500,
+    "sellPrice": 19500000,
     "description": "Phóng vèo vèo (+98% tốc độ) giữa nông trại và làng. Chuột trái/Space để bấm còi.",
     "stats": {
       "speed": 0.98
@@ -341,7 +359,7 @@
     "name": "Máy cày",
     "category": "vehicle",
     "stackable": false,
-    "sellPrice": 4000,
+    "sellPrice": 13500000,
     "description": "To 4 ô (2x2). Bấm chuột trái/Space để bật chế độ cày: mọi ô cỏ dưới máy đều được cuốc (1 năng lượng/ô). +15% tốc độ.",
     "stats": {
       "speed": 0.15
@@ -354,7 +372,7 @@
     "name": "Máy gặt lúa",
     "category": "vehicle",
     "stackable": false,
-    "sellPrice": 5000,
+    "sellPrice": 200000000,
     "description": "To 4 ô (2x2). Bấm chuột trái/Space để bật chế độ gặt: cây chín dưới máy được gặt vào túi. +10% tốc độ.",
     "stats": {
       "speed": 0.1
@@ -367,7 +385,7 @@
     "name": "Máy tưới nước",
     "category": "vehicle",
     "stackable": false,
-    "sellPrice": 3500,
+    "sellPrice": 25000000,
     "description": "Xe bồn có vòi phun, to 4 ô (2x2). Bấm chuột trái/Space để bật chế độ tưới: mọi ô đất đã cuốc dưới xe đều được tưới (không tốn năng lượng). +12% tốc độ.",
     "stats": {
       "speed": 0.12
@@ -380,14 +398,14 @@
     "name": "Gạo",
     "category": "material",
     "stackable": true,
-    "sellPrice": 60,
+    "sellPrice": 3300,
     "description": "Gạo trắng thơm, xay từ lúa của làng. Dùng để nấu ăn sau này."
   },
   "backpack_cloth": {
     "name": "Ba lô vải",
     "category": "equipment",
     "stackable": false,
-    "sellPrice": 150,
+    "sellPrice": 20000,
     "description": "Đeo vào (cầm rồi bấm chuột trái/Space) để túi đồ có thêm 12 ô.",
     "backpackSlots": 12
   },
@@ -395,7 +413,7 @@
     "name": "Ba lô lớn",
     "category": "equipment",
     "stackable": false,
-    "sellPrice": 600,
+    "sellPrice": 60000,
     "description": "Ba lô vải dày, quai da, khoá đồng. Đeo vào để túi đồ có thêm 24 ô.",
     "backpackSlots": 24
   },
@@ -409,105 +427,105 @@
     "name": "Chiếu",
     "category": "furniture",
     "stackable": false,
-    "sellPrice": 40,
+    "sellPrice": 15000,
     "description": "Chiếu cói để ngả lưng ở bất cứ đâu. Cầm chiếu bấm dùng để trải ra (được trải cả trong phố); đứng cạnh chiếu bấm E/chuột phải để ngủ. Bổ cuốc, rìu hay cuốc chim lên chiếu để cuộn lại cất vào túi."
   },
   "worm": {
     "name": "Giun (mồi câu)",
     "category": "bait",
     "stackable": true,
-    "sellPrice": 5,
+    "sellPrice": 200,
     "description": "Mồi câu cá. Cuốc đất đôi khi đào được. Cầm giun và bấm dùng để gắn vào cần câu."
   },
   "fish_fry": {
     "name": "Cá giống",
     "category": "fry",
     "stackable": true,
-    "sellPrice": 12,
+    "sellPrice": 250,
     "description": "Một túi cá con. Thả vào ao cá dựng sẵn ở các khu địa danh (cầm và bấm dùng cạnh ao), chờ 3 ngày cho cá lớn rồi bấm tương tác (E/chuột phải) cạnh ao để vớt. Cá của ai người nấy vớt; sang mùa mới ao làm lại từ đầu."
   },
   "whip": {
     "name": "Cây roi",
     "category": "tool",
     "stackable": false,
-    "sellPrice": 120,
+    "sellPrice": 2000,
     "description": "Gia súc sợ roi: cầm roi đi tới gần là chúng tránh ra, quất roi để lùa chúng đi."
   },
   "animal_chicken": {
     "name": "Gà con",
     "category": "animal",
     "stackable": false,
-    "sellPrice": 300,
+    "sellPrice": 3000,
     "description": "Mua về sẽ thả ngay cạnh bạn. Tự đi kiếm ăn, lớn dần."
   },
   "animal_pig": {
     "name": "Heo con",
     "category": "animal",
     "stackable": false,
-    "sellPrice": 900,
+    "sellPrice": 315000,
     "description": "Mua về sẽ thả ngay cạnh bạn. Ủi đất tìm ăn, lớn dần."
   },
   "animal_buffalo": {
     "name": "Nghé (trâu con)",
     "category": "animal",
     "stackable": false,
-    "sellPrice": 2600,
+    "sellPrice": 1800000,
     "description": "Thả ra ngoài trâu tự gặm cỏ. Sợ cây roi."
   },
   "animal_cow": {
     "name": "Bê (bò con)",
     "category": "animal",
     "stackable": false,
-    "sellPrice": 2200,
+    "sellPrice": 1500000,
     "description": "Thả ra ngoài bò tự gặm cỏ. Sợ cây roi."
   },
   "snakehead": {
     "name": "Cá lóc",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 90,
+    "sellPrice": 16300,
     "description": "Cá sông dữ, giật mạnh và lao rất nhanh."
   },
   "crucian": {
     "name": "Cá diếc",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 40,
+    "sellPrice": 1800,
     "description": "Cá nước ngọt nhỏ, bơi lững lờ."
   },
   "catfish": {
     "name": "Cá trê",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 110,
+    "sellPrice": 5000,
     "description": "Hay lặn sát đáy, kéo rất nặng tay. Cắn câu nhiều khi trời mưa."
   },
   "goby": {
     "name": "Cá bống",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 60,
+    "sellPrice": 16000,
     "description": "Cá bống sông Gianh, đặc sản Quảng Bình."
   },
   "mackerel": {
     "name": "Cá thu",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 160,
+    "sellPrice": 48800,
     "description": "Cá biển bơi nhanh, đổi hướng liên tục."
   },
   "grouper": {
     "name": "Cá mú",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 240,
+    "sellPrice": 165000,
     "description": "Cá biển quý, khỏe và rất khó kéo."
   },
   "anchovy": {
     "name": "Cá cơm",
     "category": "fish",
     "stackable": true,
-    "sellPrice": 25,
+    "sellPrice": 100,
     "description": "Cá biển nhỏ, dễ câu."
   },
   "bua_khai_dao": {
@@ -525,5 +543,336 @@
     "sellPrice": 0,
     "teaches": "khai_nhan",
     "description": "Cuốn sách cổ ố vàng (thường thấy trong rừng sâu, hoặc do ma đánh rơi). Thầy pháp bấm dùng để học phép Khai nhãn."
+  },
+  "mustard_greens_seeds": {
+    "name": "Hạt cải xanh",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Xuân. Chín sau 5 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "mustard_greens": {
+    "name": "Cải xanh",
+    "category": "crop",
+    "stackable": true,
+    "unit": "cây",
+    "maxKg": 0.3,
+    "pricePerKg": 2000,
+    "sellPrice": 420,
+    "description": "1–2 cây mỗi ô, mỗi cây nặng tối đa 0,3 kg. Giá 2.000 đ/kg.",
+    "food": {
+      "energy": 6,
+      "hunger": 8
+    }
+  },
+  "lettuce_seeds": {
+    "name": "Hạt xà lách",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 300,
+    "description": "Gieo được 1 ô. Mùa: Xuân. Chín sau 6 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "lettuce": {
+    "name": "Xà lách",
+    "category": "crop",
+    "stackable": true,
+    "unit": "cây",
+    "maxKg": 0.3,
+    "pricePerKg": 4000,
+    "sellPrice": 840,
+    "description": "1 cây mỗi ô, mỗi cây nặng tối đa 0,3 kg. Giá 4.000 đ/kg.",
+    "food": {
+      "energy": 5,
+      "hunger": 6
+    }
+  },
+  "corn_seeds": {
+    "name": "Ngô giống",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Hạ. Chín sau 11 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "corn": {
+    "name": "Ngô",
+    "category": "crop",
+    "stackable": true,
+    "unit": "bắp",
+    "maxKg": 0.35,
+    "pricePerKg": 1300,
+    "sellPrice": 318,
+    "description": "1–2 bắp mỗi ô, mỗi bắp nặng tối đa 0,35 kg. Giá 1.300 đ/kg.",
+    "food": {
+      "energy": 10,
+      "hunger": 14
+    }
+  },
+  "watermelon_seeds": {
+    "name": "Hạt dưa hấu",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 2000,
+    "description": "Gieo được 1 ô. Mùa: Hạ. Chín sau 10 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "watermelon": {
+    "name": "Dưa hấu",
+    "category": "crop",
+    "stackable": true,
+    "unit": "trái",
+    "maxKg": 4.0,
+    "pricePerKg": 2000,
+    "sellPrice": 5600,
+    "description": "1 trái mỗi ô, mỗi trái nặng tối đa 4 kg. Giá 2.000 đ/kg.",
+    "food": {
+      "energy": 20,
+      "hunger": 25
+    }
+  },
+  "cucumber_seeds": {
+    "name": "Hạt dưa leo",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Hạ. Chín sau 6 ngày, ra lứa mới sau 2 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "cucumber": {
+    "name": "Dưa leo",
+    "category": "crop",
+    "stackable": true,
+    "unit": "trái",
+    "maxKg": 0.25,
+    "pricePerKg": 2000,
+    "sellPrice": 350,
+    "description": "1–3 trái mỗi ô, mỗi trái nặng tối đa 0,25 kg. Giá 2.000 đ/kg.",
+    "food": {
+      "energy": 5,
+      "hunger": 6
+    }
+  },
+  "water_spinach_seeds": {
+    "name": "Hạt rau muống",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Hạ. Chín sau 4 ngày, ra lứa mới sau 3 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "water_spinach": {
+    "name": "Rau muống",
+    "category": "crop",
+    "stackable": true,
+    "unit": "bó",
+    "maxKg": 0.5,
+    "pricePerKg": 1400,
+    "sellPrice": 490,
+    "description": "1 bó mỗi ô, mỗi bó nặng tối đa 0,5 kg. Giá 1.400 đ/kg.",
+    "food": {
+      "energy": 6,
+      "hunger": 8
+    }
+  },
+  "long_bean_seeds": {
+    "name": "Hạt đậu đũa",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 300,
+    "description": "Gieo được 1 ô. Mùa: Hạ. Chín sau 7 ngày, ra lứa mới sau 3 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "long_bean": {
+    "name": "Đậu đũa",
+    "category": "crop",
+    "stackable": true,
+    "unit": "bó",
+    "maxKg": 0.25,
+    "pricePerKg": 3250,
+    "sellPrice": 569,
+    "description": "1–2 bó mỗi ô, mỗi bó nặng tối đa 0,25 kg. Giá 3.250 đ/kg.",
+    "food": {
+      "energy": 7,
+      "hunger": 9
+    }
+  },
+  "glutinous_rice_seeds": {
+    "name": "Nếp giống",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 1800,
+    "description": "Gieo được 1 ô. Mùa: Thu. Chín sau 16 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "glutinous_rice": {
+    "name": "Lúa nếp",
+    "category": "crop",
+    "stackable": true,
+    "unit": "bó",
+    "maxKg": 1.5,
+    "pricePerKg": 3200,
+    "sellPrice": 3360,
+    "description": "1–2 bó mỗi ô, mỗi bó nặng tối đa 1,5 kg. Giá 3.200 đ/kg."
+  },
+  "sweet_potato_seeds": {
+    "name": "Dây khoai lang giống",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Thu. Chín sau 14 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "sweet_potato": {
+    "name": "Khoai lang",
+    "category": "crop",
+    "stackable": true,
+    "unit": "củ",
+    "maxKg": 0.3,
+    "pricePerKg": 1050,
+    "sellPrice": 220,
+    "description": "2–4 củ mỗi ô, mỗi củ nặng tối đa 0,3 kg. Giá 1.050 đ/kg.",
+    "food": {
+      "energy": 10,
+      "hunger": 16
+    }
+  },
+  "pumpkin_seeds": {
+    "name": "Hạt bí đỏ",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 1200,
+    "description": "Gieo được 1 ô. Mùa: Thu. Chín sau 13 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "pumpkin": {
+    "name": "Bí đỏ",
+    "category": "crop",
+    "stackable": true,
+    "unit": "trái",
+    "maxKg": 3.0,
+    "pricePerKg": 1600,
+    "sellPrice": 3360,
+    "description": "1 trái mỗi ô, mỗi trái nặng tối đa 3 kg. Giá 1.600 đ/kg.",
+    "food": {
+      "energy": 18,
+      "hunger": 24
+    }
+  },
+  "eggplant_seeds": {
+    "name": "Hạt cà tím",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Thu. Chín sau 10 ngày, ra lứa mới sau 3 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "eggplant": {
+    "name": "Cà tím",
+    "category": "crop",
+    "stackable": true,
+    "unit": "trái",
+    "maxKg": 0.2,
+    "pricePerKg": 2600,
+    "sellPrice": 364,
+    "description": "1–2 trái mỗi ô, mỗi trái nặng tối đa 0,2 kg. Giá 2.600 đ/kg.",
+    "food": {
+      "energy": 4,
+      "hunger": 5
+    }
+  },
+  "chili_seeds": {
+    "name": "Hạt ớt",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 400,
+    "description": "Gieo được 1 ô. Mùa: Thu. Chín sau 11 ngày, ra lứa mới sau 3 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "chili": {
+    "name": "Ớt",
+    "category": "crop",
+    "stackable": true,
+    "unit": "chùm",
+    "maxKg": 0.1,
+    "pricePerKg": 8500,
+    "sellPrice": 595,
+    "description": "1–3 chùm mỗi ô, mỗi chùm nặng tối đa 0,1 kg. Giá 8.500 đ/kg."
+  },
+  "cabbage_seeds": {
+    "name": "Hạt cải bắp",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 800,
+    "description": "Gieo được 1 ô. Mùa: Đông. Chín sau 13 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "cabbage": {
+    "name": "Cải bắp",
+    "category": "crop",
+    "stackable": true,
+    "unit": "bắp",
+    "maxKg": 1.5,
+    "pricePerKg": 2150,
+    "sellPrice": 2257,
+    "description": "1 bắp mỗi ô, mỗi bắp nặng tối đa 1,5 kg. Giá 2.150 đ/kg.",
+    "food": {
+      "energy": 12,
+      "hunger": 16
+    }
+  },
+  "kohlrabi_seeds": {
+    "name": "Hạt su hào",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Đông. Chín sau 9 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "kohlrabi": {
+    "name": "Su hào",
+    "category": "crop",
+    "stackable": true,
+    "unit": "củ",
+    "maxKg": 0.4,
+    "pricePerKg": 1850,
+    "sellPrice": 518,
+    "description": "1 củ mỗi ô, mỗi củ nặng tối đa 0,4 kg. Giá 1.850 đ/kg.",
+    "food": {
+      "energy": 8,
+      "hunger": 10
+    }
+  },
+  "carrot_seeds": {
+    "name": "Hạt cà rốt",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 200,
+    "description": "Gieo được 1 ô. Mùa: Đông. Chín sau 11 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "carrot": {
+    "name": "Cà rốt",
+    "category": "crop",
+    "stackable": true,
+    "unit": "củ",
+    "maxKg": 0.2,
+    "pricePerKg": 2500,
+    "sellPrice": 350,
+    "description": "1–2 củ mỗi ô, mỗi củ nặng tối đa 0,2 kg. Giá 2.500 đ/kg.",
+    "food": {
+      "energy": 6,
+      "hunger": 8
+    }
+  },
+  "garlic_seeds": {
+    "name": "Tỏi giống",
+    "category": "seed",
+    "stackable": true,
+    "sellPrice": 400,
+    "description": "Gieo được 1 ô. Mùa: Đông. Chín sau 17 ngày. Trồng đúng mùa: +50% khả năng đạt cân nặng tối đa."
+  },
+  "garlic": {
+    "name": "Tỏi",
+    "category": "crop",
+    "stackable": true,
+    "unit": "củ",
+    "maxKg": 0.05,
+    "pricePerKg": 8000,
+    "sellPrice": 280,
+    "description": "3–6 củ mỗi ô, mỗi củ nặng tối đa 0,05 kg. Giá 8.000 đ/kg."
+  },
+  "fertilizer": {
+    "name": "Phân bón",
+    "category": "fertilizer",
+    "stackable": true,
+    "sellPrice": 300,
+    "description": "Một nắm phân chuồng trộn NPK cho một ô đất đang có cây. Ngày được bón, cây tăng 10% khả năng đạt cân nặng tối đa (thay cho 5% của tưới nước)."
   }
 }

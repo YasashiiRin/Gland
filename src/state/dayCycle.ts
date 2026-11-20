@@ -1,6 +1,5 @@
 import { regrowFields, seasonStamp } from '../systems/WildFieldSystem';
 import { pruneFishPonds } from '../systems/FishPondSystem';
-import { ITEMS } from '../data/items';
 import { MAP_KEYS } from '../data/maps';
 import { advanceAnimalDay } from '../systems/AnimalSystem';
 import { advanceLivestockDay } from '../systems/LivestockSystem';
@@ -54,10 +53,9 @@ export function endWorldDay(): { time: TimeState; earnings: number } {
     }
   }
   gameState.livestock = gameState.livestock.map(advanceLivestockDay);
+  // The bin holds what each item put in is worth, in đồng (FieldScene.tryUseShippingBin).
   let earnings = 0;
-  for (const [itemId, qty] of Object.entries(gameState.shippingBin)) {
-    earnings += (ITEMS[itemId as keyof typeof ITEMS].sellPrice ?? 0) * (qty ?? 0);
-  }
+  for (const value of Object.values(gameState.shippingBin)) earnings += Math.round(value ?? 0);
   gameState.money += earnings;
   gameState.shippingBin = {};
   return { time, earnings };

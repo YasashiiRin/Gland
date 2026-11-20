@@ -5,13 +5,18 @@ import { FADE_MS, TILE } from '../config/constants';
 import type { MineSceneData } from './MineScene';
 import { timeControl } from '../state/timeControl';
 import { isWaterGid, TILE_GID, TILLABLE_GIDS } from '../config/tileGids';
-import { cropForSeed } from '../data/crops';
+import { CROPS, cropForSeed } from '../data/crops';
+import { formatKg, isWeighted, stackKg, stackValue } from '../systems/ProduceSystem';
 import { ITEMS, type ItemId, type VehicleAbility } from '../data/items';
 import { consume, isExhausted } from '../systems/EnergySystem';
 import { gameState } from '../state/GameState';
 import {
+  canFertilize,
   canPlant,
   canWater,
+  fertilizePlot,
+  isInSeason,
+  plotMaxKgChance,
   growthFraction,
   harvestPlot,
   isReadyToHarvest,
@@ -26,7 +31,7 @@ import {
 import { feed as feedAnimal, pet as petAnimal } from '../systems/AnimalSystem';
 import { addXp, XP_REWARDS } from '../systems/SkillSystem';
 import { playPickup } from '../systems/SfxSystem';
-import { addItem, removeItem } from '../systems/InventorySystem';
+import { addItem, removeItem, withQuantity } from '../systems/InventorySystem';
 import { clearEdit, digPath, hoeAction, PAVE_ITEM, pave, unpave, type HoeAction } from '../systems/GroundSystem';
 import { GroundPaths } from './groundPaths';
 import { absoluteDayNumber } from '../systems/TimeSystem';
@@ -302,15 +307,30 @@ export abstract class FieldScene extends MapScene {
     const key = this.plotKey(tile.x, tile.y);
     const cropId = cropForSeed(seedItemId);
     if (!cropId) return;
+    const season = gameState.time.season;
     if (this.isOpenField(tile)) {
       // A landmark's prebuilt field: sow straight onto the stubble, the crop is yours.
-      gameState.farmPlots = sowField(gameState.farmPlots, key, cropId, ownerName());
+      gameState.farmPlots = sowField(gameState.farmPlots, key, cropId, ownerName(), season);
       this.showSoil(tile.x, tile.y, gameState.farmPlots[key].wateredToday);
     } else if (canPlant(gameState.farmPlots, key)) {
-      gameState.farmPlots = plantSeed(gameState.farmPlots, key, cropId);
+      gameState.farmPlots = plantSeed(gameState.farmPlots, key, cropId, season);
     } else return;
     gameState.inventory = removeOneFromInventory(gameState, seedItemId);
     this.spawnOrUpdateCrop(key, tile.x, tile.y, gameState.farmPlots[key]);
+    if (!isInSeason(cropId, season)) this.say(`Trái mùa: ${CROPS[cropId].name.toLowerCase()} vẫn lớn nhưng không được +50% cân nặng`);
+  }
+
+  /** Fertilizer on a growing crop: counts double the watering towards full-weight produce today. */
+  protected override tryFertilizeFacingTile(itemId: ItemId): void {
+    const tile = this.actionTile();
+    const key = this.plotKey(tile.x, tile.y);
+    const plot = gameState.farmPlots[key];
+    if (!plot?.cropId) return void this.say('Bón phân vào ô đang có cây');
+    if (!canFertilize(gameState.farmPlots, key)) return void this.say('Ô này hôm nay bón rồi');
+    gameState.farmPlots = fertilizePlot(gameState.farmPlots, key);
+    gameState.inventory = removeOneFromInventory(gameState, itemId);
+    const chance = Math.round(plotMaxKgChance(gameState.farmPlots[key]) * 100);
+    this.say(`Đã bón phân · khả năng đạt cân tối đa: ${chance}% (+10% từ mai)`);
   }
 
   protected override tryHarvestFacingTile(): boolean {
@@ -355,7 +375,10 @@ export abstract class FieldScene extends MapScene {
     const result = harvestPlot(gameState.farmPlots, key);
     if (!result) return false;
     gameState.farmPlots = result.plots;
-    gameState.inventory = addItem(gameState.inventory, result.harvestedItemId as ItemId, result.quantity).state;
+    const itemId = result.harvestedItemId as ItemId;
+    gameState.inventory = addItem(gameState.inventory, itemId, result.quantity, result.kg).state;
+    const full = result.fullUnits > 0 ? ` · ${result.fullUnits} đạt tối đa` : '';
+    this.say(`+${result.quantity} ${ITEMS[itemId].unit ?? ''} ${ITEMS[itemId].name.toLowerCase()} (${formatKg(result.kg)})${full}`);
     gameState.skills = addXp(gameState.skills, 'farming', XP_REWARDS.harvestCrop).skills;
     playPickup(gameState.settings);
 
@@ -505,11 +528,14 @@ export abstract class FieldScene extends MapScene {
     const def = ITEMS[stack.itemId];
     if (!def.sellPrice) return;
 
-    gameState.shippingBin[stack.itemId] = (gameState.shippingBin[stack.itemId] ?? 0) + stack.quantity;
+    // The bin keeps what each item is worth (đồng), paid out next morning.
+    const value = stackValue(stack);
+    gameState.shippingBin[stack.itemId] = (gameState.shippingBin[stack.itemId] ?? 0) + value;
     const slots = gameState.inventory.slots.slice();
     slots[gameState.equippedSlot] = null;
     gameState.inventory = { slots };
-    console.info(`Đã gửi bán ${stack.quantity} ${def.name}`);
+    const weight = isWeighted(stack.itemId) ? ` (${formatKg(stackKg(stack))})` : '';
+    this.say(`Gửi bán ${stack.quantity} ${def.name.toLowerCase()}${weight}: ${value.toLocaleString('vi-VN')} ₫ sáng mai`);
   }
 
   /**
@@ -617,6 +643,6 @@ function removeOneFromInventory(state: typeof gameState, seedItemId: ItemId): ty
   const index = slots.findIndex((s) => s?.itemId === seedItemId);
   if (index === -1) return state.inventory;
   const stack = slots[index]!;
-  slots[index] = stack.quantity > 1 ? { itemId: stack.itemId, quantity: stack.quantity - 1 } : null;
+  slots[index] = withQuantity(stack, stack.quantity - 1);
   return { slots };
 }

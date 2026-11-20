@@ -51,7 +51,7 @@ export interface GameState {
   equippedSlot: number;
   /** Tilled/planted plots on the Farm map, keyed by "x,y" tile coordinates. */
   farmPlots: FarmPlots;
-  /** Items placed in the shipping bin, sold automatically when the next day starts. */
+  /** The shipping bin: what each item put in is worth (đồng), paid out when the next day starts. */
   shippingBin: Partial<Record<ItemId, number>>;
   playerName: string;
   farmName: string;
@@ -113,9 +113,17 @@ export interface GameState {
   boats: Record<string, BoatSpot>;
   /** The boat the player is rowing right now, or null. */
   boating: string | null;
+  /** Which price list money is counted in: 2000 = real đồng of 2000. Missing = the old made-up prices. */
+  priceYear?: number;
 }
 
 export const WAREHOUSE_SLOT_COUNT = 36;
+
+/** A new farmer's savings, in đồng of 2000 (scripts/data/apply_vn2000_prices.py). */
+export const STARTING_MONEY = 100000;
+export const PRICE_YEAR = 2000;
+/** Saves from before the 2000 prices: money times this (old prices were ~20–50 times smaller). */
+const OLD_MONEY_SCALE = 40;
 
 /** 12: big world (no farm/town maps, start point, sleeping mat); older saves start over. */
 export const STATE_VERSION = 12;
@@ -142,7 +150,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     currentMap: 'QuangBinh',
     spawnId: 'default',
     time: createInitialTime(),
-    money: 500,
+    money: STARTING_MONEY,
     inventory,
     wateringCanWater: CAN_CAPACITY,
     energy: createInitialEnergy(),
@@ -183,6 +191,7 @@ export function createInitialState(playerName = 'Nông dân', farmName = 'Nông 
     livestock: [],
     boats: {},
     boating: null,
+    priceYear: PRICE_YEAR,
   };
 }
 
@@ -219,6 +228,12 @@ export function applyLoadedState(saved: GameState): void {
   gameState.inventory = { slots };
   gameState.vehicles = DEV_GIVE_ALL_VEHICLES ? grantAllVehicles(vehicles) : vehicles;
   if (gameState.riding && !gameState.vehicles[gameState.riding]) gameState.riding = null;
+  if (saved.priceYear !== PRICE_YEAR) {
+    // Money saved under the old made-up prices, and a shipping bin that counted items, not đồng.
+    gameState.money = Math.round(saved.money * OLD_MONEY_SCALE);
+    gameState.shippingBin = {};
+    gameState.priceYear = PRICE_YEAR;
+  }
 }
 
 function grantAllVehicles(owned: OwnedVehicles): OwnedVehicles {

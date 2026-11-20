@@ -15,24 +15,26 @@ describe('open-air market', () => {
   });
 
   it('pays a bonus over the base price and charges a markup', () => {
-    expect(marketBuyPrice(SHOPS.market_rice, 'rice')).toBe(90); // 75 × 1.2
-    expect(marketBuyPrice(SHOPS.market_veg, 'rice')).toBe(82); // 75 × 1.1
-    expect(marketSellPrice(SHOPS.market_fish, 'carp')).toBe(48); // 30 × 1.6
+    // Produce is bought by the kilo: rice 2,000 đ/kg.
+    expect(marketBuyPrice(SHOPS.market_rice, 'rice')).toBe(2400); // × 1.2
+    expect(marketBuyPrice(SHOPS.market_veg, 'rice')).toBe(2200); // × 1.1
+    expect(marketSellPrice(SHOPS.market_fish, 'carp')).toBe(7040); // 4,400 × 1.6
   });
 
   it('sells for cash, only what you have', () => {
-    const inv = addItem(createEmptyInventory(), 'potato', 3).state;
+    const inv = addItem(createEmptyInventory(), 'potato', 3, 0.6).state; // 3 củ, 0.6 kg
     const r = sellToStall(inv, 100, SHOPS.market_veg, 'potato', 5);
     expect(r.soldQty).toBe(3);
-    expect(r.money).toBe(100 + 3 * 88);
+    expect(r.kg).toBe(0.6);
+    expect(r.money).toBe(100 + Math.floor(0.6 * 4125)); // 3,750 đ/kg × 1.1
     expect(r.inventory.slots.some((s) => s?.itemId === 'potato')).toBe(false);
   });
 
   it('buys one at a time when you can afford it', () => {
     const inv = createEmptyInventory();
-    expect(buyFromStall(inv, 10, SHOPS.market_rice, 'gao').bought).toBe(false);
-    const r = buyFromStall(inv, 200, SHOPS.market_rice, 'gao');
+    expect(buyFromStall(inv, 1000, SHOPS.market_rice, 'gao').bought).toBe(false);
+    const r = buyFromStall(inv, 10000, SHOPS.market_rice, 'gao');
     expect(r.bought).toBe(true);
-    expect(r.money).toBe(200 - 90);
+    expect(r.money).toBe(10000 - 4950); // 3,300 × 1.5
   });
 });

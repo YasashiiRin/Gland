@@ -36,21 +36,21 @@ describe('isShopOpen', () => {
 
 describe('buyItem', () => {
   it('charges only for what is bought and adds it to the inventory', () => {
-    const result = buyItem(createEmptyInventory(), 100, 'parsnip_seeds', 3); // price 10 each
+    const result = buyItem(createEmptyInventory(), 1000, 'parsnip_seeds', 3); // price 200 each
     expect(result.boughtQty).toBe(3);
-    expect(result.money).toBe(70);
+    expect(result.money).toBe(400);
   });
 
   it('buys as many as affordable when money is short, and no more', () => {
-    const result = buyItem(createEmptyInventory(), 25, 'parsnip_seeds', 10); // price 10 -> affords 2
+    const result = buyItem(createEmptyInventory(), 500, 'parsnip_seeds', 10); // price 200 -> affords 2
     expect(result.boughtQty).toBe(2);
-    expect(result.money).toBe(5);
+    expect(result.money).toBe(100);
   });
 
   it('does nothing when the player cannot afford even one', () => {
-    const result = buyItem(createEmptyInventory(), 5, 'parsnip_seeds', 1);
+    const result = buyItem(createEmptyInventory(), 50, 'parsnip_seeds', 1);
     expect(result.boughtQty).toBe(0);
-    expect(result.money).toBe(5);
+    expect(result.money).toBe(50);
   });
 
   it('only pays for what actually fit in the inventory', () => {

@@ -1,3 +1,4 @@
+import { formatKg, isWeighted, stackKg, stackValue } from '../systems/ProduceSystem';
 import Phaser from 'phaser';
 import { ITEMS } from '../data/items';
 import { itemAt, MAX_INVENTORY_SIZE, moveItem, type InventoryState } from '../systems/InventorySystem';
@@ -143,6 +144,8 @@ export class InventoryMenu {
   private showName(index: number): void {
     if (!this.inventory) return;
     const stack = itemAt(this.inventory, index);
-    this.nameText.setText(stack ? `${ITEMS[stack.itemId].name} — ${ITEMS[stack.itemId].description}` : '');
+    // Produce shows its weight and what it would fetch at base price.
+    const weight = stack && isWeighted(stack.itemId) ? ` (${stack.quantity} ${ITEMS[stack.itemId].unit ?? ''}, ${formatKg(stackKg(stack))} ≈ ${stackValue(stack).toLocaleString('vi-VN')} ₫)` : '';
+    this.nameText.setText(stack ? `${ITEMS[stack.itemId].name}${weight} — ${ITEMS[stack.itemId].description}` : '');
   }
 }

@@ -93,7 +93,7 @@ import { PAVE_ITEM } from '../systems/GroundSystem';
 const FAINT_RESTORE_RATIO = 0.3;
 /** Money lost when fainting, capped so a bad night never wipes someone out. */
 const PASS_OUT_MONEY_PENALTY_RATE = 0.1;
-const PASS_OUT_MONEY_PENALTY_MAX = 1000;
+const PASS_OUT_MONEY_PENALTY_MAX = 50000;
 
 export interface MapSceneData {
   spawn?: string;
@@ -639,6 +639,7 @@ export abstract class MapScene extends Phaser.Scene {
   }
 
   protected tryPlantFacingTile(_seedItemId: ItemId): void {}
+  protected tryFertilizeFacingTile(_itemId: ItemId): void {}
   protected tryHarvestFacingTile(): boolean {
     return false;
   }
@@ -998,6 +999,10 @@ export abstract class MapScene extends Phaser.Scene {
     }
     if (!stack) return;
 
+    if (ITEMS[stack.itemId].category === 'fertilizer') {
+      this.tryFertilizeFacingTile(stack.itemId);
+      return;
+    }
     if (ITEMS[stack.itemId].category === 'seed') {
       this.tryPlantFacingTile(stack.itemId);
       return;
