@@ -3,6 +3,8 @@ import { HOTBAR_SIZE, itemAt, type InventoryState } from '../systems/InventorySy
 import { iconTextureKey } from './itemIcons';
 import { UI_COLORS } from './uiStyle';
 import { skinSlot, woodPanel, type SkinSlot } from './uiSkin';
+import { controlsState, currentBindings } from '../state/controls';
+import { HOTBAR_ACTIONS, keyName } from '../systems/KeyBindings';
 
 const SLOT_SIZE = 40;
 const GAP = 4;
@@ -14,6 +16,9 @@ export class Hotbar {
   private readonly arts: (SkinSlot | null)[] = [];
   private readonly icons: Phaser.GameObjects.Image[] = [];
   private readonly counts: Phaser.GameObjects.Text[] = [];
+  /** The key shown in each slot's corner (follows the player's bindings). */
+  private readonly keyLabels: Phaser.GameObjects.Text[] = [];
+  private labelsVersion = -1;
   private readonly container: Phaser.GameObjects.Container;
   /** Called with the slot index when a slot is clicked. */
   onSelect?: (slot: number) => void;
@@ -58,6 +63,7 @@ export class Hotbar {
       this.boxes.push(box);
       this.icons.push(icon);
       this.counts.push(count);
+      this.keyLabels.push(keyLabel);
     }
   }
 
@@ -65,8 +71,18 @@ export class Hotbar {
     this.container.setVisible(visible);
   }
 
+  /** The root drawn on screen (for moving/resizing it, see LayoutHost). */
+  get root(): Phaser.GameObjects.Container {
+    return this.container;
+  }
+
   /** `canWater`: waterings left in the watering can, shown on its slot. */
   refresh(inventory: InventoryState, equippedSlot: number, canWater?: number): void {
+    if (this.labelsVersion !== controlsState.version) {
+      this.labelsVersion = controlsState.version;
+      const bindings = currentBindings();
+      HOTBAR_ACTIONS.forEach((action, i) => this.keyLabels[i]?.setText(bindings[action].length ? keyName(bindings[action][0]) : ''));
+    }
     for (let i = 0; i < HOTBAR_SIZE; i++) {
       const stack = itemAt(inventory, i);
       const icon = this.icons[i];

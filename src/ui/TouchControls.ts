@@ -28,12 +28,19 @@ export class TouchControls {
   private readonly closeButton: Phaser.GameObjects.Container;
   private readonly stickY: number;
   private stickPointer: number | null = null;
+  /** The joystick, moved/resized as one block (see LayoutHost). */
+  private readonly stick: Phaser.GameObjects.Container;
+  /** Each block the player may move, resize or hide: the stick and every button. */
+  readonly elements: { id: string; label: string; node: Phaser.GameObjects.Container }[] = [];
 
   constructor(private readonly scene: Phaser.Scene, depth: number, handlers: TouchHandlers) {
     const { width, height } = scene.scale;
     scene.input.addPointer(2); // joystick + a button at the same time
     this.stickY = height - 96;
     this.root = scene.add.container(0, 0).setDepth(depth);
+    this.stick = scene.add.container(0, 0);
+    this.root.add(this.stick);
+    this.elements.push({ id: 'touch_stick', label: 'Cần điều khiển', node: this.stick });
 
     const base = scene.add.circle(STICK_X, this.stickY, STICK_R, UI_COLORS.edge, 0.35).setStrokeStyle(3, UI_COLORS.parchment, 0.6);
     this.knob = scene.add.circle(STICK_X, this.stickY, KNOB_R, UI_COLORS.parchment, 0.75).setStrokeStyle(2, UI_COLORS.edge);
@@ -56,12 +63,12 @@ export class TouchControls {
     this.knobArt = skinRound(scene, SKIN.joystickKnob, STICK_X, this.stickY, KNOB_R * 2 + 4);
     if (baseArt) base.setAlpha(0.01);
     if (this.knobArt) this.knob.setAlpha(0.01);
-    this.root.add([base, ...(baseArt ? [baseArt] : []), this.knob, ...(this.knobArt ? [this.knobArt] : []), pad]);
+    this.stick.add([base, ...(baseArt ? [baseArt] : []), this.knob, ...(this.knobArt ? [this.knobArt] : []), pad]);
 
-    this.button(width - 112, height - 82, 32, 'Dùng', () => (touchInput.useQueued = true));
-    this.button(width - 62, height - 148, 26, 'Tương\ntác', () => (touchInput.interactQueued = true));
-    this.button(width - 170, height - 150, 21, 'Túi', handlers.onInventory);
-    this.button(width - 122, height - 200, 21, 'Chế\ntạo', handlers.onCrafting);
+    this.button('touch_use', 'Nút Dùng', width - 112, height - 82, 32, 'Dùng', () => (touchInput.useQueued = true));
+    this.button('touch_interact', 'Nút Tương tác', width - 62, height - 148, 26, 'Tương\ntác', () => (touchInput.interactQueued = true));
+    this.button('touch_bag', 'Nút Túi', width - 170, height - 150, 21, 'Túi', handlers.onInventory);
+    this.button('touch_craft', 'Nút Chế tạo', width - 122, height - 200, 21, 'Chế\ntạo', handlers.onCrafting);
 
     this.closeButton = scene.add.container(width / 2, 26).setDepth(depth + 10).setVisible(false);
     const closeBox = scene.add.rectangle(0, 0, 120, 34, UI_COLORS.wood).setStrokeStyle(3, UI_COLORS.edge).setInteractive();
@@ -70,7 +77,7 @@ export class TouchControls {
     this.closeButton.add([closeBox, ...(closeArt ? [closeArt] : []), scene.add.text(0, 0, '✕ Đóng', { fontFamily: UI_FONT, fontSize: '16px', color: '#fff2d0', fontStyle: 'bold' }).setOrigin(0.5).setStroke('#2b1a10', 3)]);
   }
 
-  private button(x: number, y: number, r: number, label: string, onTap: () => void): void {
+  private button(id: string, name: string, x: number, y: number, r: number, label: string, onTap: () => void): void {
     const circle = this.scene.add.circle(x, y, r, UI_COLORS.wood, 0.85).setStrokeStyle(3, UI_COLORS.edge).setInteractive();
     const text = this.scene.add
       .text(x, y, label, { fontFamily: UI_FONT, fontSize: r > 26 ? '15px' : '12px', color: '#fff2d0', fontStyle: 'bold', align: 'center' })
@@ -89,12 +96,16 @@ export class TouchControls {
     circle.on('pointerup', up);
     circle.on('pointerout', up);
     if (art) circle.setFillStyle(UI_COLORS.wood, 0.01).setStrokeStyle(0);
-    this.root.add([circle, ...(art ? [art] : []), text]);
+    const node = this.scene.add.container(0, 0, [circle, ...(art ? [art] : []), text]);
+    this.root.add(node);
+    this.elements.push({ id, label: name, node });
   }
 
   private moveStick(p: Phaser.Input.Pointer): void {
-    const dx = p.x - STICK_X;
-    const dy = p.y - this.stickY;
+    // The stick block may have been moved/resized: work in its own coordinates.
+    const c = this.stick;
+    const dx = (p.x - c.x) / c.scaleX - STICK_X;
+    const dy = (p.y - c.y) / c.scaleY - this.stickY;
     const dist = Math.min(STICK_R, Math.hypot(dx, dy));
     const angle = Math.atan2(dy, dx);
     this.knob.setPosition(STICK_X + Math.cos(angle) * dist, this.stickY + Math.sin(angle) * dist);
@@ -114,10 +125,10 @@ export class TouchControls {
     touchInput.up = touchInput.down = touchInput.left = touchInput.right = false;
   }
 
-  /** Called every frame: show/hide, and offer "close" while a menu is open. */
-  update(visible: boolean, menuOpen: boolean): void {
-    this.root.setVisible(visible && !menuOpen);
-    this.closeButton.setVisible(visible && menuOpen);
+  /** Called every frame: show/hide, and offer "close" while a menu is open (`editing`: shown for the layout editor). */
+  update(visible: boolean, menuOpen: boolean, editing = false): void {
+    this.root.setVisible(editing || (visible && !menuOpen));
+    this.closeButton.setVisible(!editing && visible && menuOpen);
     if (!visible || menuOpen) {
       if (this.stickPointer !== null) this.resetStick();
     }

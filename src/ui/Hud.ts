@@ -36,7 +36,12 @@ const WEEKDAYS = ['T.2', 'T.3', 'T.4', 'T.5', 'T.6', 'T.7', 'CN'];
  * - bottom-right: three slim vertical bars (energy, health, sanity), hover for numbers.
  */
 export class Hud {
-  private readonly container: Phaser.GameObjects.Container;
+  /** The day/night dial, clock, money and gear button (top-right). */
+  readonly clock: Phaser.GameObjects.Container;
+  /** The slim stat bars (bottom-right). */
+  readonly bars: Phaser.GameObjects.Container;
+  /** Hover tips, never moved or scaled. */
+  private readonly tips: Phaser.GameObjects.Container;
   private readonly dial: Phaser.GameObjects.Graphics;
   private readonly dialCenter: { x: number; y: number };
   private readonly timeText: Phaser.GameObjects.Text;
@@ -66,7 +71,9 @@ export class Hud {
 
   constructor(scene: Phaser.Scene, depth: number) {
     const { width, height } = scene.scale;
-    this.container = scene.add.container(0, 0).setDepth(depth);
+    this.clock = scene.add.container(0, 0).setDepth(depth);
+    this.bars = scene.add.container(0, 0).setDepth(depth);
+    this.tips = scene.add.container(0, 0).setDepth(depth + 1);
 
     // --- Day/night dial + clock + money (top-right) ---
     this.dialCenter = { x: width - MARGIN - 34, y: MARGIN + DIAL_R + 2 };
@@ -75,13 +82,13 @@ export class Hud {
     this.moneyText = this.pill(scene, this.dialCenter.x, this.dialCenter.y + DIAL_R + 36, 13, UI_COLORS.gold);
     // The carved wooden ring round the dial, when painted.
     const ring = skinRound(scene, SKIN.dayDial, this.dialCenter.x, this.dialCenter.y, DIAL_R * 2 + 6);
-    this.container.add([this.dial, ...(ring ? [ring] : []), this.timeText, this.moneyText]);
+    this.clock.add([this.dial, ...(ring ? [ring] : []), this.timeText, this.moneyText]);
     const dialZone = scene.add
       .zone(this.dialCenter.x, this.dialCenter.y, DIAL_R * 2, DIAL_R * 2)
       .setInteractive();
-    dialZone.on('pointerover', () => this.showTip(this.dateLine(), this.dialCenter.x - DIAL_R - 6, this.dialCenter.y));
+    dialZone.on('pointerover', () => this.showTip(this.dateLine(), this.dialCenter.x - DIAL_R - 6, this.dialCenter.y, this.clock));
     dialZone.on('pointerout', () => this.tip.setVisible(false));
-    this.container.add(dialZone);
+    this.clock.add(dialZone);
 
     // --- Gear button (opens settings) ---
     const gx = this.dialCenter.x - DIAL_R - 22;
@@ -92,7 +99,7 @@ export class Hud {
       painted.on('pointerdown', () => this.onSettings?.());
       painted.on('pointerover', () => painted.setTint(0xfff0d8));
       painted.on('pointerout', () => painted.clearTint());
-      this.container.add(painted);
+      this.clock.add(painted);
     } else {
       const gear = scene.add.circle(gx, gy, 13, UI_COLORS.wood).setStrokeStyle(2, UI_COLORS.edge);
       const gearIcon = scene.add.text(gx, gy, '⚙', { fontFamily: UI_FONT, fontSize: '17px', color: '#fff2d0' }).setOrigin(0.5);
@@ -100,7 +107,7 @@ export class Hud {
       gear.on('pointerdown', () => this.onSettings?.());
       gear.on('pointerover', () => gear.setFillStyle(UI_COLORS.woodLight));
       gear.on('pointerout', () => gear.setFillStyle(UI_COLORS.wood));
-      this.container.add([gear, gearIcon]);
+      this.clock.add([gear, gearIcon]);
     }
 
     // --- Slim energy / health bars (bottom-right) ---
@@ -120,14 +127,14 @@ export class Hud {
       .text(width - MARGIN, by - 22, '', { fontFamily: UI_FONT, fontSize: '11px', fontStyle: 'bold', color: '#fff6e0' })
       .setStroke('#2b1a10', 3)
       .setOrigin(1, 1);
-    this.container.add(this.restText);
+    this.bars.add(this.restText);
 
     this.tip = scene.add
       .text(0, 0, '', { fontFamily: UI_FONT, fontSize: '12px', color: '#fff6e0', backgroundColor: '#2b1a10dd' })
       .setPadding(5, 3, 5, 3)
       .setOrigin(1, 0.5)
       .setVisible(false);
-    this.container.add(this.tip);
+    this.tips.add(this.tip);
   }
 
   private pill(scene: Phaser.Scene, x: number, y: number, size: number, color: string = UI_COLORS.ink): Phaser.GameObjects.Text {
@@ -144,19 +151,20 @@ export class Hud {
       .text(x + w / 2, y - 10, letter, { fontFamily: UI_FONT, fontSize: '13px', fontStyle: 'bold', color: `#${color.toString(16).padStart(6, '0')}` })
       .setOrigin(0.5)
       .setStroke('#2b1a10', 3);
-    this.container.add(icon);
+    this.bars.add(icon);
     this.lastFrame = frame;
     frame.setInteractive();
-    frame.on('pointerover', () => this.showTip(tip(), x - 6, y + h / 2));
+    frame.on('pointerover', () => this.showTip(tip(), x - 6, y + h / 2, this.bars));
     frame.on('pointerout', () => this.tip.setVisible(false));
     const art = hasSkin(scene, SKIN.barFrame) ? scene.add.image(x - 2, y - 2, SKIN.barFrame).setOrigin(0, 0).setDisplaySize(w + 4, h + 4) : null;
     this.lastArt = art;
-    this.container.add([frame, ...(art ? [art] : []), fill]);
+    this.bars.add([frame, ...(art ? [art] : []), fill]);
     return fill;
   }
 
-  private showTip(text: string, x: number, y: number): void {
-    this.tip.setText(text).setPosition(x, y).setVisible(true);
+  /** Shows a tip beside a point of `group` (wherever the player moved/scaled that group). */
+  private showTip(text: string, x: number, y: number, group: Phaser.GameObjects.Container): void {
+    this.tip.setText(text).setPosition(group.x + x * group.scaleX, group.y + y * group.scaleY).setVisible(true);
   }
 
   private dateLine(): string {

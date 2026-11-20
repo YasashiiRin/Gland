@@ -22,6 +22,11 @@ import { reorder, SKILLS } from '../systems/ProfessionSystem';
 import { receiveTeaching } from '../state/professionActions';
 import { resetHungerClock, tickHunger } from '../state/hungerClock';
 import { resetStaminaClock, restState, tickStamina } from '../state/staminaClock';
+import { controlsState } from '../state/controls';
+import { ActionKeys } from './actionKeys';
+import { KeyBindingsMenu } from '../ui/KeyBindingsMenu';
+import { LayoutEditor } from '../ui/LayoutEditor';
+import { LayoutHost } from '../ui/LayoutHost';
 import { fullyRested, tickSleep } from '../state/sleepClock';
 import Phaser from 'phaser';
 import { MS_PER_TICK, MINUTES_PER_TICK, SEASON_LABELS, WEATHER_LABELS } from '../config/time';
@@ -89,7 +94,9 @@ export class UIScene extends Phaser.Scene {
   private openChestKey: string | null = null;
   private dialogueBox!: DialogueBox;
   private fishing!: FishingSession;
-  private fishingKey!: Phaser.Input.Keyboard.Key;
+  private keys!: ActionKeys;
+  private keyMenu!: KeyBindingsMenu;
+  private layoutEditor!: LayoutEditor;
   private fishingPointerWasDown = true;
   private settingsMenu!: SettingsMenu;
   private nightOverlay!: Phaser.GameObjects.Rectangle;
@@ -109,7 +116,6 @@ export class UIScene extends Phaser.Scene {
   private lastProfileSent = 0;
   private knownPlayers = new Map<string, string>();
   private accumulatorMs = 0;
-  private inventoryKey!: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super('UI');
@@ -293,6 +299,8 @@ export class UIScene extends Phaser.Scene {
         gameState.settings.touch = order[(order.indexOf(gameState.settings.touch) + 1) % order.length];
         this.settingsMenu.refresh(gameState.settings);
       },
+      onOpenKeys: () => this.keyMenu.open(),
+      onEditLayout: () => this.openLayoutEditor(),
     });
     this.hud.onSettings = () => this.toggleSettings();
 
@@ -317,19 +325,8 @@ export class UIScene extends Phaser.Scene {
     const kb = this.input.keyboard;
     if (!kb) throw new Error('Keyboard input is not available');
     kb.addCapture(Phaser.Input.Keyboard.KeyCodes.TAB); // stop the browser from tabbing focus away
-    const settingsKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.TAB);
-    settingsKey.on('down', () => this.toggleSettings());
-    this.fishingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-    this.inventoryKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.I);
-    kb.addKey(Phaser.Input.Keyboard.KeyCodes.M).on('down', () => this.minimap.toggle());
-    const craftingKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.C);
-    craftingKey.on('down', () => this.toggleCrafting());
-    const escKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
-    escKey.on('down', () => this.closeTopMenu());
-    const interactKey = kb.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-    interactKey.on('down', () => {
-      if (uiState.dialogueOpen) this.closeDialogue();
-    });
+    // Menu keys, read each frame by action so the player's own bindings apply (pollMenuKeys).
+    this.keys = new ActionKeys(kb);
 
     this.marketMenu = new MarketMenu(this, DEPTH_ABOVE + 1);
     this.marketMenu.onClosed = () => {
@@ -410,6 +407,7 @@ export class UIScene extends Phaser.Scene {
       onCrafting: () => this.toggleCrafting(),
       onClose: () => this.closeTopMenu(),
     });
+    this.setupLayout();
     const onDay = (p: DayStartedPayload) => {
       this.leaveSleepWait(false);
       this.showDayBanner(p);
@@ -424,6 +422,47 @@ export class UIScene extends Phaser.Scene {
     });
   }
 
+  /** The player's own placement of the HUD blocks and phone buttons, and its editor. */
+  private setupLayout(): void {
+    const host = new LayoutHost(this);
+    const thayPhap = () => !!gameState.profession;
+    host.add('clock', 'Đồng hồ & tiền', this.hud.clock, { wrap: false });
+    host.add('bars', 'Thanh chỉ số', this.hud.bars, { wrap: false });
+    host.add('hotbar', 'Thanh công cụ', this.hotbar.root, { wrap: true });
+    host.add('minimap', 'Bản đồ nhỏ', this.minimap.root, { wrap: true });
+    host.add('linh_luc', 'Linh lực (thầy pháp)', this.professionHud.root, { wrap: true, when: thayPhap });
+    // The spell column is built later (empty now): scale it around its place on the right edge.
+    host.add('spells', 'Phép (thầy pháp)', this.professionHud.column, { wrap: true, when: thayPhap, pivot: { x: this.scale.width - 32, y: this.scale.height / 2 } });
+    for (const el of this.touchControls.elements) host.add(el.id, el.label, el.node, { wrap: false });
+    this.layoutEditor = new LayoutEditor(this, DEPTH_ABOVE + 20, host);
+    this.layoutEditor.onClosed = () => (uiState.layoutEditing = false);
+    this.keyMenu = new KeyBindingsMenu(this, DEPTH_ABOVE + 5);
+  }
+
+  private openLayoutEditor(): void {
+    this.closeSettings();
+    uiState.layoutEditing = true;
+    this.layoutEditor.open();
+  }
+
+  /** Tab, I, C, M, Esc, E, Q…: whatever keys the player bound to them. */
+  private pollMenuKeys(): void {
+    const k = this.keys;
+    if (controlsState.capturing) return; // the key menu is reading the next key
+    if (controlsState.flushPending) {
+      controlsState.flushPending = false;
+      k.flush();
+      return;
+    }
+    if (k.justDown('settings')) this.toggleSettings();
+    if (k.justDown('close')) this.closeTopMenu();
+    if (k.justDown('inventory')) this.toggleInventory();
+    if (k.justDown('crafting')) this.toggleCrafting();
+    if (k.justDown('minimap')) this.minimap.toggle();
+    if (k.justDown('interact') && uiState.dialogueOpen) this.closeDialogue();
+    if (k.justDown('ability') && !isWorldInputBlocked()) this.professionHud.castFirst();
+  }
+
   update(time: number, delta: number): void {
     worldSync.update(time); // multiplayer: exchange changes to the shared farm
     this.updateTouchControls();
@@ -434,7 +473,7 @@ export class UIScene extends Phaser.Scene {
       this.lastProfileSent = time;
       net.sendProfile(pickProfile(gameState));
     }
-    if (Phaser.Input.Keyboard.JustDown(this.inventoryKey)) this.toggleInventory();
+    this.pollMenuKeys();
 
     this.hotbar.refresh(gameState.inventory, gameState.equippedSlot, gameState.wateringCanWater);
     tickStamina();
@@ -457,9 +496,9 @@ export class UIScene extends Phaser.Scene {
 
     if (this.fishing.active) {
       const pointer = this.input.manager.pointers.some((p) => p.isDown);
-      const pressed = Phaser.Input.Keyboard.JustDown(this.fishingKey) || (pointer && !this.fishingPointerWasDown);
+      const pressed = this.keys.justDown('use') || (pointer && !this.fishingPointerWasDown);
       this.fishingPointerWasDown = pointer;
-      this.fishing.update(time, delta / 1000, this.fishingKey.isDown || pointer, pressed);
+      this.fishing.update(time, delta / 1000, this.keys.isDown('use') || pointer, pressed);
     }
 
     if (
@@ -471,7 +510,8 @@ export class UIScene extends Phaser.Scene {
       uiState.dialogueOpen ||
       uiState.fishingOpen ||
       uiState.settingsOpen ||
-      uiState.worldMapOpen
+      uiState.worldMapOpen ||
+      uiState.layoutEditing
     ) {
       return;
     }
@@ -563,6 +603,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   private toggleSettings(): void {
+    if (this.layoutEditor.isOpen) return;
     if (uiState.settingsOpen) {
       this.closeSettings();
       return;
@@ -580,6 +621,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   private closeSettings(): void {
+    this.keyMenu.close();
     this.settingsMenu.close();
     uiState.settingsOpen = false;
   }
@@ -656,7 +698,7 @@ export class UIScene extends Phaser.Scene {
       uiState.dialogueOpen ||
       uiState.settingsOpen ||
       uiState.worldMapOpen;
-    this.touchControls.update(on, menuOpen);
+    this.touchControls.update(on, menuOpen, uiState.layoutEditing);
   }
 
   /** C key / touch button: crafting only works standing at a bench. */
@@ -685,7 +727,9 @@ export class UIScene extends Phaser.Scene {
   }
 
   private closeTopMenu(): void {
-    if (this.choiceMenu.isOpen) this.choiceMenu.close();
+    if (this.keyMenu.isOpen) this.keyMenu.close();
+    else if (this.layoutEditor.isOpen) this.layoutEditor.close();
+    else if (this.choiceMenu.isOpen) this.choiceMenu.close();
     else if (this.professionMenu.isOpen) this.professionMenu.close();
     else if (uiState.worldMapOpen) this.worldMap.close();
     else if (uiState.settingsOpen) this.closeSettings();

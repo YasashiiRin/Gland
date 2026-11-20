@@ -3,7 +3,7 @@ import { inkText, UI_COLORS, UI_FONT } from './uiStyle';
 import { woodPanel, skinButton } from './uiSkin';
 
 const PANEL_W = 380;
-const PANEL_H = 410;
+const PANEL_H = 430;
 const BAR_W = 180;
 
 export interface SettingsHandlers {
@@ -17,13 +17,16 @@ export interface SettingsHandlers {
   onTouchCycle: () => void;
   /** Cycle the horror setting: on → mild → off. */
   onHorrorCycle: () => void;
+  /** Open the key bindings panel. */
+  onOpenKeys: () => void;
+  /** Close the settings and start moving/resizing the on-screen blocks. */
+  onEditLayout: () => void;
 }
 
 const CONTROLS = [
-  'WASD / mũi tên: đi lại',
-  'Chuột trái / Space: dùng đồ đang cầm · khi lái xe: bật/tắt chế độ cày/gặt, bấm còi',
-  'Chuột phải / E: tương tác, thu hoạch · đứng cạnh xe: lên xe · đang lái: xuống xe',
-  'I: túi đồ · C: chế tạo · M: bản đồ nhỏ · Tab / ⚙: cài đặt',
+  'Chuột trái: dùng đồ đang cầm · khi lái xe: bật/tắt chế độ cày/gặt, bấm còi',
+  'Chuột phải: tương tác, thu hoạch · đứng cạnh xe: lên xe · đang lái: xuống xe',
+  'Phím bàn phím: xem và đổi ở "Phím điều khiển"',
 ];
 
 /** Settings overlay (gear button or Tab): volume, mute, zoom, fullscreen, controls list. */
@@ -89,13 +92,20 @@ export class SettingsMenu {
     this.horrorText = horror[horror.length - 1] as Phaser.GameObjects.Text;
     this.root.add([inkText(scene, rowX, y, 'Kinh dị ban đêm', 14).setOrigin(0, 0.5), ...horror]);
 
+    // Keys and on-screen layout
+    y += 40;
+    const keys = this.button(scene, cx - 80, y, 150, 'Phím điều khiển', () => this.handlers?.onOpenKeys());
+    const layout = this.button(scene, cx + 80, y, 150, 'Chỉnh bố cục', () => this.handlers?.onEditLayout());
+    this.root.add([...keys, ...layout]);
+
     // Controls
-    y += 36;
+    y += 30;
     const controls = scene.add.text(rowX, y, CONTROLS.join('\n'), {
       fontFamily: UI_FONT,
       fontSize: '12px',
       color: UI_COLORS.inkSoft,
       lineSpacing: 3,
+      wordWrap: { width: PANEL_W - 60 },
     });
     this.root.add(controls);
   }
