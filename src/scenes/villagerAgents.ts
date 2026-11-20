@@ -1,7 +1,5 @@
-import { TILE } from '../config/constants';
-import { MINUTES_PER_TICK, MS_PER_TICK } from '../config/time';
+import { PLAYER_SPEED, TILE } from '../config/constants';
 import { findPath } from '../systems/gridPath';
-import { NPC_CONFIG } from '../systems/npc/config';
 
 type Pt = { x: number; y: number };
 
@@ -26,11 +24,8 @@ export interface Agent {
   walked: number;
 }
 
-/**
- * Walking speed (px a second) matching the timetable's walking minutes:
- * `walkTilesPerMinute` tiles each game minute, a game minute being 0.7 s.
- */
-export const WALK_SPEED = (NPC_CONFIG.travel.walkTilesPerMinute * TILE) / (MS_PER_TICK / MINUTES_PER_TICK / 1000);
+/** Walking speed (px a second): the same as the player on foot. */
+export const WALK_SPEED = PLAYER_SPEED;
 /** A target moving less than this (px) is followed, not re-planned (a swept yard, a buffalo walking). */
 const REPLAN_PX = 10;
 /** Closer than this (tiles), walk straight there; farther, find a way round walls and houses. */
@@ -38,8 +33,8 @@ const STRAIGHT_TILES = 3;
 /** Path-finding is costly: this many new routes per frame at most (the rest wait a frame or two). */
 const ROUTES_PER_FRAME = 2;
 const MAX_NODES = 40000;
-/** Px walked per step frame (4 frames a cycle). */
-const STRIDE = 7;
+/** Px walked per step frame (4 frames a cycle): the player's 8 frames a second at walking speed. */
+const STRIDE = PLAYER_SPEED / 8;
 
 export function createAgent(at: Pt): Agent {
   return { x: at.x, y: at.y, path: [], target: { ...at }, arrived: true, pending: false, dir: 'down', walked: 0 };

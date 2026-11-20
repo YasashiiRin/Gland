@@ -709,3 +709,5 @@ Cài đặt (Tab / ⚙) có thêm 2 nút. Lưu trong `settings.keys` và `settin
 - [x] Mọi gia đình trên bản đồ đang chơi đều đi lại mỗi khung hình, dù camera ở đâu; chỉ phần vẽ bỏ qua khi ở xa (không còn cảnh hiện ra / biến mất trước mắt).
 - [x] Bước chân theo quãng đường đã đi (không trượt, không giật); làm cỏ đi lần lượt từng ô cạnh nhau; dừng lại khi đồng hồ game dừng (mở menu).
 - [x] Kiểm tra: 22 NPC trong 25 giây, 0 lần nhảy chỗ.
+
+- Tốc độ NPC = tốc độ đi bộ của người chơi (`PLAYER_SPEED` 72 px/s), không tăng tốc khi "trễ giờ"; nhịp bước chân khớp người chơi (8 khung/giây).
