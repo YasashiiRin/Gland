@@ -697,3 +697,8 @@ Cài đặt (Tab / ⚙) có thêm 2 nút. Lưu trong `settings.keys` và `settin
 
 - [x] **Phím điều khiển:** 24 việc (đi 4 hướng, dùng, tương tác, túi, chế tạo, bản đồ nhỏ, cài đặt, đóng bảng, phép đầu tiên, 12 ô công cụ), mỗi việc tối đa 2 phím; gán phím đã dùng thì phím đó tự gỡ khỏi việc cũ; Backspace xoá, Esc huỷ; nút "Khôi phục mặc định". Thanh công cụ và ô phép hiện đúng tên phím. Logic: `src/systems/KeyBindings.ts`.
 - [x] **Chỉnh bố cục:** kéo khung để di chuyển, − / + đổi cỡ (60–180%), Ẩn/Hiện, "Mặc định". Áp dụng cho: đồng hồ & tiền, thanh chỉ số, thanh công cụ, bản đồ nhỏ, linh lực và cột phép (thầy pháp), cần điều khiển và 4 nút cảm ứng. Logic: `src/systems/UiLayout.ts`.
+
+## Sửa lỗi: NPC nhảy cóc / biến mất trước mắt (báo 2026-11-20)
+
+- [x] Gia đình nông dân (`villagers.ts`): đổi việc, đổi ô ruộng, hết đường đi… không còn đặt thẳng sang chỗ mới mà đi bộ tới (70 px/giây) rồi mới làm việc. Khoảng cách quá 24 ô (chỉ xảy ra ngoài màn hình) mới cho nhảy.
+- [x] Người gánh hàng rong (`hawkers.ts`): chỉ xuất hiện ở điểm dừng ngoài khung hình, và chỉ biến mất khi đã ra khỏi khung hình (đang trong tầm nhìn lúc hết giờ thì đi tiếp cho tới khi khuất).

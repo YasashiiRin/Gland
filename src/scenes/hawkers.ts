@@ -68,11 +68,14 @@ export class Hawkers {
     for (const h of this.hawkers) {
       const at = h.stops[0];
       const near = Math.max(Math.abs(at.x - view.centerX / TILE), Math.abs(at.y - view.centerY / TILE)) < NEAR_TILES;
+      // Hawkers only come and go out of sight: one on screen at closing time finishes the round first.
       if (!out || !near) {
-        this.hide(h);
-        continue;
+        if (!h.sprite || !onScreen(view, h.sprite.x, h.sprite.y)) {
+          this.hide(h);
+          continue;
+        }
       }
-      if (!h.sprite) this.show(h);
+      if (!h.sprite && !this.show(h, view)) continue;
       this.walk(h, time, delta);
       const close = Math.hypot(h.sprite!.x - player.x, h.sprite!.y - player.y) < 3 * TILE;
       h.label?.setVisible(close).setPosition(h.sprite!.x, h.sprite!.y - 38).setDepth(h.sprite!.depth + 2);
@@ -89,8 +92,11 @@ export class Hawkers {
     this.hawkers.forEach((h) => this.hide(h));
   }
 
-  private show(h: Hawker): void {
-    const start = h.stops[Math.floor(Math.random() * h.stops.length)];
+  /** Sets out from a stop the player can't see; false if every stop is on screen (try again later). */
+  private show(h: Hawker, view: Phaser.Geom.Rectangle): boolean {
+    const hidden = h.stops.filter((s) => !onScreen(view, s.x * TILE + TILE / 2, s.y * TILE + TILE - 2));
+    if (!hidden.length) return false;
+    const start = hidden[Math.floor(Math.random() * hidden.length)];
     const k = artScale(this.scene, h.def.folk);
     h.sprite = this.scene.add.sprite(start.x * TILE + TILE / 2, start.y * TILE + TILE - 2, h.def.folk, 0).setOrigin(0.5, 1).setScale(1 / k);
     h.pole = this.scene.add.image(0, 0, 'prop_ganh').setOrigin(0.5, 0.5).setScale(hdScale(this.scene, 'prop_ganh'));
@@ -101,6 +107,7 @@ export class Hawkers {
       .setVisible(false);
     h.path = undefined;
     h.waitUntil = 0;
+    return true;
   }
 
   private hide(h: Hawker): void {
@@ -154,4 +161,10 @@ export class Hawkers {
     const side = dir === 'left' || dir === 'right';
     h.pole?.setPosition(s.x, s.y - 17).setScale(hdScale(this.scene, 'prop_ganh') * (side ? 0.55 : 1), hdScale(this.scene, 'prop_ganh')).setDepth(s.y + 0.5);
   }
+}
+
+/** Is a point inside the camera view (with a tile and a half of margin for the sprite)? */
+function onScreen(view: Phaser.Geom.Rectangle, x: number, y: number): boolean {
+  const m = TILE * 1.5;
+  return x > view.x - m && x < view.right + m && y > view.y - m && y < view.bottom + m * 2;
 }

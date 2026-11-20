@@ -14,6 +14,12 @@ import { chase, nearestOther, roam, RUN, type Player as Playful } from './villag
 
 const ACTIVE_TILES = 46;
 const DIRS = ['down', 'left', 'right', 'up'];
+/** Moving to a new spot (another chore, another cell, end of a route) is walked at this speed (px/s) instead of jumped. */
+const CATCH_UP_SPEED = 70;
+/** Gaps bigger than this (tiles) are crossed at once: it only happens off screen (time skipped, family just came into range). */
+const MAX_WALK_GAP_TILES = 24;
+/** Walk frames: 4 per direction row, this many ms each. */
+const WALK_FRAME_MS = 150;
 
 interface Person extends Worker, Playful {
   key: string;
@@ -74,7 +80,9 @@ export class Villagers {
       fam.members.forEach((npc, i) => {
         const p = h.people[i] ?? (h.people[i] = { key: FOLK_KEYS[4], child: npc.role === 'child', index: i, nextMove: 0 });
         p.child = npc.role === 'child';
+        const before = p.sprite?.visible ? { x: p.sprite.x, y: p.sprite.y } : null;
         this.person(h, fam, npc, p, minute, time, delta, player, children);
+        this.glide(p, before, time, delta);
         if (p.sprite) follow(p, p.sprite);
         if (fam.buffalo?.ledBy === npc.id && p.trail) led = p.trail;
       });
@@ -88,6 +96,28 @@ export class Villagers {
       this.world.stopTalking(t.key, t.npcId);
       this.talking = null;
     }
+  }
+
+  /**
+   * No teleporting: if this frame's chore put the villager somewhere else
+   * (a new chore, the next field cell, the end of a route), they walk there
+   * from where they stood instead, and take up the chore once they arrive.
+   */
+  private glide(p: Person, before: Pt | null, time: number, delta: number): void {
+    const s = p.sprite;
+    if (!s || !before) return;
+    const dx = s.x - before.x;
+    const dy = s.y - before.y;
+    const d = Math.hypot(dx, dy);
+    const step = (CATCH_UP_SPEED * delta) / 1000;
+    if (d <= Math.max(3, step) || d > MAX_WALK_GAP_TILES * TILE) return;
+    const x = before.x + (dx / d) * step;
+    const y = before.y + (dy / d) * step;
+    const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+    if (s.texture.key !== p.key) s.setTexture(p.key); // up from a seat
+    s.anims.stop();
+    s.setCrop().setAngle(0).setPosition(x, y).setDepth(y).setFrame(DIRS.indexOf(dir) * 4 + (Math.floor(time / WALK_FRAME_MS) % 4));
+    p.load?.setPosition(x, y - 30).setDepth(y + 1);
   }
 
   /** E next to a villager: they stop for a chat (or say they must be off). False: nobody close. */
