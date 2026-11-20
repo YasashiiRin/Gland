@@ -671,3 +671,9 @@ Thông số nằm trong `src/data/stamina.json`; logic thuần ở `src/systems/
 - [x] Sức > 0: mỗi giờ game hồi 1,5% (4,05 sức). Sức = 0: không hồi theo giờ.
 - [x] Thanh hồi phục (nhỏ, ngắn, cùng màu, chữ "P"), dung lượng bằng thanh sức. Mỗi ngày +30% (81 điểm), ăn +50% năng lượng của món ăn. Game mới bắt đầu với 30%.
 - [x] Sức = 0 và không làm gì tốn sức (đi lại, dùng công cụ) ≥ 30 giây thật → khi cử động lại, bơm n% thanh hồi phục (n = số giây nghỉ, tối đa 100) sang thanh sức, thưởng thêm 20%. Thanh hồi phục không đủ → chuyển phần còn lại, không thưởng. Không lấy quá chỗ trống của thanh sức. Nghỉ bị ngắt thì đếm lại từ 0.
+
+## Cập nhật: tư thế ngồi riêng cho dân làng (yêu cầu 2026-11-20)
+
+- [x] Ảnh ngồi trong `assets/postures/<npc>.png` → `scripts/art/import_postures.py` → `sprites/npcs/<npc>_sit.png` (key `<npc>_sit`).
+- [x] Ghép theo ngoại hình: folk_0 (ông cụ), folk_1 (phụ nữ áo trắng), folk_2 (áo xanh đậm). folk_3, folk_4 chưa có ảnh nên vẫn ngồi kiểu cũ (cắt chân).
+- [x] NPC ngồi (uống trà, ăn, ngồi hiên, nghỉ trưa bên ruộng) dùng ảnh ngồi; nói chuyện khi đang ngồi thì vẫn ngồi, quay mặt về người chơi.

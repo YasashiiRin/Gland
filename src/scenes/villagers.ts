@@ -254,16 +254,30 @@ export class Villagers {
   }
 
   private spriteOf(p: Person): Phaser.GameObjects.Sprite {
-    if (p.sprite) return p.sprite;
+    if (p.sprite) {
+      // Up from a seat: back to the walking sheet (sit() swaps to the "_sit" one).
+      if (p.sprite.texture.key !== p.key) p.sprite.setTexture(p.key, 0);
+      return p.sprite;
+    }
     const k = artScale(this.scene, p.key);
     p.sprite = this.scene.add.sprite(0, 0, p.key, 0).setOrigin(0.5, 1).setScale((p.child ? 0.72 : 1) / k);
     return p.sprite;
   }
 
+  /**
+   * Seated: the NPC's own sitting picture ("<key>_sit", same layout as the walk sheet)
+   * when there is one, else the standing sprite cut off at the knees and lowered.
+   */
   private sit(s: Phaser.GameObjects.Sprite, p: Person, x: number, y: number, dir: string, depth = y): void {
-    const k = artScale(this.scene, p.key);
     s.anims.stop();
-    s.setAngle(0).setFrame(DIRS.indexOf(dir) * 4).setCrop(0, 0, 16 * k, 22 * k).setPosition(x, y + 9).setDepth(depth);
+    const frame = DIRS.indexOf(dir) * 4;
+    const seated = `${p.key}_sit`;
+    if (this.scene.textures.exists(seated)) {
+      s.setTexture(seated, frame).setAngle(0).setCrop().setPosition(x, y).setDepth(depth);
+      return;
+    }
+    const k = artScale(this.scene, p.key);
+    s.setAngle(0).setFrame(frame).setCrop(0, 0, 16 * k, 22 * k).setPosition(x, y + 9).setDepth(depth);
   }
 
   /** A pile of the harvest on the head while carrying it home. */
